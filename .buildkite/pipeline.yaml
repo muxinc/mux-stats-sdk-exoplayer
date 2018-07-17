@@ -1,0 +1,9 @@
+steps:
+- agents:
+    dind: true
+  command: docker run -it --rm -v "$PWD":/data -w /data muxinc/mux-android:20180314
+  label: Build AARs
+  artifact_paths:
+    - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
+    - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
+    - "MuxExoPlayer/buildout/outputs/version-*"

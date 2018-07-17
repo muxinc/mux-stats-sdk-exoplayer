@@ -1,0 +1,116 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 27
+    defaultConfig {
+        minSdkVersion 16
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+        }
+    }
+
+    lintOptions {
+        // exoplayer 2.8.1 workaround
+        // https://github.com/google/ExoPlayer/issues/4234
+        lintConfig file("../checker-framework-lint.xml")
+    }
+
+    sourceSets {
+        r2_0_4 {
+            java.srcDirs = ['./src/r2_0_4/java']
+        }
+        r2_1_1 {
+            java.srcDirs = ['./src/r2_1_1/java']
+        }
+        r2_2_0 {
+            java.srcDirs = ['./src/r2_2_0/java']
+        }
+        r2_3_1 {
+            java.srcDirs = ['./src/r2_3_1/java']
+        }
+        r2_4_1 {
+            java.srcDirs = ['./src/r2_4_1/java']
+        }
+        r2_5_1 {
+            java.srcDirs = ['./src/r2_5_1/java']
+        }
+        r2_6_0 {
+            java.srcDirs = ['./src/r2_6_0/java']
+        }
+        r2_7_3 {
+            java.srcDirs = ['./src/r2_7_3/java']
+        }
+        r2_8_0 {
+            java.srcDirs = ['./src/r2_8_0/java']
+        }
+    }
+
+    flavorDimensions 'api'
+
+    productFlavors {
+        r2_0_4 {
+            dimension  'api'
+        }
+        r2_1_1 {
+            dimension  'api'
+        }
+        r2_2_0 {
+            dimension  'api'
+        }
+        r2_3_1 {
+            dimension  'api'
+        }
+        r2_4_1 {
+            dimension  'api'
+        }
+        r2_5_1 {
+            dimension  'api'
+        }
+        r2_6_0 {
+            dimension  'api'
+        }
+        r2_7_3 {
+            dimension  'api'
+        }
+        r2_8_0 {
+            dimension  'api'
+        }
+    }
+
+    build << {
+        productFlavors.each {
+            flavor ->
+                def versionName = flavor.name.replaceAll(/_/, ".")
+                copy {
+                    from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
+                    into "${buildDir}/outputs/artifacts/"
+                    rename ("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
+                    rename ("mapping.txt", "mapping-${versionName}.txt")
+                }
+        }
+    }
+}
+
+dependencies {
+    r2_0_4Api 'com.google.android.exoplayer:exoplayer:r2.0.4'
+    r2_1_1Api 'com.google.android.exoplayer:exoplayer:r2.1.1'
+    r2_2_0Api 'com.google.android.exoplayer:exoplayer:r2.2.0'
+    r2_3_1Api 'com.google.android.exoplayer:exoplayer:r2.3.1'
+    r2_4_1Api 'com.google.android.exoplayer:exoplayer:r2.4.1'
+    r2_5_1Api 'com.google.android.exoplayer:exoplayer:r2.5.1'
+    r2_6_0Api 'com.google.android.exoplayer:exoplayer:2.6.0'
+    r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
+    r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
+    r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'
+    api files('libs/MuxCore.jar')
+}
