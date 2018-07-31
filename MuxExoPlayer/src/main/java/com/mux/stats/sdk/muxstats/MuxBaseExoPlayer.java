@@ -145,15 +145,23 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public int getPlayerViewWidth() {
-        if (this.playerView != null)
-            return this.playerView.get().getWidth();
+        if (this.playerView != null) {
+            View pv = this.playerView.get();
+            if (pv != null) {
+                return pv.getWidth();
+            }
+        }
         return 0;
     }
 
     @Override
     public int getPlayerViewHeight() {
-        if (this.playerView != null)
-            return this.playerView.get().getHeight();
+        if (this.playerView != null) {
+            View pv = this.playerView.get();
+            if (pv != null) {
+                return pv.getHeight();
+            }
+        }
         return 0;
     }
 
