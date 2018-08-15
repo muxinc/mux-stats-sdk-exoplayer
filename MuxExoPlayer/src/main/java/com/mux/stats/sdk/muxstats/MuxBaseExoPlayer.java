@@ -71,6 +71,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         muxStats.videoChange(customerVideoData);
     }
 
+    public void programChange(CustomerVideoData customerVideoData) {
+        muxStats.programChange(customerVideoData);
+    }
+
     public void setPlayerView(View playerView) {
         this.playerView = new WeakReference<>(playerView);
     }
