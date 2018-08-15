@@ -266,7 +266,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements ExoPlayer.Eve
 
     @Override
     public void onLoadError(IOException e) {
-        internalError(new MuxErrorException(ERROR_IO, "IOException - " + e.getMessage()));
         if (extractMediaSourceListener.get() != null) {
             extractMediaSourceListener.get().onLoadError(e);
         }
