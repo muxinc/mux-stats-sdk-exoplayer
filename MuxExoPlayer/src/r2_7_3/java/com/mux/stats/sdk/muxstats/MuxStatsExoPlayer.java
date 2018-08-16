@@ -255,7 +255,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
 
     @Override
     public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, IOException e, boolean wasCanceled) {
-        internalError(new MuxErrorException(ERROR_IO, "IOException - " + e.getMessage()));
         if (adaptiveStreamListener.get() != null) {
             adaptiveStreamListener.get().onLoadError(dataSpec, dataType, trackType, trackFormat, trackSelectionReason, trackSelectionData, mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded, e, wasCanceled);
         }

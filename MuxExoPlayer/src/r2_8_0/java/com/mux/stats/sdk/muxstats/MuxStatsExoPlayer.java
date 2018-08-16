@@ -139,7 +139,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             MediaSourceEventListener.LoadEventInfo loadEventInfo,
             MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
             boolean wasCanceled) {
-        internalError(new MuxErrorException(ERROR_IO, "IOException - " + e.getMessage()));
         bandwidthDispatcher.onLoadError(loadEventInfo.dataSpec, mediaLoadData.dataType, e);
     }
 
