@@ -208,7 +208,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     static class MuxDevice implements IDevice {
         private static final String MUX_PLUGIN_NAME = "android-mux";
-        private static final String MUX_PLUGIN_VERSION = "0.4.2";
+        private static final String MUX_PLUGIN_VERSION = "0.4.3";
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
         private String deviceId;
@@ -417,9 +417,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     default:
                         break;
                 }
+                if (trackFormat != null)
+                    loadData.setRequestLabeledBitrate(trackFormat.bitrate);
             }
-            if (trackFormat != null)
-                loadData.setRequestLabeledBitrate(trackFormat.bitrate);
             return loadData;
         }
     }
