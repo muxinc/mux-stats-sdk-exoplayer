@@ -1,5 +1,12 @@
 # Release notes
 
+## v0.4.3
+ - Fix an issue where a NullPointerException may occur during playback of a video while tracking bandwidth metrics.
+
+## v0.4.2
+ - Added API method `programChange(CustomerVideoData customerVideoData)`, for use when inside of a single stream the program changes. For instance, in a 24/7 live stream, you may have metadata indicating program changes which should be tracked as separate views within Mux. Previously, `videoChange` might have been used for this case, but this would not work correctly, and you would not necessarily have seen the subsequent views show up. See [the documentation](https://docs.mux.com/docs/android-integration-guide#section-6-changing-the-video) for full explanation.
+ - Fixed a bug where under poor network conditions, an exception raised as a result of a network request could result in not tracking the view correctly subsequently (such as missing rebuffer tracking after this point).
+
 ## v0.4.1
 - Remove the listeners on the `ExoPlayer` object when `release` is called.
   - This fixes and issue where the application may crash after calling release
