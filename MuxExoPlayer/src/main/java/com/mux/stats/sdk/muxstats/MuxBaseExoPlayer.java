@@ -417,9 +417,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     default:
                         break;
                 }
+                if (trackFormat != null)
+                    loadData.setRequestLabeledBitrate(trackFormat.bitrate);
             }
-            if (trackFormat != null)
-                loadData.setRequestLabeledBitrate(trackFormat.bitrate);
             return loadData;
         }
     }
