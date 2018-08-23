@@ -6,8 +6,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0"
-
+        versionName "0.4.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
@@ -87,15 +86,24 @@ android {
         }
     }
 
+    def packageName = "com.mux.stats.sdk"
+
     build.doLast {
         productFlavors.each {
             flavor ->
-                def versionName = flavor.name.replaceAll(/_/, ".")
+                def exoVersionName = flavor.name.replaceAll(/_/, ".")
+
                 copy {
                     from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
                     into "${buildDir}/outputs/artifacts/"
-                    rename ("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
-                    rename ("mapping.txt", "mapping-${versionName}.txt")
+                    rename ("${project.name}-${flavor.name}-release.aar", "mux-${exoVersionName}.aar")
+                    rename ("mapping.txt", "mapping-${exoVersionName}.txt")
+                }
+
+                copy {
+                    from "${buildDir}/outputs/artifacts/mux-${exoVersionName}.aar"
+                    into "./publish/${flavor.name}"
+                    rename ("mux-${exoVersionName}.aar", "${packageName}-${exoVersionName}-${android.defaultConfig.versionName}-bin.aar")
                 }
         }
     }
@@ -103,12 +111,16 @@ android {
     task genJavaDocs() {
         productFlavors.each {
             flavor ->
+                def exoVersionName = flavor.name.replaceAll(/_/, ".")
+                def outputDir = file("./publish/${flavor.name}")
+                def javaDocOutputDir = file("${buildDir}/outputs/javadoc/${flavor.name}")
+
                 task ("gen${flavor.name}SourceJar", type: Jar) {
                     from android.sourceSets.main.java.srcDirs, android.sourceSets[flavor.name].java.srcDirs
-                    destinationDir = file("./publish/${flavor.name}")
-                    baseName = "com.mux.stats.sdk.muxstats"
-                    appendix = flavor.name.replaceAll(/_/, ".")
-                    version = "0.4.3"
+                    destinationDir = outputDir
+                    baseName = packageName
+                    appendix = exoVersionName
+                    version = android.defaultConfig.versionName
                     classifier = "src"
                 }
 
@@ -117,15 +129,15 @@ android {
                     source += android.sourceSets[flavor.name].java.srcDirs
                     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
                     classpath += configurations.compile
-                    destinationDir = file("${buildDir}/outputs/javadoc/${flavor.name}")
+                    destinationDir = javaDocOutputDir
                 }
 
                 task ("gen${flavor.name}JavaDocJar", type: Jar, dependsOn: "gen${flavor.name}JavaDoc") {
-                    from file("${buildDir}/outputs/javadoc/${flavor.name}")
-                    destinationDir = file("./publish/${flavor.name}")
-                    baseName = "com.mux.stats.sdk.muxstats"
-                    appendix = flavor.name.replaceAll(/_/, ".")
-                    version = "0.4.3"
+                    from javaDocOutputDir
+                    destinationDir = outputDir
+                    baseName = packageName
+                    appendix = exoVersionName
+                    version = android.defaultConfig.versionName
                     classifier = "doc"
                 }
 
