@@ -103,7 +103,16 @@ android {
     task genJavaDocs() {
         productFlavors.each {
             flavor ->
-                task ("gen${flavor.name}JavaDoc", type: Javadoc) {
+                task ("gen${flavor.name}SourceJar", type: Jar) {
+                    from android.sourceSets.main.java.srcDirs, android.sourceSets[flavor.name].java.srcDirs
+                    destinationDir = file("./publish/${flavor.name}")
+                    baseName = "com.mux.stats.sdk.muxstats"
+                    appendix = flavor.name.replaceAll(/_/, ".")
+                    version = "0.4.3"
+                    classifier = "src"
+                }
+
+                task ("gen${flavor.name}JavaDoc", type: Javadoc, dependsOn: "gen${flavor.name}SourceJar") {
                     source = android.sourceSets.main.java.srcDirs
                     source += android.sourceSets[flavor.name].java.srcDirs
                     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
@@ -113,10 +122,11 @@ android {
 
                 task ("gen${flavor.name}JavaDocJar", type: Jar, dependsOn: "gen${flavor.name}JavaDoc") {
                     from file("${buildDir}/outputs/javadoc/${flavor.name}")
-                    destinationDir = file("./javadocs/${flavor.name}")
+                    destinationDir = file("./publish/${flavor.name}")
                     baseName = "com.mux.stats.sdk.muxstats"
                     appendix = flavor.name.replaceAll(/_/, ".")
                     version = "0.4.3"
+                    classifier = "doc"
                 }
 
                 genJavaDocs.finalizedBy("gen${flavor.name}JavaDocJar")
