@@ -87,7 +87,7 @@ android {
         }
     }
 
-    build << {
+    build.doLast {
         productFlavors.each {
             flavor ->
                 def versionName = flavor.name.replaceAll(/_/, ".")
@@ -99,6 +99,24 @@ android {
                 }
         }
     }
+
+
+    task genJavaDocs() {
+        productFlavors.each {
+            flavor ->
+                task ("gen${flavor.name}JavaDoc", type: Javadoc) {
+                    description "Generates Javadoc for ${flavor.name}."
+                    source = android.sourceSets.main.java.srcDirs
+                    source += android.sourceSets[flavor.name].java.srcDirs
+                    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+                    classpath += configurations.compile
+                    destinationDir = file("./${flavor.name}/javadoc")
+                }
+                genJavaDocs.finalizedBy("gen${flavor.name}JavaDoc")
+        }
+    }
+
+    build.finalizedBy(genJavaDocs)
 }
 
 dependencies {
