@@ -67,6 +67,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
     }
 
+    public AdsImaSDKListener getIMASdkListener() {
+        return new AdsImaSDKListener(this);
+    }
+
     public void videoChange(CustomerVideoData customerVideoData) {
         muxStats.videoChange(customerVideoData);
     }

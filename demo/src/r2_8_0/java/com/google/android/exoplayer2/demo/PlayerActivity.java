@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -34,6 +35,17 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.AdsLoader;
+import com.google.ads.interactivemedia.v3.api.AdsManager;
+import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
+import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
+import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -55,7 +67,6 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
@@ -86,6 +97,7 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
 import java.lang.reflect.Constructor;
@@ -153,12 +165,14 @@ public class PlayerActivity extends Activity
   private long startPosition;
 
   // Fields used only for ad playback. The ads loader is loaded via reflection.
-
-  private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
   private ViewGroup adUiViewGroup;
 
   private MuxStatsExoPlayer muxStats;
+  private AdsLoader adsLoader;
+  private AdsManager adsManager;
+  private ImaSdkFactory sdkFactory;
+  private AdsImaSDKListener imaListener;
   // Activity lifecycle
 
   @Override
@@ -233,7 +247,6 @@ public class PlayerActivity extends Activity
   @Override
   public void onDestroy() {
     super.onDestroy();
-    releaseAdsLoader();
   }
 
   @Override
@@ -411,8 +424,6 @@ public class PlayerActivity extends Activity
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
 
-
-      player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
       playerView.setPlayer(player);
       playerView.setPlaybackPreparer(this);
@@ -427,25 +438,14 @@ public class PlayerActivity extends Activity
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
       String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
       if (adTagUriString != null) {
-        Uri adTagUri = Uri.parse(adTagUriString);
-        if (!adTagUri.equals(loadedAdTagUri)) {
-          releaseAdsLoader();
-          loadedAdTagUri = adTagUri;
-        }
-        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
-        if (adsMediaSource != null) {
-          mediaSource = adsMediaSource;
-        } else {
-          showToast(R.string.ima_not_loaded);
-        }
-      } else {
-        releaseAdsLoader();
+        setupAdsMediaSource(adTagUriString);
       }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
     }
+    player.setPlayWhenReady(startAutoPlay);
     player.prepare(mediaSource, !haveStartPosition, false);
     updateButtonVisibilities();
   }
@@ -556,53 +556,92 @@ public class PlayerActivity extends Activity
         .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
-  /** Returns an ads media source, reusing the ads loader if one exists. */
-  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
-    // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-    try {
-      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-      if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
-        adUiViewGroup = new FrameLayout(this);
-        // The demo app has a non-null overlay frame layout.
-        playerView.getOverlayFrameLayout().addView(adUiViewGroup);
-      }
-      AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
-          new AdsMediaSource.MediaSourceFactory() {
-            @Override
-            public MediaSource createMediaSource(Uri uri) {
-              return PlayerActivity.this.buildMediaSource(uri);
-            }
+  class AdsListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
+    final static String TAG = "IMASDK";
+    @Override
+    public void onAdError(AdErrorEvent adErrorEvent) {
+      Log.i(TAG, "Error: " + adErrorEvent.getError().getMessage());
+    }
 
-            @Override
-            public int[] getSupportedTypes() {
-              return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
-            }
-          };
-      return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, adUiViewGroup);
-    } catch (ClassNotFoundException e) {
-      // IMA extension not loaded.
-      return null;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    @Override
+    public void onAdEvent(AdEvent adEvent) {
+      Log.i(TAG, "Event: " + adEvent.getType());
+      switch (adEvent.getType()) {
+        case LOADED:
+          // AdEventType.LOADED will be fired when ads are ready to be played.
+          // AdsManager.start() begins ad playback. This method is ignored for VMAP or
+          // ad rules playlists, as the SDK will automatically start executing the
+          // playlist.
+          adsManager.start();
+          break;
+        case CONTENT_PAUSE_REQUESTED:
+          // AdEventType.CONTENT_PAUSE_REQUESTED is fired immediately before a video
+          // ad is played.
+          player.setPlayWhenReady(false);
+          break;
+        case CONTENT_RESUME_REQUESTED:
+          // AdEventType.CONTENT_RESUME_REQUESTED is fired when the ad is completed
+          // and you should start playing your content.
+          player.setPlayWhenReady(true);
+          break;
+        case ALL_ADS_COMPLETED:
+          if (adsManager != null) {
+            adsManager.destroy();
+            adsManager = null;
+          }
+          break;
+        default:
+          break;
+      }
     }
   }
 
-  private void releaseAdsLoader() {
-    if (adsLoader != null) {
-      adsLoader.release();
-      adsLoader = null;
-      loadedAdTagUri = null;
-      playerView.getOverlayFrameLayout().removeAllViews();
-    }
+  /** Returns an ads media source, reusing the ads loader if one exists. */
+  private void setupAdsMediaSource(final String adTagUri) {
+    sdkFactory = ImaSdkFactory.getInstance();
+    adsLoader = sdkFactory.createAdsLoader(this);
+    imaListener = muxStats.getIMASdkListener();
+    adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
+      @Override
+      public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
+        // Ads were successfully loaded, so get the AdsManager instance. AdsManager has
+        // events for ad playback and errors.
+        imaListener.onAdResponsed();
+        adsManager = adsManagerLoadedEvent.getAdsManager();
+        // Attach mux event and error event listeners.
+        adsManager.addAdErrorListener(imaListener);
+        adsManager.addAdEventListener(imaListener);
+
+        // Attach local event and error event listeners for player/ima control.
+        AdsListener listener = new AdsListener();
+        adsManager.addAdErrorListener(listener);
+        adsManager.addAdEventListener(listener);
+        adsManager.init();
+      }
+    });
+
+    //request ads
+    adUiViewGroup = new FrameLayout(PlayerActivity.this);
+    playerView.getOverlayFrameLayout().addView(adUiViewGroup);
+    AdDisplayContainer adDisplayContainer = sdkFactory.createAdDisplayContainer();
+    adDisplayContainer.setAdContainer(adUiViewGroup);
+
+    AdsRequest request = sdkFactory.createAdsRequest();
+    request.setAdTagUrl(adTagUri);
+    request.setAdDisplayContainer(adDisplayContainer);
+    request.setContentProgressProvider(new ContentProgressProvider() {
+      @Override
+      public VideoProgressUpdate getContentProgress() {
+        if (player == null || player.getDuration() <= 0) {
+          return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
+        }
+        return new VideoProgressUpdate(player.getCurrentPosition(),
+                player.getDuration());
+      }
+    });
+    imaListener.onAdRequested();
+    adsLoader.requestAds(request);
+    startAutoPlay = false;
   }
 
   // User controls
@@ -676,6 +715,9 @@ public class PlayerActivity extends Activity
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
       if (playbackState == Player.STATE_ENDED) {
         showControls();
+        if (adsLoader != null) {
+          adsLoader.contentComplete();
+        }
       }
       updateButtonVisibilities();
     }

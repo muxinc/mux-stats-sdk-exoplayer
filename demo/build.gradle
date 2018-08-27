@@ -123,5 +123,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.7'
+    implementation 'com.google.android.gms:play-services-ads:15.0.1'
     implementation project(':MuxExoPlayer')
 }
