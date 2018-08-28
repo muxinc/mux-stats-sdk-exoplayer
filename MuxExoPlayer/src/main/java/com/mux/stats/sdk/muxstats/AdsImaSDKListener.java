@@ -31,13 +31,14 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     public void onAdEvent(AdEvent adEvent) {
         if (exoPlayerListener != null) {
             switch (adEvent.getType()) {
-                case LOADED:
+                case AD_BREAK_STARTED:
                     exoPlayerListener.dispatch(new AdBreakStartEvent(null));
                     break;
-                case CONTENT_PAUSE_REQUESTED:
-                    exoPlayerListener.dispatch(new AdPlayEvent(null));
+                case AD_BREAK_ENDED:
+                    exoPlayerListener.dispatch(new AdBreakEndEvent(null));
                     break;
                 case STARTED:
+                    exoPlayerListener.dispatch(new AdPlayingEvent(null));
                     exoPlayerListener.dispatch(new AdPlayingEvent(null));
                     break;
                 case FIRST_QUARTILE:
@@ -51,9 +52,6 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     break;
                 case COMPLETED:
                     exoPlayerListener.dispatch(new AdEndedEvent(null));
-                    break;
-                case CONTENT_RESUME_REQUESTED:
-                    exoPlayerListener.dispatch(new AdBreakEndEvent(null));
                     break;
                 case PAUSED:
                     exoPlayerListener.dispatch(new AdPauseEvent(null));
