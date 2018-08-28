@@ -38,7 +38,7 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     exoPlayerListener.dispatch(new AdBreakEndEvent(null));
                     break;
                 case STARTED:
-                    exoPlayerListener.dispatch(new AdPlayingEvent(null));
+                    exoPlayerListener.dispatch(new AdPlayEvent(null));
                     exoPlayerListener.dispatch(new AdPlayingEvent(null));
                     break;
                 case FIRST_QUARTILE:
