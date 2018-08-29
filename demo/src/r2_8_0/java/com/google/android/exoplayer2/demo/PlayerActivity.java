@@ -36,6 +36,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
@@ -44,6 +45,7 @@ import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.ads.interactivemedia.v3.api.AdsRequest;
 import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
 import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
@@ -557,21 +559,36 @@ public class PlayerActivity extends Activity
   }
 
   class AdsListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
-    final static String TAG = "IMASDK";
+    final static String TAG = "IMASDKs";
+    long adLoadTime = 0;
     @Override
     public void onAdError(AdErrorEvent adErrorEvent) {
-      Log.i(TAG, "Error: " + adErrorEvent.getError().getMessage());
+      //Log.i(TAG, "Error: " + adErrorEvent.getError().getMessage());
     }
 
     @Override
     public void onAdEvent(AdEvent adEvent) {
-      Log.i(TAG, "Event: " + adEvent.getType());
+      Ad ad = adEvent.getAd();
+      long currTime = System.currentTimeMillis();
+      long delta = 0;
+      if (adLoadTime > 0) {
+        delta = currTime - adLoadTime;
+        adLoadTime = currTime;
+      }
+      Log.e(TAG, "Event: " + adEvent.getType() + " at " + String.valueOf(currTime) + ", + " + String.valueOf(delta));
+      if (ad != null) {
+        Log.i(TAG, "++++++++++++Ad: " + ad.toString());
+      }
       switch (adEvent.getType()) {
+        case AD_BREAK_READY:
+            adsManager.start();
+            break;
         case LOADED:
           // AdEventType.LOADED will be fired when ads are ready to be played.
           // AdsManager.start() begins ad playback. This method is ignored for VMAP or
           // ad rules playlists, as the SDK will automatically start executing the
           // playlist.
+          adLoadTime = System.currentTimeMillis();
           adsManager.start();
           break;
         case CONTENT_PAUSE_REQUESTED:
@@ -600,13 +617,14 @@ public class PlayerActivity extends Activity
   private void setupAdsMediaSource(final String adTagUri) {
     sdkFactory = ImaSdkFactory.getInstance();
     adsLoader = sdkFactory.createAdsLoader(this);
+    ImaSdkSettings settings = adsLoader.getSettings();
+    //settings.setAutoPlayAdBreaks(false);
     imaListener = muxStats.getIMASdkListener();
     adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
       @Override
       public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
         // Ads were successfully loaded, so get the AdsManager instance. AdsManager has
         // events for ad playback and errors.
-        imaListener.onAdResponsed();
         adsManager = adsManagerLoadedEvent.getAdsManager();
         // Attach mux event and error event listeners.
         adsManager.addAdErrorListener(imaListener);
@@ -639,7 +657,6 @@ public class PlayerActivity extends Activity
                 player.getDuration());
       }
     });
-    imaListener.onAdRequested();
     adsLoader.requestAds(request);
     startAutoPlay = false;
   }

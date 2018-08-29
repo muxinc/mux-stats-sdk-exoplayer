@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
+import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
@@ -13,6 +14,8 @@ import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
 import com.mux.stats.sdk.core.events.playback.AdRequestEvent;
 import com.mux.stats.sdk.core.events.playback.AdResponseEvent;
 import com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent;
+import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
+import com.mux.stats.sdk.core.model.ViewData;
 
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
     private MuxBaseExoPlayer exoPlayerListener;
@@ -23,53 +26,71 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
 
     @Override
     public void onAdError(AdErrorEvent adErrorEvent) {
-        if (exoPlayerListener != null)
-            exoPlayerListener.dispatch(new com.mux.stats.sdk.core.events.playback.AdErrorEvent(null));
+        if (exoPlayerListener != null) {
+            PlaybackEvent event = new com.mux.stats.sdk.core.events.playback.AdErrorEvent(null);
+            setupAdViewData(event, null);
+            exoPlayerListener.dispatch(event);
+        }
+    }
+
+    private void setupAdViewData(PlaybackEvent event, Ad ad) {
+        ViewData viewData = new ViewData();
+        if (exoPlayerListener.getCurrentPosition() == 0) {
+            if (ad != null) {
+                viewData.setViewPrerollAdId(ad.getAdId());
+                viewData.setViewPrerollAdId(ad.getCreativeAdId());
+            }
+        }
+        event.setViewData(viewData);
     }
 
     @Override
     public void onAdEvent(AdEvent adEvent) {
         if (exoPlayerListener != null) {
+            PlaybackEvent event;
+            Ad ad = adEvent.getAd();
             switch (adEvent.getType()) {
-                case AD_BREAK_STARTED:
-                    exoPlayerListener.dispatch(new AdBreakStartEvent(null));
+                case CONTENT_PAUSE_REQUESTED:
+                    event = new AdBreakStartEvent(null);
+                    setupAdViewData(event, ad);
+                    exoPlayerListener.dispatch(event);
+                    event = new AdRequestEvent(null);
                     break;
-                case AD_BREAK_ENDED:
-                    exoPlayerListener.dispatch(new AdBreakEndEvent(null));
+                case CONTENT_RESUME_REQUESTED:
+                    event = new AdBreakEndEvent(null);
+                    break;
+                case LOADED:
+                    event = new AdResponseEvent(null);
+                    setupAdViewData(event, ad);
+                    exoPlayerListener.dispatch(event);
+                    event = new AdPlayEvent(null);
                     break;
                 case STARTED:
-                    exoPlayerListener.dispatch(new AdPlayEvent(null));
-                    exoPlayerListener.dispatch(new AdPlayingEvent(null));
+                    event = new AdPlayingEvent(null);
                     break;
                 case FIRST_QUARTILE:
-                    exoPlayerListener.dispatch(new AdFirstQuartileEvent(null));
+                    event = new AdFirstQuartileEvent(null);
                     break;
                 case MIDPOINT:
-                    exoPlayerListener.dispatch(new AdMidpointEvent(null));
+                    event = new AdMidpointEvent(null);
                     break;
                 case THIRD_QUARTILE:
-                    exoPlayerListener.dispatch(new AdThirdQuartileEvent(null));
+                    event = new AdThirdQuartileEvent(null);
                     break;
                 case COMPLETED:
-                    exoPlayerListener.dispatch(new AdEndedEvent(null));
+                    event = new AdEndedEvent(null);
                     break;
                 case PAUSED:
-                    exoPlayerListener.dispatch(new AdPauseEvent(null));
+                    event = new AdPauseEvent(null);
                     break;
                 case RESUMED:
-                    exoPlayerListener.dispatch(new AdPlayingEvent(null));
+                    event = new AdPlayingEvent(null);
                     break;
                 default:
-                    break;
+                    return;
             }
+            setupAdViewData(event, ad);
+            exoPlayerListener.dispatch(event);
         }
-    }
-
-    public void onAdRequested() {
-        exoPlayerListener.dispatch(new AdRequestEvent(null));
-    }
-
-    public void onAdResponsed() {
-        exoPlayerListener.dispatch(new AdResponseEvent(null));
     }
 }
