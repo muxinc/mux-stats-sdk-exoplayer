@@ -38,7 +38,7 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
         if (exoPlayerListener.getCurrentPosition() == 0) {
             if (ad != null) {
                 viewData.setViewPrerollAdId(ad.getAdId());
-                viewData.setViewPrerollAdId(ad.getCreativeAdId());
+                viewData.setViewPrerollCreativeId(ad.getCreativeId());
             }
         }
         event.setViewData(viewData);
