@@ -84,6 +84,9 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     event = new AdPauseEvent(null);
                     break;
                 case RESUMED:
+                    event = new AdPlayEvent(null);
+                    setupAdViewData(event, ad);
+                    exoPlayerListener.dispatch(event);
                     event = new AdPlayingEvent(null);
                     break;
                 default:
