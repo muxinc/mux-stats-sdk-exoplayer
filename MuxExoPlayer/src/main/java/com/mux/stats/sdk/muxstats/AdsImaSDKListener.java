@@ -19,6 +19,7 @@ import com.mux.stats.sdk.core.model.ViewData;
 
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
     private MuxBaseExoPlayer exoPlayerListener;
+    private boolean needSendAdResponse = false;
 
     public AdsImaSDKListener(MuxBaseExoPlayer listener) {
         exoPlayerListener = listener;
@@ -55,14 +56,18 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     setupAdViewData(event, ad);
                     exoPlayerListener.dispatch(event);
                     event = new AdRequestEvent(null);
+                    needSendAdResponse = true;
                     break;
                 case CONTENT_RESUME_REQUESTED:
                     event = new AdBreakEndEvent(null);
                     break;
                 case LOADED:
-                    event = new AdResponseEvent(null);
-                    setupAdViewData(event, ad);
-                    exoPlayerListener.dispatch(event);
+                    if (needSendAdResponse) {
+                        event = new AdResponseEvent(null);
+                        setupAdViewData(event, ad);
+                        exoPlayerListener.dispatch(event);
+                        needSendAdResponse = false;
+                    }
                     event = new AdPlayEvent(null);
                     break;
                 case STARTED:
