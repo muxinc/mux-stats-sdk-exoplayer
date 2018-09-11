@@ -34,7 +34,7 @@ android {
 
     lintOptions {
         // The demo app does not have translations.
-        disable 'MissingTranslation'
+        disable 'MissingTranslation','GradleCompatible'
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
@@ -123,7 +123,5 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.7'
-    implementation 'com.google.android.gms:play-services-ads:15.0.1'
     implementation project(':MuxExoPlayer')
 }

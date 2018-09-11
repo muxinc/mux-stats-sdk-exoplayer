@@ -20,6 +20,7 @@ android {
     }
 
     lintOptions {
+        disable 'GradleCompatible'
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
@@ -112,7 +113,7 @@ dependencies {
     r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
     r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
     r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.8.7'
-    implementation 'com.google.android.gms:play-services-ads:15.0.1'
+    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    api 'com.google.android.gms:play-services-ads:15.0.1'
     api files('libs/MuxCore.jar')
 }
