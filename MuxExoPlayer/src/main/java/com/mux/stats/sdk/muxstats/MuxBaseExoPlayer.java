@@ -67,6 +67,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
     }
 
+    public AdsImaSDKListener getIMASdkListener() {
+        return new AdsImaSDKListener(this);
+    }
+
     public void videoChange(CustomerVideoData customerVideoData) {
         muxStats.videoChange(customerVideoData);
     }
@@ -208,7 +212,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     static class MuxDevice implements IDevice {
         private static final String MUX_PLUGIN_NAME = "android-mux";
-        private static final String MUX_PLUGIN_VERSION = "0.4.3";
+        private static final String MUX_PLUGIN_VERSION = "0.4.4";
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
         private String deviceId;

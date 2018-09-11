@@ -33,6 +33,10 @@
       android:allowBackup="false"
       android:name="com.google.android.exoplayer2.demo.DemoApplication">
 
+    <meta-data
+        android:name="com.google.android.gms.version"
+        android:value="@integer/google_play_services_version" />
+
     <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
         android:label="@string/application_name">
