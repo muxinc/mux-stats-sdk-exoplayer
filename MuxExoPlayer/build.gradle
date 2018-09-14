@@ -104,7 +104,7 @@ android {
                 copy {
                     from "${buildDir}/outputs/artifacts/mux-${exoVersionName}.aar"
                     into outputDir
-                    rename ("mux-${exoVersionName}.aar", "${packageName}-${exoVersionName}-${android.defaultConfig.versionName}-bin.aar")
+                    rename ("mux-${exoVersionName}.aar", "${packageName}-${exoVersionName}-${android.defaultConfig.versionName}.aar")
                 }
 
                 def sourceJar = task "sourceJar${flavor.name}" (type: Jar) {

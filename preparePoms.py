@@ -2,7 +2,7 @@ import os
 import subprocess
 
 groupId = 'com.mux'
-archiveName = 'exoplayer'
+archiveName = 'com.mux.stats.sdk'
 
 def findFiles(path, ext):
     return [f for f in os.listdir(path) if f.endswith('.' + ext)]
@@ -19,19 +19,21 @@ def writePOMfile(path, product, ext):
         file.write('   <modelVersion>4.0.0</modelVersion>\n')
         file.write('\n')
 
-        x0 = product.find('-bin.')
+        x0 = product.find('.aar')
         product = product[: x0]
         x0 = product.rfind('-')
+        version = product[x0 + 1:]
+        product = product[: x0]
+        x0 = product.rfind('-')
+        exoVersion = product[x0 + 1:]
         file.write('   <groupId>' + groupId + '</groupId>\n')
-        file.write('   <artifactId>' + archiveName + '</artifactId>\n')
-        file.write('   <version>' + product[x0 + 1:] + '</version>\n')
+        file.write('   <artifactId>' + archiveName + '-' + exoVersion + '</artifactId>\n')
+        file.write('   <version>' + version + '</version>\n')
         file.write('   <packaging>' + ext + '</packaging>\n')
         file.write('\n')
 
-        product = product[: x0]
-        x0 = product.rfind('-')
         file.write('   <name>' + archiveName + '</name>\n')
-        file.write('   <description>This is the Mux wrapper around ExoPlayer ' + product[x0 + 1:] + '</description>\n')
+        file.write('   <description>This is the Mux wrapper around ExoPlayer ' + exoVersion + '</description>\n')
         file.write('   <url>https://github.com/muxinc/mux-stats-sdk-exoplayer</url>\n')
         file.write('\n')
 
@@ -63,15 +65,15 @@ def writePOMfile(path, product, ext):
         file.write('</project>')
 
 def gpgSignProduct(path, product):
-    x0 = product.find('-bin.')
+    x0 = product.find('.aar')
     product = product[: x0]
-    subprocess.check_output(['gpg','-ab', product + '-bin.aar'])
-    subprocess.check_output(['gpg','-ab', product + '-bin.pom'])
-    subprocess.check_output(['gpg','-ab', product + '-javadoc.jar'])
-    subprocess.check_output(['gpg','-ab', product + '-sources.jar'])
+    subprocess.check_output(['gpg','-ab', '--yes', product + '.aar'])
+    subprocess.check_output(['gpg','-ab', '--yes', product + '.pom'])
+    subprocess.check_output(['gpg','-ab', '--yes', product + '-javadoc.jar'])
+    subprocess.check_output(['gpg','-ab', '--yes', product + '-sources.jar'])
     subprocess.check_output(['jar','-cvf', product + '.bundle.jar', \
-        product + '-bin.aar', product + '-bin.aar.asc', \
-        product + '-bin.pom', product + '-bin.pom.asc', \
+        product + '.aar', product + '.aar.asc', \
+        product + '.pom', product + '.pom.asc', \
         product + '-javadoc.jar', product + '-javadoc.jar.asc', \
         product + '-sources.jar', product + '-sources.jar.asc' \
         ])
