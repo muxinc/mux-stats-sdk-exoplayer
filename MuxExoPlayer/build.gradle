@@ -92,6 +92,7 @@ android {
         productFlavors.each {
             flavor ->
                 def exoVersionName = flavor.name.replaceAll(/_/, ".")
+                def outputDir = file("${buildDir}/outputs/publish/")
 
                 copy {
                     from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
@@ -102,50 +103,38 @@ android {
 
                 copy {
                     from "${buildDir}/outputs/artifacts/mux-${exoVersionName}.aar"
-                    into "./publish/${flavor.name}"
+                    into outputDir
                     rename ("mux-${exoVersionName}.aar", "${packageName}-${exoVersionName}-${android.defaultConfig.versionName}-bin.aar")
                 }
-        }
-    }
 
-    task genJavaDocs() {
-        productFlavors.each {
-            flavor ->
-                def exoVersionName = flavor.name.replaceAll(/_/, ".")
-                def outputDir = file("./publish/${flavor.name}")
-                def javaDocOutputDir = file("${buildDir}/outputs/javadoc/${flavor.name}")
-
-                task ("gen${flavor.name}SourceJar", type: Jar) {
+                def sourceJar = task "sourceJar${flavor.name}" (type: Jar) {
                     from android.sourceSets.main.java.srcDirs, android.sourceSets[flavor.name].java.srcDirs
                     destinationDir = outputDir
                     baseName = packageName
                     appendix = exoVersionName
                     version = android.defaultConfig.versionName
-                    classifier = "src"
+                    classifier = 'sources'
                 }
-
-                task ("gen${flavor.name}JavaDoc", type: Javadoc, dependsOn: "gen${flavor.name}SourceJar") {
-                    source = android.sourceSets.main.java.srcDirs
-                    source += android.sourceSets[flavor.name].java.srcDirs
+                sourceJar.execute()
+                def javaDocTask = task "javadocs${flavor.name}" (type: Javadoc) {
+                    source = [android.sourceSets.main.java.srcDirs, android.sourceSets[flavor.name].java.srcDirs]
                     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
                     classpath += configurations.compile
-                    destinationDir = javaDocOutputDir
+                    destinationDir = file("${buildDir}/outputs/javadoc/${flavor.name}")
+                    exclude '**/R.html', '**/R.*.html', '**/index.html'
                 }
-
-                task ("gen${flavor.name}JavaDocJar", type: Jar, dependsOn: "gen${flavor.name}JavaDoc") {
-                    from javaDocOutputDir
+                javaDocTask.execute()
+                def javaDocJarTask = task "javadocsJar${flavor.name}" (type: Jar) {
+                    from javaDocTask.destinationDir
                     destinationDir = outputDir
                     baseName = packageName
                     appendix = exoVersionName
                     version = android.defaultConfig.versionName
-                    classifier = "doc"
+                    classifier = 'javadoc'
                 }
-
-                genJavaDocs.finalizedBy("gen${flavor.name}JavaDocJar")
+                javaDocJarTask.execute()
         }
     }
-
-    build.finalizedBy(genJavaDocs)
 }
 
 dependencies {
