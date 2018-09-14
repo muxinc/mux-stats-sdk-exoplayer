@@ -69,6 +69,12 @@ def gpgSignProduct(path, product):
     subprocess.check_output(['gpg','-ab', product + '-bin.pom'])
     subprocess.check_output(['gpg','-ab', product + '-javadoc.jar'])
     subprocess.check_output(['gpg','-ab', product + '-sources.jar'])
+    subprocess.check_output(['jar','-cvf', product + '.bundle.jar', \
+        product + '-bin.aar', product + '-bin.aar.asc', \
+        product + '-bin.pom', product + '-bin.pom.asc', \
+        product + '-javadoc.jar', product + '-javadoc.jar.asc', \
+        product + '-sources.jar', product + '-sources.jar.asc' \
+        ])
 
 
 dir_path = os.path.dirname(os.path.realpath(__file__)) + '/MuxExoPlayer/buildout/outputs/publish'
