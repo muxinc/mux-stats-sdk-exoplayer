@@ -1,7 +1,8 @@
 import os
+import subprocess
 
 groupId = 'com.mux'
-archiveName = 'mux-foo'
+archiveName = 'exoplayer'
 
 def findFiles(path, ext):
     return [f for f in os.listdir(path) if f.endswith('.' + ext)]
@@ -18,14 +19,19 @@ def writePOMfile(path, product, ext):
         file.write('   <modelVersion>4.0.0</modelVersion>\n')
         file.write('\n')
 
+        x0 = product.find('-bin.')
+        product = product[: x0]
+        x0 = product.rfind('-')
         file.write('   <groupId>' + groupId + '</groupId>\n')
         file.write('   <artifactId>' + archiveName + '</artifactId>\n')
-        file.write('   <version>' + product[x1 + 1: x0] + '</version>\n')
+        file.write('   <version>' + product[x0 + 1:] + '</version>\n')
         file.write('   <packaging>' + ext + '</packaging>\n')
         file.write('\n')
 
+        product = product[: x0]
+        x0 = product.rfind('-')
         file.write('   <name>' + archiveName + '</name>\n')
-        file.write('   <description>This is the Mux wrapper around ExoPlayer</description>\n')
+        file.write('   <description>This is the Mux wrapper around ExoPlayer ' + product[x0 + 1:] + '</description>\n')
         file.write('   <url>https://github.com/muxinc/mux-stats-sdk-exoplayer</url>\n')
         file.write('\n')
 
@@ -56,7 +62,20 @@ def writePOMfile(path, product, ext):
 
         file.write('</project>')
 
-dir_path = os.path.dirname(os.path.realpath(__file__)) + '/foo/build/outputs/artifacts'
+def gpgSignProduct(path, product):
+    x0 = product.find('-bin.')
+    product = product[: x0]
+    subprocess.check_output(['gpg','-ab', product + '-bin.aar'])
+    subprocess.check_output(['gpg','-ab', product + '-bin.pom'])
+    subprocess.check_output(['gpg','-ab', product + '-javadoc.jar'])
+    subprocess.check_output(['gpg','-ab', product + '-sources.jar'])
+
+
+dir_path = os.path.dirname(os.path.realpath(__file__)) + '/MuxExoPlayer/buildout/outputs/publish'
 products = findFiles(dir_path, 'aar')
 for product in products:
     writePOMfile(dir_path, product, 'aar')
+
+os.chdir(dir_path)
+for product in products:
+    gpgSignProduct(dir_path, product)
