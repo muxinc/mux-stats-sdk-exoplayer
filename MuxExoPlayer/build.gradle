@@ -148,5 +148,5 @@ dependencies {
     r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
     r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
     r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'
-    api files('libs/MuxCore.jar')
+    api 'com.mux:com.mux.stats.muxcore:2.3.2'
 }
