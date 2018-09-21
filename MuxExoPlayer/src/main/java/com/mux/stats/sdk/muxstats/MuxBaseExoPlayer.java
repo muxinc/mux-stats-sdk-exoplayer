@@ -102,6 +102,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public void release() {
         muxStats.release();
         muxStats = null;
+        player = null;
     }
 
     public void setStreamType(int type) {
@@ -110,13 +111,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public void dispatch(IEvent event) {
-        if (player.get () != null && muxStats != null)
+        if (player != null && player.get () != null && muxStats != null)
             super.dispatch(event);
     }
 
     @Override
     public long getCurrentPosition() {
-        if (player.get() != null)
+        if (player != null && player.get() != null)
             return player.get().getCurrentPosition();
         return 0;
     }
@@ -485,7 +486,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public void onLoadError(DataSpec dataSpec, int dataType, IOException e) {
-            if (player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
+            if (player == null || player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
             BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(dataSpec, dataType, e);
@@ -493,7 +494,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public void onLoadCanceled(DataSpec dataSpec) {
-            if (player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
+            if (player == null || player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
             BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(dataSpec);
@@ -502,7 +503,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         public void onLoadStarted(DataSpec dataSpec, int dataType, Format trackFormat,
                 long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-            if (player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
+            if (player == null || player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
             currentBandwidthMetric().onLoadStarted(dataSpec, dataType,
@@ -513,7 +514,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
                 long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
                 long bytesLoaded) {
-            if (player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
+            if (player == null || player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
             BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(dataSpec,
@@ -524,7 +525,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public void onTracksChanged(TrackGroupArray trackGroups) {
-            if (player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
+            if (player == null || player.get () == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
             if (trackGroups.length > 0) {
