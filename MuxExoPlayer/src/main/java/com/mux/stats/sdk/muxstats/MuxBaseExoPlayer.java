@@ -213,7 +213,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     static class MuxDevice implements IDevice {
         private static final String MUX_PLUGIN_NAME = "android-mux";
-        private static final String MUX_PLUGIN_VERSION = "0.4.4";
+        private static final String MUX_PLUGIN_VERSION = "0.4.5";
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
         private String deviceId;
