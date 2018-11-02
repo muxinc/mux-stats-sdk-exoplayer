@@ -67,15 +67,23 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
     }
 
+    private void checkNotReleased() {
+        if (muxStats == null) {
+            throw new IllegalStateException("The MuxStats monitor has already been released.");
+        }
+    }
+
     public AdsImaSDKListener getIMASdkListener() {
         return new AdsImaSDKListener(this);
     }
 
     public void videoChange(CustomerVideoData customerVideoData) {
+        checkNotReleased();
         muxStats.videoChange(customerVideoData);
     }
 
     public void programChange(CustomerVideoData customerVideoData) {
+        checkNotReleased();
         muxStats.programChange(customerVideoData);
     }
 
@@ -84,22 +92,27 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void setPlayerSize(int width, int height) {
+        checkNotReleased();
         muxStats.setPlayerSize(width, height);
     }
 
     public void setScreenSize(int width, int height) {
+        checkNotReleased();
         muxStats.setScreenSize(width, height);
     }
 
     public void error(MuxErrorException e) {
+        checkNotReleased();
         muxStats.error(e);
     }
 
     public void setAutomaticErrorTracking(boolean enabled) {
+        checkNotReleased();
         muxStats.setAutomaticErrorTracking(enabled);
     }
 
     public void release() {
+        checkNotReleased();
         muxStats.release();
         muxStats = null;
         player = null;
