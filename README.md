@@ -10,7 +10,7 @@ This integration _prefers_ an instance of `SimpleExoPlayer` to be used and passe
 
 Full builds are provided as releases within the repo as versions are released. Within each release, there are multiple AAR files, one for each minor version of `ExoPlayer` that is supported. Make sure to grab the appropriate AAR for your version (e.g. r2.8.0), and make sure that the minor versions match (patch versions should not matter).
 
-See full integration instructions here: https://docs.mux.com/docs/android-integration-guide.
+See full integration instructions here: https://docs.mux.com/docs/exoplayer-integration-guide.
 
 ## Developer Quick Start
 
