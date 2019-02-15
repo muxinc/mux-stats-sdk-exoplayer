@@ -22,4 +22,4 @@ Open this project in Android Studio, and let Gradle run to configure the applica
  errors will not be tracked correctly.
 
 ## Documentation
-See [our docs](https://docs.mux.com/docs/android-integration-guide) for more information.
+See [our docs](https://docs.mux.com/docs/exoplayer-integration-guide) for more information.
