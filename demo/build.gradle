@@ -124,4 +124,8 @@ android {
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
     implementation project(':MuxExoPlayer')
+    // Include the below to test ads in the demo for r2.8.0, but comment out
+    // for running r2.0.4 without any ads.
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    implementation 'com.google.android.gms:play-services-ads:15.0.1'
 }
