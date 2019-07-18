@@ -16,6 +16,11 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion project.ext.compileSdkVersion
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion project.ext.targetSdkVersion
@@ -86,6 +91,11 @@ android {
             res.srcDirs = ['./src/r2_8_0/res']
             assets.srcDirs = ['./src/r2_8_0/assets']
         }
+        r2_9_6 {
+            java.srcDirs = ['./src/r2_9_6/java']
+            res.srcDirs = ['./src/r2_9_6/res']
+            assets.srcDirs = ['./src/r2_9_6/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -118,10 +128,15 @@ android {
         r2_8_0 {
             dimension  'api'
         }
+        r2_9_6 {
+            dimension  'api'
+        }
     }
 }
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
     implementation project(':MuxExoPlayer')
+
+    r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
 }

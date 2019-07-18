@@ -14,7 +14,7 @@ See full integration instructions here: https://docs.mux.com/docs/exoplayer-inte
 
 ## Developer Quick Start
 
-Open this project in Android Studio, and let Gradle run to configure the application. Due to the breaking changes that occur within `ExoPlayer`'s minor version changes, this project is set up with a target for each minor version release of `ExoPlayer`, from r2.0.x up to r2.8.x. As additional versions of `ExoPlayer` are released, additional targets in this project will be added. Choose the target version that you desire, and run the demo application in the emulator to test out the functionality.
+Open this project in Android Studio, and let Gradle run to configure the application. Due to the breaking changes that occur within `ExoPlayer`'s minor version changes, this project is set up with a target for each minor version release of `ExoPlayer`, from r2.0.x up to r2.9.x. As additional versions of `ExoPlayer` are released, additional targets in this project will be added. Choose the target version that you desire, and run the demo application in the emulator to test out the functionality.
 
 ## Known Limitations
  - currently no ad events or metrics are supported
