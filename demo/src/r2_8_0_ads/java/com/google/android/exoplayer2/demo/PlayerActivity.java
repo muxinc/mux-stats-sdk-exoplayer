@@ -619,7 +619,8 @@ public class PlayerActivity extends Activity
     adsLoader = sdkFactory.createAdsLoader(this);
     ImaSdkSettings settings = adsLoader.getSettings();
     //settings.setAutoPlayAdBreaks(false);
-    imaListener = muxStats.getIMASdkListener();
+    //imaListener = muxStats.getIMASdkListener();
+    muxStats.monitorImaAdsLoader(adsLoader);
     adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
       @Override
       public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
@@ -627,8 +628,8 @@ public class PlayerActivity extends Activity
         // events for ad playback and errors.
         adsManager = adsManagerLoadedEvent.getAdsManager();
         // Attach mux event and error event listeners.
-        adsManager.addAdErrorListener(imaListener);
-        adsManager.addAdEventListener(imaListener);
+        //adsManager.addAdErrorListener(imaListener);
+        //adsManager.addAdEventListener(imaListener);
 
         // Attach local event and error event listeners for player/ima control.
         AdsListener listener = new AdsListener();
