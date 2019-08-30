@@ -98,11 +98,13 @@ android {
         productFlavors.each {
             flavor ->
                 def versionName = flavor.name.replaceAll(/_/, ".")
-                copy {
-                    from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
-                    into "${buildDir}/outputs/artifacts/"
-                    rename ("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
-                    rename ("mapping.txt", "mapping-${versionName}.txt")
+                if (!versionName.contains(".ads.aar")) {
+                    copy {
+                        from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
+                        into "${buildDir}/outputs/artifacts/"
+                        rename ("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
+                        rename ("mapping.txt", "mapping-${versionName}.txt")
+                    }
                 }
         }
     }
