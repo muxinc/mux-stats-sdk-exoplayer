@@ -86,6 +86,11 @@ android {
             res.srcDirs = ['./src/r2_8_0/res']
             assets.srcDirs = ['./src/r2_8_0/assets']
         }
+        r2_8_0_ads {
+            java.srcDirs = ['./src/r2_8_0_ads/java']
+            res.srcDirs = ['./src/r2_8_0_ads/res']
+            assets.srcDirs = ['./src/r2_8_0_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -118,14 +123,16 @@ android {
         r2_8_0 {
             dimension  'api'
         }
+        r2_8_0_ads {
+            dimension  'api'
+        }
     }
 }
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.0.0'
     implementation project(':MuxExoPlayer')
-    // Include the below to test ads in the demo for r2.8.0, but comment out
-    // for running r2.0.4 without any ads.
-    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    implementation 'com.google.android.gms:play-services-ads:15.0.1'
+    // Include the below to test ads for each product flavor that supports them
+    r2_8_0_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    r2_8_0_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
 }

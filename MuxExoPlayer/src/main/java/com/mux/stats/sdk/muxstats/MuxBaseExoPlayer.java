@@ -96,6 +96,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @SuppressWarnings("unused")
     public void monitorImaAdsLoader(AdsLoader adsLoader) {
+        if (adsLoader == null) {
+            Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
+            return;
+        }
         try {
             // TODO: these may not be necessary, but doing it for the sake of it
             Class.forName("com.google.ads.interactivemedia.v3.api.AdsLoader");
