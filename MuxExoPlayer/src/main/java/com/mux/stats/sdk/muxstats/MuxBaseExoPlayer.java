@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -274,8 +275,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     static class MuxDevice implements IDevice {
-        private static final String MUX_PLUGIN_NAME = "android-mux";
-        private static final String MUX_PLUGIN_VERSION = "0.4.5";
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
         private String deviceId;
@@ -341,12 +340,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginName() {
-            return MUX_PLUGIN_NAME;
+            return BuildConfig.MUX_PLUGIN_NAME;
         }
 
         @Override
         public String getPluginVersion() {
-            return MUX_PLUGIN_VERSION;
+            return BuildConfig.MUX_PLUGIN_NAME;
         }
 
         @Override
