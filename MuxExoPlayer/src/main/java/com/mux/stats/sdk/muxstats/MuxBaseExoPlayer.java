@@ -95,6 +95,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
     }
 
+    /**
+     * Monitor an instance of Google IMA SDK's AdsLoader
+     * @param adsLoader
+     */
     @SuppressWarnings("unused")
     public void monitorImaAdsLoader(AdsLoader adsLoader) {
         if (adsLoader == null) {
