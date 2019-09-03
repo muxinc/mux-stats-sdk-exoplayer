@@ -5,11 +5,13 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "0.5.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
+        buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
     }
     buildTypes {
         release {
@@ -54,6 +56,9 @@ android {
         r2_8_0 {
             java.srcDirs = ['./src/r2_8_0/java']
         }
+        r2_8_0_ads {
+            java.srcDirs = ['./src/r2_8_0/java']
+        }
     }
 
     flavorDimensions 'api'
@@ -86,17 +91,22 @@ android {
         r2_8_0 {
             dimension  'api'
         }
+        r2_8_0_ads {
+            dimension  'api'
+        }
     }
 
     build << {
         productFlavors.each {
             flavor ->
                 def versionName = flavor.name.replaceAll(/_/, ".")
-                copy {
-                    from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
-                    into "${buildDir}/outputs/artifacts/"
-                    rename ("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
-                    rename ("mapping.txt", "mapping-${versionName}.txt")
+                if (!versionName.endsWith(".ads")) {
+                    copy {
+                        from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
+                        into "${buildDir}/outputs/artifacts/"
+                        rename ("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
+                        rename ("mapping.txt", "mapping-${versionName}.txt")
+                    }
                 }
         }
     }
@@ -113,7 +123,9 @@ dependencies {
     r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
     r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
     r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'
-    api 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    api 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_8_0_adsApi 'com.google.android.exoplayer:exoplayer:2.8.0'
+    r2_8_0_adsApi 'org.checkerframework:checker-qual:2.5.0'
+    compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     api files('libs/MuxCore.jar')
 }

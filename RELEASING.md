@@ -5,8 +5,9 @@
 will be accessible as artifacts on each build
 3)a) Once ready to go, merge to `master` if this is the first feature in a release,
 with future features to be added later.
-3)b) On last feature to be merged in a release, increment `MUX_PLUGIN_VERSION` with
-patch or minor rev in `MuxStats.java` to make the new version.
+3)b) On last feature to be merged in a release, increment `versionCode` and
+`versionName` with patch or minor rev in `MuxExoPlayer/build.gradle` to make the new
+version.
 4) Merge pull request to `master`
 5) On `master`, after it has built, create a tag with a version matching what you
 put in `MuxStats.java` (e.g. `git tag v0.2.1`; note the `v` in the tag version, but

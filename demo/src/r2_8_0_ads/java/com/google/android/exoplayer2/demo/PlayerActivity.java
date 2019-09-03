@@ -36,6 +36,18 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.ads.interactivemedia.v3.api.Ad;
+import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
+import com.google.ads.interactivemedia.v3.api.AdsLoader;
+import com.google.ads.interactivemedia.v3.api.AdsManager;
+import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
+import com.google.ads.interactivemedia.v3.api.AdsRequest;
+import com.google.ads.interactivemedia.v3.api.ImaSdkFactory;
+import com.google.ads.interactivemedia.v3.api.ImaSdkSettings;
+import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
+import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.C.ContentType;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
@@ -57,6 +69,7 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
@@ -86,8 +99,10 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
+import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -156,6 +171,10 @@ public class PlayerActivity extends Activity
   private ViewGroup adUiViewGroup;
 
   private MuxStatsExoPlayer muxStats;
+  private AdsLoader adsLoader;
+  private AdsManager adsManager;
+  private ImaSdkFactory sdkFactory;
+  private AdsImaSDKListener imaListener;
   // Activity lifecycle
 
   @Override
@@ -419,6 +438,10 @@ public class PlayerActivity extends Activity
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
+      String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
+      if (adTagUriString != null) {
+        setupAdsMediaSource(adTagUriString);
+      }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -535,6 +558,110 @@ public class PlayerActivity extends Activity
         .buildDataSourceFactory(useBandwidthMeter ? BANDWIDTH_METER : null);
   }
 
+  class AdsListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
+    final static String TAG = "IMASDKs";
+    long adLoadTime = 0;
+    @Override
+    public void onAdError(AdErrorEvent adErrorEvent) {
+      //Log.i(TAG, "Error: " + adErrorEvent.getError().getMessage());
+    }
+
+    @Override
+    public void onAdEvent(AdEvent adEvent) {
+      Ad ad = adEvent.getAd();
+      long currTime = System.currentTimeMillis();
+      long delta = 0;
+      if (adLoadTime > 0) {
+        delta = currTime - adLoadTime;
+        adLoadTime = currTime;
+      }
+      Log.e(TAG, "Event: " + adEvent.getType() + " at " + String.valueOf(currTime) + ", + " + String.valueOf(delta));
+      if (ad != null) {
+        Log.i(TAG, "++++++++++++Ad: " + ad.toString());
+      }
+      switch (adEvent.getType()) {
+        case AD_BREAK_READY:
+            adsManager.start();
+            break;
+        case LOADED:
+          // AdEventType.LOADED will be fired when ads are ready to be played.
+          // AdsManager.start() begins ad playback. This method is ignored for VMAP or
+          // ad rules playlists, as the SDK will automatically start executing the
+          // playlist.
+          adLoadTime = System.currentTimeMillis();
+          adsManager.start();
+          break;
+        case CONTENT_PAUSE_REQUESTED:
+          // AdEventType.CONTENT_PAUSE_REQUESTED is fired immediately before a video
+          // ad is played.
+          player.setPlayWhenReady(false);
+          break;
+        case CONTENT_RESUME_REQUESTED:
+          // AdEventType.CONTENT_RESUME_REQUESTED is fired when the ad is completed
+          // and you should start playing your content.
+          player.setPlayWhenReady(true);
+          break;
+        case ALL_ADS_COMPLETED:
+          if (adsManager != null) {
+            adsManager.destroy();
+            adsManager = null;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+  }
+
+  /** Returns an ads media source, reusing the ads loader if one exists. */
+  private void setupAdsMediaSource(final String adTagUri) {
+    sdkFactory = ImaSdkFactory.getInstance();
+    adsLoader = sdkFactory.createAdsLoader(this);
+    ImaSdkSettings settings = adsLoader.getSettings();
+    //settings.setAutoPlayAdBreaks(false);
+    //imaListener = muxStats.getIMASdkListener();
+    muxStats.monitorImaAdsLoader(adsLoader);
+    adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
+      @Override
+      public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
+        // Ads were successfully loaded, so get the AdsManager instance. AdsManager has
+        // events for ad playback and errors.
+        adsManager = adsManagerLoadedEvent.getAdsManager();
+        // Attach mux event and error event listeners.
+        //adsManager.addAdErrorListener(imaListener);
+        //adsManager.addAdEventListener(imaListener);
+
+        // Attach local event and error event listeners for player/ima control.
+        AdsListener listener = new AdsListener();
+        adsManager.addAdErrorListener(listener);
+        adsManager.addAdEventListener(listener);
+        adsManager.init();
+      }
+    });
+
+    //request ads
+    adUiViewGroup = new FrameLayout(PlayerActivity.this);
+    playerView.getOverlayFrameLayout().addView(adUiViewGroup);
+    AdDisplayContainer adDisplayContainer = sdkFactory.createAdDisplayContainer();
+    adDisplayContainer.setAdContainer(adUiViewGroup);
+
+    AdsRequest request = sdkFactory.createAdsRequest();
+    request.setAdTagUrl(adTagUri);
+    request.setAdDisplayContainer(adDisplayContainer);
+    request.setContentProgressProvider(new ContentProgressProvider() {
+      @Override
+      public VideoProgressUpdate getContentProgress() {
+        if (player == null || player.getDuration() <= 0) {
+          return VideoProgressUpdate.VIDEO_TIME_NOT_READY;
+        }
+        return new VideoProgressUpdate(player.getCurrentPosition(),
+                player.getDuration());
+      }
+    });
+    adsLoader.requestAds(request);
+    startAutoPlay = false;
+  }
+
   // User controls
 
   private void updateButtonVisibilities() {
@@ -606,6 +733,9 @@ public class PlayerActivity extends Activity
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
       if (playbackState == Player.STATE_ENDED) {
         showControls();
+        if (adsLoader != null) {
+          adsLoader.contentComplete();
+        }
       }
       updateButtonVisibilities();
     }

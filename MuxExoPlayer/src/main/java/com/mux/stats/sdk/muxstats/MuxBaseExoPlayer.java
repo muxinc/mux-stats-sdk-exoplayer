@@ -8,6 +8,9 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
+import com.google.ads.interactivemedia.v3.api.AdsLoader;
+import com.google.ads.interactivemedia.v3.api.AdsManager;
+import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
@@ -15,6 +18,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -67,14 +71,74 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
     }
 
+    /**
+     * Get the instance of the IMA SDK Listener for tracking ads running through Google's
+     * IMA SDK within your application.
+     *
+     * @deprecated
+     * This method is no longer the preferred method to track Ad performance with
+     * Google's IMA SDK.
+     * <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead.
+     * @return the IMA SDK Listener
+     * @throws
+     */
+    @Deprecated
     public AdsImaSDKListener getIMASdkListener() {
-        return new AdsImaSDKListener(this);
+        try {
+            // Let's just check one of them
+            Class.forName("com.google.ads.interactivemedia.v3.api.Ad");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent");
+            return new AdsImaSDKListener(this);
+        } catch (ClassNotFoundException cnfe) {
+            throw new IllegalStateException("IMA SDK Modules not found");
+        }
     }
 
+    /**
+     * Monitor an instance of Google IMA SDK's AdsLoader
+     * @param adsLoader
+     */
+    @SuppressWarnings("unused")
+    public void monitorImaAdsLoader(AdsLoader adsLoader) {
+        if (adsLoader == null) {
+            Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
+            return;
+        }
+        try {
+            // TODO: these may not be necessary, but doing it for the sake of it
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdsLoader");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdsManager");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent");
+            Class.forName("com.google.ads.interactivemedia.v3.api.Ad");
+            final MuxBaseExoPlayer baseExoPlayer = this;
+            adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
+                @Override
+                public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
+                    // TODO: Add in the adresponse stuff when we can
+
+                    // Set up the ad events that we want to use
+                    AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
+                    AdsImaSDKListener imaListener = new AdsImaSDKListener(baseExoPlayer);
+                    // Attach mux event and error event listeners.
+                    adsManager.addAdErrorListener(imaListener);
+                    adsManager.addAdEventListener(imaListener);
+                }
+
+                // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
+            });
+        } catch (ClassNotFoundException cnfe) {
+            return;
+        }
+    }
+
+    @SuppressWarnings("unused")
     public void videoChange(CustomerVideoData customerVideoData) {
         muxStats.videoChange(customerVideoData);
     }
 
+    @SuppressWarnings("unused")
     public void programChange(CustomerVideoData customerVideoData) {
         muxStats.programChange(customerVideoData);
     }
@@ -83,6 +147,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         this.playerView = new WeakReference<>(playerView);
     }
 
+    @SuppressWarnings("unused")
     public void setPlayerSize(int width, int height) {
         muxStats.setPlayerSize(width, height);
     }
@@ -95,6 +160,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         muxStats.error(e);
     }
 
+    @SuppressWarnings("unused")
     public void setAutomaticErrorTracking(boolean enabled) {
         muxStats.setAutomaticErrorTracking(enabled);
     }
@@ -105,6 +171,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         player = null;
     }
 
+    @SuppressWarnings("unused")
     public void setStreamType(int type) {
         streamType = type;
     }
@@ -212,8 +279,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     static class MuxDevice implements IDevice {
-        private static final String MUX_PLUGIN_NAME = "android-mux";
-        private static final String MUX_PLUGIN_VERSION = "0.4.5";
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
         private String deviceId;
@@ -279,12 +344,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginName() {
-            return MUX_PLUGIN_NAME;
+            return BuildConfig.MUX_PLUGIN_NAME;
         }
 
         @Override
         public String getPluginVersion() {
-            return MUX_PLUGIN_VERSION;
+            return BuildConfig.MUX_PLUGIN_NAME;
         }
 
         @Override

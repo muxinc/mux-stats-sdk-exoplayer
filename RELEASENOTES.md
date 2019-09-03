@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.5.0
+ - Deprecated method `muxStatsExoPlayer.getImaSDKListener` in favor of `muxStatsExoPlayer.monitorImaAdsLoader(adsLoader)`. The previous method will still work, but you should migrate to the new method as the deprecated method will be removed with th next major version.
+ - Fix an issue where Google IMA SDK was a hard requirement unintentionally.
+
 ## v0.4.3
  - Fix an issue where a NullPointerException may occur during playback of a video while tracking bandwidth metrics.
 
