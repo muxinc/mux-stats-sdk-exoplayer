@@ -35,4 +35,4 @@ RUN echo "sdk.dir=$ANDROID_HOME" > local.properties
 RUN ./gradlew --info androidDependencies
 
 # Run build task by default
-CMD ./gradlew --info build
+CMD ./gradlew --info clean build

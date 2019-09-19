@@ -1,7 +1,7 @@
 steps:
 - agents:
     dind: true
-  command: docker run -it --rm -v "$PWD":/data -w /data muxinc/mux-exoplayer:20190830
+  command: docker run -it --rm -v "$PWD":/data -w /data muxinc/mux-exoplayer:20190919
   label: Build AARs
   artifact_paths:
     - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
