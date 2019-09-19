@@ -99,10 +99,8 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
-import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -174,7 +172,6 @@ public class PlayerActivity extends Activity
   private AdsLoader adsLoader;
   private AdsManager adsManager;
   private ImaSdkFactory sdkFactory;
-  private AdsImaSDKListener imaListener;
   // Activity lifecycle
 
   @Override
@@ -619,7 +616,6 @@ public class PlayerActivity extends Activity
     adsLoader = sdkFactory.createAdsLoader(this);
     ImaSdkSettings settings = adsLoader.getSettings();
     //settings.setAutoPlayAdBreaks(false);
-    //imaListener = muxStats.getIMASdkListener();
     muxStats.monitorImaAdsLoader(adsLoader);
     adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
       @Override
@@ -627,9 +623,6 @@ public class PlayerActivity extends Activity
         // Ads were successfully loaded, so get the AdsManager instance. AdsManager has
         // events for ad playback and errors.
         adsManager = adsManagerLoadedEvent.getAdsManager();
-        // Attach mux event and error event listeners.
-        //adsManager.addAdErrorListener(imaListener);
-        //adsManager.addAdEventListener(imaListener);
 
         // Attach local event and error event listeners for player/ima control.
         AdsListener listener = new AdsListener();
