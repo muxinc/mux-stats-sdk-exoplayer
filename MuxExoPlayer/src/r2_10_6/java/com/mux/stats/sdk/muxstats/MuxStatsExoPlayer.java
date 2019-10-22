@@ -2,7 +2,6 @@ package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
 import android.net.NetworkInfo;
-import android.support.annotation.Nullable;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -182,16 +181,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     }
 
-    @Override
-    public void onViewportSizeChange(EventTime eventTime, int width, int height) {
-
-    }
-
-    @Override
-    public void onNetworkTypeChanged(EventTime eventTime,
-            @Nullable NetworkInfo networkInfo) {
-
-    }
+//    @Override
+//    public void onViewportSizeChange(EventTime eventTime, int width, int height) {
+//
+//    }
+//
+//    @Override
+//    public void onNetworkTypeChanged(EventTime eventTime,
+//            @Nullable NetworkInfo networkInfo) {
+//
+//    }
 
     @Override
     public void onMetadata(EventTime eventTime, Metadata metadata) {
