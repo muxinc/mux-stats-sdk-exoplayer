@@ -269,7 +269,7 @@ public class PlayerActivity extends Activity implements OnClickListener, ExoPlay
           drmSessionManager, preferExtensionDecoders);
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+      customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData);

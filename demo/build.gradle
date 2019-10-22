@@ -91,6 +91,26 @@ android {
             res.srcDirs = ['./src/r2_8_0_ads/res']
             assets.srcDirs = ['./src/r2_8_0_ads/assets']
         }
+        r2_9_6 {
+            java.srcDirs = ['./src/r2_9_6/java']
+            res.srcDirs = ['./src/r2_9_6/res']
+            assets.srcDirs = ['./src/r2_9_6/assets']
+        }
+        r2_9_6_ads {
+            java.srcDirs = ['./src/r2_9_6_ads/java']
+            res.srcDirs = ['./src/r2_9_6_ads/res']
+            assets.srcDirs = ['./src/r2_9_6_ads/assets']
+        }
+        r2_10_6 {
+            java.srcDirs = ['./src/r2_10_6/java']
+            res.srcDirs = ['./src/r2_10_6/res']
+            assets.srcDirs = ['./src/r2_10_6/assets']
+        }
+        r2_10_6_ads {
+            java.srcDirs = ['./src/r2_10_6_ads/java']
+            res.srcDirs = ['./src/r2_10_6_ads/res']
+            assets.srcDirs = ['./src/r2_10_6_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -126,13 +146,33 @@ android {
         r2_8_0_ads {
             dimension  'api'
         }
+        r2_9_6 {
+            dimension  'api'
+        }
+        r2_9_6_ads {
+            dimension  'api'
+        }
+        r2_10_6 {
+            dimension  'api'
+        }
+        r2_10_6_ads {
+            dimension  'api'
+        }
+    }
+    compileOptions {
+        sourceCompatibility = '1.8'
+        targetCompatibility = '1.8'
     }
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:27.0.0'
+//    implementation 'com.android.support:appcompat-v7:27.0.0'
     implementation project(':MuxExoPlayer')
     // Include the below to test ads for each product flavor that supports them
     r2_8_0_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     r2_8_0_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
 }
