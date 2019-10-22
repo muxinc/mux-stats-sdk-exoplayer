@@ -64,23 +64,20 @@ import com.google.android.exoplayer2.drm.UnsupportedDrmException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
+import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 import com.google.android.exoplayer2.source.dash.manifest.DashManifestParser;
-import com.google.android.exoplayer2.source.dash.manifest.RepresentationKey;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
-import com.google.android.exoplayer2.source.hls.playlist.HlsPlaylistParser;
-import com.google.android.exoplayer2.source.hls.playlist.RenditionKey;
+import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.smoothstreaming.DefaultSsChunkSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
-import com.google.android.exoplayer2.source.smoothstreaming.manifest.StreamKey;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
@@ -411,7 +408,7 @@ public class PlayerActivity extends Activity
       lastSeenTrackGroupArray = null;
 
       player =
-          ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector, drmSessionManager);
+          ExoPlayerFactory.newSimpleInstance(this, renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
@@ -464,7 +461,7 @@ public class PlayerActivity extends Activity
                 buildDataSourceFactory(false))
             .setManifestParser(
                 new FilteringManifestParser<>(
-                    new DashManifestParser(), (List<RepresentationKey>) getOfflineStreamKeys(uri)))
+                    new DashManifestParser(), (List<StreamKey>) getOfflineStreamKeys(uri)))
             .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(
@@ -476,10 +473,9 @@ public class PlayerActivity extends Activity
             .createMediaSource(uri);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(mediaDataSourceFactory)
-            .setPlaylistParser(
-                new FilteringManifestParser<>(
-                    new HlsPlaylistParser(), (List<RenditionKey>) getOfflineStreamKeys(uri)))
-            .createMediaSource(uri);
+                .setPlaylistParserFactory(new DefaultHlsPlaylistParserFactory(
+                        (List<StreamKey>)getOfflineStreamKeys(uri)))
+                .createMediaSource(uri);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource.Factory(mediaDataSourceFactory).createMediaSource(uri);
       default: {

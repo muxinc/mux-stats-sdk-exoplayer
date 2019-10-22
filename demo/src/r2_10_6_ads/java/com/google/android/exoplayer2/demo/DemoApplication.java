@@ -16,6 +16,8 @@
 package com.google.android.exoplayer2.demo;
 
 import android.app.Application;
+
+import com.google.android.exoplayer2.BuildConfig;
 import com.google.android.exoplayer2.offline.DownloadAction.Deserializer;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloaderConstructorHelper;
@@ -68,7 +70,8 @@ public class DemoApplication extends Application {
   }
 
   /** Returns a {@link DataSource.Factory}. */
-  public DataSource.Factory buildDataSourceFactory(TransferListener<? super DataSource> listener) {
+  // TransferListener<? super DataSource>
+  public DataSource.Factory buildDataSourceFactory(TransferListener listener) {
     DefaultDataSourceFactory upstreamFactory =
         new DefaultDataSourceFactory(this, listener, buildHttpDataSourceFactory(listener));
     return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
@@ -76,7 +79,7 @@ public class DemoApplication extends Application {
 
   /** Returns a {@link HttpDataSource.Factory}. */
   public HttpDataSource.Factory buildHttpDataSourceFactory(
-      TransferListener<? super DataSource> listener) {
+      TransferListener listener) {
     return new DefaultHttpDataSourceFactory(userAgent, listener);
   }
 
