@@ -1,7 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
-import android.net.NetworkInfo;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
