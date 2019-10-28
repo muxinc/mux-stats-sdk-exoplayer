@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
@@ -72,6 +73,10 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.model.CustomerPlayerData;
+import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -97,6 +102,7 @@ public class PlayerActivity extends AppCompatActivity
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
   public static final String AD_TAG_URI_EXTRA = "ad_tag_uri";
+  public static final String VIDEO_TITLE_EXTRA = "video_title";
 
   public static final String ABR_ALGORITHM_EXTRA = "abr_algorithm";
   public static final String ABR_ALGORITHM_DEFAULT = "default";
@@ -143,6 +149,7 @@ public class PlayerActivity extends AppCompatActivity
 
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
+  private MuxStatsExoPlayer muxStats;
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
 
@@ -421,6 +428,17 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
 
+      CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+      CustomerVideoData customerVideoData = new CustomerVideoData();
+      customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
+      muxStats = new MuxStatsExoPlayer(
+              this, player, "demo-player", customerPlayerData, customerVideoData);
+      Point size = new Point();
+      getWindowManager().getDefaultDisplay().getSize(size);
+      muxStats.setScreenSize(size.x, size.y);
+      muxStats.setPlayerView(playerView);
+
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
         mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
@@ -463,6 +481,7 @@ public class PlayerActivity extends AppCompatActivity
       return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
     }
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
+    muxStats.setStreamType(type);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
@@ -501,6 +520,7 @@ public class PlayerActivity extends AppCompatActivity
       updateStartPosition();
       debugViewHelper.stop();
       debugViewHelper = null;
+      muxStats.release();
       player.release();
       player = null;
       mediaSource = null;

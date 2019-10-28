@@ -41,71 +41,71 @@ android {
     }
 
     sourceSets {
-//        r2_0_4 {
-//            java.srcDirs = ['./src/r2_0_4/java']
-//            res.srcDirs = ['./src/r2_0_4/res']
-//            assets.srcDirs = ['./src/r2_0_4/assets']
-//        }
-//        r2_1_1 {
-//            java.srcDirs = ['./src/r2_1_1/java']
-//            res.srcDirs = ['./src/r2_1_1/res']
-//            assets.srcDirs = ['./src/r2_1_1/assets']
-//        }
-//        r2_2_0 {
-//            java.srcDirs = ['./src/r2_2_0/java']
-//            res.srcDirs = ['./src/r2_2_0/res']
-//            assets.srcDirs = ['./src/r2_2_0/assets']
-//        }
-//        r2_3_1 {
-//            java.srcDirs = ['./src/r2_3_1/java']
-//            res.srcDirs = ['./src/r2_3_1/res']
-//            assets.srcDirs = ['./src/r2_3_1/assets']
-//        }
-//        r2_4_1 {
-//            java.srcDirs = ['./src/r2_4_1/java']
-//            res.srcDirs = ['./src/r2_4_1/res']
-//            assets.srcDirs = ['./src/r2_4_1/assets']
-//        }
-//        r2_5_1 {
-//            java.srcDirs = ['./src/r2_5_1/java']
-//            res.srcDirs = ['./src/r2_5_1/res']
-//            assets.srcDirs = ['./src/r2_5_1/assets']
-//        }
-//        r2_6_0 {
-//            java.srcDirs = ['./src/r2_6_0/java']
-//            res.srcDirs = ['./src/r2_6_0/res']
-//            assets.srcDirs = ['./src/r2_6_0/assets']
-//        }
-//        r2_7_3 {
-//            java.srcDirs = ['./src/r2_7_3/java']
-//            res.srcDirs = ['./src/r2_7_3/res']
-//            assets.srcDirs = ['./src/r2_7_3/assets']
-//        }
-//        r2_8_0 {
-//            java.srcDirs = ['./src/r2_8_0/java']
-//            res.srcDirs = ['./src/r2_8_0/res']
-//            assets.srcDirs = ['./src/r2_8_0/assets']
-//        }
-//        r2_8_0_ads {
-//            java.srcDirs = ['./src/r2_8_0_ads/java']
-//            res.srcDirs = ['./src/r2_8_0_ads/res']
-//            assets.srcDirs = ['./src/r2_8_0_ads/assets']
-//        }
-//        r2_9_6 {
-//            java.srcDirs = ['./src/r2_9_6/java']
-//            res.srcDirs = ['./src/r2_9_6/res']
-//            assets.srcDirs = ['./src/r2_9_6/assets']
-//        }
-//        r2_9_6_ads {
-//            java.srcDirs = ['./src/r2_9_6_ads/java']
-//            res.srcDirs = ['./src/r2_9_6_ads/res']
-//            assets.srcDirs = ['./src/r2_9_6_ads/assets']
-//        }
-//        r2_10_6 {
-//            java.srcDirs = ['./src/r2_10_6/java']
-//            res.srcDirs = ['./src/r2_10_6/res']
-//            assets.srcDirs = ['./src/r2_10_6/assets']
-//        }
+        r2_0_4 {
+            java.srcDirs = ['./src/r2_0_4/java']
+            res.srcDirs = ['./src/r2_0_4/res']
+            assets.srcDirs = ['./src/r2_0_4/assets']
+        }
+        r2_1_1 {
+            java.srcDirs = ['./src/r2_1_1/java']
+            res.srcDirs = ['./src/r2_1_1/res']
+            assets.srcDirs = ['./src/r2_1_1/assets']
+        }
+        r2_2_0 {
+            java.srcDirs = ['./src/r2_2_0/java']
+            res.srcDirs = ['./src/r2_2_0/res']
+            assets.srcDirs = ['./src/r2_2_0/assets']
+        }
+        r2_3_1 {
+            java.srcDirs = ['./src/r2_3_1/java']
+            res.srcDirs = ['./src/r2_3_1/res']
+            assets.srcDirs = ['./src/r2_3_1/assets']
+        }
+        r2_4_1 {
+            java.srcDirs = ['./src/r2_4_1/java']
+            res.srcDirs = ['./src/r2_4_1/res']
+            assets.srcDirs = ['./src/r2_4_1/assets']
+        }
+        r2_5_1 {
+            java.srcDirs = ['./src/r2_5_1/java']
+            res.srcDirs = ['./src/r2_5_1/res']
+            assets.srcDirs = ['./src/r2_5_1/assets']
+        }
+        r2_6_0 {
+            java.srcDirs = ['./src/r2_6_0/java']
+            res.srcDirs = ['./src/r2_6_0/res']
+            assets.srcDirs = ['./src/r2_6_0/assets']
+        }
+        r2_7_3 {
+            java.srcDirs = ['./src/r2_7_3/java']
+            res.srcDirs = ['./src/r2_7_3/res']
+            assets.srcDirs = ['./src/r2_7_3/assets']
+        }
+        r2_8_0 {
+            java.srcDirs = ['./src/r2_8_0/java']
+            res.srcDirs = ['./src/r2_8_0/res']
+            assets.srcDirs = ['./src/r2_8_0/assets']
+        }
+        r2_8_0_ads {
+            java.srcDirs = ['./src/r2_8_0_ads/java']
+            res.srcDirs = ['./src/r2_8_0_ads/res']
+            assets.srcDirs = ['./src/r2_8_0_ads/assets']
+        }
+        r2_9_6 {
+            java.srcDirs = ['./src/r2_9_6/java']
+            res.srcDirs = ['./src/r2_9_6/res']
+            assets.srcDirs = ['./src/r2_9_6/assets']
+        }
+        r2_9_6_ads {
+            java.srcDirs = ['./src/r2_9_6_ads/java']
+            res.srcDirs = ['./src/r2_9_6_ads/res']
+            assets.srcDirs = ['./src/r2_9_6_ads/assets']
+        }
+        r2_10_6 {
+            java.srcDirs = ['./src/r2_10_6/java']
+            res.srcDirs = ['./src/r2_10_6/res']
+            assets.srcDirs = ['./src/r2_10_6/assets']
+        }
         r2_10_6_ads {
             java.srcDirs = ['./src/r2_10_6_ads/java']
             res.srcDirs = ['./src/r2_10_6_ads/res']
@@ -116,45 +116,45 @@ android {
     flavorDimensions 'api'
 
     productFlavors {
-//        r2_0_4 {
-//            dimension  'api'
-//        }
-//        r2_1_1 {
-//            dimension  'api'
-//        }
-//        r2_2_0 {
-//            dimension  'api'
-//        }
-//        r2_3_1 {
-//            dimension  'api'
-//        }
-//        r2_4_1 {
-//            dimension  'api'
-//        }
-//        r2_5_1 {
-//            dimension  'api'
-//        }
-//        r2_6_0 {
-//            dimension  'api'
-//        }
-//        r2_7_3 {
-//            dimension  'api'
-//        }
-//        r2_8_0 {
-//            dimension  'api'
-//        }
-//        r2_8_0_ads {
-//            dimension  'api'
-//        }
-//        r2_9_6 {
-//            dimension  'api'
-//        }
-//        r2_9_6_ads {
-//            dimension  'api'
-//        }
-//        r2_10_6 {
-//            dimension  'api'
-//        }
+        r2_0_4 {
+            dimension  'api'
+        }
+        r2_1_1 {
+            dimension  'api'
+        }
+        r2_2_0 {
+            dimension  'api'
+        }
+        r2_3_1 {
+            dimension  'api'
+        }
+        r2_4_1 {
+            dimension  'api'
+        }
+        r2_5_1 {
+            dimension  'api'
+        }
+        r2_6_0 {
+            dimension  'api'
+        }
+        r2_7_3 {
+            dimension  'api'
+        }
+        r2_8_0 {
+            dimension  'api'
+        }
+        r2_8_0_ads {
+            dimension  'api'
+        }
+        r2_9_6 {
+            dimension  'api'
+        }
+        r2_9_6_ads {
+            dimension  'api'
+        }
+        r2_10_6 {
+            dimension  'api'
+        }
         r2_10_6_ads {
             dimension  'api'
         }
@@ -172,10 +172,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation project(':MuxExoPlayer')
     // Include the below to test ads for each product flavor that supports them
-//    r2_8_0_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-//    r2_8_0_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
-//    r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-//    r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_8_0_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    r2_8_0_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
     r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
 }

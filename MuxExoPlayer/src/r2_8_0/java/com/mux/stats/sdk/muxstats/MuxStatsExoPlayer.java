@@ -2,8 +2,9 @@ package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
 import android.net.NetworkInfo;
-import android.support.annotation.Nullable;
 import android.view.Surface;
+
+import androidx.annotation.Nullable;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;

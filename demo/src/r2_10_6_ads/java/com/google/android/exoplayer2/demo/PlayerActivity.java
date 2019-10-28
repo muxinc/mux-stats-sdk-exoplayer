@@ -23,7 +23,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -35,7 +34,6 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
@@ -72,7 +70,6 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory;
@@ -96,7 +93,6 @@ import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -444,8 +440,15 @@ public class PlayerActivity extends AppCompatActivity
       player = ExoPlayerFactory.newSimpleInstance(
               this, renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
+      player.setPlayWhenReady(startAutoPlay);
+      player.addAnalyticsListener(new EventLogger(trackSelector));
+      playerView.setPlayer(player);
+      playerView.setPlaybackPreparer(this);
+      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+      debugViewHelper.start();
+
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
@@ -454,13 +457,6 @@ public class PlayerActivity extends AppCompatActivity
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
-
-      player.addAnalyticsListener(new EventLogger(trackSelector));
-      playerView.setPlayer(player);
-      playerView.setPlaybackPreparer(this);
-      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
-      debugViewHelper.start();
-
       muxStats = new MuxStatsExoPlayer(this, player,
               "demo-player", customerPlayerData, customerVideoData);
 
@@ -494,6 +490,7 @@ public class PlayerActivity extends AppCompatActivity
       return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
     }
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
+    muxStats.setStreamType(type);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory)
