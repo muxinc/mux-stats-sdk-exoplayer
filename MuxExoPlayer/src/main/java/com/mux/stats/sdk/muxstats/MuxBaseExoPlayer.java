@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -15,9 +18,11 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
@@ -36,6 +41,7 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final String TAG = "MuxStatsListener";
@@ -49,6 +55,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected Integer sourceWidth;
     protected Integer sourceHeight;
     protected Long sourceDuration;
+    protected ExoPlayerHandler playerHandler;
 
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
@@ -61,6 +68,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected PlayerState state;
     protected MuxStats muxStats;
 
+
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
@@ -69,6 +77,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
         addListener(muxStats);
+        Player.VideoComponent lDecCount = player.getVideoComponent();
+        playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
+        lDecCount.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
+            @Override
+            public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
+                playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+            }
+        });
     }
 
     /**
@@ -184,8 +200,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public long getCurrentPosition() {
-        if (player != null && player.get() != null)
-            return player.get().getCurrentPosition();
+        if (playerHandler != null)
+            return playerHandler.getPlayerCurrentPosition();
         return 0;
     }
 
@@ -275,6 +291,32 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             dispatch(new InternalErrorEvent(muxError.getCode(), muxError.getMessage()));
         } else {
             dispatch(new InternalErrorEvent(ERROR_UNKNOWN, error.getClass().getCanonicalName() + " - " + error.getMessage()));
+        }
+    }
+
+    static class ExoPlayerHandler extends Handler {
+        static final int UPDATE_PLAYER_CURRENT_POSITION = 1;
+
+        AtomicLong playerCurrentPosition = new AtomicLong(0);
+        ExoPlayer player;
+
+        public ExoPlayerHandler(Looper looper, ExoPlayer player) {
+            super(looper);
+            this.player = player;
+        }
+
+        public long getPlayerCurrentPosition() {
+            return playerCurrentPosition.get();
+        }
+
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case UPDATE_PLAYER_CURRENT_POSITION:
+                    playerCurrentPosition.set(player.getContentPosition());
+                    break;
+                default:
+                    Log.e(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
+            }
         }
     }
 
