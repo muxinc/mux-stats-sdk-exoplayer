@@ -180,17 +180,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     }
 
-//    @Override
-//    public void onViewportSizeChange(EventTime eventTime, int width, int height) {
-//
-//    }
-//
-//    @Override
-//    public void onNetworkTypeChanged(EventTime eventTime,
-//            @Nullable NetworkInfo networkInfo) {
-//
-//    }
-
     @Override
     public void onMetadata(EventTime eventTime, Metadata metadata) {
 
