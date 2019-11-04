@@ -90,12 +90,21 @@ android {
         }
         r2_4_1 {
             dimension  'api'
+            dependencies {
+                api fileTree("libs/ExoPlayer/r2.4.1")
+            }
         }
         r2_5_1 {
             dimension  'api'
+            dependencies {
+                api fileTree("libs/ExoPlayer/r2.5.1")
+            }
         }
         r2_6_0 {
             dimension  'api'
+            dependencies {
+                api fileTree("libs/ExoPlayer/r2.6.0")
+            }
         }
         r2_7_3 {
             dimension  'api'
@@ -147,9 +156,6 @@ dependencies {
     r2_1_1Api 'com.google.android.exoplayer:exoplayer:r2.1.1'
     r2_2_0Api 'com.google.android.exoplayer:exoplayer:r2.2.0'
     r2_3_1Api 'com.google.android.exoplayer:exoplayer:r2.3.1'
-    r2_4_1Api 'com.google.android.exoplayer:exoplayer:r2.4.1'
-    r2_5_1Api 'com.google.android.exoplayer:exoplayer:r2.5.1'
-    r2_6_0Api 'com.google.android.exoplayer:exoplayer:2.6.0'
     r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
     r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
     r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'
