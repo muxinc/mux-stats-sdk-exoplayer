@@ -85,13 +85,13 @@ android {
             dimension 'api'
         }
         r2_8_0 {
-            dimension  'api'
+            dimension 'api'
         }
         r2_8_0_ads {
-            dimension  'api'
+            dimension 'api'
         }
         r2_9_6 {
-            dimension  'api'
+            dimension 'api'
             minSdkVersion 24
             compileSdkVersion 29
             targetSdkVersion 29
@@ -101,7 +101,7 @@ android {
             }
         }
         r2_9_6_ads {
-            dimension  'api'
+            dimension 'api'
             minSdkVersion 24
             compileSdkVersion 29
             targetSdkVersion 29
@@ -111,7 +111,7 @@ android {
             }
         }
         r2_10_6 {
-            dimension  'api'
+            dimension 'api'
             minSdkVersion 24
             compileSdkVersion 29
             targetSdkVersion 29
@@ -121,7 +121,7 @@ android {
             }
         }
         r2_10_6_ads {
-            dimension  'api'
+            dimension 'api'
             minSdkVersion 24
             compileSdkVersion 29
             targetSdkVersion 29
