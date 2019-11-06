@@ -1,6 +1,5 @@
 apply plugin: 'com.android.library'
 
-
 android {
     compileSdkVersion project.ext.compileSdkVersion
     defaultConfig {
@@ -18,7 +17,6 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-
         }
     }
 
@@ -28,29 +26,7 @@ android {
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
     }
-
     sourceSets {
-        r2_0_4 {
-            java.srcDirs = ['./src/r2_0_4/java']
-        }
-        r2_1_1 {
-            java.srcDirs = ['./src/r2_1_1/java']
-        }
-        r2_2_0 {
-            java.srcDirs = ['./src/r2_2_0/java']
-        }
-        r2_3_1 {
-            java.srcDirs = ['./src/r2_3_1/java']
-        }
-        r2_4_1 {
-            java.srcDirs = ['./src/r2_4_1/java']
-        }
-        r2_5_1 {
-            java.srcDirs = ['./src/r2_5_1/java']
-        }
-        r2_6_0 {
-            java.srcDirs = ['./src/r2_6_0/java']
-        }
         r2_7_3 {
             java.srcDirs = ['./src/r2_7_3/java']
         }
@@ -77,27 +53,6 @@ android {
     flavorDimensions 'api'
 
     productFlavors {
-        r2_0_4 {
-            dimension  'api'
-        }
-        r2_1_1 {
-            dimension  'api'
-        }
-        r2_2_0 {
-            dimension  'api'
-        }
-        r2_3_1 {
-            dimension  'api'
-        }
-        r2_4_1 {
-            dimension  'api'
-        }
-        r2_5_1 {
-            dimension  'api'
-        }
-        r2_6_0 {
-            dimension  'api'
-        }
         r2_7_3 {
             dimension  'api'
         }
@@ -145,14 +100,6 @@ android {
 }
 
 dependencies {
-//    api fileTree("libs/ExoPlayer/${flavor.ext.exoplayerVersion}")
-    r2_0_4Api fileTree("libs/ExoPlayer/r2.0.4")
-    r2_1_1Api fileTree("libs/ExoPlayer/r2.1.1")
-    r2_2_0Api fileTree("libs/ExoPlayer/r2.2.0")
-    r2_3_1Api fileTree("libs/ExoPlayer/r2.3.1")
-    r2_4_1Api fileTree("libs/ExoPlayer/r2.4.1")
-    r2_5_1Api fileTree("libs/ExoPlayer/r2.5.1")
-    r2_6_0Api fileTree("libs/ExoPlayer/r2.6.0")
     r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
     r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
     r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'

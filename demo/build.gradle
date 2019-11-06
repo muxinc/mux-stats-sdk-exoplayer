@@ -34,48 +34,13 @@ android {
 
     lintOptions {
         // The demo app does not have translations.
-        disable 'MissingTranslation','GradleCompatible'
+        disable 'MissingTranslation', 'GradleCompatible'
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
     }
 
     sourceSets {
-        r2_0_4 {
-            java.srcDirs = ['./src/r2_0_4/java']
-            res.srcDirs = ['./src/r2_0_4/res']
-            assets.srcDirs = ['./src/r2_0_4/assets']
-        }
-        r2_1_1 {
-            java.srcDirs = ['./src/r2_1_1/java']
-            res.srcDirs = ['./src/r2_1_1/res']
-            assets.srcDirs = ['./src/r2_1_1/assets']
-        }
-        r2_2_0 {
-            java.srcDirs = ['./src/r2_2_0/java']
-            res.srcDirs = ['./src/r2_2_0/res']
-            assets.srcDirs = ['./src/r2_2_0/assets']
-        }
-        r2_3_1 {
-            java.srcDirs = ['./src/r2_3_1/java']
-            res.srcDirs = ['./src/r2_3_1/res']
-            assets.srcDirs = ['./src/r2_3_1/assets']
-        }
-        r2_4_1 {
-            java.srcDirs = ['./src/r2_4_1/java']
-            res.srcDirs = ['./src/r2_4_1/res']
-            assets.srcDirs = ['./src/r2_4_1/assets']
-        }
-        r2_5_1 {
-            java.srcDirs = ['./src/r2_5_1/java']
-            res.srcDirs = ['./src/r2_5_1/res']
-            assets.srcDirs = ['./src/r2_5_1/assets']
-        }
-        r2_6_0 {
-            java.srcDirs = ['./src/r2_6_0/java']
-            res.srcDirs = ['./src/r2_6_0/res']
-            assets.srcDirs = ['./src/r2_6_0/assets']
-        }
         r2_7_3 {
             java.srcDirs = ['./src/r2_7_3/java']
             res.srcDirs = ['./src/r2_7_3/res']
@@ -116,29 +81,8 @@ android {
     flavorDimensions 'api'
 
     productFlavors {
-        r2_0_4 {
-            dimension  'api'
-        }
-        r2_1_1 {
-            dimension  'api'
-        }
-        r2_2_0 {
-            dimension  'api'
-        }
-        r2_3_1 {
-            dimension  'api'
-        }
-        r2_4_1 {
-            dimension  'api'
-        }
-        r2_5_1 {
-            dimension  'api'
-        }
-        r2_6_0 {
-            dimension  'api'
-        }
         r2_7_3 {
-            dimension  'api'
+            dimension 'api'
         }
         r2_8_0 {
             dimension  'api'
@@ -187,7 +131,6 @@ android {
             }
         }
     }
-
 }
 
 dependencies {
