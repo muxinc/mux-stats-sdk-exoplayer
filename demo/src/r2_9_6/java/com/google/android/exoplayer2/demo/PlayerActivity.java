@@ -440,7 +440,7 @@ public class PlayerActivity extends Activity
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStatsExoPlayer = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData, false);
+      muxStatsExoPlayer = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStatsExoPlayer.setScreenSize(size.x, size.y);

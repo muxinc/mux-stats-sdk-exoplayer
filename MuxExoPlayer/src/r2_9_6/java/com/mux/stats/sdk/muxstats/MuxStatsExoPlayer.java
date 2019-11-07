@@ -1,7 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
-import android.net.NetworkInfo;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -27,17 +26,26 @@ import java.io.IOException;
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData, true);
-    }
-
-    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+        super(ctx, player, playerName, customerPlayerData, customerVideoData);
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
         } else {
             player.addListener(this);
         }
+    }
+
+    public void updateCustomerData(CustomerVideoData customVideoData, CustomerPlayerData customPlayerData) {
+        muxStats.updateCustomerVideoData(customVideoData);
+        muxStats.updateCustomerPlayerData(customPlayerData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
     }
 
     @Override
