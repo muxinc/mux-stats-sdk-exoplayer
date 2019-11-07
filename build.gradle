@@ -20,8 +20,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
-        classpath 'com.novoda:bintray-release:0.8.1'
+        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.novoda:bintray-release:0.9.1'
     }
 }
 
@@ -36,8 +36,9 @@ allprojects {
     }
 
     project.ext {
-        compileSdkVersion=27
-        targetSdkVersion=24
+        minSdkVersion=16
+        compileSdkVersion=29
+        targetSdkVersion=29
         releaseRepoName = 'exoplayer'
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
