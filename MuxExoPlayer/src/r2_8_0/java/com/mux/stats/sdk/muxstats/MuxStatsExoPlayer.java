@@ -38,9 +38,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
     }
 
-    public void updateCustomerData(CustomerVideoData customVideoData, CustomerPlayerData customPlayerData) {
-        muxStats.updateCustomerVideoData(customVideoData);
-        muxStats.updateCustomerPlayerData(customPlayerData);
+    public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerDataForPlayer(customPlayerData, customVideoData);
     }
 
     public CustomerVideoData getCustomerVideoData() {
