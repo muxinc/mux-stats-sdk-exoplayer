@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
 
@@ -40,6 +41,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         } else {
             player.addListener(this);
         }
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        MuxLogger.setAllowLogcat(enable, verbose);
     }
 
     @Override

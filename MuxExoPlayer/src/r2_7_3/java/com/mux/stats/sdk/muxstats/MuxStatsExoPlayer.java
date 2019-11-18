@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -44,6 +45,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
         player.addListener(this);
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        MuxLogger.setAllowLogcat(enable, verbose);
     }
 
     @Override
