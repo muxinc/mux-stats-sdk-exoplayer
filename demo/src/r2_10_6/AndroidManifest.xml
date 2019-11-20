@@ -35,6 +35,8 @@
       android:allowBackup="false"
       android:name="com.google.android.exoplayer2.demo.DemoApplication"
       tools:ignore="UnusedAttribute">
+    <uses-library android:name="android.test.runner"
+        android:required="false" />
 
     <activity android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
         android:configChanges="keyboardHidden"
