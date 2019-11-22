@@ -34,6 +34,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
+            if (player.isPlaying()) {
+                // playback started before mux got intialized
+                play();
+                buffering();
+                playing();
+            }
         } else {
             player.addListener(this);
         }

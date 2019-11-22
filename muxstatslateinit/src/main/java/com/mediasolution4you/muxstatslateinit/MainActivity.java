@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.net.URI;
 
@@ -94,17 +95,18 @@ public class MainActivity extends AppCompatActivity implements
         player.addAnalyticsListener(new EventLogger(trackSelector));
         playerView.setPlayer(player);
         playerView.setPlaybackPreparer(this);
-        player.prepare(mediaSource, false, false);
+
 
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-                customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
+                customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY HERE");
                 CustomerVideoData customerVideoData = new CustomerVideoData();
                 customerVideoData.setVideoTitle("Test video tittle");
 
+                MuxLogger.setAllowLogcat(true, false);
                 muxStats = new MuxStatsExoPlayer(
                         MainActivity.this,
                         player,
@@ -115,8 +117,10 @@ public class MainActivity extends AppCompatActivity implements
                 getWindowManager().getDefaultDisplay().getSize(size);
                 muxStats.setScreenSize(size.x, size.y);
                 muxStats.setPlayerView(playerView);
+
             }
-        }, 1000);
+        }, 3000);
+        player.prepare(mediaSource, false, false);
     }
 
     @Override
