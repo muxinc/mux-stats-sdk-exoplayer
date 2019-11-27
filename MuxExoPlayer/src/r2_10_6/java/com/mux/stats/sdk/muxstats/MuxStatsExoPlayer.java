@@ -18,6 +18,9 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.events.IEvent;
+import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -298,6 +301,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                     pause();
                     break;
                 case Player.STATE_READY:
+                    // When started with play when ready = false
+                    // then play event and buffering events are missed and need to be sent,
+                    if (eventsFailedToSendBeforePlayingEvent.size() > 0) {
+                        for (IEvent missingEvent : eventsFailedToSendBeforePlayingEvent) {
+                            dispatch(missingEvent);
+                        }
+                        eventsFailedToSendBeforePlayingEvent.clear();
+                    }
                     playing();
                     break;
                 case Player.STATE_IDLE:
@@ -308,6 +319,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         } else {
             if (state != PlayerState.INIT) {
                 pause();
+            }
+            if (playbackState == Player.STATE_BUFFERING) {
+                eventsFailedToSendBeforePlayingEvent.add(new TimeUpdateEvent(null));
+                eventsFailedToSendBeforePlayingEvent.add(new PlayEvent(null));
             }
         }
     }

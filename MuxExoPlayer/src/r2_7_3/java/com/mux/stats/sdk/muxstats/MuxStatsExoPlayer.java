@@ -21,6 +21,9 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.mux.stats.sdk.core.events.IEvent;
+import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -43,6 +46,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+        if (player.getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before mux got intialized
+            play();
+            buffering();
+        } else if (player.getPlaybackState() == Player.STATE_READY) {
+            play();
+            buffering();
+            playing();
+        }
         player.addListener(this);
     }
 
@@ -103,6 +115,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
                     pause();
                     break;
                 case Player.STATE_READY:
+                    // When started with play when ready = false
+                    // then play event and buffering events are missed and need to be sent,
+                    if (eventsFailedToSendBeforePlayingEvent.size() > 0) {
+                        for (IEvent missingEvent : eventsFailedToSendBeforePlayingEvent) {
+                            dispatch(missingEvent);
+                        }
+                        eventsFailedToSendBeforePlayingEvent.clear();
+                    }
                     playing();
                     break;
                 case Player.STATE_IDLE:
@@ -113,6 +133,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         } else {
             if (state != PlayerState.INIT) {
                 pause();
+            }
+            if (playbackState == Player.STATE_BUFFERING) {
+                eventsFailedToSendBeforePlayingEvent.add(new TimeUpdateEvent(null));
+                eventsFailedToSendBeforePlayingEvent.add(new PlayEvent(null));
             }
         }
     }

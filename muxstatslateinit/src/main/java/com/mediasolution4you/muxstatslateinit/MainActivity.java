@@ -21,9 +21,11 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.extractor.mkv.MatroskaExtractor;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -64,13 +66,18 @@ public class MainActivity extends AppCompatActivity implements
         setContentView(R.layout.activity_main);
 
         // Dash URI
-        Uri uri = Uri.parse("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd");
+//        Uri uri = Uri.parse("https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd");
+        Uri uri = Uri.parse(" http://h264.me:1901/p/mkv/fashion_2012");
 
-        mediaSource =  new DashMediaSource.Factory(
-                new DefaultDataSourceFactory(
-                        this,
-                        new DefaultHttpDataSourceFactory("Android"))).createMediaSource(uri);
+//        mediaSource =  new DashMediaSource.Factory(
+//                new DefaultDataSourceFactory(
+//                        this,
+//                        new DefaultHttpDataSourceFactory("Android"))).createMediaSource(uri);
 
+
+        mediaSource = new ProgressiveMediaSource.Factory(new DefaultDataSourceFactory(
+                this,
+                new DefaultHttpDataSourceFactory("Android"))).createMediaSource(uri);
 
         debugRootView = findViewById(R.id.controls_root);
         selectTracksButton = findViewById(R.id.select_tracks_button);
@@ -91,20 +98,21 @@ public class MainActivity extends AppCompatActivity implements
                         buildRenderersFactory(),
                         trackSelector);
         player.addListener(new PlayerEventListener());
-        player.setPlayWhenReady(startAutoPlay);
+        player.setPlayWhenReady(false);
         player.addAnalyticsListener(new EventLogger(trackSelector));
         playerView.setPlayer(player);
         playerView.setPlaybackPreparer(this);
 
 
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
+//        Handler handler = new Handler();
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
                 CustomerPlayerData customerPlayerData = new CustomerPlayerData();
                 customerPlayerData.setEnvironmentKey("YOUR ENVIRONMENT KEY HERE");
                 CustomerVideoData customerVideoData = new CustomerVideoData();
                 customerVideoData.setVideoTitle("Test video tittle");
+
 
                 MuxLogger.setAllowLogcat(true, false);
                 muxStats = new MuxStatsExoPlayer(
@@ -118,8 +126,8 @@ public class MainActivity extends AppCompatActivity implements
                 muxStats.setScreenSize(size.x, size.y);
                 muxStats.setPlayerView(playerView);
 
-            }
-        }, 3000);
+//            }
+//        }, 3000);
         player.prepare(mediaSource, false, false);
     }
 
