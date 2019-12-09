@@ -21,6 +21,9 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
+import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -73,6 +76,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
+        dispatch(new SeekingEvent(null));
     }
 
     @Override
@@ -371,6 +375,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
-
+        dispatch(new SeekedEvent(null));
     }
 }
