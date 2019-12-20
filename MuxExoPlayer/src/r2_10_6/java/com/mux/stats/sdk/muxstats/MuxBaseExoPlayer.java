@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.BuildConfig;
+import com.mux.stats.sdk.core.Core;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -85,6 +86,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
             }
         });
+    }
+
+    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
+        muxStats.allowLogcatOutputForPlayer(allow, verbose);
     }
 
     /**
