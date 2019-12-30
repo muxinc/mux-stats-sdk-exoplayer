@@ -75,7 +75,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         state = PlayerState.INIT;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
-        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData);
         addListener(muxStats);
         Player.VideoComponent lDecCount = player.getVideoComponent();
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);

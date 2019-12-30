@@ -15,5 +15,6 @@
 <lint>
   <issue id="InvalidPackage">
     <ignore path="**/checker-qual-*.jar"/>
+    <ignore path="**java.awt.geom**"/>
   </issue>
 </lint>

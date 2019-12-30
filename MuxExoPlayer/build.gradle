@@ -115,5 +115,5 @@ dependencies {
     r2_10_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
-    api files('libs/MuxCore.jar')
+    implementation 'com.mux:com.mux.stats.muxcore:2.3.2'
 }
