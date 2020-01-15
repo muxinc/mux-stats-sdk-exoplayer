@@ -1,4 +1,7 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
@@ -26,6 +29,7 @@ android {
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
     }
+
     sourceSets {
         r2_7_3 {
             java.srcDirs = ['./src/r2_7_3/java']
@@ -75,6 +79,7 @@ android {
             dimension 'api'
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
@@ -94,10 +99,11 @@ android {
                         }
                     }
             }
-            dependencies {}
         }
+        dependencies {}
     }
 }
+
 
 dependencies {
     r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
@@ -117,3 +123,174 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     implementation 'com.mux:com.mux.stats.muxcore:2.3.2'
 }
+
+def muxArtifactId = "com.mux.stats.sdk"
+def versionName = '2.3.4'
+
+afterEvaluate {
+    android.libraryVariants.each { variant ->
+        if (variant.buildType.name ==  "release") {
+
+            def packageName = "com.mux.stats.sdk"
+            def exoVersionName = variant.getFlavorName().replaceAll(/_/, ".")
+            def outputDir = file("${buildDir}/outputs/publish/")
+
+            def sourceJar = task "sourceJar${variant.name}" (type: Jar) {
+                from android.sourceSets.main.java.srcDirs, android.sourceSets[variant.getFlavorName()].java.srcDirs
+                destinationDir = outputDir
+                baseName = packageName
+                appendix = exoVersionName
+                version = android.defaultConfig.versionName
+                classifier = 'sources'
+            }
+
+            def javadocs = task "javadocs${variant.name}" (type: Javadoc) {
+                source = [android.sourceSets.main.java.srcDirs,
+                          android.sourceSets[variant.getFlavorName()].java.srcDirs,
+                          "${buildDir}/generated/source/buildConfig/" +
+                                  "${variant.getFlavorName()}/${variant.buildType.name}" +
+                                  "/com/mux/stats/sdk/"
+                ]
+                classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+                classpath += configurations.compile
+                classpath += variant.javaCompile.classpath
+                destinationDir = file("${buildDir}/outputs/javadoc/${variant.name}")
+                exclude '**/R.html', '**/R.*.html', '**/index.html'
+                failOnError false
+            }
+
+            def javadocsJar = task "javadocsJar${variant.name}" (type: Jar) {
+                dependsOn "javadocs${variant.name}"
+                javadocs.destinationDir
+                destinationDir = outputDir
+                baseName = packageName
+                appendix = exoVersionName
+                version = android.defaultConfig.versionName
+                classifier = 'javadoc'
+            }
+
+            task "signPom${variant.name}" (type: Sign) {
+                dependsOn "generatePomFileForMaven${variant.name}Publication"
+                sign project.file('build/publications/maven${exoVersionName}/pom-default.xml')
+                outputs.upToDateWhen { false }
+                // the signing plugin does not seem to notice
+                // it when the publications folder with the
+                // signature has been deleted. So we always
+                // create a new signature
+            }
+
+            task "artofactPom${variant.name}" (type: Sign) {
+                dependsOn "signPom${variant.name}"
+                signatures.all {
+                    def type = it.type
+                    if (it.file.name.endsWith('.tar.gz.asc')) {
+                        // Workaround in case a tar.gz file should published
+                        type = 'tar.gz.asc'
+                    } else if (it.type.equals('xml.asc')) {
+                        // Set correct extension for signature of pom file
+                        type = 'pom.asc'
+                    }
+                    artifact source: it.file, classifier: it.classifier ?: null, extension: type
+                }
+            }
+
+            publishing {
+                publications {
+                    "maven${exoVersionName}"(MavenPublication) {
+                        groupId 'com.mux'
+                        artifactId "${muxArtifactId}-${exoVersionName}"
+                        version versionName
+
+                        artifact "${buildDir}/outputs/aar/${project.name}-${variant.getFlavorName()}-release.aar"
+                        artifact sourceJar
+                        artifact javadocsJar
+
+                        pom {
+                            name = 'Mux SDK'
+                            description = 'Mux SDK wrapper for ExoPlayer, supported versions: 2.7.3 and greater'
+                            url = 'https://github.com/muxinc/mux-stats-sdk-exoplayer'
+                            licenses {
+                                license {
+                                    name = 'The Apache License, Version 2.0'
+                                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                                }
+                            }
+                            developers {
+                                developer {
+                                    id = 'mux-sdk'
+                                    name = 'Mux Info'
+                                    email = 'info@mux.com'
+                                }
+                            }
+                            scm {
+                                connection = 'scm:git:git@github.com/muxinc/mux-stats-sdk-exoplayer.git'
+                                developerConnection = 'scm:git:git@github.com:muxinc/mux-stats-sdk-java.git'
+                                url = 'https://github.com/muxinc/mux-stats-sdk-exoplayer'
+                            }
+
+                            withXml {
+                                final dependenciesNode = asNode().appendNode('dependencies')
+
+                                ext.addDependency = { Dependency dep, String scope ->
+                                    println("Dependency: " + dep.name)
+                                    if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified")
+                                        return // ignore invalid dependencies
+
+                                    final dependencyNode = dependenciesNode.appendNode('dependency')
+                                    dependencyNode.appendNode('groupId', dep.group)
+                                    dependencyNode.appendNode('artifactId', dep.name)
+                                    dependencyNode.appendNode('version', dep.version)
+                                    dependencyNode.appendNode('scope', scope)
+
+                                    if (!dep.transitive) {
+                                        // If this dependency is transitive, we should force exclude all its dependencies them from the POM
+                                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                                        exclusionNode.appendNode('groupId', '*')
+                                        exclusionNode.appendNode('artifactId', '*')
+                                    } else if (!dep.properties.excludeRules.empty) {
+                                        // Otherwise add specified exclude rules
+                                        final exclusionNode = dependencyNode.appendNode('exclusions').appendNode('exclusion')
+                                        dep.properties.excludeRules.each { ExcludeRule rule ->
+                                            exclusionNode.appendNode('groupId', rule.group ?: '*')
+                                            exclusionNode.appendNode('artifactId', rule.module ?: '*')
+                                        }
+                                    }
+                                }
+
+                                // List all "compile" dependencies (for old Gradle)
+                                configurations.compile.getDependencies().each { dep -> addDependency(dep, "compile") }
+                                // List all "compileOnly" dependencies (for old Gradle)
+                                configurations.compileOnly.getDependencies().each { dep -> addDependency(dep, "compile") }
+                                // List all "api" dependencies (for new Gradle) as "compile" dependencies
+                                configurations.api.getDependencies().each { dep -> addDependency(dep, "compile") }
+                                // List all "implementation" dependencies (for new Gradle) as "runtime" dependencies
+                                configurations.implementation.getDependencies().each { dep -> addDependency(dep, "runtime") }
+
+                                configurations["${variant.getFlavorName()}Api"].allDependencies.each { dep ->
+                                    addDependency(dep, "compile")
+                                }
+                            }
+                        }
+                    }
+                }
+
+                repositories {
+                    maven {
+                        credentials {
+                            username ossrhUsername
+                            password ossrhPassword
+                        }
+                        url "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    }
+                }
+            }
+
+            signing {
+                sign publishing.publications."maven${exoVersionName}"
+            }
+        }
+    }
+    tasks.publish.dependsOn tasks.assemble
+}
+
+
