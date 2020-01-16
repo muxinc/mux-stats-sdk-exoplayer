@@ -39,11 +39,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
     private WeakReference<MetadataOutput> metaDataListener;
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData);
-        player.addListener(this);
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, true);
     }
 
-    public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+
+        player.addListener(this);
+    }
+	
+	public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
         muxStats.updateCustomerDataForPlayer(customPlayerData, customVideoData);
     }
 

@@ -29,7 +29,11 @@ import java.io.IOException;
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData);
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, true);
+    }
+
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
