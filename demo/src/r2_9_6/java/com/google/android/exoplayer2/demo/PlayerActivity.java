@@ -155,7 +155,7 @@ public class PlayerActivity extends Activity
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
 
-  private MuxStatsExoPlayer muxStatsExoPlayer;
+  private MuxStatsExoPlayer muxStats;
   // Activity lifecycle
 
   @Override
@@ -440,11 +440,12 @@ public class PlayerActivity extends Activity
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStatsExoPlayer = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData);
+      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData, false);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
-      muxStatsExoPlayer.setScreenSize(size.x, size.y);
-      muxStatsExoPlayer.setPlayerView(playerView);
+      muxStats.setScreenSize(size.x, size.y);
+      muxStats.setPlayerView(playerView);
+      muxStats.enableMuxCoreDebug(true, false);
 
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
@@ -490,7 +491,7 @@ public class PlayerActivity extends Activity
 
   private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
-    muxStatsExoPlayer.setStreamType(type);
+    muxStats.setStreamType(type);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory)
@@ -543,12 +544,12 @@ public class PlayerActivity extends Activity
       updateStartPosition();
       debugViewHelper.stop();
       debugViewHelper = null;
-      muxStatsExoPlayer.release();
+      muxStats.release();
       player.release();
       player = null;
       mediaSource = null;
       trackSelector = null;
-      muxStatsExoPlayer = null;
+      muxStats = null;
     }
     if (adsLoader != null) {
       adsLoader.setPlayer(null);
