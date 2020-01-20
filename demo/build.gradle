@@ -176,6 +176,6 @@ dependencies {
     r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
     r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
-    r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    r2_11_1_adsApi 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
 }

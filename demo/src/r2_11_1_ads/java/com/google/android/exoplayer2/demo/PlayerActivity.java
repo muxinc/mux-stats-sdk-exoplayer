@@ -17,6 +17,7 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.media.MediaDrm;
 import android.net.Uri;
 import android.os.Bundle;
@@ -78,6 +79,10 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.model.CustomerPlayerData;
+import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -99,6 +104,8 @@ public class PlayerActivity extends AppCompatActivity
   public static final String ACTION_VIEW = "com.google.android.exoplayer.demo.action.VIEW";
   public static final String ACTION_VIEW_LIST =
       "com.google.android.exoplayer.demo.action.VIEW_LIST";
+
+  public static final String VIDEO_TITLE_EXTRA = "video_title";
 
   // Player configuration extras.
 
@@ -158,6 +165,7 @@ public class PlayerActivity extends AppCompatActivity
 
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
+  private MuxStatsExoPlayer muxStats;
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
 
@@ -376,9 +384,9 @@ public class PlayerActivity extends AppCompatActivity
       lastSeenTrackGroupArray = null;
 
       player =
-          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
-              .setTrackSelector(trackSelector)
-              .build();
+              new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+                      .setTrackSelector(trackSelector)
+                      .build();
       player.addListener(new PlayerEventListener());
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
@@ -389,6 +397,17 @@ public class PlayerActivity extends AppCompatActivity
       if (adsLoader != null) {
         adsLoader.setPlayer(player);
       }
+
+      CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+      CustomerVideoData customerVideoData = new CustomerVideoData();
+      customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
+      muxStats = new MuxStatsExoPlayer(
+              this, player, "demo-player", customerPlayerData, customerVideoData);
+      Point size = new Point();
+      getWindowManager().getDefaultDisplay().getSize(size);
+      muxStats.setScreenSize(size.x, size.y);
+      muxStats.setPlayerView(playerView);
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
