@@ -83,7 +83,6 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
-import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -166,8 +165,6 @@ public class PlayerActivity extends AppCompatActivity
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
   private MuxStatsExoPlayer muxStats;
-  private AdsLoader adsLoader;
-  private Uri loadedAdTagUri;
 
   // Activity lifecycle
 
@@ -231,7 +228,6 @@ public class PlayerActivity extends AppCompatActivity
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     releasePlayer();
-    releaseAdsLoader();
     clearStartPosition();
     setIntent(intent);
   }
@@ -283,7 +279,6 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onDestroy() {
     super.onDestroy();
-    releaseAdsLoader();
   }
 
   @Override
@@ -394,9 +389,6 @@ public class PlayerActivity extends AppCompatActivity
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
-      if (adsLoader != null) {
-        adsLoader.setPlayer(player);
-      }
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
@@ -433,9 +425,7 @@ public class PlayerActivity extends AppCompatActivity
             ? ((Sample.PlaylistSample) intentAsSample).children
             : new UriSample[] {(UriSample) intentAsSample};
 
-    boolean seenAdsTagUri = false;
     for (UriSample sample : samples) {
-      seenAdsTagUri |= sample.adTagUri != null;
       if (!Util.checkCleartextTrafficPermitted(sample.uri)) {
         showToast(R.string.error_cleartext_not_permitted);
         return null;
@@ -465,27 +455,6 @@ public class PlayerActivity extends AppCompatActivity
     }
     MediaSource mediaSource =
         mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
-
-    if (seenAdsTagUri) {
-      Uri adTagUri = samples[0].adTagUri;
-      if (actionIsListView) {
-        showToast(R.string.unsupported_ads_in_concatenation);
-      } else {
-        if (!adTagUri.equals(loadedAdTagUri)) {
-          releaseAdsLoader();
-          loadedAdTagUri = adTagUri;
-        }
-        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, adTagUri);
-        if (adsMediaSource != null) {
-          mediaSource = adsMediaSource;
-        } else {
-          showToast(R.string.ima_not_loaded);
-        }
-      }
-    } else {
-      releaseAdsLoader();
-    }
-
     return mediaSource;
   }
 
@@ -576,18 +545,6 @@ public class PlayerActivity extends AppCompatActivity
       mediaSource = null;
       trackSelector = null;
     }
-    if (adsLoader != null) {
-      adsLoader.setPlayer(null);
-    }
-  }
-
-  private void releaseAdsLoader() {
-    if (adsLoader != null) {
-      adsLoader.release();
-      adsLoader = null;
-      loadedAdTagUri = null;
-      playerView.getOverlayFrameLayout().removeAllViews();
-    }
   }
 
   private void updateTrackSelectorParameters() {
@@ -613,45 +570,6 @@ public class PlayerActivity extends AppCompatActivity
   /** Returns a new DataSource factory. */
   private DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
-  }
-
-  /** Returns an ads media source, reusing the ads loader if one exists. */
-  @Nullable
-  private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
-    // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-    try {
-      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-      if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
-      }
-      MediaSourceFactory adMediaSourceFactory =
-          new MediaSourceFactory() {
-            @Override
-            public MediaSource createMediaSource(Uri uri) {
-              return PlayerActivity.this.createLeafMediaSource(
-                  uri, /* extension=*/ null, DrmSessionManager.getDummyDrmSessionManager());
-            }
-
-            @Override
-            public int[] getSupportedTypes() {
-              return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
-            }
-          };
-      return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
-    } catch (ClassNotFoundException e) {
-      // IMA extension not loaded.
-      return null;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   // User controls
