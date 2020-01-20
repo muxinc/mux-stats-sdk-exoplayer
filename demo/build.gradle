@@ -76,6 +76,16 @@ android {
             res.srcDirs = ['./src/r2_10_6_ads/res']
             assets.srcDirs = ['./src/r2_10_6_ads/assets']
         }
+        r2_11_1 {
+            java.srcDirs = ['./src/r2_11_1/java']
+            res.srcDirs = ['./src/r2_11_1/res']
+            assets.srcDirs = ['./src/r2_11_1/assets']
+        }
+        r2_11_1_ads {
+            java.srcDirs = ['./src/r2_11_1_ads/java']
+            res.srcDirs = ['./src/r2_11_1_ads/res']
+            assets.srcDirs = ['./src/r2_11_1_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -130,6 +140,26 @@ android {
                 targetCompatibility = JavaVersion.VERSION_1_8
             }
         }
+        r2_11_1 {
+            dimension 'api'
+            minSdkVersion 24
+            compileSdkVersion 29
+            targetSdkVersion 29
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+        }
+        r2_11_1_ads {
+            dimension 'api'
+            minSdkVersion 24
+            compileSdkVersion 29
+            targetSdkVersion 29
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+        }
     }
 }
 
@@ -146,4 +176,6 @@ dependencies {
     r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
     r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+    r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
 }
