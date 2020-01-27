@@ -26,7 +26,7 @@ public class RequestHeaderParser implements MediaSourceEventListener {
 
     public RequestHeaderParser(MuxStatsExoPlayer muxStats) {
         this.muxStats = muxStats;
-        cdnHeaderValues.add("server");
+        cdnHeaderValues.add("x-cdn");
     }
 
     @Override
