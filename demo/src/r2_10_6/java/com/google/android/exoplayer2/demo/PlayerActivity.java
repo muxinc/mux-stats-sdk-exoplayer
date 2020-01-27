@@ -23,6 +23,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Handler;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -51,6 +53,7 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -77,6 +80,7 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -154,6 +158,8 @@ public class PlayerActivity extends AppCompatActivity
   private Uri loadedAdTagUri;
 
   // Activity lifecycle
+  RequestHeaderParser headerParser;
+  Handler uiHandler = new Handler();
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -439,9 +445,11 @@ public class PlayerActivity extends AppCompatActivity
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
 
+      headerParser = new RequestHeaderParser(muxStats);
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
         mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+        mediaSources[i].addEventListener(uiHandler, headerParser);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -467,6 +475,7 @@ public class PlayerActivity extends AppCompatActivity
       player.seekTo(startWindow, startPosition);
     }
     player.prepare(mediaSource, !haveStartPosition, false);
+
     updateButtonVisibility();
   }
 
