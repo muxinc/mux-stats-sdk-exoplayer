@@ -48,6 +48,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
     }
 
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutputForPlayer(enable, verbose);
+    }
+
     @Override
     public void release() {
         if (this.player.get() != null) {
@@ -287,43 +291,37 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
+    public void onIsPlayingChanged(boolean isPlaying) {
+        this.isPlaying = isPlaying;
+    }
+
+    @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
-                    pause();
-                    break;
-                case Player.STATE_READY:
-                    // When started with play when ready = false
-                    // then play event and buffering events are missed and need to be sent,
-                    if (eventsFailedToSendBeforePlayingEvent.size() > 0) {
-                        for (IEvent missingEvent : eventsFailedToSendBeforePlayingEvent) {
-                            dispatch(missingEvent);
-                        }
-                        eventsFailedToSendBeforePlayingEvent.clear();
-                    }
-                    playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                buffering();
+                break;
+            case Player.STATE_ENDED:
                 pause();
-            }
-            if (playbackState == Player.STATE_BUFFERING) {
-                eventsFailedToSendBeforePlayingEvent.add(new TimeUpdateEvent(null));
-                eventsFailedToSendBeforePlayingEvent.add(new PlayEvent(null));
-            }
+                break;
+            case Player.STATE_READY:
+                if (isPlaying) {
+                    if (numberOfVideoFramesRendered == 0) {
+                        play();
+                        playing();
+                    } else {
+                        // We have rendered more then one frame, this means play event is already fired
+                        playing();
+                    }
+                } else {
+                    pause();
+                }
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // Don't care.
+                break;
         }
     }
 

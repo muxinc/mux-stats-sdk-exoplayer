@@ -50,6 +50,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_DRM = -2;
     protected static final int ERROR_IO = -3;
     protected boolean playWhenReady;
+    protected boolean isPlaying;
+    protected long numberOfVideoFramesRendered;
 
     protected String mimeType;
     protected Integer sourceWidth;
@@ -67,12 +69,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
     protected PlayerState state;
     protected MuxStats muxStats;
-    protected ArrayList<IEvent> eventsFailedToSendBeforePlayingEvent;
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
-        eventsFailedToSendBeforePlayingEvent = new ArrayList<>();
+        isPlaying = false;
+        numberOfVideoFramesRendered = 0;
         state = PlayerState.INIT;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -84,6 +86,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             @Override
             public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+                numberOfVideoFramesRendered++;
             }
         });
     }

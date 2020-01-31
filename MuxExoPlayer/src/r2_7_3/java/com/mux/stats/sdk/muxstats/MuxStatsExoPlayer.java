@@ -57,6 +57,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         }
         player.addListener(this);
     }
+	
+	public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutputForPlayer(enable, verbose);
+    }
 
     @Override
     public void release() {
