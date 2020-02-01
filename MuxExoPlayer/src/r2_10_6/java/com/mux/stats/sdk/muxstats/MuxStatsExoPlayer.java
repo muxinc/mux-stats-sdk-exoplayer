@@ -19,7 +19,9 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.events.IEvent;
+import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
@@ -39,13 +41,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
             if (player.isPlaying()) {
                 // playback started before mux got intialized
-                play();
-                buffering();
-                playing();
+                // Buffering
+                dispatch(new TimeUpdateEvent(null));
+                dispatch(new PlayEvent(null));
+                dispatch(new PlayingEvent(null));
             }
-        } else {
-            player.addListener(this);
         }
+        player.addListener(this);
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
@@ -248,7 +250,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
-
+        // TODO maybe save the time at which it is rendered
+        isFirstFrameRendered = true;
     }
 
     @Override
@@ -293,6 +296,17 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onIsPlayingChanged(boolean isPlaying) {
         this.isPlaying = isPlaying;
+        if (isPlaying) {
+            if (numberOfVideoFramesRendered <= 10) {
+                dispatch(new PlayEvent(null));
+                dispatch(new PlayingEvent(null));
+            } else {
+                // We have rendered more then one frame, this means play event is already fired
+                dispatch(new PlayingEvent(null));
+            }
+        } else {
+            dispatch(new PauseEvent(null));
+        }
     }
 
     @Override
@@ -300,25 +314,17 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         this.playWhenReady = playWhenReady;
         switch (playbackState) {
             case Player.STATE_BUFFERING:
-                buffering();
+                // Buffering event
+                dispatch(new TimeUpdateEvent(null));
+                isBuffering = true;
                 break;
             case Player.STATE_ENDED:
-                pause();
+                dispatch(new PauseEvent(null));
+                isBuffering = false;
                 break;
             case Player.STATE_READY:
-                if (isPlaying) {
-                    if (numberOfVideoFramesRendered == 0) {
-                        play();
-                        playing();
-                    } else {
-                        // We have rendered more then one frame, this means play event is already fired
-                        playing();
-                    }
-                } else {
-                    pause();
-                }
-                break;
             case Player.STATE_IDLE:
+                isBuffering = false;
             default:
                 // Don't care.
                 break;
