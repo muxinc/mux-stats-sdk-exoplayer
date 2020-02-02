@@ -265,8 +265,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isPaused() {
-        return !isPlaying;
-	}
+        return !playWhenReady;
+    }
 
     protected void buffering() {
         state = PlayerState.BUFFERING;

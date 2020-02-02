@@ -376,4 +376,29 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onSeekProcessed() {
 
     }
+    
+    @Override
+    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
+    
+    }
+
+    @Override
+    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
+    
+    }
+
+    @Override
+    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
+    
+    }
+
+    @Override
+    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
+    
+    }
+
+    @Override
+    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
+    
+    }
 }

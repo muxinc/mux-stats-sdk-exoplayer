@@ -50,6 +50,18 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             playing();
         }
     }
+	
+	public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerDataForPlayer(customPlayerData, customVideoData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
+    }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
         muxStats.allowLogcatOutputForPlayer(enable, verbose);
@@ -258,9 +270,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
-        // TODO maybe save the time at which it is rendered
-        isFirstFrameRendered = true;
-        play();
+
     }
 
     @Override
