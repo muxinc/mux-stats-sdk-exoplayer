@@ -21,9 +21,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.mux.stats.sdk.core.events.IEvent;
-import com.mux.stats.sdk.core.events.playback.PlayEvent;
-import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -40,17 +37,17 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
-            if (player.getPlaybackState() == Player.STATE_BUFFERING) {
-                // playback started before mux got intialized
-                play();
-                buffering();
-            } else if (player.getPlaybackState() == Player.STATE_READY) {
-                play();
-                buffering();
-                playing();
-            }
         } else {
             player.addListener(this);
+        }
+        if (player.getPlaybackState() == Player.STATE_READY) {
+            /*
+             Player started playing before Mux stats was initialized, fire buffering,
+             play and playing events
+             */
+            buffering();
+            play();
+            playing();
         }
     }
 
@@ -180,17 +177,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onMediaPeriodCreated(EventTime eventTime) {
-
     }
 
     @Override
     public void onMediaPeriodReleased(EventTime eventTime) {
-
     }
 
     @Override
     public void onReadingStarted(EventTime eventTime) {
-
     }
 
     @Override
@@ -212,7 +206,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onMetadata(EventTime eventTime, Metadata metadata) {
-
     }
 
     @Override
@@ -265,7 +258,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
-
+        // TODO maybe save the time at which it is rendered
+        isFirstFrameRendered = true;
+        play();
     }
 
     @Override
@@ -310,41 +305,24 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
-                    pause();
-                    break;
-                case Player.STATE_READY:
-                    // When started with play when ready = false
-                    // then play event and buffering events are missed and need to be sent,
-                    if (eventsFailedToSendBeforePlayingEvent.size() > 0) {
-                        for (IEvent missingEvent : eventsFailedToSendBeforePlayingEvent) {
-                            dispatch(missingEvent);
-                        }
-                        eventsFailedToSendBeforePlayingEvent.clear();
-                    }
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // Buffering event
+                buffering();
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                if (playWhenReady) {
                     playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
-            if (playbackState == Player.STATE_BUFFERING) {
-                eventsFailedToSendBeforePlayingEvent.add(new TimeUpdateEvent(null));
-                eventsFailedToSendBeforePlayingEvent.add(new PlayEvent(null));
-            }
+                } else {
+                    pause();
+                }
+            case Player.STATE_IDLE:
+            default:
+                // Don't care.
+                break;
         }
     }
 

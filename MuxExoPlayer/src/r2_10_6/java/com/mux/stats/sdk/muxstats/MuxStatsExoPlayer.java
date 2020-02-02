@@ -39,15 +39,18 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
-            if (player.isPlaying()) {
-                // playback started before mux got intialized
-                // Buffering
-                dispatch(new TimeUpdateEvent(null));
-                dispatch(new PlayEvent(null));
-                dispatch(new PlayingEvent(null));
-            }
+        } else {
+            player.addListener(this);
         }
-        player.addListener(this);
+        if (player.getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before mux got intialized
+            play();
+            buffering();
+        } else if (player.getPlaybackState() == Player.STATE_READY) {
+            play();
+            buffering();
+            playing();
+        }
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
@@ -294,37 +297,26 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
-    public void onIsPlayingChanged(boolean isPlaying) {
-        this.isPlaying = isPlaying;
-        if (isPlaying) {
-            if (numberOfVideoFramesRendered <= 10) {
-                dispatch(new PlayEvent(null));
-                dispatch(new PlayingEvent(null));
-            } else {
-                // We have rendered more then one frame, this means play event is already fired
-                dispatch(new PlayingEvent(null));
-            }
-        } else {
-            dispatch(new PauseEvent(null));
-        }
-    }
-
-    @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
         switch (playbackState) {
             case Player.STATE_BUFFERING:
                 // Buffering event
-                dispatch(new TimeUpdateEvent(null));
-                isBuffering = true;
+                buffering();
+                if (playWhenReady) {
+                    play();
+                }
                 break;
             case Player.STATE_ENDED:
-                dispatch(new PauseEvent(null));
-                isBuffering = false;
+                ended();
                 break;
             case Player.STATE_READY:
+                if (playWhenReady) {
+                    playing();
+                } else {
+                    pause();
+                }
             case Player.STATE_IDLE:
-                isBuffering = false;
             default:
                 // Don't care.
                 break;

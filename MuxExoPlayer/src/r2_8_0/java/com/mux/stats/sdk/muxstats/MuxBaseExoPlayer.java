@@ -22,6 +22,7 @@ import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
@@ -44,6 +45,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_DRM = -2;
     protected static final int ERROR_IO = -3;
     protected boolean playWhenReady;
+    protected boolean isFirstFrameRendered;
+    protected boolean isPlaying;
 
     protected String mimeType;
     protected Integer sourceWidth;
@@ -56,17 +59,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
-    protected ArrayList<IEvent> eventsFailedToSendBeforePlayingEvent;
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
-        eventsFailedToSendBeforePlayingEvent = new ArrayList<>();
         state = PlayerState.INIT;
+        isFirstFrameRendered = false;
+        isPlaying = false;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
@@ -264,11 +267,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (state ==  PlayerState.PAUSED) {
+        if (state == PlayerState.PAUSED) {
             play();
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void ended() {
+        state = PlayerState.ENDED;
+        dispatch(new PauseEvent(null));
+        dispatch(new EndedEvent(null));
     }
 
     protected void internalError(Exception error) {

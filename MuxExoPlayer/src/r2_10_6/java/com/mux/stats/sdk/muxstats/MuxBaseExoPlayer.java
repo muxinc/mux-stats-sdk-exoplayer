@@ -27,6 +27,7 @@ import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
@@ -51,7 +52,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_IO = -3;
     protected boolean playWhenReady;
     protected boolean isPlaying;
-    protected boolean isBuffering;
     protected boolean isFirstFrameRendered;
     protected long numberOfVideoFramesRendered;
 
@@ -65,13 +65,18 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected WeakReference<View> playerView;
 
     protected int streamType = -1;
+
+    public enum PlayerState {
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
+    }
+    protected PlayerState state;
     protected MuxStats muxStats;
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
         isPlaying = false;
-        isFirstFrameRendered = false;
+        state = PlayerState.INIT;
         numberOfVideoFramesRendered = 0;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -226,9 +231,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return sourceDuration;
     }
 
+    // State Transitions
+    public PlayerState getState() {
+        return state;
+    }
+
     @Override
     public boolean isBuffering() {
-        return isBuffering;
+        return getState() == MuxBaseExoPlayer.PlayerState.BUFFERING;
     }
 
     @Override
@@ -256,6 +266,35 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public boolean isPaused() {
         return !isPlaying;
+	}
+
+    protected void buffering() {
+        state = PlayerState.BUFFERING;
+        dispatch(new TimeUpdateEvent(null));
+    }
+
+    protected void pause() {
+        state = PlayerState.PAUSED;
+        dispatch(new PauseEvent(null));
+    }
+
+    protected void play() {
+        state = PlayerState.PLAY;
+        dispatch(new PlayEvent(null));
+    }
+
+    protected void playing() {
+        if (state == PlayerState.PAUSED) {
+            play();
+        }
+        state = PlayerState.PLAYING;
+        dispatch(new PlayingEvent(null));
+    }
+
+    protected  void ended() {
+        state = PlayerState.ENDED;
+        dispatch(new PauseEvent(null));
+        dispatch(new EndedEvent(null));
     }
 
     protected void internalError(Exception error) {

@@ -107,41 +107,27 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
-                    pause();
-                    break;
-                case Player.STATE_READY:
-                    // When started with play when ready = false
-                    // then play event and buffering events are missed and need to be sent,
-                    if (eventsFailedToSendBeforePlayingEvent.size() > 0) {
-                        for (IEvent missingEvent : eventsFailedToSendBeforePlayingEvent) {
-                            dispatch(missingEvent);
-                        }
-                        eventsFailedToSendBeforePlayingEvent.clear();
-                    }
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // Buffering event
+                buffering();
+                if (playWhenReady) {
+                    play();
+                }
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                if (playWhenReady) {
                     playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
-            if (playbackState == Player.STATE_BUFFERING) {
-                eventsFailedToSendBeforePlayingEvent.add(new TimeUpdateEvent(null));
-                eventsFailedToSendBeforePlayingEvent.add(new PlayEvent(null));
-            }
+                } else {
+                    pause();
+                }
+            case Player.STATE_IDLE:
+            default:
+                // Don't care.
+                break;
         }
     }
 
