@@ -51,7 +51,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_DRM = -2;
     protected static final int ERROR_IO = -3;
     protected boolean playWhenReady;
-    protected boolean isPlaying;
     protected boolean isFirstFrameRendered;
     protected long numberOfVideoFramesRendered;
 
@@ -75,7 +74,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
-        isPlaying = false;
         state = PlayerState.INIT;
         numberOfVideoFramesRendered = 0;
         MuxStats.setHostDevice(new MuxDevice(ctx));
@@ -265,7 +263,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isPaused() {
-        return !isPlaying;
+        return !playWhenReady;
 	}
 
     protected void buffering() {

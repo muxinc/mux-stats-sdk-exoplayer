@@ -58,8 +58,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         player.addListener(this);
     }
 	
-	public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerDataForPlayer(customPlayerData, customVideoData);
+	public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
     }
 
     public CustomerVideoData getCustomerVideoData() {

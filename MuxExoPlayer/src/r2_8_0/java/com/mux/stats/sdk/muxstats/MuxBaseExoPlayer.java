@@ -46,7 +46,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_IO = -3;
     protected boolean playWhenReady;
     protected boolean isFirstFrameRendered;
-    protected boolean isPlaying;
 
     protected String mimeType;
     protected Integer sourceWidth;
@@ -69,7 +68,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         this.player = new WeakReference<>(player);
         state = PlayerState.INIT;
         isFirstFrameRendered = false;
-        isPlaying = false;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);

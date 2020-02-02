@@ -11,6 +11,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -321,6 +322,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // Don't care.
                 break;
         }
+    }
+
+    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
     }
 
     @Override

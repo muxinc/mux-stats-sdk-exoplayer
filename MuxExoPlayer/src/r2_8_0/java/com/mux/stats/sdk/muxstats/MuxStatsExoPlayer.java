@@ -51,8 +51,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
     }
 	
-	public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerDataForPlayer(customPlayerData, customVideoData);
+	public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
     }
 
     public CustomerVideoData getCustomerVideoData() {
@@ -319,6 +319,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             case Player.STATE_BUFFERING:
                 // Buffering event
                 buffering();
+                if (playWhenReady) {
+                    play();
+                }
                 break;
             case Player.STATE_ENDED:
                 ended();
