@@ -37,22 +37,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         } else {
             player.addListener(this);
         }
-    }
-
-    public void updateCustomerDataForPlayer(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerDataForPlayer(customPlayerData, customVideoData);
-    }
-
-    public CustomerVideoData getCustomerVideoData() {
-        return muxStats.getCustomerVideoData();
-    }
-
-    public CustomerPlayerData getCustomerPlayerData() {
-        return muxStats.getCustomerPlayerData();
-    }
-
-    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
-        muxStats.allowLogcatOutputForPlayer(enable, verbose);
+        if (player.getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+        } else if (player.getPlaybackState() == Player.STATE_READY) {
+            // We have to simulate all the events we expect to see here, even though not ideal
+            play();
+            buffering();
+            playing();
+        }
     }
 
     @Override
@@ -296,29 +290,32 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // We have entered buffering
+                buffering();
+                // If we are expected to playWhenReady, signal the play event
+                if (playWhenReady) {
+                    play();
+                } else {
                     pause();
-                    break;
-                case Player.STATE_READY:
+                }
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                // By the time we get here, it depends on playWhenReady to know if we're playing
+                if (playWhenReady) {
                     playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
+                } else {
+                    pause();
+                }
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // don't care
+                break;
         }
     }
 

@@ -27,6 +27,7 @@ import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
@@ -65,7 +66,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -149,6 +150,24 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         } catch (ClassNotFoundException cnfe) {
             return;
         }
+    }
+
+
+    @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutputForPlayer(enable, verbose);
     }
 
     @SuppressWarnings("unused")
@@ -280,11 +299,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (state ==  PlayerState.PAUSED) {
+        if (state == PlayerState.PAUSED) {
             play();
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void ended() {
+        state = PlayerState.ENDED;
+        dispatch(new PauseEvent(null));
+        dispatch(new EndedEvent(null));
     }
 
     protected void internalError(Exception error) {
