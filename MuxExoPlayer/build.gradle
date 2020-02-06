@@ -116,4 +116,6 @@ dependencies {
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     api files('libs/MuxCore.jar')
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }
