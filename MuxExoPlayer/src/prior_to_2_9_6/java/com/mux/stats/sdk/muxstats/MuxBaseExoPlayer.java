@@ -375,7 +375,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginVersion() {
-            return BuildConfig.MUX_PLUGIN_NAME;
+            return BuildConfig.MUX_PLUGIN_VERSION;
         }
 
         @Override
