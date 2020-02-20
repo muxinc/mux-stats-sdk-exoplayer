@@ -37,6 +37,8 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.os.SystemClock.elapsedRealtime;
+
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final String TAG = "MuxStatsListener";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
@@ -355,6 +357,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         @Override
         public String getPlayerSoftware() {
             return EXO_SOFTWARE;
+        }
+
+        @Override
+        public long getElapsedRealtime() {
+            return elapsedRealtime();
         }
 
         @Override
