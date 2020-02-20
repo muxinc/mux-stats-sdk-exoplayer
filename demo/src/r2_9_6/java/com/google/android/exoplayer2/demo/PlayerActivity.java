@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
@@ -78,6 +79,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.CorePlayer;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -155,7 +157,7 @@ public class PlayerActivity extends Activity
   private AdsLoader adsLoader;
   private Uri loadedAdTagUri;
 
-  private MuxStatsExoPlayer muxStatsExoPlayer;
+  private MuxStatsExoPlayer muxStats;
   // Activity lifecycle
 
   @Override
@@ -205,6 +207,21 @@ public class PlayerActivity extends Activity
     } else {
       trackSelectorParameters = new DefaultTrackSelector.ParametersBuilder().build();
       clearStartPosition();
+    }
+  }
+  
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+
+    if (muxStats == null) {
+      return;
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      muxStats.orientationChange(CorePlayer.MuxSDKViewOrientation.LANDSCAPE);
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+      muxStats.orientationChange(CorePlayer.MuxSDKViewOrientation.PORTRAIT);
     }
   }
 
@@ -440,11 +457,11 @@ public class PlayerActivity extends Activity
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStatsExoPlayer = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData, false);
+      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData, false);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
-      muxStatsExoPlayer.setScreenSize(size.x, size.y);
-      muxStatsExoPlayer.setPlayerView(playerView);
+      muxStats.setScreenSize(size.x, size.y);
+      muxStats.setPlayerView(playerView);
 
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
@@ -490,7 +507,7 @@ public class PlayerActivity extends Activity
 
   private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
-    muxStatsExoPlayer.setStreamType(type);
+    muxStats.setStreamType(type);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory)
@@ -543,12 +560,12 @@ public class PlayerActivity extends Activity
       updateStartPosition();
       debugViewHelper.stop();
       debugViewHelper = null;
-      muxStatsExoPlayer.release();
+      muxStats.release();
       player.release();
       player = null;
       mediaSource = null;
       trackSelector = null;
-      muxStatsExoPlayer = null;
+      muxStats = null;
     }
     if (adsLoader != null) {
       adsLoader.setPlayer(null);
