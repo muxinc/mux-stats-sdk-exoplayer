@@ -198,8 +198,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public void dispatch(IEvent event) {
-        if (player != null && player.get() != null && muxStats != null)
+        if (player != null && player.get() != null && muxStats != null) {
             super.dispatch(event);
+        }
     }
 
     @Override
@@ -263,7 +264,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isPaused() {
-        return !playWhenReady;
+        return state == PlayerState.PAUSED || state == PlayerState.ENDED || state == PlayerState.ERROR || state == PlayerState.INIT;
     }
 
     protected void buffering() {
@@ -290,9 +291,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void ended() {
-        state = PlayerState.ENDED;
         dispatch(new PauseEvent(null));
         dispatch(new EndedEvent(null));
+        state = PlayerState.ENDED;
     }
 
     protected void internalError(Exception error) {
