@@ -438,6 +438,7 @@ public class PlayerActivity extends AppCompatActivity
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
+      muxStats.enableMuxCoreDebug(true, false);
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
