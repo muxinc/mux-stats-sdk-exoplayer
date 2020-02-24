@@ -56,6 +56,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected String mimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
+    protected Integer sourceAdvertisedBitrate;
+    protected Float sourceAdvertiseFramerate;
     protected Long sourceDuration;
     protected ExoPlayerHandler playerHandler;
 
@@ -220,6 +222,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Integer getSourceHeight() {
         return sourceHeight;
+    }
+
+    @Override
+    public Integer getSourceAdvertisedBitrate() {
+        return sourceAdvertisedBitrate;
+    }
+
+    @Override
+    public Float getSourceAdvertisedFramerate() {
+        return sourceAdvertiseFramerate;
     }
 
     @Override

@@ -374,14 +374,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     private void handleRenditionChange(Format format) {
         if (format != null) {
-            VideoData videoData = new VideoData();
-            videoData.setVideoSourceWidth(format.width);
-            videoData.setVideoSourceHeight(format.height);
-            videoData.setVideoSourceAdvertisedBitrate(format.bitrate);
-            videoData.setVideoSourceAdvertisedFramerate(format.frameRate);
-            videoData.setVideoSourceMimeType(format.containerMimeType);
+            sourceAdvertisedBitrate = format.bitrate;
+            sourceAdvertiseFramerate = format.frameRate;
+            sourceWidth = format.width;
+            sourceHeight = format.height;
             RenditionChangeEvent event = new RenditionChangeEvent(null);
-            event.setVideoData(videoData);
             dispatch(event);
         }
     }
