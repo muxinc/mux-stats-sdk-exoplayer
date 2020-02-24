@@ -291,6 +291,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
+        PlayerState state = this.getState();
         switch (playbackState) {
             case Player.STATE_BUFFERING:
                 // We have entered buffering
@@ -298,7 +299,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // If we are expected to playWhenReady, signal the play event
                 if (playWhenReady) {
                     play();
-                } else {
+                } else if (state != PlayerState.PAUSED){
                     pause();
                 }
                 break;
@@ -309,7 +310,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // By the time we get here, it depends on playWhenReady to know if we're playing
                 if (playWhenReady) {
                     playing();
-                } else {
+                } else if (state != PlayerState.PAUSED){
                     pause();
                 }
                 break;
