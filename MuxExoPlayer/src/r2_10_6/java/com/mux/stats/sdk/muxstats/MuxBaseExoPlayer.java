@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static android.os.SystemClock.elapsedRealtime;
+
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final String TAG = "MuxStatsListener";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
@@ -54,6 +56,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected String mimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
+    protected Integer sourceAdvertisedBitrate;
+    protected Float sourceAdvertiseFramerate;
     protected Long sourceDuration;
     protected ExoPlayerHandler playerHandler;
 
@@ -218,6 +222,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Integer getSourceHeight() {
         return sourceHeight;
+    }
+
+    @Override
+    public Integer getSourceAdvertisedBitrate() {
+        return sourceAdvertisedBitrate;
+    }
+
+    @Override
+    public Float getSourceAdvertisedFramerate() {
+        return sourceAdvertiseFramerate;
     }
 
     @Override
@@ -397,6 +411,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         @Override
         public String getPlayerSoftware() {
             return EXO_SOFTWARE;
+        }
+
+        @Override
+        public long getElapsedRealtime() {
+            return elapsedRealtime();
         }
 
         @Override

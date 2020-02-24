@@ -58,10 +58,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         super.release();
     }
 
-    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
-        muxStats.allowLogcatOutputForPlayer(allow, verbose);
-    }
-
     @Override
     public void onPlayerStateChanged(EventTime eventTime, boolean playWhenReady,
             int playbackState) {

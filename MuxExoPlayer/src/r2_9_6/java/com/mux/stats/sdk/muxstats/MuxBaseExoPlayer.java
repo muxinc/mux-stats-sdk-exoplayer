@@ -687,8 +687,4 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected BandwidthMetricDispatcher bandwidthDispatcher = new BandwidthMetricDispatcher();
     protected List<BandwidthMetricData.Rendition> renditionList;
-
-    public List<BandwidthMetricData.Rendition> getRenditionList() {
-        return renditionList;
-    }
 }
