@@ -49,10 +49,10 @@ android {
             java.srcDirs = ['./src/r2_10_6/java', './src/r2_9_6_and_later/java']
         }
         r2_11_1 {
-            java.srcDirs = ['./src/r2_11_1/java']
+            java.srcDirs = ['./src/r2_11_1/java', './src/r2_9_6_and_later/java']
         }
         r2_11_1_ads {
-            java.srcDirs = ['./src/r2_11_1/java']
+            java.srcDirs = ['./src/r2_11_1/java', './src/r2_9_6_and_later/java']
         }
     }
 
