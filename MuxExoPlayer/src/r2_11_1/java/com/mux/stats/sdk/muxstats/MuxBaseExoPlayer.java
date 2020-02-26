@@ -90,10 +90,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         });
     }
 
-    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
-        muxStats.allowLogcatOutputForPlayer(allow, verbose);
-    }
-
     public void setAdsListener(AdsImaSDKListener listener) {
         imaListener = listener;
         imaListener.setExoPlayerListener(this);

@@ -412,7 +412,6 @@ public class PlayerActivity extends AppCompatActivity
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
-      muxStats.allowLogcatOutputForPlayer(true, false);
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
