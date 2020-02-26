@@ -47,6 +47,7 @@ import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.MediaDrmCallback;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadHelper;
@@ -81,6 +82,7 @@ import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
 import java.lang.reflect.Constructor;
@@ -167,6 +169,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private MuxStatsExoPlayer muxStats;
   private AdsLoader adsLoader;
+  private AdsImaSDKListener imaAdsListener;
   private Uri loadedAdTagUri;
 
   // Activity lifecycle
@@ -399,15 +402,17 @@ public class PlayerActivity extends AppCompatActivity
       }
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+      customerPlayerData.setEnvironmentKey("eo12j5272jd1vpcb8ntfmk9kb");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
               this, player, "demo-player", customerPlayerData, customerVideoData);
+      muxStats.setAdsListener(imaAdsListener);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
+      muxStats.allowLogcatOutputForPlayer(true, false);
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -618,19 +623,14 @@ public class PlayerActivity extends AppCompatActivity
   /** Returns an ads media source, reusing the ads loader if one exists. */
   @Nullable
   private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
-    // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
-      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
       if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
+        imaAdsListener = new AdsImaSDKListener();
+        ImaAdsLoader imaAdsLoader =  new ImaAdsLoader.Builder(this)
+                .setAdEventListener(imaAdsListener)
+                .buildForAdTag(adTagUri);
+        imaAdsLoader.getAdsLoader().addAdErrorListener(imaAdsListener);
+        adsLoader = imaAdsLoader;
       }
       MediaSourceFactory adMediaSourceFactory =
           new MediaSourceFactory() {
@@ -646,9 +646,9 @@ public class PlayerActivity extends AppCompatActivity
             }
           };
       return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
-    } catch (ClassNotFoundException e) {
-      // IMA extension not loaded.
-      return null;
+//    } catch (ClassNotFoundException e) {
+//      // IMA extension not loaded.
+//      return null;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

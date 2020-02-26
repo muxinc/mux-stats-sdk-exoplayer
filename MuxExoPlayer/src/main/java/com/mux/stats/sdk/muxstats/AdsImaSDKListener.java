@@ -21,7 +21,15 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     private MuxBaseExoPlayer exoPlayerListener;
     private boolean needSendAdResponse = false;
 
+    public AdsImaSDKListener() {
+
+    }
+
     public AdsImaSDKListener(MuxBaseExoPlayer listener) {
+        exoPlayerListener = listener;
+    }
+
+    public void setExoPlayerListener(MuxBaseExoPlayer listener) {
         exoPlayerListener = listener;
     }
 
