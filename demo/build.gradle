@@ -112,7 +112,7 @@ android {
         }
         r2_10_6 {
             dimension 'api'
-            minSdkVersion 24
+            minSdkVersion 26
             compileSdkVersion 29
             targetSdkVersion 29
             compileOptions {

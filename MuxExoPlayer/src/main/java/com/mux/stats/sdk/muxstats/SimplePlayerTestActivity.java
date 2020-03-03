@@ -34,10 +34,10 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 
 public class SimplePlayerTestActivity extends AppCompatActivity implements PlaybackPreparer, Player.EventListener {
 
-    static final String TAG = "MainActivity";
+    static final String TAG = "SimplePlayerTestActivity";
 
-    private PlayerView playerView;
-    private SimpleExoPlayer player;
+    public PlayerView playerView;
+    public SimpleExoPlayer player;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +70,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
                 .createMediaSource(testUri);
 //        MediaSource testMediaSource = new ExtractorMediaSource.Factory(buildDataSourceFactory()).createMediaSource(testUri);
 
-        Handler lHandler = new Handler();
+//        Handler lHandler = new Handler();
 
 //        lHandler.postDelayed(new Runnable() {
 //            @Override
@@ -79,25 +79,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
 //            }
 //        }, 9000);
 
-        initMuxSats();
+//        initMuxSats();
 //        player.setPlayWhenReady(true);
         player.setPlayWhenReady(false);
         player.prepare(testMediaSource, false, false);
-    }
-
-    private void initMuxSats() {
-        // Mux details
-        CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
-        CustomerVideoData customerVideoData = new CustomerVideoData();
-        customerVideoData.setVideoTitle("Test video");
-        MuxStatsExoPlayer muxStats = new MuxStatsExoPlayer(
-                this, player, "demo-player", customerPlayerData, customerVideoData);
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        muxStats.setScreenSize(size.x, size.y);
-        muxStats.setPlayerView(playerView);
-        muxStats.enableMuxCoreDebug(true, false);
     }
 
     private RenderersFactory buildRenderersFactory(boolean preferExtensionRenderer) {
@@ -149,6 +134,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
     @Override
     public void onPlayerError(ExoPlaybackException error) {
         Log.e(TAG, error.getMessage());
+        error.printStackTrace();
     }
 
     @Override
