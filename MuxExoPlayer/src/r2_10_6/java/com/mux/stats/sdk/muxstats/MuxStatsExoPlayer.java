@@ -379,17 +379,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     }
 
-    private void handleRenditionChange(Format format) {
-        if (format != null) {
-            sourceAdvertisedBitrate = format.bitrate;
-            sourceAdvertiseFramerate = format.frameRate;
-            sourceWidth = format.width;
-            sourceHeight = format.height;
-            RenditionChangeEvent event = new RenditionChangeEvent(null);
-            dispatch(event);
-        }
-    }
-
     @Override
     public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
 

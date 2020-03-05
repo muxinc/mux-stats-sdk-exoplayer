@@ -53,7 +53,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected Integer sourceWidth;
     protected Integer sourceHeight;
     protected Integer sourceAdvertisedBitrate;
-    protected Float sourceAdvertiseFramerate;
+    protected Float sourceAdvertisedFramerate;
     protected Long sourceDuration;
 
     protected WeakReference<ExoPlayer> player;
@@ -239,7 +239,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public Float getSourceAdvertisedFramerate() {
-        return sourceAdvertiseFramerate;
+        return sourceAdvertisedFramerate;
     }
 
     @Override
@@ -319,6 +319,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             dispatch(new InternalErrorEvent(muxError.getCode(), muxError.getMessage()));
         } else {
             dispatch(new InternalErrorEvent(ERROR_UNKNOWN, error.getClass().getCanonicalName() + " - " + error.getMessage()));
+        }
+    }
+
+    protected void handleRenditionChange(Format format) {
+        if (format != null) {
+            sourceAdvertisedBitrate = format.bitrate;
+            sourceAdvertiseFramerate = format.frameRate;
+            sourceWidth = format.width;
+            sourceHeight = format.height;
+            RenditionChangeEvent event = new RenditionChangeEvent(null);
+            dispatch(event);
         }
     }
 

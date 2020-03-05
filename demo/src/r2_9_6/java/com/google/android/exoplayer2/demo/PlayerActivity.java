@@ -79,13 +79,13 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
-import com.mux.stats.sdk.core.CorePlayer;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
 import java.util.UUID;
+import com.mux.stats.sdk.core.CorePlayer;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -209,7 +209,7 @@ public class PlayerActivity extends Activity
       clearStartPosition();
     }
   }
-  
+
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
