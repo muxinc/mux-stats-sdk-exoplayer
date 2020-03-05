@@ -350,7 +350,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected void handleRenditionChange(Format format) {
         if (format != null) {
             sourceAdvertisedBitrate = format.bitrate;
-            sourceAdvertisedFramerate = format.frameRate;
+            if (format.frameRate > 0) {
+                sourceAdvertisedFramerate = format.frameRate;
+            }
             sourceWidth = format.width;
             sourceHeight = format.height;
             RenditionChangeEvent event = new RenditionChangeEvent(null);

@@ -293,7 +293,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         if (adaptiveStreamListener.get() != null) {
             adaptiveStreamListener.get().onDownstreamFormatChanged(trackType, trackFormat, trackSelectionReason, trackSelectionData, mediaTimeMs);
         }
-        if (trackType == C.TRACK_TYPE_VIDEO) {
+        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
             handleRenditionChange(trackFormat);
         }
     }
