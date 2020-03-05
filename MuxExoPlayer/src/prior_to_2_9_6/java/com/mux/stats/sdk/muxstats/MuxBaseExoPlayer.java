@@ -23,6 +23,7 @@ import com.mux.stats.sdk.core.CorePlayer;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
@@ -51,6 +52,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected String mimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
+    protected Integer sourceAdvertisedBitrate;
+    protected Float sourceAdvertiseFramerate;
     protected Long sourceDuration;
 
     protected WeakReference<ExoPlayer> player;
@@ -59,7 +62,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -137,6 +140,23 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutput(enable, verbose);
+    }
+
+    @SuppressWarnings("unused")
     public void videoChange(CustomerVideoData customerVideoData) {
         muxStats.videoChange(customerVideoData);
     }
@@ -185,8 +205,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public void dispatch(IEvent event) {
-        if (player != null && player.get() != null && muxStats != null)
+        if (player != null && player.get() != null && muxStats != null) {
             super.dispatch(event);
+        }
     }
 
     @Override
@@ -209,6 +230,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Integer getSourceHeight() {
         return sourceHeight;
+    }
+
+    @Override
+    public Integer getSourceAdvertisedBitrate() {
+        return sourceAdvertisedBitrate;
+    }
+
+    @Override
+    public Float getSourceAdvertisedFramerate() {
+        return sourceAdvertiseFramerate;
     }
 
     @Override
@@ -250,7 +281,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isPaused() {
-        return !playWhenReady;
+        return state == PlayerState.PAUSED || state == PlayerState.ENDED || state == PlayerState.ERROR || state == PlayerState.INIT;
     }
 
     protected void buffering() {
@@ -269,11 +300,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (state ==  PlayerState.PAUSED) {
+        if (state == PlayerState.PAUSED) {
             play();
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void ended() {
+        dispatch(new PauseEvent(null));
+        dispatch(new EndedEvent(null));
+        state = PlayerState.ENDED;
     }
 
     protected void internalError(Exception error) {
@@ -356,7 +393,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginVersion() {
-            return BuildConfig.MUX_PLUGIN_NAME;
+            return BuildConfig.MUX_PLUGIN_VERSION;
         }
 
         @Override

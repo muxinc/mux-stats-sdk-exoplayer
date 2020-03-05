@@ -462,6 +462,7 @@ public class PlayerActivity extends Activity
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
+      muxStats.enableMuxCoreDebug(true, false);
 
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));

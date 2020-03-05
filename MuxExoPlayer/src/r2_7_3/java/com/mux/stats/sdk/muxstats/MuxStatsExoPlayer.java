@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -21,6 +22,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -278,6 +280,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         if (adaptiveStreamListener.get() != null) {
             adaptiveStreamListener.get().onDownstreamFormatChanged(trackType, trackFormat, trackSelectionReason, trackSelectionData, mediaTimeMs);
         }
+        if (trackType == C.TRACK_TYPE_VIDEO) {
+            handleRenditionChange(trackFormat);
+        }
     }
 
     @Override
@@ -358,5 +363,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
     public MetadataOutput getMetadataRendererOutput(MetadataOutput listener) {
         metaDataListener = new WeakReference<>(listener);
         return this;
+    }
+
+    private void handleRenditionChange(Format format) {
+        if (format != null) {
+            sourceAdvertisedBitrate = format.bitrate;
+            sourceAdvertiseFramerate = format.frameRate;
+            sourceWidth = format.width;
+            sourceHeight = format.height;
+            RenditionChangeEvent event = new RenditionChangeEvent(null);
+            dispatch(event);
+        }
     }
 }

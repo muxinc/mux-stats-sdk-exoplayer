@@ -2,8 +2,10 @@ package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -18,9 +20,12 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.VideoData;
 
 import java.io.IOException;
 
@@ -201,7 +206,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
             Format format) {
-
+        if (trackType == C.TRACK_TYPE_VIDEO) {
+            handleRenditionChange(format);
+        }
     }
 
     @Override
@@ -359,5 +366,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onSeekProcessed() {
 
+    }
+
+    private void handleRenditionChange(Format format) {
+        if (format != null) {
+            sourceAdvertisedBitrate = format.bitrate;
+            sourceAdvertiseFramerate = format.frameRate;
+            sourceWidth = format.width;
+            sourceHeight = format.height;
+            RenditionChangeEvent event = new RenditionChangeEvent(null);
+            dispatch(event);
+        }
     }
 }

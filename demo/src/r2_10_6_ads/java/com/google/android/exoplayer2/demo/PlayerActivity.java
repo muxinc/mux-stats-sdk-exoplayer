@@ -476,6 +476,7 @@ public class PlayerActivity extends AppCompatActivity
       muxStats.setPlayerView(playerView);
       muxStats = new MuxStatsExoPlayer(this, player,
               "demo-player", customerPlayerData, customerVideoData);
+      muxStats.enableMuxCoreDebug(true, false);
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {

@@ -5,8 +5,8 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 4
-        versionName "1.0.0"
+        versionCode 6
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -28,25 +28,31 @@ android {
     }
     sourceSets {
         r2_7_3 {
-            java.srcDirs = ['./src/r2_7_3/java']
+            java.srcDirs = ['./src/r2_7_3/java', './src/prior_to_2_9_6/java']
         }
         r2_8_0 {
-            java.srcDirs = ['./src/r2_8_0/java']
+            java.srcDirs = ['./src/r2_8_0/java', './src/prior_to_2_9_6/java']
         }
         r2_8_0_ads {
-            java.srcDirs = ['./src/r2_8_0/java']
+            java.srcDirs = ['./src/r2_8_0/java', './src/prior_to_2_9_6/java']
         }
         r2_9_6 {
-            java.srcDirs = ['./src/r2_9_6/java']
+            java.srcDirs = ['./src/r2_9_6/java', './src/r2_9_6_and_later/java']
         }
         r2_9_6_ads {
-            java.srcDirs = ['./src/r2_9_6/java']
+            java.srcDirs = ['./src/r2_9_6/java', './src/r2_9_6_and_later/java']
         }
         r2_10_6 {
-            java.srcDirs = ['./src/r2_10_6/java']
+            java.srcDirs = ['./src/r2_10_6/java', './src/r2_9_6_and_later/java']
         }
         r2_10_6_ads {
-            java.srcDirs = ['./src/r2_10_6/java']
+            java.srcDirs = ['./src/r2_10_6/java', './src/r2_9_6_and_later/java']
+        }
+        r2_11_1 {
+            java.srcDirs = ['./src/r2_11_1/java', './src/r2_9_6_and_later/java']
+        }
+        r2_11_1_ads {
+            java.srcDirs = ['./src/r2_11_1/java', './src/r2_9_6_and_later/java']
         }
     }
 
@@ -72,6 +78,12 @@ android {
             dimension 'api'
         }
         r2_10_6_ads {
+            dimension 'api'
+        }
+        r2_11_1 {
+            dimension 'api'
+        }
+        r2_11_1_ads {
             dimension 'api'
         }
     }
@@ -113,6 +125,10 @@ dependencies {
     r2_10_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_10_6_adsApi 'com.google.android.exoplayer:exoplayer:2.10.6'
     r2_10_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
+    r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+    r2_11_1Api 'org.checkerframework:checker-qual:2.5.2'
+    r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
+    r2_11_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     api files('libs/MuxCore.jar')
