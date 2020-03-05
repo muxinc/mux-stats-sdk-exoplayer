@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.mux.stats.sdk.BuildConfig;
+import com.mux.stats.sdk.core.CorePlayer;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -26,6 +27,7 @@ import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
@@ -51,6 +53,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected String mimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
+    protected Integer sourceAdvertisedBitrate;
+    protected Float sourceAdvertisedFramerate;
     protected Long sourceDuration;
 
     protected WeakReference<ExoPlayer> player;
@@ -150,7 +154,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
-        muxStats.allowLogcatOutputForPlayer(enable, verbose);
+        muxStats.allowLogcatOutput(enable, verbose);
     }
 
     @SuppressWarnings("unused")
@@ -161,6 +165,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @SuppressWarnings("unused")
     public void programChange(CustomerVideoData customerVideoData) {
         muxStats.programChange(customerVideoData);
+    }
+
+    public void orientationChange(CorePlayer.MuxSDKViewOrientation orientation) {
+        muxStats.orientationChange(orientation);
     }
 
     public void setPlayerView(View playerView) {
@@ -223,6 +231,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Integer getSourceHeight() {
         return sourceHeight;
+    }
+
+    @Override
+    public Integer getSourceAdvertisedBitrate() {
+        return sourceAdvertisedBitrate;
+    }
+
+    @Override
+    public Float getSourceAdvertisedFramerate() {
+        return sourceAdvertisedFramerate;
     }
 
     @Override
@@ -302,6 +320,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             dispatch(new InternalErrorEvent(muxError.getCode(), muxError.getMessage()));
         } else {
             dispatch(new InternalErrorEvent(ERROR_UNKNOWN, error.getClass().getCanonicalName() + " - " + error.getMessage()));
+        }
+    }
+
+    protected void handleRenditionChange(Format format) {
+        if (format != null) {
+            sourceAdvertisedBitrate = format.bitrate;
+            if (format.frameRate > 0) {
+                sourceAdvertisedFramerate = format.frameRate;
+            }
+            sourceWidth = format.width;
+            sourceHeight = format.height;
+            RenditionChangeEvent event = new RenditionChangeEvent(null);
+            dispatch(event);
         }
     }
 

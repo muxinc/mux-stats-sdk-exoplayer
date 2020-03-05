@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -211,7 +212,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
             Format format) {
-
+        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
+            handleRenditionChange(format);
+        }
     }
 
     @Override
@@ -374,29 +377,29 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onSeekProcessed() {
 
     }
-    
+
     @Override
     public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
-    
+
     }
 
     @Override
     public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
-    
+
     }
 
     @Override
     public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
-    
+
     }
 
     @Override
     public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
-    
+
     }
 
     @Override
     public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
-    
+
     }
 }

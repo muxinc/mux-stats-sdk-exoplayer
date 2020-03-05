@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -211,7 +212,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
             Format format) {
-
+        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
+            handleRenditionChange(format);
+        }
     }
 
     @Override

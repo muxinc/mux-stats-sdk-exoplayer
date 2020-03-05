@@ -3,12 +3,12 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -292,6 +292,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         mimeType = trackFormat.containerMimeType + " (" + trackFormat.sampleMimeType + ")";
         if (adaptiveStreamListener.get() != null) {
             adaptiveStreamListener.get().onDownstreamFormatChanged(trackType, trackFormat, trackSelectionReason, trackSelectionData, mediaTimeMs);
+        }
+        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
+            handleRenditionChange(trackFormat);
         }
     }
 
