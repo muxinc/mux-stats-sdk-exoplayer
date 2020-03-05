@@ -35,6 +35,7 @@ import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
@@ -349,7 +350,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected void handleRenditionChange(Format format) {
         if (format != null) {
             sourceAdvertisedBitrate = format.bitrate;
-            sourceAdvertiseFramerate = format.frameRate;
+            sourceAdvertisedFramerate = format.frameRate;
             sourceWidth = format.width;
             sourceHeight = format.height;
             RenditionChangeEvent event = new RenditionChangeEvent(null);
