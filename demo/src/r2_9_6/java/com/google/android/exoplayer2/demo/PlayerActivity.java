@@ -85,7 +85,7 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.List;
 import java.util.UUID;
-import com.mux.stats.sdk.core.CorePlayer;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -218,10 +218,10 @@ public class PlayerActivity extends Activity
       return;
     }
     if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      muxStats.orientationChange(CorePlayer.MuxSDKViewOrientation.LANDSCAPE);
+      muxStats.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
     }
     if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-      muxStats.orientationChange(CorePlayer.MuxSDKViewOrientation.PORTRAIT);
+      muxStats.orientationChange(MuxSDKViewOrientation.PORTRAIT);
     }
   }
 

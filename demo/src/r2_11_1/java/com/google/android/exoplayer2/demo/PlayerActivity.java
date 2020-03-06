@@ -77,7 +77,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
-import com.mux.stats.sdk.core.CorePlayer;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -231,10 +231,10 @@ public class PlayerActivity extends AppCompatActivity
       return;
     }
     if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      muxStats.orientationChange(CorePlayer.MuxSDKViewOrientation.LANDSCAPE);
+      muxStats.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
     }
     if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-      muxStats.orientationChange(CorePlayer.MuxSDKViewOrientation.PORTRAIT);
+      muxStats.orientationChange(MuxSDKViewOrientation.PORTRAIT);
     }
   }
 
