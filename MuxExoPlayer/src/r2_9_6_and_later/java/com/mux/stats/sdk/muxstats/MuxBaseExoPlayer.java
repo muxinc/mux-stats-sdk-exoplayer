@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.BuildConfig;
-import com.mux.stats.sdk.core.CorePlayer;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -191,7 +191,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         muxStats.programChange(customerVideoData);
     }
 
-    public void orientationChange(CorePlayer.MuxSDKViewOrientation orientation) {
+    public void orientationChange(MuxSDKViewOrientation orientation) {
         muxStats.orientationChange(orientation);
     }
 
