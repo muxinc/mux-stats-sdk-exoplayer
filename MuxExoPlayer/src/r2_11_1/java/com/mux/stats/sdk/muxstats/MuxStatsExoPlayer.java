@@ -163,8 +163,19 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onDownstreamFormatChanged(EventTime eventTime,
             MediaSourceEventListener.MediaLoadData mediaLoadData) {
         if (mediaLoadData.trackFormat != null) {
-            mimeType = mediaLoadData.trackFormat.containerMimeType + " ("
-                    + mediaLoadData.trackFormat.sampleMimeType + ")";
+            if (mediaLoadData.trackFormat != null) {
+                mimeType = "";
+                if (mediaLoadData.trackFormat.containerMimeType != null) {
+                    mimeType += mediaLoadData.trackFormat.containerMimeType;
+                }
+                if (mediaLoadData.trackFormat.sampleMimeType != null) {
+                    if (mimeType.length() > 0) {
+                        mimeType += " (" + mediaLoadData.trackFormat.sampleMimeType + ")";
+                    } else {
+                        mimeType += mediaLoadData.trackFormat.sampleMimeType;
+                    }
+                }
+            }
         }
     }
 
@@ -379,6 +390,31 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onSeekProcessed() {
         dispatch(new SeekedEvent(null));
+    }
+
+    @Override
+    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
+
+    }
+
+    @Override
+    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
+
+    }
+
+    @Override
+    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
+
+    }
+
+    @Override
+    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
+
+    }
+
+    @Override
+    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
+
     }
 
     @Override
