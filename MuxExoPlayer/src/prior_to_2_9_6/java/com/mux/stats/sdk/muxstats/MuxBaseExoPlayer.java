@@ -3,33 +3,31 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.media.MediaFormat;
 import android.os.Build;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.Nullable;
-
+import com.google.ads.interactivemedia.v3.api.AdsLoader;
+import com.google.ads.interactivemedia.v3.api.AdsManager;
+import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.BuildConfig;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
@@ -41,8 +39,8 @@ import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicLong;
 
+import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final String TAG = "MuxStatsListener";
@@ -55,8 +53,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected String mimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
+    protected Integer sourceAdvertisedBitrate;
+    protected Float sourceAdvertisedFramerate;
     protected Long sourceDuration;
-    protected ExoPlayerHandler playerHandler;
 
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
@@ -64,12 +63,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
-    protected AdsImaSDKListener imaListener;
-
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
@@ -79,20 +76,85 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
         addListener(muxStats);
-        Player.VideoComponent lDecCount = player.getVideoComponent();
-
-        playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
-        lDecCount.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
-            @Override
-            public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
-                playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
-            }
-        });
     }
 
-    public void setAdsListener(AdsImaSDKListener listener) {
-        imaListener = listener;
-        imaListener.setExoPlayerListener(this);
+    /**
+     * Get the instance of the IMA SDK Listener for tracking ads running through Google's
+     * IMA SDK within your application.
+     *
+     * @deprecated
+     * This method is no longer the preferred method to track Ad performance with
+     * Google's IMA SDK.
+     * <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead.
+     * @return the IMA SDK Listener
+     * @throws
+     */
+    @Deprecated
+    public AdsImaSDKListener getIMASdkListener() {
+        try {
+            // Let's just check one of them
+            Class.forName("com.google.ads.interactivemedia.v3.api.Ad");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent");
+            return new AdsImaSDKListener(this);
+        } catch (ClassNotFoundException cnfe) {
+            throw new IllegalStateException("IMA SDK Modules not found");
+        }
+    }
+
+    /**
+     * Monitor an instance of Google IMA SDK's AdsLoader
+     * @param adsLoader
+     */
+    @SuppressWarnings("unused")
+    public void monitorImaAdsLoader(AdsLoader adsLoader) {
+        if (adsLoader == null) {
+            Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
+            return;
+        }
+        try {
+            // TODO: these may not be necessary, but doing it for the sake of it
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdsLoader");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdsManager");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent");
+            Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent");
+            Class.forName("com.google.ads.interactivemedia.v3.api.Ad");
+            final MuxBaseExoPlayer baseExoPlayer = this;
+            adsLoader.addAdsLoadedListener(new AdsLoader.AdsLoadedListener() {
+                @Override
+                public void onAdsManagerLoaded(AdsManagerLoadedEvent adsManagerLoadedEvent) {
+                    // TODO: Add in the adresponse stuff when we can
+
+                    // Set up the ad events that we want to use
+                    AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
+                    AdsImaSDKListener imaListener = new AdsImaSDKListener(baseExoPlayer);
+                    // Attach mux event and error event listeners.
+                    adsManager.addAdErrorListener(imaListener);
+                    adsManager.addAdEventListener(imaListener);
+                }
+
+                // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
+            });
+        } catch (ClassNotFoundException cnfe) {
+            return;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutput(enable, verbose);
     }
 
     @SuppressWarnings("unused")
@@ -103,6 +165,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @SuppressWarnings("unused")
     public void programChange(CustomerVideoData customerVideoData) {
         muxStats.programChange(customerVideoData);
+    }
+
+    public void orientationChange(MuxSDKViewOrientation orientation) {
+        muxStats.orientationChange(orientation);
     }
 
     public void setPlayerView(View playerView) {
@@ -140,14 +206,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public void dispatch(IEvent event) {
-        if (player != null && player.get() != null && muxStats != null)
+        if (player != null && player.get() != null && muxStats != null) {
             super.dispatch(event);
+        }
     }
 
     @Override
     public long getCurrentPosition() {
-        if (playerHandler != null)
-            return playerHandler.getPlayerCurrentPosition();
+        if (player != null && player.get() != null)
+            return player.get().getCurrentPosition();
         return 0;
     }
 
@@ -164,6 +231,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public Integer getSourceHeight() {
         return sourceHeight;
+    }
+
+    @Override
+    public Integer getSourceAdvertisedBitrate() {
+        return sourceAdvertisedBitrate;
+    }
+
+    @Override
+    public Float getSourceAdvertisedFramerate() {
+        return sourceAdvertisedFramerate;
     }
 
     @Override
@@ -205,7 +282,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public boolean isPaused() {
-        return !playWhenReady;
+        return state == PlayerState.PAUSED || state == PlayerState.ENDED || state == PlayerState.ERROR || state == PlayerState.INIT;
     }
 
     protected void buffering() {
@@ -224,11 +301,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (state ==  PlayerState.PAUSED) {
+        if (state == PlayerState.PAUSED) {
             play();
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void ended() {
+        dispatch(new PauseEvent(null));
+        dispatch(new EndedEvent(null));
+        state = PlayerState.ENDED;
     }
 
     protected void internalError(Exception error) {
@@ -240,29 +323,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
     }
 
-    static class ExoPlayerHandler extends Handler {
-        static final int UPDATE_PLAYER_CURRENT_POSITION = 1;
-
-        AtomicLong playerCurrentPosition = new AtomicLong(0);
-        ExoPlayer player;
-
-        public ExoPlayerHandler(Looper looper, ExoPlayer player) {
-            super(looper);
-            this.player = player;
-        }
-
-        public long getPlayerCurrentPosition() {
-            return playerCurrentPosition.get();
-        }
-
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case UPDATE_PLAYER_CURRENT_POSITION:
-                    playerCurrentPosition.set(player.getContentPosition());
-                    break;
-                default:
-                    Log.e(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
+    protected void handleRenditionChange(Format format) {
+        if (format != null) {
+            sourceAdvertisedBitrate = format.bitrate;
+            if (format.frameRate > 0) {
+                sourceAdvertisedFramerate = format.frameRate;
             }
+            sourceWidth = format.width;
+            sourceHeight = format.height;
+            RenditionChangeEvent event = new RenditionChangeEvent(null);
+            dispatch(event);
         }
     }
 
@@ -337,12 +407,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public String getPluginVersion() {
-            return BuildConfig.MUX_PLUGIN_NAME;
+            return BuildConfig.MUX_PLUGIN_VERSION;
         }
 
         @Override
         public String getPlayerSoftware() {
             return EXO_SOFTWARE;
+        }
+
+        @Override
+        public long getElapsedRealtime() {
+            return elapsedRealtime();
         }
 
         @Override
