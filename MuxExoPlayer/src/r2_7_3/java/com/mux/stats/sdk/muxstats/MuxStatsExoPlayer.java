@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -43,6 +44,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+        if (player.getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+        } else if (player.getPlaybackState() == Player.STATE_READY) {
+            // We have to simulate all the events we expect to see here, even though not ideal
+            play();
+            buffering();
+            playing();
+        }
         player.addListener(this);
     }
 
@@ -91,29 +102,33 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
+        PlayerState state = this.getState();
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // We have entered buffering
+                buffering();
+                // If we are expected to playWhenReady, signal the play event
+                if (playWhenReady) {
+                    play();
+                } else if (state != PlayerState.PAUSED) {
                     pause();
-                    break;
-                case Player.STATE_READY:
+                }
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                // By the time we get here, it depends on playWhenReady to know if we're playing
+                if (playWhenReady) {
                     playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
+                } else if (state != PlayerState.PAUSED) {
+                    pause();
+                }
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // don't care
+                break;
         }
     }
 
@@ -277,6 +292,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
         mimeType = trackFormat.containerMimeType + " (" + trackFormat.sampleMimeType + ")";
         if (adaptiveStreamListener.get() != null) {
             adaptiveStreamListener.get().onDownstreamFormatChanged(trackType, trackFormat, trackSelectionReason, trackSelectionData, mediaTimeMs);
+        }
+        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
+            handleRenditionChange(trackFormat);
         }
     }
 

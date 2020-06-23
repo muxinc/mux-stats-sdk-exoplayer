@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats;
 import android.content.Context;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -11,6 +12,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -36,6 +38,16 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
         } else {
             player.addListener(this);
+        }
+        if (player.getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+        } else if (player.getPlaybackState() == Player.STATE_READY) {
+            // We have to simulate all the events we expect to see here, even though not ideal
+            play();
+            buffering();
+            playing();
         }
     }
 
@@ -148,8 +160,19 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onDownstreamFormatChanged(EventTime eventTime,
             MediaSourceEventListener.MediaLoadData mediaLoadData) {
         if (mediaLoadData.trackFormat != null) {
-            mimeType = mediaLoadData.trackFormat.containerMimeType + " ("
-                    + mediaLoadData.trackFormat.sampleMimeType + ")";
+            if (mediaLoadData.trackFormat != null) {
+                mimeType = "";
+                if (mediaLoadData.trackFormat.containerMimeType != null) {
+                    mimeType += mediaLoadData.trackFormat.containerMimeType;
+                }
+                if (mediaLoadData.trackFormat.sampleMimeType != null) {
+                    if (mimeType.length() > 0) {
+                        mimeType += " (" + mediaLoadData.trackFormat.sampleMimeType + ")";
+                    } else {
+                        mimeType += mediaLoadData.trackFormat.sampleMimeType;
+                    }
+                }
+            }
         }
     }
 
@@ -200,7 +223,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
             Format format) {
-
+        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
+            handleRenditionChange(format);
+        }
     }
 
     @Override
@@ -280,29 +305,33 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
+        PlayerState state = this.getState();
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // We have entered buffering
+                buffering();
+                // If we are expected to playWhenReady, signal the play event
+                if (playWhenReady) {
+                    play();
+                } else if (state != PlayerState.PAUSED){
                     pause();
-                    break;
-                case Player.STATE_READY:
+                }
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                // By the time we get here, it depends on playWhenReady to know if we're playing
+                if (playWhenReady) {
                     playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
+                } else if (state != PlayerState.PAUSED){
+                    pause();
+                }
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // don't care
+                break;
         }
     }
 
@@ -357,6 +386,31 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
+
+    }
+
+    @Override
+    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
+
+    }
+
+    @Override
+    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
+
+    }
+
+    @Override
+    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
+
+    }
+
+    @Override
+    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
+
+    }
+
+    @Override
+    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
 
     }
 }
