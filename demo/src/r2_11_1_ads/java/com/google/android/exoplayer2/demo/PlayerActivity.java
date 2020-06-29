@@ -419,7 +419,7 @@ public class PlayerActivity extends AppCompatActivity
       }
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENV_KEY");
+      customerPlayerData.setEnvironmentKey("YOUR_ENV_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(

@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -52,10 +53,36 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         super.release();
     }
 
+    // AnalyticsListener
+
     @Override
     public void onPlayerStateChanged(EventTime eventTime, boolean playWhenReady,
-            int playbackState) {
+                                     int playbackState) {
         onPlayerStateChanged(playWhenReady, playbackState);
+    }
+
+    @Override
+    public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
+        if (imaListener != null && imaListener.getInAdBreak()) {
+            if (player != null && player.get() != null && !player.get().isPlayingAd()) {
+                if (isPlaying) {
+                    missedAfterAdsPlayingEvent = true;
+                } else {
+                    // missed after ads pause event
+                }
+
+            }
+            return;
+        }
+        synchronized (this) {
+            if (state == PlayerState.SEEKING) {
+                missedAfterSeekingPlayingEvent = true;
+                return;
+            }
+        }
+        if (isPlaying) {
+            playing();
+        }
     }
 
     @Override
@@ -70,16 +97,17 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
+        seekStarted();
     }
 
     @Override
     public void onSeekProcessed(EventTime eventTime) {
-        onSeekProcessed();
+        seekEnded();
     }
 
     @Override
     public void onPlaybackParametersChanged(EventTime eventTime,
-            PlaybackParameters playbackParameters) {
+                                            PlaybackParameters playbackParameters) {
         onPlaybackParametersChanged(playbackParameters);
     }
 
@@ -90,7 +118,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onShuffleModeChanged(EventTime eventTime,
-            boolean shuffleModeEnabled) {
+                                     boolean shuffleModeEnabled) {
         onShuffleModeEnabledChanged(shuffleModeEnabled);
     }
 
@@ -106,14 +134,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onTracksChanged(EventTime eventTime, TrackGroupArray trackGroups,
-            TrackSelectionArray trackSelections) {
+                                TrackSelectionArray trackSelections) {
         onTracksChanged(trackGroups, trackSelections);
     }
 
     @Override
     public void onLoadStarted(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+                              MediaSourceEventListener.LoadEventInfo loadEventInfo,
+                              MediaSourceEventListener.MediaLoadData mediaLoadData) {
         bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
@@ -121,8 +149,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onLoadCompleted(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+                                MediaSourceEventListener.LoadEventInfo loadEventInfo,
+                                MediaSourceEventListener.MediaLoadData mediaLoadData) {
         bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
@@ -131,22 +159,22 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onLoadCanceled(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+                               MediaSourceEventListener.LoadEventInfo loadEventInfo,
+                               MediaSourceEventListener.MediaLoadData mediaLoadData) {
         bandwidthDispatcher.onLoadCanceled(loadEventInfo.dataSpec);
     }
 
     @Override
     public void onLoadError(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
-            boolean wasCanceled) {
+                            MediaSourceEventListener.LoadEventInfo loadEventInfo,
+                            MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
+                            boolean wasCanceled) {
         bandwidthDispatcher.onLoadError(loadEventInfo.dataSpec, mediaLoadData.dataType, e);
     }
 
     @Override
     public void onDownstreamFormatChanged(EventTime eventTime,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+                                          MediaSourceEventListener.MediaLoadData mediaLoadData) {
         if (mediaLoadData.trackFormat != null) {
             mimeType = mediaLoadData.trackFormat.containerMimeType + " ("
                     + mediaLoadData.trackFormat.sampleMimeType + ")";
@@ -155,7 +183,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onUpstreamDiscarded(EventTime eventTime,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+                                    MediaSourceEventListener.MediaLoadData mediaLoadData) {
 
     }
 
@@ -176,7 +204,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onBandwidthEstimate(EventTime eventTime, int totalLoadTimeMs,
-            long totalBytesLoaded, long bitrateEstimate) {
+                                    long totalBytesLoaded, long bitrateEstimate) {
 
     }
 
@@ -187,25 +215,25 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onDecoderEnabled(EventTime eventTime, int trackType,
-            DecoderCounters decoderCounters) {
+                                 DecoderCounters decoderCounters) {
 
     }
 
     @Override
     public void onDecoderInitialized(EventTime eventTime, int trackType,
-            String decoderName, long initializationDurationMs) {
+                                     String decoderName, long initializationDurationMs) {
 
     }
 
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
-            Format format) {
-
+                                            Format format) {
+        handleRenditionChange(format);
     }
 
     @Override
     public void onDecoderDisabled(EventTime eventTime, int trackType,
-            DecoderCounters decoderCounters) {
+                                  DecoderCounters decoderCounters) {
 
     }
 
@@ -216,19 +244,19 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onAudioUnderrun(EventTime eventTime, int bufferSize,
-            long bufferSizeMs, long elapsedSinceLastFeedMs) {
+                                long bufferSizeMs, long elapsedSinceLastFeedMs) {
 
     }
 
     @Override
     public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames,
-            long elapsedMs) {
+                                     long elapsedMs) {
 
     }
 
     @Override
     public void onVideoSizeChanged(EventTime eventTime, int width, int height,
-            int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+                                   int unappliedRotationDegrees, float pixelWidthHeightRatio) {
         sourceWidth = width;
         sourceHeight = height;
     }
@@ -279,30 +307,43 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        if (state == PlayerState.SEEKED || state == PlayerState.SEEKING) {
+            return;
+        }
+        if (imaListener != null && imaListener.getInAdBreak()) {
+            if (player != null && player.get() != null && !player.get().isPlayingAd()) {
+                if (playbackState == Player.STATE_BUFFERING) {
+                    // Missed after ads buffering event
+                }
+                if (playbackState == Player.STATE_READY) {
+                    // Missed after ads play event
+                    missedAfterAdsPlayEvent = true;
+                }
+            }
+            return;
+        }
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // We have entered buffering
+                buffering();
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                // By the time we get here, it depends on playWhenReady to know if we're playing
+                if (playWhenReady) {
+                    // Skipping play event on seek end
+                    play();
+                } else {
                     pause();
-                    break;
-                case Player.STATE_READY:
-                    playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
+                }
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // don't care
+                break;
         }
     }
 
@@ -352,11 +393,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-    }
-
-    @Override
-    public void onSeekProcessed() {
 
     }
 }

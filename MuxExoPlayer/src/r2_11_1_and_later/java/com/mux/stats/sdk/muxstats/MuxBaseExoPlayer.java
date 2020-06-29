@@ -28,12 +28,17 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
+import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
+import com.mux.stats.sdk.core.events.playback.AdResponseEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -49,7 +54,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
-    protected static final String TAG = "MuxStatsListener";
+    protected static final String TAG = "MuxBaseExoPlayer";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
     protected static final int ERROR_UNKNOWN = -1;
     protected static final int ERROR_DRM = -2;
@@ -70,11 +75,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, SEEKING, SEEKED, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
     protected AdsImaSDKListener imaListener;
+
+    protected boolean missedAfterAdsPlayEvent = false;
+    protected boolean missedAfterAdsPlayingEvent = false;
+    protected boolean missedAfterSeekingPlayingEvent = false;
 
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
@@ -102,8 +111,18 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void setAdsListener(AdsImaSDKListener listener) {
-        imaListener = listener;
-        imaListener.setExoPlayerListener(this);
+        if (listener != null) {
+            imaListener = listener;
+            imaListener.setExoPlayerListener(this);
+        }
+    }
+
+    public boolean isMissedAfterAdsPlayEvent() {
+        return missedAfterAdsPlayEvent;
+    }
+
+    public boolean isMissedAfterAdsPlayingEvent() {
+        return missedAfterAdsPlayingEvent;
     }
 	
 	@SuppressWarnings("unused")
@@ -264,18 +283,42 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected void play() {
         state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
+        missedAfterAdsPlayEvent = false;
     }
 
     protected void playing() {
         if (state == PlayerState.PAUSED) {
             play();
         }
+        if (state == PlayerState.PLAYING) {
+            // Ignore, redundant
+            return;
+        }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+        missedAfterAdsPlayingEvent = false;
+    }
+
+    protected void seekStarted() {
+        state = PlayerState.SEEKING;
+        dispatch(new SeekingEvent(null));
+    }
+
+    protected void seekEnded() {
+        synchronized (this) {
+            state = PlayerState.SEEKED;
+            dispatch(new SeekedEvent(null));
+            if (missedAfterSeekingPlayingEvent) {
+                playing();
+            }
+            missedAfterSeekingPlayingEvent = false;
+        }
     }
 
     protected void ended() {
-        dispatch(new PauseEvent(null));
+        if (state != PlayerState.PAUSED) {
+            dispatch(new PauseEvent(null));
+        }
         dispatch(new EndedEvent(null));
         state = PlayerState.ENDED;
     }
