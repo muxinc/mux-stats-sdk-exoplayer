@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -17,6 +18,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
@@ -59,6 +61,30 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
+    public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
+        if (imaListener != null && imaListener.getInAdBreak()) {
+            if (player != null && player.get() != null && !player.get().isPlayingAd()) {
+                if (isPlaying) {
+                    missedAfterAdsPlayingEvent = true;
+                } else {
+                    // missed after ads pause event
+                }
+
+            }
+            return;
+        }
+        synchronized (this) {
+            if (state == PlayerState.SEEKING) {
+                missedAfterSeekingPlayingEvent = true;
+                return;
+            }
+        }
+        if (isPlaying) {
+            playing();
+        }
+    }
+
+    @Override
     public void onTimelineChanged(EventTime eventTime, int reason) {
         onTimelineChanged(eventTime.timeline, null, reason);
     }
@@ -70,11 +96,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
+        seekStarted();
     }
 
     @Override
     public void onSeekProcessed(EventTime eventTime) {
-        onSeekProcessed();
+        seekEnded();
     }
 
     @Override
@@ -108,6 +135,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onTracksChanged(EventTime eventTime, TrackGroupArray trackGroups,
             TrackSelectionArray trackSelections) {
         onTracksChanged(trackGroups, trackSelections);
+        for (int selection = 0; selection < trackSelections.length; selection ++) {
+            TrackSelection tSelection = trackSelections.get(selection);
+            if (tSelection != null) {
+                Format tFormat = tSelection.getSelectedFormat();
+                if (tFormat != null && tFormat.sampleMimeType.contains("video/")) {
+                    handleRenditionChange(tFormat);
+                }
+            }
+        }
     }
 
     @Override
@@ -199,8 +235,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
-            Format format) {
-
+                                            Format format) {
     }
 
     @Override
@@ -279,30 +314,48 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        if (state == PlayerState.SEEKED || state == PlayerState.SEEKING) {
+            return;
+        }
+        if (player != null && player.get() != null && !player.get().isPlayingAd()
+                && imaListener == null) {
+            // imaListener not loaded yet
+            return;
+        }
+        if (imaListener != null && imaListener.getInAdBreak()) {
+            if (player != null && player.get() != null && !player.get().isPlayingAd()) {
+                if (playbackState == Player.STATE_BUFFERING) {
+                    // Missed after ads buffering event
+                }
+                if (playbackState == Player.STATE_READY) {
+                    // Missed after ads play event
+                    missedAfterAdsPlayEvent = true;
+                }
+            }
+            return;
+        }
         this.playWhenReady = playWhenReady;
-        if (playWhenReady) {
-            switch (playbackState) {
-                case Player.STATE_BUFFERING:
-                    if (state == PlayerState.INIT) {
-                        play();
-                    }
-                    buffering();
-                    break;
-                case Player.STATE_ENDED:
+        switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                // We have entered buffering
+                buffering();
+                break;
+            case Player.STATE_ENDED:
+                ended();
+                break;
+            case Player.STATE_READY:
+                // By the time we get here, it depends on playWhenReady to know if we're playing
+                if (playWhenReady) {
+                    // Skipping play event on seek end
+                    play();
+                } else {
                     pause();
-                    break;
-                case Player.STATE_READY:
-                    playing();
-                    break;
-                case Player.STATE_IDLE:
-                default:
-                    // Don't care.
-                    break;
-            }
-        } else {
-            if (state != PlayerState.INIT) {
-                pause();
-            }
+                }
+                break;
+            case Player.STATE_IDLE:
+            default:
+                // don't care
+                break;
         }
     }
 
