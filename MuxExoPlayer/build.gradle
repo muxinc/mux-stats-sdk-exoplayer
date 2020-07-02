@@ -28,31 +28,49 @@ android {
     }
     sourceSets {
         r2_7_3 {
-            java.srcDirs = ['./src/r2_7_3/java', './src/prior_to_2_9_6/java']
+            java.srcDirs = ['./src/r2_7_3/base/java',
+                            './src/r2_7_3/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_8_0 {
-            java.srcDirs = ['./src/r2_8_0/java', './src/prior_to_2_9_6/java']
+            java.srcDirs = ['./src/r2_7_3/base/java',
+                            './src/r2_8_0/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_8_0_ads {
-            java.srcDirs = ['./src/r2_8_0/java', './src/prior_to_2_9_6/java']
+            java.srcDirs = ['./src/r2_7_3/base/java',
+                            './src/r2_8_0/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_9_6 {
-            java.srcDirs = ['./src/r2_9_6/java', './src/r2_9_6_and_later/java']
+            java.srcDirs = ['./src/r2_9_6/base/java',
+                            './src/r2_9_6/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_9_6_ads {
-            java.srcDirs = ['./src/r2_9_6/java', './src/r2_9_6_and_later/java']
+            java.srcDirs = ['./src/r2_9_6/base/java',
+                            './src/r2_9_6/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_10_6 {
-            java.srcDirs = ['./src/r2_10_6/java', './src/r2_9_6_and_later/java']
+            java.srcDirs = ['./src/r2_9_6/base/java',
+                            './src/r2_10_6/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_10_6_ads {
-            java.srcDirs = ['./src/r2_10_6/java', './src/r2_9_6_and_later/java']
+            java.srcDirs = ['./src/r2_9_6/base/java',
+                            './src/r2_10_6/stats/java',
+                            './src/r2_7_3/ads/java']
         }
         r2_11_1 {
-            java.srcDirs = ['./src/r2_11_1/java', './src/r2_9_6_and_later/java']
+            java.srcDirs = ['./src/r2_11_1/base/java',
+                            './src/r2_11_1/stats/java',
+                            './src/r2_11_1/ads/java']
         }
         r2_11_1_ads {
-            java.srcDirs = ['./src/r2_11_1/java', './src/r2_11_1_and_later/java']
+            java.srcDirs = ['./src/r2_11_1/base/java',
+                            './src/r2_11_1/stats/java',
+                            './src/r2_11_1/ads/java']
         }
     }
 
