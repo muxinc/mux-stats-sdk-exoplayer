@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 import android.view.Surface;
 
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -18,9 +19,11 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
+import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
@@ -184,9 +187,24 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onDownstreamFormatChanged(EventTime eventTime,
                                           MediaSourceEventListener.MediaLoadData mediaLoadData) {
         if (mediaLoadData.trackFormat != null) {
-            mimeType = mediaLoadData.trackFormat.containerMimeType + " ("
-                    + mediaLoadData.trackFormat.sampleMimeType + ")";
+            if (mediaLoadData.trackFormat != null) {
+                if (mediaLoadData.trackFormat.sampleMimeType != null) {
+                    if (mediaLoadData.trackFormat.sampleMimeType.contains("video")) {
+                        if (mediaLoadData.trackFormat.containerMimeType != null) {
+                            videoContainerMimeType = mediaLoadData.trackFormat.containerMimeType;
+                        }
+                        videoMimeType = mediaLoadData.trackFormat.sampleMimeType;
+                    }
+                    if (mediaLoadData.trackFormat.sampleMimeType.contains("audio")) {
+                        if (mediaLoadData.trackFormat.containerMimeType != null) {
+                            audioContainerMimeType = mediaLoadData.trackFormat.containerMimeType;
+                        }
+                        audioMimeType = mediaLoadData.trackFormat.sampleMimeType;
+                    }
+                }
+            }
         }
+        Log.e(TAG, "onDownstreamFormatChanged");
     }
 
     @Override

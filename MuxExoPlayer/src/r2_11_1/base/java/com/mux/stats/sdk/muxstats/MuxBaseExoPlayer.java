@@ -62,7 +62,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_IO = -3;
     protected boolean playWhenReady;
 
-    protected String mimeType;
+    protected String videoContainerMimeType;
+    protected String audioContainerMimeType;
+    protected String audioMimeType;
+    protected String videoMimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
     protected Integer sourceAdvertisedBitrate;
@@ -246,6 +249,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     @Override
     public String getMimeType() {
+        String mimeType = "";
+        if (videoContainerMimeType != null) {
+            mimeType = videoContainerMimeType;
+        } else if (audioContainerMimeType != null) {
+            mimeType = audioContainerMimeType;
+        }
+        if (videoMimeType != null || audioMimeType != null) {
+            mimeType += " (" +
+                    (videoMimeType != null ? videoMimeType + ", " : "") +
+                    (audioMimeType != null ? audioMimeType : "") + ")";
+        }
         return mimeType;
     }
 
