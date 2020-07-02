@@ -274,9 +274,21 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
 
     @Override
     public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason, Object trackSelectionData, long mediaTimeMs) {
-        mimeType = trackFormat.containerMimeType + " (" + trackFormat.sampleMimeType + ")";
-        if (adaptiveStreamListener.get() != null) {
-            adaptiveStreamListener.get().onDownstreamFormatChanged(trackType, trackFormat, trackSelectionReason, trackSelectionData, mediaTimeMs);
+        if (trackFormat != null) {
+            if (trackFormat.sampleMimeType != null) {
+                if (trackFormat.sampleMimeType.contains("video")) {
+                    if (trackFormat.containerMimeType != null) {
+                        videoContainerMimeType = trackFormat.containerMimeType;
+                    }
+                    videoMimeType = trackFormat.sampleMimeType;
+                }
+                if (trackFormat.sampleMimeType.contains("audio")) {
+                    if (trackFormat.containerMimeType != null) {
+                        audioContainerMimeType = trackFormat.containerMimeType;
+                    }
+                    audioMimeType = trackFormat.sampleMimeType;
+                }
+            }
         }
     }
 

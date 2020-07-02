@@ -70,7 +70,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onIsPlayingChanged(EventTime eventTime, boolean isPlaying) {
-        Log.e(TAG, "onIsPlayingChanged: " + isPlaying);
         if (imaListener != null && imaListener.getInAdBreak()) {
             if (player != null && player.get() != null && !player.get().isPlayingAd()) {
                 if (isPlaying) {
@@ -89,7 +88,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             }
         }
         if (isPlaying) {
-            Log.e(TAG, "Playing triggered !!!");
             playing();
         }
     }
@@ -106,13 +104,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
-        Log.e(TAG, "onSeekStarted");
         seekStarted();
     }
 
     @Override
     public void onSeekProcessed(EventTime eventTime) {
-        Log.e(TAG, "onSeekProcessed");
         seekEnded();
     }
 
@@ -187,24 +183,21 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onDownstreamFormatChanged(EventTime eventTime,
                                           MediaSourceEventListener.MediaLoadData mediaLoadData) {
         if (mediaLoadData.trackFormat != null) {
-            if (mediaLoadData.trackFormat != null) {
-                if (mediaLoadData.trackFormat.sampleMimeType != null) {
-                    if (mediaLoadData.trackFormat.sampleMimeType.contains("video")) {
-                        if (mediaLoadData.trackFormat.containerMimeType != null) {
-                            videoContainerMimeType = mediaLoadData.trackFormat.containerMimeType;
-                        }
-                        videoMimeType = mediaLoadData.trackFormat.sampleMimeType;
+            if (mediaLoadData.trackFormat.sampleMimeType != null) {
+                if (mediaLoadData.trackFormat.sampleMimeType.contains("video")) {
+                    if (mediaLoadData.trackFormat.containerMimeType != null) {
+                        videoContainerMimeType = mediaLoadData.trackFormat.containerMimeType;
                     }
-                    if (mediaLoadData.trackFormat.sampleMimeType.contains("audio")) {
-                        if (mediaLoadData.trackFormat.containerMimeType != null) {
-                            audioContainerMimeType = mediaLoadData.trackFormat.containerMimeType;
-                        }
-                        audioMimeType = mediaLoadData.trackFormat.sampleMimeType;
+                    videoMimeType = mediaLoadData.trackFormat.sampleMimeType;
+                }
+                if (mediaLoadData.trackFormat.sampleMimeType.contains("audio")) {
+                    if (mediaLoadData.trackFormat.containerMimeType != null) {
+                        audioContainerMimeType = mediaLoadData.trackFormat.containerMimeType;
                     }
+                    audioMimeType = mediaLoadData.trackFormat.sampleMimeType;
                 }
             }
         }
-        Log.e(TAG, "onDownstreamFormatChanged");
     }
 
     @Override
@@ -340,7 +333,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        Log.e(TAG, "onPlayerStateChanged: " + playWhenReady + ", " + playbackState);
         // Do not accept play or buffer events 300 ms after seeked, player tend to send
         // redundant play/playing events
 //      if (state == PlayerState.SEEKED || state == PlayerState.SEEKING) {
@@ -348,11 +340,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             // Skipping play event on seek end, or buffering event
             switch (playbackState) {
                 case Player.STATE_BUFFERING:
-                    Log.e(TAG, "Skipped buffer event after seek !!!");
                     return;
                 case Player.STATE_READY:
                     if (playWhenReady) {
-                        Log.e(TAG, "Skipped play event after seek !!!");
                         return;
                     }
             }
@@ -383,13 +373,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // By the time we get here, it depends on playWhenReady to know if we're playing
                 if (playWhenReady) {
                     if (state == PlayerState.SEEKED || state == PlayerState.SEEKING) {
-                        Log.e(TAG, "After seeking Play skipped !!!");
                         return;
                     }
-                    Log.e(TAG, "Play triggered !!!");
                     play();
                 } else {
-                    Log.e(TAG, "Pause triggered !!!");
                     pause();
                 }
                 break;
