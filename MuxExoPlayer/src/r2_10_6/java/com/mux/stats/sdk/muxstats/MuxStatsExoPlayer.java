@@ -162,20 +162,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onDownstreamFormatChanged(EventTime eventTime,
             MediaSourceEventListener.MediaLoadData mediaLoadData) {
-        if (mediaLoadData.trackFormat != null) {
-            if (mediaLoadData.trackFormat != null) {
-                mimeType = "";
-                if (mediaLoadData.trackFormat.containerMimeType != null) {
-                    mimeType += mediaLoadData.trackFormat.containerMimeType;
-                }
-                if (mediaLoadData.trackFormat.sampleMimeType != null) {
-                    if (mimeType.length() > 0) {
-                        mimeType += " (" + mediaLoadData.trackFormat.sampleMimeType + ")";
-                    } else {
-                        mimeType += mediaLoadData.trackFormat.sampleMimeType;
-                    }
-                }
-            }
+        if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.containerMimeType != null) {
+            mimeType = mediaLoadData.trackFormat.containerMimeType;
         }
     }
 
