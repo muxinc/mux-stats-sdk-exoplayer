@@ -62,6 +62,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
+    protected WeakReference<Context> contextRef;
 
     protected int streamType = -1;
 
@@ -74,6 +75,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
+        this.contextRef = new WeakReference<>(ctx);
         state = PlayerState.INIT;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -277,7 +279,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (this.playerView != null) {
             View pv = this.playerView.get();
             if (pv != null) {
-                return pv.getWidth();
+                return pxToDp(pv.getWidth());
             }
         }
         return 0;
@@ -288,7 +290,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (this.playerView != null) {
             View pv = this.playerView.get();
             if (pv != null) {
-                return pv.getHeight();
+                return pxToDp(pv.getHeight());
             }
         }
         return 0;
@@ -699,6 +701,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 MuxBaseExoPlayer.this.dispatch(playback);
             }
         }
+    }
+
+    private int pxToDp(int px) {
+        DisplayMetrics displayMetrics = contextRef.get().getResources().getDisplayMetrics();
+        int dp = Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        return dp;
     }
 
     protected BandwidthMetricDispatcher bandwidthDispatcher = new BandwidthMetricDispatcher();
