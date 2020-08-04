@@ -1,46 +1,28 @@
 package com.mux.stats.sdk.muxstats;
 
-import android.app.Activity;
-import android.content.Context;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
 
-import androidx.test.InstrumentationRegistry;
-import androidx.test.espresso.Espresso;
-import androidx.test.espresso.IdlingRegistry;
-import androidx.test.espresso.IdlingResource;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
-import androidx.test.espresso.ViewInteraction;
-import androidx.test.espresso.assertion.ViewAssertions;
-import androidx.test.espresso.matcher.ViewMatchers;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
-import com.google.android.exoplayer2.DefaultRenderersFactory;
-import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.ExoPlayerFactory;
-import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
-import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.AssetDataSource;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.mux.stats.sdk.R;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.mockup.http.SimpleHTTPServer;
+import com.mux.stats.sdk.muxstats.ui.SimplePlayerTestActivity;
 
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -48,12 +30,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.junit.Assert.*;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -74,10 +56,21 @@ public class MuxStatsLateInitInstrumentationTest {
     private PlayerView playerView;
     private SimpleExoPlayer player;
     private MuxStatsExoPlayer muxStats;
+    private SimpleHTTPServer httpServer;
+    // 2 mega bits per second
+    private int bandwithLimitInBitsPerSecond = 2000000;
+    private int runHttpServerOnPort = 5000;
 
 
     @Before
     public void init(){
+        try {
+            httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwithLimitInBitsPerSecond);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Failed to start server
+
+        }
         activityTestRule = new ActivityTestRule<SimplePlayerTestActivity>(
                 SimplePlayerTestActivity.class,
                 true,
@@ -87,31 +80,40 @@ public class MuxStatsLateInitInstrumentationTest {
 //        IdlingRegistry.getInstance().register(fetchingResource);
     }
 
+    /*
+     * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
+     * We are implementing vod playback scenario.
+     */
     @Test
-    public void testLateInit() {
-        player = testActivity.player;
-
-//        player.retry();
-        Handler lHandler = new Handler(testActivity.getMainLooper());
-
-        lHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                preparePlayback();
-            }
-        }, 0);
-
-        lHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                initMuxSats();
-            }
-        }, 4000);
-
-        onView(withId(R.id.player_view))
-                .perform(wait8seconds());
+    public void testVodPlayback() {
 
     }
+
+//    @Test
+//    public void testLateInit() {
+//        player = testActivity.player;
+//
+////        player.retry();
+//        Handler lHandler = new Handler(testActivity.getMainLooper());
+//
+//        lHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                preparePlayback();
+//            }
+//        }, 0);
+//
+//        lHandler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                initMuxSats();
+//            }
+//        }, 4000);
+//
+//        onView(withId(R.id.player_view))
+//                .perform(wait8seconds());
+//
+//    }
 
     private void preparePlayback() {
 //        Uri testUri = Uri.parse("http://vod.leasewebcdn.com/bbb.flv?ri=1024&rs=150&start=0");
