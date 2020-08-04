@@ -19,6 +19,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
@@ -81,6 +82,7 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -182,6 +184,21 @@ public class PlayerActivity extends Activity
     } else {
       trackSelectorParameters = new DefaultTrackSelector.ParametersBuilder().build();
       clearStartPosition();
+    }
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+
+    if (muxStats == null) {
+      return;
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      muxStats.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+      muxStats.orientationChange(MuxSDKViewOrientation.PORTRAIT);
     }
   }
 
@@ -398,7 +415,7 @@ public class PlayerActivity extends Activity
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData, false);
+      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
