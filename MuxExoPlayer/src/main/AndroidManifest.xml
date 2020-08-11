@@ -1,4 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.mux.stats.sdk">
+    package="com.mux.stats.sdk.muxstats">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <application
+        android:icon="@mipmap/ic_launcher"
+        android:largeHeap="true"
+        android:allowBackup="false">
+
+    <activity android:name=".ui.SimplePlayerTestActivity"
+        android:configChanges="keyboardHidden"
+        android:theme="@style/Theme.AppCompat" />
+    </application>
 </manifest>

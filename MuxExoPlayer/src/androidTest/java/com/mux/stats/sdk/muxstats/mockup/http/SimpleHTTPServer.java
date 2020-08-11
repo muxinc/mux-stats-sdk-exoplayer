@@ -1,13 +1,11 @@
 package com.mux.stats.sdk.muxstats.mockup.http;
 
-import java.io.BufferedReader;
+import android.content.Context;
+
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 public class SimpleHTTPServer extends Thread {
 
@@ -25,6 +23,7 @@ public class SimpleHTTPServer extends Thread {
         this.port = port;
         this.bandwidthLimit = bandwidthLimit;
         server = new ServerSocket(port);
+        start();
     }
 
     public void run() {

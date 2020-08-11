@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.WindowManager;
 
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlaybackException;
@@ -28,9 +29,15 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.mux.stats.sdk.R;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxBaseExoPlayer;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+import com.mux.stats.sdk.muxstats.R;
+
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SimplePlayerTestActivity extends AppCompatActivity implements PlaybackPreparer, Player.EventListener {
 
@@ -38,68 +45,114 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
 
     public PlayerView playerView;
     public SimpleExoPlayer player;
+    Lock activityLock = new ReentrantLock();
+    Condition playbackEnded = activityLock.newCondition();
+    Condition playbackStarted = activityLock.newCondition();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_player_test);
 
+        disableUserActions();
+
         playerView = findViewById(R.id.player_view);
         playerView.setPlaybackPreparer(this);
 
-        RenderersFactory renderersFactory = buildRenderersFactory(false);
+        RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
         TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();
         TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
 
-        // For 2.9.6 and higher
         player =
                 ExoPlayerFactory.newSimpleInstance(this,
                         renderersFactory,
                         trackSelector);
-
-//        player =
-//                ExoPlayerFactory.newSimpleInstance(
-//                        renderersFactory,
-//                        trackSelector);
         player.addListener(this);
         playerView.setPlayer(player);
 
-//        Uri testUri = Uri.parse("https://html5demos.com/assets/dizzy.mp4");
+        initMuxSats();
+
         Uri testUri = Uri.parse("http://localhost:5000/vod.mp4");
-        MediaSource testMediaSource = new ProgressiveMediaSource.Factory(buildDataSourceFactory())
+        MediaSource testMediaSource = new ProgressiveMediaSource.Factory(
+                new DefaultDataSourceFactory(this, "Test"))
                 .createMediaSource(testUri);
-//        MediaSource testMediaSource = new ExtractorMediaSource.Factory(buildDataSourceFactory()).createMediaSource(testUri);
-
-//        Handler lHandler = new Handler();
-
-//        lHandler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                initMuxSats();
-//            }
-//        }, 9000);
-
-//        initMuxSats();
-//        player.setPlayWhenReady(true);
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);
     }
 
-    private RenderersFactory buildRenderersFactory(boolean preferExtensionRenderer) {
-//        return new DefaultRenderersFactory(/* context= */ this)
-//                .setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON);
-
-        return new DefaultRenderersFactory(/* context= */ this);
+    public void initMuxSats() {
+        // Mux details
+        CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+        CustomerVideoData customerVideoData = new CustomerVideoData();
+        customerVideoData.setVideoTitle("Test video");
+        MuxStatsExoPlayer muxStats = new MuxStatsExoPlayer(
+                this, player, "demo-player", customerPlayerData, customerVideoData);
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        muxStats.setScreenSize(size.x, size.y);
+        muxStats.setPlayerView(playerView);
+        muxStats.enableMuxCoreDebug(true, false);
     }
 
-    private DataSource.Factory buildDataSourceFactory() {
-        return new DefaultDataSourceFactory(this, "Test");
+    public PlayerView getPlayerView() {
+        return playerView;
     }
+
+    public void waitForPlaybackToFinish() {
+        try {
+            activityLock.lock();
+            playbackEnded.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            activityLock.unlock();
+        }
+    }
+
+    public void waitForPlaybackToStart() {
+        try {
+            activityLock.lock();
+            playbackStarted.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            activityLock.unlock();
+        }
+    }
+
+    public void signalPlaybackStarted() {
+        activityLock.lock();
+        playbackStarted.signalAll();
+        activityLock.unlock();
+    }
+
+    public void signalPlaybackEnded() {
+        activityLock.lock();
+        playbackEnded.signalAll();
+        activityLock.unlock();
+    }
+
+    private void disableUserActions() {
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    private void enableUserActions() {
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    ///////////////////////////////////////////////////////////////////////
+    ///////// PlaybackPreparer ////////////////////////////////////////////
 
     @Override
     public void preparePlayback() {
 //        player.retry();
     }
+
+    //////////////////////////////////////////////////////////////////////
+    ////// Player.EventListener //////////////////////////////////////////
 
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
@@ -118,7 +171,19 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-
+        switch (playbackState) {
+            case Player.STATE_ENDED:
+                signalPlaybackEnded();
+                break;
+            case Player.STATE_READY:
+                // By the time we get here, it depends on playWhenReady to know if we're playing
+                if (playWhenReady) {
+                    signalPlaybackStarted();
+                } else {
+                    // TODO signal playback paused
+                }
+                break;
+        }
     }
 
     @Override

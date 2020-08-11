@@ -27,6 +27,13 @@ android {
         lintConfig file("../checker-framework-lint.xml")
     }
     sourceSets {
+//        androidTest {
+//            java {
+////                compileClasspath += main.output + test.output
+////                runtimeClasspath += main.output + test.output
+//                srcDir "/src/androidTests/java"
+//            }
+//        }
         r2_7_3 {
             java.srcDirs = ['./src/r2_7_3/base/java',
                             './src/r2_7_3/stats/java',
@@ -90,9 +97,6 @@ android {
             dimension 'api'
         }
         r2_9_6_ads {
-            dimension 'api'
-        }
-        r2_10_6 {
             minSdkVersion 26
             compileSdkVersion 29
             targetSdkVersion 29
@@ -102,8 +106,25 @@ android {
                 targetCompatibility = JavaVersion.VERSION_1_8
             }
         }
-        r2_10_6_ads {
+        r2_10_6 {
+            minSdkVersion 24
+            compileSdkVersion 29
+            targetSdkVersion 29
             dimension 'api'
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+        }
+        r2_10_6_ads {
+            minSdkVersion 24
+            compileSdkVersion 29
+            targetSdkVersion 29
+            dimension 'api'
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
         }
         r2_11_1 {
             dimension 'api'
@@ -113,8 +134,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     build  {
@@ -171,4 +192,6 @@ dependencies {
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     testImplementation "org.robolectric:robolectric:4.3"
     testImplementation 'junit:junit:4.12'
+
+    androidTestR2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
 }

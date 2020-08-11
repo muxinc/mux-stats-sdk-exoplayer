@@ -1,21 +1,23 @@
 package com.mux.stats.sdk.muxstats.mockup.http;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.stream.Collectors;
 
-import static com.mux.stats.sdk.muxstats.mockup.http.ConnectionWorker.SERVE_VIDEO_DATA;
 
 public class ConnectionReceiver extends Thread {
+
+    static final String TAG = "HTTPTest";
 
     boolean isRunning;
     InputStream httpInput;
     HttpRequestParser httpParser = new HttpRequestParser();
     BufferedReader reader;
-    LinkedBlockingDeque<String> actions = new LinkedBlockingDeque<>();
+    LinkedBlockingDeque<ServerAction> actions = new LinkedBlockingDeque<>(100);
 
     public ConnectionReceiver(InputStream httpInput) {
         this.httpInput = httpInput;
@@ -27,21 +29,27 @@ public class ConnectionReceiver extends Thread {
         interrupt();
     }
 
-    public String getNextAction() {
-        return actions.pop();
+    public ServerAction getNextAction() throws InterruptedException {
+        return actions.take();
     }
 
     public void run() {
         isRunning = true;
         while (isRunning) {
-            String httpRequest = waitForRequest();
             try {
-                processRequest(httpRequest);
+                String httpRequest = waitForRequest();
+                if (httpRequest == null || httpRequest.length() == 0) {
+                    sleep(50);
+                } else {
+                    Log.w(TAG, "Received request:\n" + httpRequest);
+                    processRequest(httpRequest + "\r\n");
+                }
             } catch (IOException e) {
-                // TODO handle this better
-                e.printStackTrace();
+                // Connection closed
+                isRunning = false;
             } catch (InterruptedException e) {
                 // Someone killed the thread
+                isRunning = false;
             } catch (HttpFormatException e) {
                 // TODO handle this better
                 e.printStackTrace();
@@ -52,9 +60,14 @@ public class ConnectionReceiver extends Thread {
     /*
      * Wait for http request
      */
-    private String waitForRequest() {
-        return reader.lines()
-                .collect(Collectors.joining("\n"));
+    private String waitForRequest() throws IOException {
+        StringBuilder total = new StringBuilder();
+        String line = reader.readLine();
+        while (line != null && line.length() > 0) {
+            total.append(line).append('\n');
+            line = reader.readLine();
+        }
+        return (total.toString());
     }
 
     /*
@@ -62,9 +75,15 @@ public class ConnectionReceiver extends Thread {
      */
     private void processRequest(String httpRequest) throws
             IOException, HttpFormatException, InterruptedException {
-//            httpParser.parseRequest(httpRequest);
-        // TODO parse the line at some point
-        String requestLine = httpParser.getRequestLine();
-        actions.put(SERVE_VIDEO_DATA);
+
+        httpParser.parseRequest(httpRequest);
+        int range = 0;
+        String rangeHeader = httpParser.getHeaderParam("Range");
+        if (rangeHeader != null) {
+            range = Integer.valueOf(rangeHeader.replaceAll("[^0-9]", ""));
+            Log.i(TAG, "Got range header value: " + range);
+        }
+        actions.put(new ServerAction(ServerAction.SERVE_MEDIA_DATA, range));
+//        actions.add(new ServerAction(ServerAction.SERVE_MEDIA_DATA));
     }
 }

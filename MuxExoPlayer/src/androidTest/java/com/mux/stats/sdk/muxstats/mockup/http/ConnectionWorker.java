@@ -1,14 +1,12 @@
 package com.mux.stats.sdk.muxstats.mockup.http;
 
+import android.content.Context;
+
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 
 
 public class ConnectionWorker extends Thread {
-
-    public static final String SERVE_VIDEO_DATA = "serve_video";
 
     Socket clientSocket;
     int bandwidthLimit;
@@ -22,26 +20,12 @@ public class ConnectionWorker extends Thread {
         start();
     }
 
-    /*
-     * Send HTTP response
-     */
-    public void sendHTTPOKResponse() throws IOException {
-        OutputStream out = clientSocket.getOutputStream();
-        PrintWriter writer = new PrintWriter(out);
-        writer.write("HTTP/1.1 200 OK\n");
-        writer.write("Server: SimpleHttpServer/1.0\n");
-        writer.write("Content-Type: video/mp4\n");
-        writer.write("Connection: keep-alive\n");
-        writer.write("\n\n");
-    }
-
     public void run() {
         isRunning = true;
         try {
             receiver = new ConnectionReceiver(clientSocket.getInputStream());
             receiver.start();
-            sender = new ConnectionSender(clientSocket.getOutputStream());
-            sender.start();
+            sender = new ConnectionSender(clientSocket.getOutputStream(), bandwidthLimit);
             sender.pause();
         } catch (IOException e) {
             e.printStackTrace();
@@ -49,14 +33,15 @@ public class ConnectionWorker extends Thread {
         }
         while (isRunning) {
             try {
-                String action = receiver.getNextAction();
+                ServerAction action = receiver.getNextAction();
                 sender.pause();
-                if (action.equals(SERVE_VIDEO_DATA)) {
-                    sendHTTPOKResponse();
-                    sender.startServingFromPosition(0);
+                if (action.getType() == ServerAction.SERVE_MEDIA_DATA) {
+                    sender.startServingFromPosition(action.getValue());
                 }
             } catch (IOException e) {
                 isRunning = false;
+            } catch (InterruptedException e) {
+                // Someone killed the thread
             }
         }
     }
