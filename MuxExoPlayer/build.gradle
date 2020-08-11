@@ -12,6 +12,9 @@ android {
 
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
+
+        buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
+        buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"bar8fjevgudvf4o7r8fdjrfii\"")
     }
     buildTypes {
         release {
@@ -27,13 +30,6 @@ android {
         lintConfig file("../checker-framework-lint.xml")
     }
     sourceSets {
-//        androidTest {
-//            java {
-////                compileClasspath += main.output + test.output
-////                runtimeClasspath += main.output + test.output
-//                srcDir "/src/androidTests/java"
-//            }
-//        }
         r2_7_3 {
             java.srcDirs = ['./src/r2_7_3/base/java',
                             './src/r2_7_3/stats/java',

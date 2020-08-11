@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.BuildConfig;
 import com.mux.stats.sdk.muxstats.MuxBaseExoPlayer;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.R;
@@ -94,7 +95,11 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements
     public void initMuxSats() {
         // Mux details
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-        customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+        if (BuildConfig.SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER) {
+            customerPlayerData.setEnvironmentKey(BuildConfig.INSTRUMENTATION_TEST_ENVIRONMENT_KEY);
+        } else {
+            customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+        }
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Test video");
         mockNetwork = new MockNetworkRequest();

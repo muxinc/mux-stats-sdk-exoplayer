@@ -1,7 +1,9 @@
 package com.mux.stats.sdk.muxstats.mockup;
 
 import com.mux.stats.sdk.core.model.ViewData;
+import com.mux.stats.sdk.muxstats.BuildConfig;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
+import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,6 +16,19 @@ import java.util.Hashtable;
 public class MockNetworkRequest implements INetworkRequest {
     IMuxNetworkRequestsCompletion callback;
     ArrayList<JSONObject> receivedEvents = new ArrayList<>();
+    MuxNetworkRequests muxNetwork;
+    IMuxNetworkRequestsCompletion muxNetworkCallback = new IMuxNetworkRequestsCompletion() {
+
+        @Override
+        public void onComplete(boolean b) {
+            // Do nothing
+        }
+    };
+
+
+    public MockNetworkRequest() {
+        muxNetwork = new MuxNetworkRequests();
+    }
 
     public void sendResponse(boolean shouldSucceed) {
         callback.onComplete(shouldSucceed);
@@ -48,6 +63,10 @@ public class MockNetworkRequest implements INetworkRequest {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+        if (BuildConfig.SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER) {
+            // Send events to actual server
+            muxNetwork.postWithCompletion(envKey, body, headers, muxNetworkCallback);
+        }
     }
 
     public String getReceivedEventName(int index) throws JSONException {
@@ -69,9 +88,10 @@ public class MockNetworkRequest implements INetworkRequest {
         return receivedEvents.size();
     }
 
-    public long getTimeToFirstFrameForEvent(int index) throws JSONException {
-        JSONObject event = receivedEvents.get(index);
-        return  event.has(ViewData.VIEW_TIME_TO_FIRST_FRAME) ?
-                event.getLong(ViewData.VIEW_TIME_TO_FIRST_FRAME) : -1;
+    public long getCreationTimeForEvent(int index) throws JSONException {
+        if (index > receivedEvents.size()) {
+            return -1;
+        }
+        return receivedEvents.get(index).getLong("uti");
     }
 }

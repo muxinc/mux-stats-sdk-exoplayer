@@ -38,7 +38,8 @@ public class MuxStatsPlaybackInstrumentationTests {
     public static final String TAG = "LateInitTest";
 
     static final int PLAY_PERIOD_IN_MS = 10000;
-    static final int PAUSE_PERIOD_IN_MS = 5000;
+    static final int PAUSE_PERIOD_IN_MS = 3000;
+    static final int EVENT_MAX_TIME_DIFF_MS = 100;
 
     @Rule
     public ActivityTestRule<SimplePlayerTestActivity> activityTestRule;
@@ -73,17 +74,18 @@ public class MuxStatsPlaybackInstrumentationTests {
      */
     private void checkEvents(ArrayList<Event> eventsOrder, MockNetworkRequest networkRequest) throws JSONException {
         int lookingForEventAtIndex = 0;
+
         for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++ ) {
             String receivedEventName = networkRequest.getReceivedEventName(i);
             if (receivedEventName.equals(eventsOrder.get(lookingForEventAtIndex).getName())) {
+//                long timeDiff = networkRequest.getCreationTimeForEvent(i) -
+//                        eventsOrder.get(lookingForEventAtIndex).getExpectedTime();
+//                if (Math.abs(timeDiff) > EVENT_MAX_TIME_DIFF_MS) {
+//                    String failMessage = "Time diff: " + Math.abs(timeDiff)
+//                            + " too big for two corresponding events !!!";
+//                    fail(failMessage);
+//                }
                 lookingForEventAtIndex++;
-            } else {
-                for (int j = lookingForEventAtIndex; j < eventsOrder.size(); j++ ) {
-                    if (eventsOrder.get(j).getName().equals(receivedEventName)) {
-                        // fail, incorrect order
-                        break;
-                    }
-                }
             }
             if (lookingForEventAtIndex >= eventsOrder.size()) {
                 return;
