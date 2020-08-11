@@ -34,20 +34,26 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxBaseExoPlayer;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.R;
+import com.mux.stats.sdk.muxstats.mockup.MockNetworkRequest;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SimplePlayerTestActivity extends AppCompatActivity implements PlaybackPreparer, Player.EventListener {
+public class SimplePlayerTestActivity extends AppCompatActivity implements
+        PlaybackPreparer, Player.EventListener {
 
     static final String TAG = "SimplePlayerTestActivity";
 
-    public PlayerView playerView;
-    public SimpleExoPlayer player;
+    PlayerView playerView;
+    SimpleExoPlayer player;
+    MuxStatsExoPlayer muxStats;
+    MockNetworkRequest mockNetwork;
+
     Lock activityLock = new ReentrantLock();
     Condition playbackEnded = activityLock.newCondition();
     Condition playbackStarted = activityLock.newCondition();
+    Condition activityClosed = activityLock.newCondition();
 
 
     @Override
@@ -71,6 +77,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
         player.addListener(this);
         playerView.setPlayer(player);
 
+        // Do not hide controlls
+        playerView.setControllerShowTimeoutMs(0);
+        playerView.setControllerHideOnTouch(false);
+
         initMuxSats();
 
         Uri testUri = Uri.parse("http://localhost:5000/vod.mp4");
@@ -87,8 +97,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
         customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
         CustomerVideoData customerVideoData = new CustomerVideoData();
         customerVideoData.setVideoTitle("Test video");
-        MuxStatsExoPlayer muxStats = new MuxStatsExoPlayer(
-                this, player, "demo-player", customerPlayerData, customerVideoData);
+        mockNetwork = new MockNetworkRequest();
+        muxStats = new MuxStatsExoPlayer(
+                this, player, "demo-player", customerPlayerData, customerVideoData,
+                true, mockNetwork);
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStats.setScreenSize(size.x, size.y);
@@ -98,6 +110,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
 
     public PlayerView getPlayerView() {
         return playerView;
+    }
+
+    public MockNetworkRequest getMockNetwork() {
+        return mockNetwork;
     }
 
     public void waitForPlaybackToFinish() {
@@ -122,6 +138,17 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
         }
     }
 
+    public void waitForActivityToClose() {
+        try {
+            activityLock.lock();
+            activityClosed.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            activityLock.unlock();
+        }
+    }
+
     public void signalPlaybackStarted() {
         activityLock.lock();
         playbackStarted.signalAll();
@@ -134,6 +161,12 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
         activityLock.unlock();
     }
 
+    public void signalActivityClosed() {
+        activityLock.lock();
+        activityClosed.signalAll();
+        activityLock.unlock();
+    }
+
     private void disableUserActions() {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
@@ -141,6 +174,12 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements Playb
 
     private void enableUserActions() {
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        signalActivityClosed();
     }
 
     ///////////////////////////////////////////////////////////////////////
