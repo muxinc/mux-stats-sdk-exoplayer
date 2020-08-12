@@ -24,6 +24,7 @@ android {
     }
 
     lintOptions {
+        abortOnError false
         disable 'GradleCompatible'
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
