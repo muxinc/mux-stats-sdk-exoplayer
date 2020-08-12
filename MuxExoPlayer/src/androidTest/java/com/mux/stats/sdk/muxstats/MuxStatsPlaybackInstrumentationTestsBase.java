@@ -7,6 +7,7 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.AndroidJUnit4;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.muxstats.mockup.Event;
@@ -32,10 +33,9 @@ import static org.junit.Assert.fail;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-@RunWith(AndroidJUnit4.class)
-public class MuxStatsPlaybackInstrumentationTests {
+public abstract class MuxStatsPlaybackInstrumentationTestsBase {
 
-    public static final String TAG = "LateInitTest";
+    public static final String TAG = "playbackTest";
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
@@ -44,18 +44,23 @@ public class MuxStatsPlaybackInstrumentationTests {
     @Rule
     public ActivityTestRule<SimplePlayerTestActivity> activityTestRule;
 
+    PlayerControlView controlView;
+    View pauseButton;
+    View playButton;
 
-    SimplePlayerTestActivity testActivity;
-    private SimpleHTTPServer httpServer;
+    protected SimplePlayerTestActivity testActivity;
+    protected SimpleHTTPServer httpServer;
+    protected PlayerView pView;
+    protected MediaSource testMediaSource;
     // 2 mega bits per second
-    private int bandwithLimitInBitsPerSecond = 2000000;
-    private int runHttpServerOnPort = 5000;
+    protected  int bandwidthLimitInBitsPerSecond = 2000000;
+    protected  int runHttpServerOnPort = 5000;
 
 
     @Before
     public void init(){
         try {
-            httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwithLimitInBitsPerSecond);
+            httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
         } catch (IOException e) {
             e.printStackTrace();
             // Failed to start server
@@ -78,13 +83,6 @@ public class MuxStatsPlaybackInstrumentationTests {
         for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++ ) {
             String receivedEventName = networkRequest.getReceivedEventName(i);
             if (receivedEventName.equals(eventsOrder.get(lookingForEventAtIndex).getName())) {
-//                long timeDiff = networkRequest.getCreationTimeForEvent(i) -
-//                        eventsOrder.get(lookingForEventAtIndex).getExpectedTime();
-//                if (Math.abs(timeDiff) > EVENT_MAX_TIME_DIFF_MS) {
-//                    String failMessage = "Time diff: " + Math.abs(timeDiff)
-//                            + " too big for two corresponding events !!!";
-//                    fail(failMessage);
-//                }
                 lookingForEventAtIndex++;
             }
             if (lookingForEventAtIndex >= eventsOrder.size()) {
@@ -107,11 +105,19 @@ public class MuxStatsPlaybackInstrumentationTests {
      * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
      * We are implementing vod playback scenario.
      */
-    @Test
     public void testVodPlayback() {
         try {
             testActivity.waitForPlaybackToStart();
+            pView = testActivity.getPlayerView();
+            testMediaSource = testActivity.getTestMediaSource();
             MockNetworkRequest networkRequest = testActivity.getMockNetwork();
+
+            // Init player controlls
+            controlView = pView.findViewById(R.id.exo_controller);
+            if (controlView != null) {
+                pauseButton = controlView.findViewById(R.id.exo_pause);
+                playButton = controlView.findViewById(R.id.exo_play);
+            }
 
             ArrayList<Event> expectedEvents = new ArrayList<>();
 
@@ -123,27 +129,15 @@ public class MuxStatsPlaybackInstrumentationTests {
             expectedEvents.add(new Event("play"));
             expectedEvents.add(new Event("playing"));
 
-            PlayerView pView = testActivity.getPlayerView();
-            PlayerControlView controlView = pView.findViewById(R.id.exo_controller);
-            final View pauseButton = controlView.findViewById(R.id.exo_pause);
-            final View playButton = controlView.findViewById(R.id.exo_play);
-            // Pause video
-            testActivity.runOnUiThread(new Runnable(){
-                public void run() {
-                    pauseButton.performClick();
-                }
-            });
+            pausePlayer();
 
             // check player pause event
             expectedEvents.add(new Event("pause"));
 
-            // Resume video
             Thread.sleep(PAUSE_PERIOD_IN_MS);
-            testActivity.runOnUiThread(new Runnable(){
-                public void run() {
-                    playButton.performClick();
-                }
-            });
+            // Resume video
+
+            resumePlayer();
 
             /// check player play event
             expectedEvents.add(new Event("play"));
@@ -172,7 +166,8 @@ public class MuxStatsPlaybackInstrumentationTests {
             // seek forward in the video
             testActivity.runOnUiThread(new Runnable(){
                 public void run() {
-                    long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
+                    long currentPlaybackPosition = pView.getPlayer()
+                            .getCurrentPosition();
                     long videoDuration = pView.getPlayer().getDuration();
                     long seekToInFuture = currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
                     pView.getPlayer().seekTo(seekToInFuture);
@@ -208,5 +203,33 @@ public class MuxStatsPlaybackInstrumentationTests {
             assertTrue(false);
         }
         Log.e(TAG, "All done !!!");
+    }
+
+
+    public void pausePlayer() {
+        // Pause video
+        testActivity.runOnUiThread(new Runnable(){
+            public void run()
+            {
+                if (pauseButton != null) {
+                    pauseButton.performClick();
+                } else {
+                    pView.getPlayer().stop();
+                }
+            }
+        });
+    }
+
+    public void resumePlayer() {
+        testActivity.runOnUiThread(new Runnable(){
+            public void run() {
+                if (playButton != null) {
+                    playButton.performClick();
+                } else {
+                    SimpleExoPlayer player = ((SimpleExoPlayer)pView.getPlayer());
+                    player.prepare(testMediaSource, false, false);
+                }
+            }
+        });
     }
 }

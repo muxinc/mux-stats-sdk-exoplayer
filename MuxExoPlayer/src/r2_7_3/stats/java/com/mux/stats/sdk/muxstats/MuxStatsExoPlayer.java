@@ -8,6 +8,7 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -43,7 +44,34 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
-        player.addListener(this);
+        checkLateInit();
+    }
+
+    /*
+     * For instrumentation tests
+     */
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             boolean sentryEnabled,
+                             INetworkRequest muxNetworkRequest) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled, muxNetworkRequest);
+        checkLateInit();
+    }
+
+    void checkLateInit() {
+        player.get().addListener(this);
+
+        if (player.get().getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+        } else if (player.get().getPlaybackState() == Player.STATE_READY) {
+            // We have to simulate all the events we expect to see here, even though not ideal
+            play();
+            buffering();
+            playing();
+        }
     }
 
     @Override

@@ -24,7 +24,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.util.MimeTypes;
-import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -39,11 +38,36 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+        checkLateInit();
+    }
 
-        if (player instanceof SimpleExoPlayer) {
-            ((SimpleExoPlayer) player).addAnalyticsListener(this);
+    /*
+     * For instrumentation tests
+     */
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             boolean sentryEnabled,
+                             INetworkRequest muxNetworkRequest) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled, muxNetworkRequest);
+        checkLateInit();
+    }
+
+    void checkLateInit() {
+        if (player.get() instanceof SimpleExoPlayer) {
+            ((SimpleExoPlayer) player.get()).addAnalyticsListener(this);
         } else {
-            player.addListener(this);
+            player.get().addListener(this);
+        }
+        if (player.get().getPlaybackState() == Player.STATE_BUFFERING) {
+            // playback started before muxStats was initialized
+            play();
+            buffering();
+        } else if (player.get().getPlaybackState() == Player.STATE_READY) {
+            // We have to simulate all the events we expect to see here, even though not ideal
+            play();
+            buffering();
+            playing();
         }
     }
 

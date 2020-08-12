@@ -18,8 +18,8 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
@@ -41,13 +41,14 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SimplePlayerTestActivity extends AppCompatActivity implements
+public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
         PlaybackPreparer, Player.EventListener {
 
-    static final String TAG = "SimplePlayerTestActivity";
+    static final String TAG = "SimplePlayerActivity";
 
     PlayerView playerView;
     SimpleExoPlayer player;
+    MediaSource testMediaSource;
     MuxStatsExoPlayer muxStats;
     MockNetworkRequest mockNetwork;
 
@@ -55,7 +56,6 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements
     Condition playbackEnded = activityLock.newCondition();
     Condition playbackStarted = activityLock.newCondition();
     Condition activityClosed = activityLock.newCondition();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,14 +67,7 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements
         playerView = findViewById(R.id.player_view);
         playerView.setPlaybackPreparer(this);
 
-        RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
-        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();
-        TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
-
-        player =
-                ExoPlayerFactory.newSimpleInstance(this,
-                        renderersFactory,
-                        trackSelector);
+        initExoPlayer();
         player.addListener(this);
         playerView.setPlayer(player);
 
@@ -85,12 +78,14 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements
         initMuxSats();
 
         Uri testUri = Uri.parse("http://localhost:5000/vod.mp4");
-        MediaSource testMediaSource = new ProgressiveMediaSource.Factory(
+        testMediaSource = new ExtractorMediaSource.Factory(
                 new DefaultDataSourceFactory(this, "Test"))
                 .createMediaSource(testUri);
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);
     }
+
+    public abstract void initExoPlayer();
 
     public void initMuxSats() {
         // Mux details
@@ -111,6 +106,10 @@ public class SimplePlayerTestActivity extends AppCompatActivity implements
         muxStats.setScreenSize(size.x, size.y);
         muxStats.setPlayerView(playerView);
         muxStats.enableMuxCoreDebug(true, false);
+    }
+
+    public MediaSource getTestMediaSource() {
+        return testMediaSource;
     }
 
     public PlayerView getPlayerView() {

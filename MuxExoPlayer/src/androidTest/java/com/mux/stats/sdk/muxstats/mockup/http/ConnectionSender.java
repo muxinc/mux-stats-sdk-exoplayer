@@ -100,7 +100,7 @@ public class ConnectionSender extends Thread {
                 httpOut, StandardCharsets.US_ASCII), true);
         String response = "HTTP/1.1 416 Requested range not satisfiable\r\n" +
                 "Server: SimpleHttpServer/1.0\r\n" +
-                "Content-Range: bytes */" + assetFileSize +
+                "Content-Range: bytes */" + assetFileSize + "\r\n" +
                 "Content-Type: text/plain\r\n" +
                 "Content-Length: 0\r\n" +
                 "Connection: close\r\n" +
@@ -120,7 +120,7 @@ public class ConnectionSender extends Thread {
                 "Server: SimpleHttpServer/1.0\r\n" +
                 "Content-Type: video/mp4\r\n" +
                 ("Content-Range: bytes " + this.serveDataFromPosition + "-" + (assetFileSize-1)
-                    + "/" + assetFileSize) +
+                    + "/" + assetFileSize) + "\r\n" +
                 "Accept-Ranges: bytes\r\n" +
                 // content length should be total length - requested byte position
                 "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +

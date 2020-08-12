@@ -88,12 +88,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 new MuxNetworkRequests());
     }
 
-    /*
-     * For instrumentation test purposes
-     */
     protected MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
-                     CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
-                     boolean sentryEnabled, INetworkRequest muxNetworkRequest) {
+                               CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
+                               boolean sentryEnabled, INetworkRequest muxNetworkRequest) {
         super();
         this.player = new WeakReference<>(player);
         this.contextRef = new WeakReference<>(ctx);
@@ -103,6 +100,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
         addListener(muxStats);
         Player.VideoComponent lDecCount = player.getVideoComponent();
+
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
         lDecCount.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
             // As of r2.11.x, the signature for this callback has changed. These are not annotated as @Overrides in
