@@ -13,7 +13,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.Random;
 
 public class ConnectionSender extends Thread {
 
@@ -25,6 +25,10 @@ public class ConnectionSender extends Thread {
     boolean isPaused;
     boolean isRunning;
 
+    long networkJammingEndPeriod = -1;
+    int networkJamFactor = 1;
+    Random r = new Random();
+
     long assetFileSize;
     long serveDataFromPosition;
     int bandwidthLimit;
@@ -32,9 +36,12 @@ public class ConnectionSender extends Thread {
     int transferBufferSize;
 
 
-    public ConnectionSender(OutputStream httpOut, int bandwidthLimit) throws IOException {
+    public ConnectionSender(OutputStream httpOut, int bandwidthLimit,
+                            long networkJammingEndPeriod, int networkJamFactor) throws IOException {
         this.httpOut = httpOut;
         this.bandwidthLimit = bandwidthLimit;
+        this.networkJammingEndPeriod = networkJammingEndPeriod;
+        this.networkJamFactor = networkJamFactor;
 
         AssetFileDescriptor fd = InstrumentationRegistry.getContext().getAssets().openFd("sample.mp4");
         assetFileSize = fd.getLength();
@@ -70,6 +77,11 @@ public class ConnectionSender extends Thread {
         } else {
             sendRequestedRangeNotSatisfiable();
         }
+    }
+
+    public void jamNetwork(long jamPeriod, int jamFactor) {
+        networkJammingEndPeriod = System.currentTimeMillis() + jamPeriod;
+        this.networkJamFactor = jamFactor;
     }
 
     public void run() {
@@ -135,7 +147,13 @@ public class ConnectionSender extends Thread {
      * Write limited amount of bytes to httpOut each 100 ms
      */
     private void serveStaticData() throws IOException, InterruptedException {
-        int bytesRead = assetInput.read(transferBuffer);
+        int bytesToRead = transferBufferSize;
+        if (networkJammingEndPeriod > System.currentTimeMillis()) {
+            int jamFactor = r.nextInt(this.networkJamFactor) + 2;
+            bytesToRead = (int)((double)bytesToRead / (double)jamFactor);
+        }
+
+        int bytesRead = assetInput.read(transferBuffer, 0, bytesToRead);
         if (bytesRead == -1) {
             // EOF reached
             Log.e(TAG, "EOF reached !!!");

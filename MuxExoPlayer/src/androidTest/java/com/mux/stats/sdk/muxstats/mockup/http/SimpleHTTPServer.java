@@ -12,6 +12,8 @@ public class SimpleHTTPServer extends Thread {
     private boolean isRunning;
     private int port;
     private int bandwidthLimit;
+    private long networkJamEndPeriod = -1;
+    private int networkJamFactor = 1;
 
     private ServerSocket server;
     ArrayList<ConnectionWorker> workers = new ArrayList<>();
@@ -24,6 +26,14 @@ public class SimpleHTTPServer extends Thread {
         this.bandwidthLimit = bandwidthLimit;
         server = new ServerSocket(port);
         start();
+    }
+
+    public void jamNetwork(long jamPeriod, int jamFactor) {
+        this.networkJamEndPeriod = System.currentTimeMillis() + jamPeriod;
+        this.networkJamFactor = jamFactor;
+        for(ConnectionWorker worker : workers) {
+            worker.jamNetwork(jamPeriod, jamFactor);
+        }
     }
 
     public void run() {
@@ -53,6 +63,7 @@ public class SimpleHTTPServer extends Thread {
      */
     private void acceptConnection() throws IOException {
         Socket clientSocket = server.accept();
-        workers.add(new ConnectionWorker(clientSocket, bandwidthLimit));
+        workers.add(new ConnectionWorker(clientSocket, bandwidthLimit,
+                networkJamEndPeriod, networkJamFactor));
     }
 }

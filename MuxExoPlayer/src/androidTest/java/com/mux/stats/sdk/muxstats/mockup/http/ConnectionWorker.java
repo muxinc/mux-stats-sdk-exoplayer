@@ -13,11 +13,20 @@ public class ConnectionWorker extends Thread {
     boolean isRunning;
     ConnectionReceiver receiver;
     ConnectionSender sender;
+    private long networkJamEndPeriod = -1;
+    private int networkJamFactor = 1;
 
-    public ConnectionWorker(Socket clientSocket, int bandwidthLimit) {
+    public ConnectionWorker(Socket clientSocket, int bandwidthLimit,
+                            long networkJamEndPeriod, int networkJamFactor) {
         this.clientSocket = clientSocket;
         this.bandwidthLimit = bandwidthLimit;
+        this.networkJamEndPeriod = networkJamEndPeriod;
+        this.networkJamFactor = networkJamFactor;
         start();
+    }
+
+    public void jamNetwork(long jamPeriod, int jamFactor) {
+        sender.jamNetwork(jamPeriod, jamFactor);
     }
 
     public void run() {
@@ -25,7 +34,8 @@ public class ConnectionWorker extends Thread {
         try {
             receiver = new ConnectionReceiver(clientSocket.getInputStream());
             receiver.start();
-            sender = new ConnectionSender(clientSocket.getOutputStream(), bandwidthLimit);
+            sender = new ConnectionSender(clientSocket.getOutputStream(), bandwidthLimit,
+                    networkJamEndPeriod, networkJamFactor);
             sender.pause();
         } catch (IOException e) {
             e.printStackTrace();

@@ -52,9 +52,16 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
     protected SimpleHTTPServer httpServer;
     protected PlayerView pView;
     protected MediaSource testMediaSource;
+    protected MockNetworkRequest networkRequest;
     // 2 mega bits per second
-    protected  int bandwidthLimitInBitsPerSecond = 2000000;
-    protected  int runHttpServerOnPort = 5000;
+
+    protected int networkJamPeriodInMs = 10000;
+    // This is the number of times the network bandwidth will be reduced,
+    // not constantly but each 10 ms a random number between 2 and factor will divide
+    // the regular amount of bytes to send
+    protected int networkJamFactor = 4;
+    protected int bandwidthLimitInBitsPerSecond = 1500000;
+    protected int runHttpServerOnPort = 5000;
 
 
     @Before
@@ -72,6 +79,9 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
                 false);
         activityTestRule.launchActivity(null);
         testActivity = activityTestRule.getActivity();
+        pView = testActivity.getPlayerView();
+        testMediaSource = testActivity.getTestMediaSource();
+        networkRequest = testActivity.getMockNetwork();
     }
 
     /*
@@ -108,9 +118,6 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
     public void testVodPlayback() {
         try {
             testActivity.waitForPlaybackToStart();
-            pView = testActivity.getPlayerView();
-            testMediaSource = testActivity.getTestMediaSource();
-            MockNetworkRequest networkRequest = testActivity.getMockNetwork();
 
             // Init player controlls
             controlView = pView.findViewById(R.id.exo_controller);
@@ -197,12 +204,42 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
         } catch (InterruptedException e) {
             e.printStackTrace();
             // fail test
-            assertTrue(false);
+            fail();
         } catch (JSONException e) {
             e.printStackTrace();
-            assertTrue(false);
+            fail();
         }
         Log.e(TAG, "All done !!!");
+    }
+
+    void testRebuffering() {
+        try {
+            testActivity.waitForPlaybackToStart();
+            // play x seconds
+            Thread.sleep(PLAY_PERIOD_IN_MS);
+            // Jam network for 2 seconds, we expect 2 seconds of rebuffering
+            testActivity.runOnUiThread(new Runnable(){
+                public void run() {
+                    long bufferPosition = pView.getPlayer().getBufferedPosition();
+                    long currentPosition = pView.getPlayer().getCurrentPosition();
+                    long bufferedTime = bufferPosition - currentPosition;
+                    Log.w(TAG, "Starting to jam network for:" + networkJamPeriodInMs +
+                            ", current time on buffer: " + bufferedTime);
+                    httpServer.jamNetwork(networkJamPeriodInMs, networkJamFactor);
+                }
+            });
+
+            // play x seconds
+//            Thread.sleep(PLAY_PERIOD_IN_MS);
+            testActivity.waitForPlaybackToFinish();
+            // TODO check rebuffering events
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//            fail();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
 
