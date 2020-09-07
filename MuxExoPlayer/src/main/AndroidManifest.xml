@@ -1,4 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+<<<<<<< HEAD
     package="com.mux.stats.sdk">
 
+=======
+    package="com.mux.stats.sdk.muxstats">
+
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+>>>>>>> c43c60b... Integrated Nonnection connection type with backend
 </manifest>
