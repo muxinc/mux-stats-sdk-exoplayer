@@ -12,4 +12,9 @@ public class MuxStatsPlaybackInstrumentationTests extends MuxStatsPlaybackInstru
     public void testVodPlayback() {
         super.testVodPlayback();
     }
+
+    @Test
+    public void testRebuffering() {
+        super.testRebuffering();
+    }
 }

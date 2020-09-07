@@ -45,6 +45,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     Lock activityLock = new ReentrantLock();
     Condition playbackEnded = activityLock.newCondition();
     Condition playbackStarted = activityLock.newCondition();
+    Condition playbackBuffering = activityLock.newCondition();
     Condition activityClosed = activityLock.newCondition();
 
     @Override
@@ -138,6 +139,20 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         }
     }
 
+    public void waitForPlaybackToStartBuffering() {
+        if (player.getPlaybackState() == Player.STATE_READY &&
+            player.getPlayWhenReady()) {
+            try {
+                activityLock.lock();
+                playbackBuffering.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } finally {
+                activityLock.unlock();
+            }
+        }
+    }
+
     public void waitForActivityToClose() {
         try {
             activityLock.lock();
@@ -152,6 +167,12 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     public void signalPlaybackStarted() {
         activityLock.lock();
         playbackStarted.signalAll();
+        activityLock.unlock();
+    }
+
+    public void signalPlaybackBuffering() {
+        activityLock.lock();
+        playbackBuffering.signalAll();
         activityLock.unlock();
     }
 
@@ -211,6 +232,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         switch (playbackState) {
+            case Player.STATE_BUFFERING:
+                signalPlaybackBuffering();
+                break;
             case Player.STATE_ENDED:
                 signalPlaybackEnded();
                 break;
@@ -219,7 +243,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
                 if (playWhenReady) {
                     signalPlaybackStarted();
                 } else {
-                    // TODO signal playback paused
+                    // TODO implement this
+//                    signalPlaybackPaused();
                 }
                 break;
         }

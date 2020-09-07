@@ -66,7 +66,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
             // playback started before muxStats was initialized
             play();
             buffering();
-        } else if (player.get().getPlaybackState() == Player.STATE_READY) {
+        } else if (player.get().getPlaybackState() == Player.STATE_READY &&
+                player.get().getPlayWhenReady() ) {
             // We have to simulate all the events we expect to see here, even though not ideal
             play();
             buffering();
