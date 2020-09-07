@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -52,7 +55,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
-//    protected static final String TAG = "MuxBaseExoPlayer";
+    //    protected static final String TAG = "MuxBaseExoPlayer";
     protected static final String TAG = "MuxStatsEventQueue";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
     protected static final int ERROR_UNKNOWN = -1;
@@ -175,8 +178,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public boolean isMissedAfterAdsPlayingEvent() {
         return missedAfterAdsPlayingEvent;
     }
-	
-	@SuppressWarnings("unused")
+
+    @SuppressWarnings("unused")
     public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
         muxStats.updateCustomerData(customPlayerData, customVideoData);
     }
@@ -447,6 +450,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     static class MuxDevice implements IDevice {
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
+        static final String CONNECTION_TYPE_MOBILE = "mobile";
+        static final String CONNECTION_TYPE_CELLULAR = "cellular";
+        static final String CONNECTION_TYPE_WIFI = "wifi";
+        static final String CONNECTION_TYPE_ETHERNET = "ethernet";
+        static final String CONNECTION_TYPE_OTHER = "other";
+
+        protected WeakReference<Context> contextRef;
         private String deviceId;
         private String appName = "";
         private String appVersion = "";
@@ -454,6 +464,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxDevice(Context ctx) {
             deviceId = Settings.Secure.getString(ctx.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
+            contextRef = new WeakReference<>(ctx);
             try {
                 PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
                 appName = pi.packageName;
@@ -524,6 +535,40 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         @Override
+        public String getNetworkConnectionType() {
+            // Checking internet connectivity
+            ConnectivityManager connectivityMgr = (ConnectivityManager) contextRef.get()
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = null;
+            if (connectivityMgr != null) {
+                activeNetwork = connectivityMgr.getActiveNetworkInfo();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    NetworkCapabilities nc = connectivityMgr.getNetworkCapabilities(connectivityMgr.getActiveNetwork());
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        return CONNECTION_TYPE_CELLULAR;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                } else {
+                    if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                        return CONNECTION_TYPE_MOBILE;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
         public long getElapsedRealtime() {
             return elapsedRealtime();
         }
@@ -569,8 +614,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         protected BandwidthMetricData onLoad(DataSpec dataSpec, int dataType,
-                Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs,
-                long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+                                             Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs,
+                                             long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
             BandwidthMetricData loadData = new BandwidthMetricData();
             if (bytesLoaded > 0) {
                 loadData.setRequestBytesLoaded(bytesLoaded);
@@ -605,7 +650,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public BandwidthMetricData onLoadStarted(DataSpec dataSpec, int dataType,
-                Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
+                                                 Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
             BandwidthMetricData loadData = onLoad(dataSpec, dataType, trackFormat,
                     mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, 0, 0);
             if (loadData != null) {
@@ -615,8 +660,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-                Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-                long loadDurationMs, long bytesLoaded) {
+                                                   Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
+                                                   long loadDurationMs, long bytesLoaded) {
             BandwidthMetricData loadData = onLoad(dataSpec, dataType, trackFormat,
                     mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
             if (loadData != null) {
@@ -643,8 +688,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-                Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-                long loadDurationMs, long bytesLoaded) {
+                                                   Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
+                                                   long loadDurationMs, long bytesLoaded) {
             BandwidthMetricData loadData = super.onLoadCompleted(dataSpec, dataType, trackFormat,
                     mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
             if (loadData != null) {
@@ -668,7 +713,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     class BandwidthMetricDash extends BandwidthMetric {
         @Override
         public BandwidthMetricData onLoadStarted(DataSpec dataSpec, int dataType,
-                Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
+                                                 Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
             BandwidthMetricData loadData = super.onLoadStarted(dataSpec, dataType, trackFormat,
                     mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs);
             if (loadData != null) {
@@ -685,8 +730,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         @Override
         public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-                Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-                long loadDurationMs, long bytesLoaded) {
+                                                   Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
+                                                   long loadDurationMs, long bytesLoaded) {
             BandwidthMetricData loadData = super.onLoadCompleted(dataSpec, dataType, trackFormat,
                     mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
             if (loadData != null) {
@@ -738,7 +783,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public void onLoadStarted(DataSpec dataSpec, int dataType, Format trackFormat,
-                long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
+                                  long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
             if (player == null || player.get() == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
@@ -748,8 +793,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
-                long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
-                long bytesLoaded) {
+                                    long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
+                                    long bytesLoaded) {
             if (player == null || player.get() == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }

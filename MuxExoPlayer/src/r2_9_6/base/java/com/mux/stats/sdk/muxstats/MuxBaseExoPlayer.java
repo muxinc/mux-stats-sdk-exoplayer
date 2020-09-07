@@ -4,6 +4,9 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -413,6 +416,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     static class MuxDevice implements IDevice {
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
+        static final String CONNECTION_TYPE_MOBILE = "mobile";
+        static final String CONNECTION_TYPE_CELLULAR = "cellular";
+        static final String CONNECTION_TYPE_WIFI = "wifi";
+        static final String CONNECTION_TYPE_ETHERNET = "ethernet";
+        static final String CONNECTION_TYPE_OTHER = "other";
+
+        protected WeakReference<Context> contextRef;
         private String deviceId;
         private String appName = "";
         private String appVersion = "";
@@ -420,6 +430,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxDevice(Context ctx) {
             deviceId = Settings.Secure.getString(ctx.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
+            contextRef = new WeakReference<>(ctx);
             try {
                 PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
                 appName = pi.packageName;
@@ -487,6 +498,40 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         @Override
         public String getPlayerSoftware() {
             return EXO_SOFTWARE;
+        }
+
+        @Override
+        public String getNetworkConnectionType() {
+            // Checking internet connectivity
+            ConnectivityManager connectivityMgr = (ConnectivityManager) contextRef.get()
+                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = null;
+            if (connectivityMgr != null) {
+                activeNetwork = connectivityMgr.getActiveNetworkInfo();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    NetworkCapabilities nc = connectivityMgr.getNetworkCapabilities(connectivityMgr.getActiveNetwork());
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        return CONNECTION_TYPE_CELLULAR;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                } else {
+                    if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                        return CONNECTION_TYPE_MOBILE;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                }
+            }
+            return null;
         }
 
         @Override
