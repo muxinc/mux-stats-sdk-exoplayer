@@ -81,7 +81,7 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
         } catch (IOException e) {
             e.printStackTrace();
             // Failed to start server
-            assertTrue(false);
+            fail("Failed to start HTTP server, why !!!");
         }
         activityTestRule = new ActivityTestRule<SimplePlayerTestActivity>(
                 SimplePlayerTestActivity.class,
@@ -93,6 +93,8 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
         testMediaSource = testActivity.getTestMediaSource();
         networkRequest = testActivity.getMockNetwork();
     }
+
+    //TODO deinitialize HTTP server after each test
 
     /*
      * Check if given events are dispatched in correct order and timestamp
