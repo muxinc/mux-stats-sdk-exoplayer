@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
+import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -343,7 +344,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             Exception cause = e.getRendererException();
             if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
                 MediaCodecRenderer.DecoderInitializationException die = (MediaCodecRenderer.DecoderInitializationException) cause;
-                if (die.decoderName == null) {
+                if (die.codecInfo != null && die.codecInfo.name == null) {
                     if (die.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
                         internalError(new MuxErrorException(e.type, "Unable to query device decoders"));
                     } else if (die.secureDecoderRequired) {

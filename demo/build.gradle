@@ -41,21 +41,6 @@ android {
     }
 
     sourceSets {
-        r2_7_3 {
-            java.srcDirs = ['./src/r2_7_3/java']
-            res.srcDirs = ['./src/r2_7_3/res']
-            assets.srcDirs = ['./src/r2_7_3/assets']
-        }
-        r2_8_0 {
-            java.srcDirs = ['./src/r2_8_0/java']
-            res.srcDirs = ['./src/r2_8_0/res']
-            assets.srcDirs = ['./src/r2_8_0/assets']
-        }
-        r2_8_0_ads {
-            java.srcDirs = ['./src/r2_8_0_ads/java']
-            res.srcDirs = ['./src/r2_8_0_ads/res']
-            assets.srcDirs = ['./src/r2_8_0_ads/assets']
-        }
         r2_9_6 {
             java.srcDirs = ['./src/r2_9_6/java']
             res.srcDirs = ['./src/r2_9_6/res']
@@ -76,20 +61,21 @@ android {
             res.srcDirs = ['./src/r2_10_6_ads/res']
             assets.srcDirs = ['./src/r2_10_6_ads/assets']
         }
+        r2_11_1 {
+            java.srcDirs = ['./src/r2_11_1/java']
+            res.srcDirs = ['./src/r2_11_1/res']
+            assets.srcDirs = ['./src/r2_11_1/assets']
+        }
+        r2_11_1_ads {
+            java.srcDirs = ['./src/r2_11_1_ads/java']
+            res.srcDirs = ['./src/r2_11_1_ads/res']
+            assets.srcDirs = ['./src/r2_11_1_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
 
     productFlavors {
-        r2_7_3 {
-            dimension 'api'
-        }
-        r2_8_0 {
-            dimension 'api'
-        }
-        r2_8_0_ads {
-            dimension 'api'
-        }
         r2_9_6 {
             dimension 'api'
             minSdkVersion 24
@@ -130,6 +116,26 @@ android {
                 targetCompatibility = JavaVersion.VERSION_1_8
             }
         }
+        r2_11_1 {
+            dimension 'api'
+            minSdkVersion 24
+            compileSdkVersion 29
+            targetSdkVersion 29
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+        }
+        r2_11_1_ads {
+            dimension 'api'
+            minSdkVersion 24
+            compileSdkVersion 29
+            targetSdkVersion 29
+            compileOptions {
+                sourceCompatibility = JavaVersion.VERSION_1_8
+                targetCompatibility = JavaVersion.VERSION_1_8
+            }
+        }
     }
 }
 
@@ -140,10 +146,10 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation project(':MuxExoPlayer')
     // Include the below to test ads for each product flavor that supports them
-    r2_8_0_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-    r2_8_0_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
     r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
     r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
 }
