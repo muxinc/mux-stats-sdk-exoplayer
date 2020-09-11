@@ -22,7 +22,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
-import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
