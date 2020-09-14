@@ -1,0 +1,5 @@
+{
+    "devices": ["Google Pixel 3-9.0"],
+    "project": "EspressoGradleTest",
+    "deviceLogs": true
+}

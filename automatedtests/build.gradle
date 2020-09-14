@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
+apply plugin: "com.browserstack.gradle"
 
+
+browserStackConfig {
+    username = "tomislavkordic1"
+    accessKey = "LyNzufBXxrDsywq5FxF1"
+    configFilePath = "/mnt/7fab2260-fb19-41a7-ac7c-816bab2f3b92/dev/android/projects/Mux/mux-stats-sdk-exoplayer/automatedtests/browserstack_config.json"
+}
 
 android {
     compileSdkVersion 29
