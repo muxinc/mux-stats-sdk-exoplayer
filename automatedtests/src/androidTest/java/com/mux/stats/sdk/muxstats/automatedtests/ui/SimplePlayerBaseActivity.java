@@ -28,6 +28,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -42,12 +43,14 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     MediaSource testMediaSource;
     MuxStatsExoPlayer muxStats;
     MockNetworkRequest mockNetwork;
+    AtomicBoolean onResumedCalled = new AtomicBoolean(false);
 
     Lock activityLock = new ReentrantLock();
     Condition playbackEnded = activityLock.newCondition();
     Condition playbackStarted = activityLock.newCondition();
     Condition playbackBuffering = activityLock.newCondition();
     Condition activityClosed = activityLock.newCondition();
+    Condition activityInitialized = activityLock.newCondition();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,12 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
                 .createMediaSource(testUri);
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        onResumedCalled.set(true);
     }
 
     @Override
@@ -126,6 +135,18 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
             e.printStackTrace();
         } finally {
             activityLock.unlock();
+        }
+    }
+
+    public void waitForActivityToInitialize() {
+        if (!onResumedCalled.get()) {
+            try {
+                activityLock.lock();
+                activityInitialized.await();
+                activityLock.unlock();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -254,7 +275,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     @Override
     public void onRepeatModeChanged(int repeatMode) {
-
+        activityLock.lock();
+        activityInitialized.signalAll();
+        activityLock.unlock();
     }
 
     @Override

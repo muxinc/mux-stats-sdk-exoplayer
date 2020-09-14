@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 import android.util.Log;
 import android.view.View;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.rule.ActivityTestRule;
 
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -23,6 +24,8 @@ import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -36,7 +39,8 @@ import static org.junit.Assert.fail;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public abstract class MuxStatsPlaybackInstrumentationTestsBase {
+@RunWith(AndroidJUnit4.class)
+public class MuxStatsPlaybackInstrumentationTests {
 
     public static final String TAG = "playbackTest";
 
@@ -135,6 +139,7 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
      * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
      * We are implementing vod playback scenario.
      */
+    @Test
     public void testVodPlayback() {
         try {
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
@@ -229,8 +234,10 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
         Log.e(TAG, "All done !!!");
     }
 
-    void testRebuffering() {
+    @Test
+    public void testRebufferingAndStartupTime() {
         try {
+            testActivity.waitForActivityToInitialize();
             long testStartedAt = System.currentTimeMillis();
             if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
@@ -266,8 +273,9 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
             long reportedStartupTime = networkRequest.getCreationTimeForEvent(playingIndex) -
                     networkRequest.getCreationTimeForEvent(viewstartIndex);
             // Check if startup time match with in 200 ms precission
-            if (Math.abs(reportedStartupTime - expectedStartupTime) > 300) {
-                fail("Reported startup time and expected startup time do not match within 300 ms !!!");
+            if (Math.abs(reportedStartupTime - expectedStartupTime) > 500) {
+                fail("Reported startup time and expected startup time do not match within 500 ms,"
+                        + "reported time: " + reportedStartupTime + ", measured startup time: " + expectedStartupTime);
             }
 
             // check rebuffering events
