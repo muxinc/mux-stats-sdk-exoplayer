@@ -1,9 +1,14 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup.http;
 
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Condition;
 
 public class SimpleHTTPServer extends Thread {
 
@@ -16,6 +21,9 @@ public class SimpleHTTPServer extends Thread {
 
     private ServerSocket server;
     ArrayList<ConnectionWorker> workers = new ArrayList<>();
+
+    Lock serverLock = new ReentrantLock();
+    Condition serverDied = serverLock.newCondition();
 
     /*
      * Run a server on localhost:port
@@ -51,11 +59,26 @@ public class SimpleHTTPServer extends Thread {
         for (ConnectionWorker worker : workers) {
             worker.kill();
         }
+        serverLock.lock();
+        serverDied.signalAll();
+        serverLock.unlock();
     }
 
     public void kill() {
         isRunning = false;
-        interrupt();
+        try {
+            server.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // Wait for server to die
+        try {
+            serverLock.lock();
+            serverDied.await(10000, TimeUnit.MILLISECONDS);
+            serverLock.unlock();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     /*

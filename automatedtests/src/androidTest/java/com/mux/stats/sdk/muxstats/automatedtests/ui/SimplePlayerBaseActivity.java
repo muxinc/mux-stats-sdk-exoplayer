@@ -27,6 +27,7 @@ import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -128,12 +129,13 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         }
     }
 
-    public void waitForPlaybackToStart() {
+    public boolean waitForPlaybackToStart(long timeoutInMs) {
         try {
             activityLock.lock();
-            playbackStarted.await();
+            return playbackStarted.await(timeoutInMs, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return false;
         } finally {
             activityLock.unlock();
         }

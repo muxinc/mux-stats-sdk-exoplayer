@@ -20,6 +20,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 
 import org.json.JSONException;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 
@@ -63,15 +64,16 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
     private long bufferedTime;
 
 
-    protected int networkJamPeriodInMs = 15000;
+    protected int networkJamPeriodInMs = 10000;
     // This is the number of times the network bandwidth will be reduced,
     // not constantly but each 10 ms a random number between 2 and factor will divide
     // the regular amount of bytes to send.
     // This will stop server completly, this will allow us to easier calculate the rebuffer period
     protected int networkJamFactor = 4;
-    protected int bandwidthLimitInBitsPerSecond = 1600000;
+    protected int bandwidthLimitInBitsPerSecond = 1200000;
     protected int sampleFileBitrate = 1083904;
     protected int runHttpServerOnPort = 5000;
+    protected int waitForPlaybackToStartInMS = 10000;
 
 
     @Before
@@ -94,7 +96,13 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
         networkRequest = testActivity.getMockNetwork();
     }
 
-    //TODO deinitialize HTTP server after each test
+    @After
+    public void cleanup() {
+        if (httpServer != null) {
+            httpServer.kill();
+        }
+        activityTestRule.finishActivity();
+    }
 
     /*
      * Check if given events are dispatched in correct order and timestamp
@@ -129,7 +137,9 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
      */
     public void testVodPlayback() {
         try {
-            testActivity.waitForPlaybackToStart();
+            if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
 
             // Init player controlls
             controlView = pView.findViewById(R.id.exo_controller);
@@ -222,7 +232,9 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
     void testRebuffering() {
         try {
             long testStartedAt = System.currentTimeMillis();
-            testActivity.waitForPlaybackToStart();
+            if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
             long expectedStartupTime = System.currentTimeMillis() - testStartedAt;
 
             // play x seconds
@@ -232,7 +244,10 @@ public abstract class MuxStatsPlaybackInstrumentationTestsBase {
             long rebufferStartedAT = System.currentTimeMillis();
 
             // play x seconds
-            testActivity.waitForPlaybackToStart();
+            if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
+
             long measuredRebufferPeriod = System.currentTimeMillis() - rebufferStartedAT;
             Thread.sleep(networkJamPeriodInMs);
             exitActivity();
