@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats;
 
-import android.util.Log;
 
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
@@ -57,6 +56,7 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                         dispatchAdPlaybackEvent(new AdResponseEvent(null), ad);
                         needSendAdResponse = false;
                     }
+                    dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
                     return;
                 case CONTENT_RESUME_REQUESTED:
                     dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
@@ -67,7 +67,6 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     return;
                 case STARTED:
                     dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
-                    dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
                     dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
                     return;
                 case FIRST_QUARTILE:
@@ -81,7 +80,6 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     return;
                 case COMPLETED:
                     dispatchAdPlaybackEvent(new AdEndedEvent(null), ad);
-                    dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
                     return;
                 case PAUSED:
                     dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);
