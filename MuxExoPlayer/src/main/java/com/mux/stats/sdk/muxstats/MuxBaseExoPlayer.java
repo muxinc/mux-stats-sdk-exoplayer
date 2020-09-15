@@ -478,29 +478,32 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         @Override
         public String getNetworkConnectionType() {
             // Checking internet connectivity
-            ConnectivityManager connectivityMgr = (ConnectivityManager) contextRef.get()
-                    .getSystemService(Context.CONNECTIVITY_SERVICE);
+            Context context = contextRef.get();
+            if (context == null) {
+                return null;
+            }
+            ConnectivityManager connectivityMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo activeNetwork = null;
             if (connectivityMgr != null) {
                 activeNetwork = connectivityMgr.getActiveNetworkInfo();
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     NetworkCapabilities nc = connectivityMgr.getNetworkCapabilities(connectivityMgr.getActiveNetwork());
-                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                        return CONNECTION_TYPE_CELLULAR;
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                        return CONNECTION_TYPE_ETHERNET;
                     } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                         return CONNECTION_TYPE_WIFI;
-                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                        return CONNECTION_TYPE_ETHERNET;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        return CONNECTION_TYPE_CELLULAR;
                     } else {
                         return CONNECTION_TYPE_OTHER;
                     }
                 } else {
-                    if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                    if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                         return CONNECTION_TYPE_WIFI;
                     } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
                         return CONNECTION_TYPE_CELLULAR;
-                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
-                        return CONNECTION_TYPE_ETHERNET;
                     } else {
                         return CONNECTION_TYPE_OTHER;
                     }

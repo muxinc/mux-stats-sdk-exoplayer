@@ -305,7 +305,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // If we are expected to playWhenReady, signal the play event
                 if (playWhenReady) {
                     play();
-                } else if (state != PlayerState.PAUSED){
+                } else if (state != PlayerState.PAUSED) {
                     pause();
                 }
                 break;
@@ -316,7 +316,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // By the time we get here, it depends on playWhenReady to know if we're playing
                 if (playWhenReady) {
                     playing();
-                } else if (state != PlayerState.PAUSED){
+                } else if (state != PlayerState.PAUSED) {
                     pause();
                 }
                 break;
