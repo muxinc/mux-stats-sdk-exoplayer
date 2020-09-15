@@ -392,7 +392,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     static class MuxDevice implements IDevice {
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
-        static final String CONNECTION_TYPE_MOBILE = "mobile";
         static final String CONNECTION_TYPE_CELLULAR = "cellular";
         static final String CONNECTION_TYPE_WIFI = "wifi";
         static final String CONNECTION_TYPE_ETHERNET = "ethernet";
@@ -499,7 +498,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                         return CONNECTION_TYPE_WIFI;
                     } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
-                        return CONNECTION_TYPE_MOBILE;
+                        return CONNECTION_TYPE_CELLULAR;
                     } else if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
                         return CONNECTION_TYPE_ETHERNET;
                     } else {
