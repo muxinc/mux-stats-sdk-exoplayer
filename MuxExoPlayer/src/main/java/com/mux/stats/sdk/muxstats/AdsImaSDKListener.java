@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats;
 
-
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
