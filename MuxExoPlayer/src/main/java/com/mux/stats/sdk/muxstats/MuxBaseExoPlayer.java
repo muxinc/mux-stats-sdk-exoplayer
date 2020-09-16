@@ -105,6 +105,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         });
     }
 
+    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
+        muxStats.allowLogcatOutputForPlayer(allow, verbose);
+    }
+
     /**
      * Get the instance of the IMA SDK Listener for tracking ads running through Google's
      * IMA SDK within your application.

@@ -48,57 +48,53 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     @Override
     public void onAdEvent(AdEvent adEvent) {
         if (exoPlayerListener != null) {
-            PlaybackEvent event;
             Ad ad = adEvent.getAd();
             switch (adEvent.getType()) {
                 case CONTENT_PAUSE_REQUESTED:
-                    event = new AdBreakStartEvent(null);
-                    setupAdViewData(event, ad);
-                    exoPlayerListener.dispatch(event);
-                    event = new AdRequestEvent(null);
-                    needSendAdResponse = true;
-                    break;
-                case CONTENT_RESUME_REQUESTED:
-                    event = new AdBreakEndEvent(null);
-                    break;
-                case LOADED:
                     if (needSendAdResponse) {
-                        event = new AdResponseEvent(null);
-                        setupAdViewData(event, ad);
-                        exoPlayerListener.dispatch(event);
+                        dispatchAdPlaybackEvent(new AdResponseEvent(null), ad);
                         needSendAdResponse = false;
                     }
-                    event = new AdPlayEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
+                    return;
+                case CONTENT_RESUME_REQUESTED:
+                    dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
+                    return;
+                case LOADED:
+                    dispatchAdPlaybackEvent(new AdRequestEvent(null), ad);
+                    needSendAdResponse = true;
+                    return;
                 case STARTED:
-                    event = new AdPlayingEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
+                    return;
                 case FIRST_QUARTILE:
-                    event = new AdFirstQuartileEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdFirstQuartileEvent(null), ad);
+                    return;
                 case MIDPOINT:
-                    event = new AdMidpointEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdMidpointEvent(null), ad);
+                    return;
                 case THIRD_QUARTILE:
-                    event = new AdThirdQuartileEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdThirdQuartileEvent(null), ad);
+                    return;
                 case COMPLETED:
-                    event = new AdEndedEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdEndedEvent(null), ad);
+                    return;
                 case PAUSED:
-                    event = new AdPauseEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);
+                    return;
                 case RESUMED:
-                    event = new AdPlayEvent(null);
-                    setupAdViewData(event, ad);
-                    exoPlayerListener.dispatch(event);
-                    event = new AdPlayingEvent(null);
-                    break;
+                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
+                    return;
                 default:
                     return;
             }
-            setupAdViewData(event, ad);
-            exoPlayerListener.dispatch(event);
         }
+    }
+
+    private void dispatchAdPlaybackEvent(PlaybackEvent event, Ad ad) {
+        setupAdViewData(event, ad);
+        exoPlayerListener.dispatch(event);
     }
 }

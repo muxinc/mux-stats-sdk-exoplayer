@@ -470,13 +470,11 @@ public class PlayerActivity extends AppCompatActivity
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
               this, player, "demo-player", customerPlayerData, customerVideoData);
+      muxStats.allowLogcatOutputForPlayer(true, false);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
-      muxStats = new MuxStatsExoPlayer(this, player,
-              "demo-player", customerPlayerData, customerVideoData);
-      muxStats.enableMuxCoreDebug(true, false);
 
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
