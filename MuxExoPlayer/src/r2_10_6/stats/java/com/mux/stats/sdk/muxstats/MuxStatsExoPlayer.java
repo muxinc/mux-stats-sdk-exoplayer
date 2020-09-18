@@ -68,7 +68,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void release() {
-        if (this.player.get() != null) {
+        if (this.player != null && this.player.get() != null) {
             ExoPlayer player = this.player.get();
             if (player instanceof SimpleExoPlayer) {
                 ((SimpleExoPlayer) player).removeAnalyticsListener(this);

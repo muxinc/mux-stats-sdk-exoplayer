@@ -77,7 +77,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements Player.EventL
 
     @Override
     public void release() {
-        if (this.player.get() != null) {
+        if (this.player != null && this.player.get() != null) {
             this.player.get().removeListener(this);
         }
         super.release();
