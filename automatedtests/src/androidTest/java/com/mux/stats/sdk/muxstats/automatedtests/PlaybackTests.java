@@ -1,37 +1,20 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
 import android.util.Log;
-import android.view.View;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.rule.ActivityTestRule;
-
-import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.ui.PlayerControlView;
-import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.R;
-import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.Event;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
-import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 
 import org.json.JSONException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.util.ArrayList;
-
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -40,7 +23,7 @@ import static org.junit.Assert.fail;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class PlaybackTests {
+public class PlaybackTests extends TestBase {
 
     public static final String TAG = "playbackTest";
 
@@ -48,65 +31,6 @@ public class PlaybackTests {
     static final int PAUSE_PERIOD_IN_MS = 3000;
     static final int EVENT_MAX_TIME_DIFF_MS = 100;
 
-    @Rule
-    public ActivityTestRule<SimplePlayerTestActivity> activityTestRule;
-
-    PlayerControlView controlView;
-    View pauseButton;
-    View playButton;
-
-    protected SimplePlayerTestActivity testActivity;
-    protected SimpleHTTPServer httpServer;
-    protected PlayerView pView;
-    protected MediaSource testMediaSource;
-    protected MockNetworkRequest networkRequest;
-
-
-    // UTC timestamp whenlow network bandwidth was triggered
-    long startedJammingTheNetworkAt;
-    // Amount of video playback time in player buffer
-    private long bufferedTime;
-
-
-    protected int networkJamPeriodInMs = 10000;
-    // This is the number of times the network bandwidth will be reduced,
-    // not constantly but each 10 ms a random number between 2 and factor will divide
-    // the regular amount of bytes to send.
-    // This will stop server completly, this will allow us to easier calculate the rebuffer period
-    protected int networkJamFactor = 4;
-    protected int bandwidthLimitInBitsPerSecond = 1200000;
-    protected int sampleFileBitrate = 1083904;
-    protected int runHttpServerOnPort = 5000;
-    protected int waitForPlaybackToStartInMS = 10000;
-
-
-    @Before
-    public void init(){
-        try {
-            httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Failed to start server
-            fail("Failed to start HTTP server, why !!!");
-        }
-        activityTestRule = new ActivityTestRule<SimplePlayerTestActivity>(
-                SimplePlayerTestActivity.class,
-                true,
-                false);
-        activityTestRule.launchActivity(null);
-        testActivity = activityTestRule.getActivity();
-        pView = testActivity.getPlayerView();
-        testMediaSource = testActivity.getTestMediaSource();
-        networkRequest = testActivity.getMockNetwork();
-    }
-
-    @After
-    public void cleanup() {
-        if (httpServer != null) {
-            httpServer.kill();
-        }
-        activityTestRule.finishActivity();
-    }
 
     /*
      * Check if given events are dispatched in correct order and timestamp
@@ -317,54 +241,5 @@ public class PlaybackTests {
             e.printStackTrace();
             fail();
         }
-    }
-
-    public void jamNetwork() {
-        testActivity.runOnUiThread(new Runnable(){
-            public void run() {
-                startedJammingTheNetworkAt = System.currentTimeMillis();
-                long bufferPosition = pView.getPlayer().getBufferedPosition();
-                long currentPosition = pView.getPlayer().getCurrentPosition();
-                bufferedTime = bufferPosition - currentPosition;
-                Log.w(TAG, "Starting to jam network for:" + networkJamPeriodInMs +
-                        ", current time on buffer: " + bufferedTime);
-                httpServer.jamNetwork(networkJamPeriodInMs, networkJamFactor, true);
-            }
-        });
-    }
-
-    public void exitActivity() {
-        testActivity.runOnUiThread(new Runnable(){
-            public void run() {
-                testActivity.onBackPressed();
-            }
-        });
-    }
-
-    public void pausePlayer() {
-        // Pause video
-        testActivity.runOnUiThread(new Runnable(){
-            public void run()
-            {
-                if (pauseButton != null) {
-                    pauseButton.performClick();
-                } else {
-                    pView.getPlayer().stop();
-                }
-            }
-        });
-    }
-
-    public void resumePlayer() {
-        testActivity.runOnUiThread(new Runnable(){
-            public void run() {
-                if (playButton != null) {
-                    playButton.performClick();
-                } else {
-                    SimpleExoPlayer player = ((SimpleExoPlayer)pView.getPlayer());
-                    player.prepare(testMediaSource, false, false);
-                }
-            }
-        });
     }
 }
