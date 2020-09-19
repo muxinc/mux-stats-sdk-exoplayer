@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import android.os.Bundle;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
@@ -32,6 +33,10 @@ public class PlaybackTests extends TestBase {
     static final int EVENT_MAX_TIME_DIFF_MS = 100;
 
 
+    public Bundle getActivityOptions() {
+        /// No extra requests for test activity
+        return null;
+    }
     /*
      * Check if given events are dispatched in correct order and timestamp
      */

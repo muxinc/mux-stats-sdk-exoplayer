@@ -1,10 +1,14 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
 import android.app.Activity;
+import android.app.Instrumentation;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.test.core.app.ActivityScenario;
+import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
@@ -28,11 +32,14 @@ import java.util.Collection;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.fail;
 
-public class TestBase {
+public abstract class TestBase {
 
     @Rule
-    public ActivityScenarioRule<SimplePlayerTestActivity> activityRule
-        = new ActivityScenarioRule(SimplePlayerTestActivity.class);
+    public ActivityScenarioRule<SimplePlayerTestActivity> activityRule =
+            new ActivityScenarioRule(new Intent(
+                    ApplicationProvider.getApplicationContext(),
+                    SimplePlayerTestActivity.class).putExtras(getActivityOptions())
+                    );
 
     protected int runHttpServerOnPort = 5000;
     protected int bandwidthLimitInBitsPerSecond = 1200000;
@@ -92,6 +99,8 @@ public class TestBase {
         }
         testScenario.close();
     }
+
+    public abstract Bundle getActivityOptions();
 
     public void jamNetwork() {
         testActivity.runOnUiThread(new Runnable(){

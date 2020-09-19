@@ -46,7 +46,7 @@ public class ConnectionWorker extends Thread {
                 ServerAction action = receiver.getNextAction();
                 sender.pause();
                 if (action.getType() == ServerAction.SERVE_MEDIA_DATA) {
-                    sender.startServingFromPosition(action.getValue());
+                    sender.startServingFromPosition(action.getValue(), action.getAssetFile());
                 }
             } catch (IOException e) {
                 isRunning = false;

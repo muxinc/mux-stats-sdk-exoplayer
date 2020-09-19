@@ -43,15 +43,6 @@ public class ConnectionSender extends Thread {
         this.networkJammingEndPeriod = networkJammingEndPeriod;
         this.networkJamFactor = networkJamFactor;
 
-        AssetFileDescriptor fd = InstrumentationRegistry.getInstrumentation()
-                .getContext().getAssets().openFd("sample.mp4");
-        assetFileSize = fd.getLength();
-        fd.close();
-
-        assetInput = InstrumentationRegistry.getInstrumentation()
-                .getContext().getAssets().open("sample.mp4");
-        assetInput.mark(1000000000);
-
         transferBufferSize = bandwidthLimit / (8 * 100);
         transferBuffer = new byte[transferBufferSize]; // Max number of bytes to send each 10 ms
         isPaused = true;
@@ -67,8 +58,9 @@ public class ConnectionSender extends Thread {
         isPaused = true;
     }
 
-    public void startServingFromPosition(long startAtByteNumber) throws IOException {
+    public void startServingFromPosition(long startAtByteNumber, String assetName) throws IOException {
         this.serveDataFromPosition = startAtByteNumber;
+        openAssetFile(assetName);
         assetInput.reset();
         assetInput.skip(startAtByteNumber);
         Log.i(TAG, "Serving file from position: " + startAtByteNumber + ", remaining bytes: " +
@@ -105,6 +97,24 @@ public class ConnectionSender extends Thread {
                 isRunning = false;
             }
         }
+    }
+
+    private void openAssetFile(String assetFile) throws IOException {
+        if (assetInput != null) {
+            try {
+                assetInput.close();
+            } catch (IOException e) {
+                // Ignore
+            }
+        }
+        AssetFileDescriptor fd = InstrumentationRegistry.getInstrumentation()
+                .getContext().getAssets().openFd(assetFile);
+        assetFileSize = fd.getLength();
+        fd.close();
+
+        assetInput = InstrumentationRegistry.getInstrumentation()
+                .getContext().getAssets().open(assetFile);
+        assetInput.mark(1000000000);
     }
 
     /*

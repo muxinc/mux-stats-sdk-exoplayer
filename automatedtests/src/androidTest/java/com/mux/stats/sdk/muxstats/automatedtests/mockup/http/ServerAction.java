@@ -6,14 +6,16 @@ public class ServerAction {
 
     int type;
     int value;
+    String assetFile;
 
     public ServerAction(int type) {
         this.type = type;
     }
 
-    public ServerAction(int type, int value) {
+    public ServerAction(int type, int value, String assetFile) {
         this.type = type;
         this.value = value;
+        this.assetFile = assetFile;
     }
 
     public int getType() {
@@ -23,4 +25,8 @@ public class ServerAction {
     public int getValue() {
         return value;
     };
+
+    public String getAssetFile() {
+        return assetFile;
+    }
 }

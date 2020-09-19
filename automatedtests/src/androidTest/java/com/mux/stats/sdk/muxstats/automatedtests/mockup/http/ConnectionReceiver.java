@@ -14,6 +14,7 @@ public class ConnectionReceiver extends Thread {
     static final String TAG = "HTTPTest";
 
     boolean isRunning;
+    String serveAssetFile = "sample.mp4";
     InputStream httpInput;
     HttpRequestParser httpParser = new HttpRequestParser();
     BufferedReader reader;
@@ -77,13 +78,19 @@ public class ConnectionReceiver extends Thread {
             IOException, HttpFormatException, InterruptedException {
 
         httpParser.parseRequest(httpRequest);
+        String requestLine = httpParser.getRequestLine();
+        if (requestLine.contains("/audio")) {
+            serveAssetFile = "audio.aac";
+        } else {
+            serveAssetFile = "sample.mp4";
+        }
         int range = 0;
         String rangeHeader = httpParser.getHeaderParam("Range");
         if (rangeHeader != null) {
             range = Integer.valueOf(rangeHeader.replaceAll("[^0-9]", ""));
             Log.i(TAG, "Got range header value: " + range);
         }
-        actions.put(new ServerAction(ServerAction.SERVE_MEDIA_DATA, range));
+        actions.put(new ServerAction(ServerAction.SERVE_MEDIA_DATA, range, serveAssetFile));
 //        actions.add(new ServerAction(ServerAction.SERVE_MEDIA_DATA));
     }
 }

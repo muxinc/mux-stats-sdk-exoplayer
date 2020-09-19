@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.automatedtests.ui;
 
+import android.content.Intent;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
@@ -38,6 +39,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     static final String TAG = "SimplePlayerActivity";
 
+    public static final String PLAYBACK_URL_KEY = "playback_url";
+    public static final int PLAY_AUDIO_SAMPLE = 0;
+
     PlayerView playerView;
     SimpleExoPlayer player;
     MediaSource testMediaSource;
@@ -72,7 +76,21 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
         initMuxSats();
 
-        Uri testUri = Uri.parse("http://localhost:5000/vod.mp4");
+        Intent i = getIntent();
+        Bundle extra = i.getExtras();
+        String url_to_play = "http://localhost:5000/vod.mp4";
+        if (extra != null &&
+                extra.containsKey(PLAYBACK_URL_KEY)) {
+            switch(extra.getInt(PLAYBACK_URL_KEY)) {
+                case PLAY_AUDIO_SAMPLE:
+                    url_to_play = "http://localhost:5000/audio.aac";
+                    break;
+                default:
+                    url_to_play = "http://localhost:5000/vod.mp4";
+                    break;
+            }
+        }
+        Uri testUri = Uri.parse(url_to_play);
         testMediaSource = new ExtractorMediaSource.Factory(
                 new DefaultDataSourceFactory(this, "Test"))
                 .createMediaSource(testUri);
