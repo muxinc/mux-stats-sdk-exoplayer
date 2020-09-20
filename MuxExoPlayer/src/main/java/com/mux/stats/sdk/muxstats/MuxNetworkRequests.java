@@ -24,6 +24,14 @@ import java.util.zip.GZIPOutputStream;
 public class MuxNetworkRequests implements INetworkRequest {
     private static final String TAG = "MuxNetworkRequests";
 
+    String backendServerUrl = null;
+
+    public MuxNetworkRequests(){};
+
+    public MuxNetworkRequests(String backendServerUrl){
+        this.backendServerUrl = backendServerUrl;
+    }
+
     private interface NetworkRequest {
         URL getUrl();
         String getMethod();

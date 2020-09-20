@@ -28,14 +28,12 @@ public class PlaybackTests extends TestBase {
 
     public static final String TAG = "playbackTest";
 
-    static final int PLAY_PERIOD_IN_MS = 10000;
-    static final int PAUSE_PERIOD_IN_MS = 3000;
     static final int EVENT_MAX_TIME_DIFF_MS = 100;
 
 
     public Bundle getActivityOptions() {
         /// No extra requests for test activity
-        return null;
+        return new Bundle();
     }
     /*
      * Check if given events are dispatched in correct order and timestamp
