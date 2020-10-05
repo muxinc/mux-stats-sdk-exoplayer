@@ -419,7 +419,7 @@ public class PlayerActivity extends AppCompatActivity
       }
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENV_KEY_HERE");
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
@@ -430,6 +430,23 @@ public class PlayerActivity extends AppCompatActivity
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
       muxStats.enableMuxCoreDebug(true, false);
+
+      player.addAnalyticsListener(new EventLogger(trackSelector));
+      playerView.setPlayer(player);
+      playerView.setPlaybackPreparer(this);
+      debugViewHelper = new DebugTextViewHelper(player, debugTextView);
+      debugViewHelper.start();
+
+      MediaSource[] mediaSources = new MediaSource[uris.length];
+      for (int i = 0; i < uris.length; i++) {
+        mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
+      }
+      mediaSource =
+          mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
+      String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
+      if (adTagUriString != null) {
+        setupAdsMediaSource(adTagUriString);
+      }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {

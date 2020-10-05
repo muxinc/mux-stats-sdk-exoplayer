@@ -27,21 +27,6 @@ android {
         lintConfig file("../checker-framework-lint.xml")
     }
     sourceSets {
-        r2_7_3 {
-            java.srcDirs = ['./src/r2_7_3/base/java',
-                            './src/r2_7_3/stats/java',
-                            './src/r2_7_3/ads/java']
-        }
-        r2_8_0 {
-            java.srcDirs = ['./src/r2_7_3/base/java',
-                            './src/r2_8_0/stats/java',
-                            './src/r2_7_3/ads/java']
-        }
-        r2_8_0_ads {
-            java.srcDirs = ['./src/r2_7_3/base/java',
-                            './src/r2_8_0/stats/java',
-                            './src/r2_7_3/ads/java']
-        }
         r2_9_6 {
             java.srcDirs = ['./src/r2_9_6/base/java',
                             './src/r2_9_6/stats/java',
@@ -72,20 +57,17 @@ android {
                             './src/r2_11_1/stats/java',
                             './src/r2_11_1/ads/java']
         }
+        r2_11_1 {
+            java.srcDirs = ['./src/r2_11_1/java']
+        }
+        r2_11_1_ads {
+            java.srcDirs = ['./src/r2_11_1/java']
+        }
     }
 
     flavorDimensions 'api'
 
     productFlavors {
-        r2_7_3 {
-            dimension 'api'
-        }
-        r2_8_0 {
-            dimension 'api'
-        }
-        r2_8_0_ads {
-            dimension 'api'
-        }
         r2_9_6 {
             dimension 'api'
         }
@@ -130,11 +112,6 @@ android {
 }
 
 dependencies {
-    r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
-    r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
-    r2_8_0Api 'org.checkerframework:checker-qual:2.5.0'
-    r2_8_0_adsApi 'com.google.android.exoplayer:exoplayer:2.8.0'
-    r2_8_0_adsApi 'org.checkerframework:checker-qual:2.5.0'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'

@@ -4,6 +4,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaFormat;
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
+=======
+import android.net.ConnectivityManager;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,6 +43,8 @@ import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -52,7 +60,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
-    protected static final String TAG = "MuxStatsListener";
+//    protected static final String TAG = "MuxBaseExoPlayer";
+    protected static final String TAG = "MuxStatsEventQueue";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
     protected static final int ERROR_UNKNOWN = -1;
     protected static final int ERROR_DRM = -2;
@@ -65,6 +74,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected Integer sourceAdvertisedBitrate;
     protected Float sourceAdvertisedFramerate;
     protected Long sourceDuration;
+    protected long lastSeekedEventAt = -1;
     protected ExoPlayerHandler playerHandler;
 
     protected WeakReference<ExoPlayer> player;
@@ -73,10 +83,20 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, SEEKING, SEEKED, ENDED
+=======
         BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
     }
     protected PlayerState state;
     protected MuxStats muxStats;
+    protected AdsImaSDKListener imaListener;
+
+    protected boolean missedAfterAdsPlayEvent = false;
+    protected boolean missedAfterAdsPlayingEvent = false;
+    protected boolean missedAfterSeekingPlayingEvent = false;
+    protected Format selectedTrackFormat;
 
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
@@ -88,6 +108,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
         addListener(muxStats);
         Player.VideoComponent lDecCount = player.getVideoComponent();
+
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
         lDecCount.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
             // As of r2.11.x, the signature for this callback has changed. These are not annotated as @Overrides in
@@ -95,11 +116,22 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
             }
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
 
             public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
             }
         });
+=======
+
+            public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
+                playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+            }
+        });
+    }
+
+    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
+        muxStats.allowLogcatOutputForPlayer(allow, verbose);
     }
 
     /**
@@ -124,6 +156,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         } catch (ClassNotFoundException cnfe) {
             throw new IllegalStateException("IMA SDK Modules not found");
         }
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
     }
 
     /**
@@ -151,7 +184,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
                     // Set up the ad events that we want to use
                     AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
-                    AdsImaSDKListener imaListener = new AdsImaSDKListener(baseExoPlayer);
+                    imaListener = new AdsImaSDKListener(baseExoPlayer);
                     // Attach mux event and error event listeners.
                     adsManager.addAdErrorListener(imaListener);
                     adsManager.addAdEventListener(imaListener);
@@ -162,6 +195,38 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         } catch (ClassNotFoundException cnfe) {
             return;
         }
+    }
+
+    public void setAdsListener(AdsImaSDKListener listener) {
+        if (listener != null) {
+            imaListener = listener;
+            imaListener.setExoPlayerListener(this);
+        }
+    }
+
+    public boolean isMissedAfterAdsPlayEvent() {
+        return missedAfterAdsPlayEvent;
+    }
+
+    public boolean isMissedAfterAdsPlayingEvent() {
+        return missedAfterAdsPlayingEvent;
+    }
+	
+	@SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
+        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    }
+
+    public CustomerVideoData getCustomerVideoData() {
+        return muxStats.getCustomerVideoData();
+    }
+
+    public CustomerPlayerData getCustomerPlayerData() {
+        return muxStats.getCustomerPlayerData();
+    }
+
+    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
+        muxStats.allowLogcatOutput(enable, verbose);
     }
 
     @SuppressWarnings("unused")
@@ -320,16 +385,57 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void play() {
+        if (state == PlayerState.PLAY) {
+            // Ignore, redundant
+            return;
+        }
         state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
+        missedAfterAdsPlayEvent = false;
     }
 
     protected void playing() {
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
+        if (state == PlayerState.PLAYING) {
+            // Ignore, redundant
+            return;
+=======
         if (state == PlayerState.PAUSED) {
             play();
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+        missedAfterAdsPlayingEvent = false;
+    }
+
+    protected void seekStarted() {
+        if (state == PlayerState.SEEKING) {
+            // ignore, redaundent
+            return;
+        }
+        state = PlayerState.SEEKING;
+        dispatch(new SeekingEvent(null));
+    }
+
+    protected void seekEnded() {
+        synchronized (this) {
+            state = PlayerState.SEEKED;
+            dispatch(new SeekedEvent(null));
+            if (missedAfterSeekingPlayingEvent) {
+                playing();
+            }
+            missedAfterSeekingPlayingEvent = false;
+            lastSeekedEventAt = System.currentTimeMillis();
+        }
+    }
+
+    protected void ended() {
+        if (state != PlayerState.PAUSED) {
+            dispatch(new PauseEvent(null));
+        }
+        dispatch(new EndedEvent(null));
+        state = PlayerState.ENDED;
     }
 
     protected void ended() {
@@ -349,6 +455,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected void handleRenditionChange(Format format) {
         if (format != null) {
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
+            if (format == selectedTrackFormat) {
+                // same track, ignore
+                return;
+            }
+=======
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
             sourceAdvertisedBitrate = format.bitrate;
             if (format.frameRate > 0) {
                 sourceAdvertisedFramerate = format.frameRate;
@@ -357,6 +470,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             sourceHeight = format.height;
             RenditionChangeEvent event = new RenditionChangeEvent(null);
             dispatch(event);
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
+            selectedTrackFormat = format;
+=======
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         }
     }
 
@@ -389,6 +506,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     static class MuxDevice implements IDevice {
         private static final String EXO_SOFTWARE = "ExoPlayer";
 
+        static final String CONNECTION_TYPE_CELLULAR = "cellular";
+        static final String CONNECTION_TYPE_WIFI = "wifi";
+        static final String CONNECTION_TYPE_ETHERNET = "ethernet";
+        static final String CONNECTION_TYPE_OTHER = "other";
+
+        protected WeakReference<Context> contextRef;
         private String deviceId;
         private String appName = "";
         private String appVersion = "";
@@ -396,6 +519,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxDevice(Context ctx) {
             deviceId = Settings.Secure.getString(ctx.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
+            contextRef = new WeakReference<>(ctx);
             try {
                 PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
                 appName = pi.packageName;
@@ -466,6 +590,46 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         @Override
+<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
+=======
+        public String getNetworkConnectionType() {
+            // Checking internet connectivity
+            Context context = contextRef.get();
+            if (context == null) {
+                return null;
+            }
+            ConnectivityManager connectivityMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo activeNetwork = null;
+            if (connectivityMgr != null) {
+                activeNetwork = connectivityMgr.getActiveNetworkInfo();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    NetworkCapabilities nc = connectivityMgr.getNetworkCapabilities(connectivityMgr.getActiveNetwork());
+                    if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                        return CONNECTION_TYPE_CELLULAR;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                } else {
+                    if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
+                        return CONNECTION_TYPE_ETHERNET;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
+                        return CONNECTION_TYPE_WIFI;
+                    } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
+                        return CONNECTION_TYPE_CELLULAR;
+                    } else {
+                        return CONNECTION_TYPE_OTHER;
+                    }
+                }
+            }
+            return null;
+        }
+
+        @Override
+>>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         public long getElapsedRealtime() {
             return elapsedRealtime();
         }
@@ -700,32 +864,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     trackFormat, mediaStartTimeMs,
                     mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
             dispatch(loadData);
-        }
-
-        public void onTracksChanged(TrackGroupArray trackGroups) {
-            if (player == null || player.get() == null || muxStats == null || currentBandwidthMetric() == null) {
-                return;
-            }
-            if (trackGroups.length > 0) {
-                for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-                    TrackGroup trackGroup = trackGroups.get(groupIndex);
-                    if (0 < trackGroup.length) {
-                        Format trackFormat = trackGroup.getFormat(0);
-                        if (trackFormat.containerMimeType != null && trackFormat.containerMimeType.contains("video")) {
-                            List<BandwidthMetricData.Rendition> renditions = new ArrayList<>();
-                            for (int i = 0; i < trackGroup.length; i++) {
-                                trackFormat = trackGroup.getFormat(i);
-                                BandwidthMetricData.Rendition rendition = new BandwidthMetricData.Rendition();
-                                rendition.bitrate = trackFormat.bitrate;
-                                rendition.width = trackFormat.width;
-                                rendition.height = trackFormat.height;
-                                renditions.add(rendition);
-                            }
-                            renditionList = renditions;
-                        }
-                    }
-                }
-            }
         }
 
         private void dispatch(BandwidthMetricData data) {
