@@ -17,14 +17,13 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.os.Handler;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -53,7 +52,6 @@ import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -76,11 +74,11 @@ import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
-import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
@@ -158,8 +156,6 @@ public class PlayerActivity extends AppCompatActivity
   private Uri loadedAdTagUri;
 
   // Activity lifecycle
-  RequestHeaderParser headerParser;
-  Handler uiHandler = new Handler();
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -207,6 +203,21 @@ public class PlayerActivity extends AppCompatActivity
     } else {
       trackSelectorParameters = new DefaultTrackSelector.ParametersBuilder().build();
       clearStartPosition();
+    }
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+
+    if (muxStats == null) {
+      return;
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      muxStats.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+      muxStats.orientationChange(MuxSDKViewOrientation.PORTRAIT);
     }
   }
 
@@ -444,12 +455,11 @@ public class PlayerActivity extends AppCompatActivity
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
+      muxStats.enableMuxCoreDebug(true, false);
 
-      headerParser = new RequestHeaderParser(muxStats);
       MediaSource[] mediaSources = new MediaSource[uris.length];
       for (int i = 0; i < uris.length; i++) {
         mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
-        mediaSources[i].addEventListener(uiHandler, headerParser);
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
@@ -475,7 +485,6 @@ public class PlayerActivity extends AppCompatActivity
       player.seekTo(startWindow, startPosition);
     }
     player.prepare(mediaSource, !haveStartPosition, false);
-
     updateButtonVisibility();
   }
 
