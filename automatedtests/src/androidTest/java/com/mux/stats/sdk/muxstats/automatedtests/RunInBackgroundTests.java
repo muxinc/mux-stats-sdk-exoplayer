@@ -28,13 +28,13 @@ public class RunInBackgroundTests extends TestBase {
             long playbackStartedAt = System.currentTimeMillis();
             Thread.sleep(PLAY_PERIOD_IN_MS);
             int playEventIndex = networkRequest.getNumberOfReceivedEvents() - 1;
-            if (!networkRequest.getReceivedEventName(playEventIndex).equalsIgnoreCase(PlayEvent.TYPE)) {
+            if (!networkRequest.getReceivedEventName(playEventIndex).equalsIgnoreCase(PlayingEvent.TYPE)) {
                 fail("Last received event must be play !!!");
             }
             // Find preceding playing event
             int playingEventIndex = playEventIndex - 2;
             while (playingEventIndex > 0) {
-                if (networkRequest.getReceivedEventName(playingEventIndex).equalsIgnoreCase(PlayingEvent.TYPE)) {
+                if (networkRequest.getReceivedEventName(playingEventIndex).equalsIgnoreCase(PlayEvent.TYPE)) {
                     break;
                 }
                 playingEventIndex --;

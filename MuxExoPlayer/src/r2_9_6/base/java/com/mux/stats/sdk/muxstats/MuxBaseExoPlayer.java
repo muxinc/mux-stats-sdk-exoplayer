@@ -38,9 +38,10 @@ import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
+import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
-import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
@@ -102,10 +103,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxStats.setHostNetworkApi(muxNetworkRequest);
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
         addListener(muxStats);
-        Player.VideoComponent lDecCount = player.getVideoComponent();
+        Player.VideoComponent videoComponent = player.getVideoComponent();
 
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
-        lDecCount.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
+        videoComponent.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
             // As of r2.11.x, the signature for this callback has changed. These are not annotated as @Overrides in
             // order to support both before r2.11.x and after r2.11.x at the same time.
             public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
@@ -336,12 +337,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return state == PlayerState.PAUSED || state == PlayerState.ENDED || state == PlayerState.ERROR || state == PlayerState.INIT;
     }
 
-    protected void buffering() {
+    protected void startBuffering() {
         state = PlayerState.BUFFERING;
-        dispatch(new TimeUpdateEvent(null));
+        dispatch(new RebufferStartEvent(null));
+    }
+
+    protected void endBuffering() {
+        dispatch(new RebufferEndEvent(null));
     }
 
     protected void pause() {
+        if (state == PlayerState.BUFFERING) {
+            endBuffering();
+        }
         state = PlayerState.PAUSED;
         dispatch(new PauseEvent(null));
     }
@@ -352,6 +360,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
+        if (state == PlayerState.BUFFERING) {
+            endBuffering();
+        }
         if (state == PlayerState.PAUSED) {
             play();
         }

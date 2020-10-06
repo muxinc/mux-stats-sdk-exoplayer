@@ -56,12 +56,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
         if (player.get().getPlaybackState() == Player.STATE_BUFFERING) {
             // playback started before muxStats was initialized
+            startBuffering();
             play();
-            buffering();
         } else if (player.get().getPlaybackState() == Player.STATE_READY) {
             // We have to simulate all the events we expect to see here, even though not ideal
+            startBuffering();
             play();
-            buffering();
             playing();
         }
     }
@@ -325,7 +325,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         switch (playbackState) {
             case Player.STATE_BUFFERING:
                 // We have entered buffering
-                buffering();
+                startBuffering();
                 // If we are expected to playWhenReady, signal the play event
                 if (playWhenReady) {
                     play();
