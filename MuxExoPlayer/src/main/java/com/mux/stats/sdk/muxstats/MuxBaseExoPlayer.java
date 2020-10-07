@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
@@ -50,7 +51,9 @@ import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -75,6 +78,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
+    protected WeakReference<Context> contextRef;
 
     protected int streamType = -1;
 
@@ -94,6 +98,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
+        this.contextRef = new WeakReference<>(ctx);
         state = PlayerState.INIT;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
@@ -113,10 +118,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
             }
         });
-    }
-
-    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
-        muxStats.allowLogcatOutput(allow, verbose);
     }
 
     /**
@@ -195,7 +196,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public boolean isMissedAfterAdsPlayingEvent() {
         return missedAfterAdsPlayingEvent;
     }
-	
+
 	@SuppressWarnings("unused")
     public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
         muxStats.updateCustomerData(customPlayerData, customVideoData);
@@ -319,7 +320,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (this.playerView != null) {
             View pv = this.playerView.get();
             if (pv != null) {
-                return pv.getWidth();
+                return pxToDp(pv.getWidth());
             }
         }
         return 0;
@@ -330,7 +331,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (this.playerView != null) {
             View pv = this.playerView.get();
             if (pv != null) {
-                return pv.getHeight();
+                return pxToDp(pv.getHeight());
             }
         }
         return 0;
@@ -805,7 +806,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
                 long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
-                long bytesLoaded) {
+                long bytesLoaded, Map<String, List<String>> responseHeaders) {
             if (player == null || player.get() == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
@@ -813,6 +814,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     dataType,
                     trackFormat, mediaStartTimeMs,
                     mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
+
+            if (responseHeaders != null) {
+                Hashtable<String, String> headers = parseHeaders(responseHeaders);
+
+                if (headers != null) {
+                    loadData.setRequestResponseHeaders(headers);
+                }
+            }
+
             dispatch(loadData);
         }
 
@@ -823,6 +833,47 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 MuxBaseExoPlayer.this.dispatch(playback);
             }
         }
+
+        private Hashtable<String, String> parseHeaders(Map<String, List<String>> responseHeaders) {
+            if (responseHeaders == null || responseHeaders.size() == 0) {
+                return null;
+            }
+
+            Hashtable<String, String> headers = new Hashtable<String, String>();
+            for (String headerName : responseHeaders.keySet()) {
+                if (headerName == null) {
+                    continue;
+                }
+                List<String> headerValues = responseHeaders.get(headerName);
+                if (headerValues.size() == 1) {
+                    headers.put(headerName, headerValues.get(0));
+                } else if (headerValues.size() > 1) {
+                    // In the case that there is more than one header, we squash
+                    // it down to a single comma-separated value per RFC 2616
+                    // https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+                    String headerValue = headerValues.get(0);
+                    for (int i = 1; i < headerValues.size(); i++) {
+                        headerValue = headerValue + ", " + headerValues.get(i);
+                    }
+                    headers.put(headerName, headerValue);
+                }
+            }
+            return headers;
+        }
+    }
+
+    private int pxToDp(int px) {
+        Context context = contextRef.get();
+
+        // Bail out if we don't have the context
+        if (context == null) {
+            MuxLogger.d(TAG, "Error retrieving Context for logical resolution, using physical");
+            return px;
+        }
+
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+        int dp = Math.round(px / (displayMetrics.xdpi / displayMetrics.densityDpi));
+        return dp;
     }
 
     protected BandwidthMetricDispatcher bandwidthDispatcher = new BandwidthMetricDispatcher();

@@ -377,11 +377,6 @@ public class PlayerActivity extends AppCompatActivity
     if (player == null) {
       Intent intent = getIntent();
 
-      mediaSource = createTopLevelMediaSource(intent);
-      if (mediaSource == null) {
-        return;
-      }
-
       TrackSelection.Factory trackSelectionFactory;
       String abrAlgorithm = intent.getStringExtra(ABR_ALGORITHM_EXTRA);
       if (abrAlgorithm == null || ABR_ALGORITHM_DEFAULT.equals(abrAlgorithm)) {
@@ -414,12 +409,9 @@ public class PlayerActivity extends AppCompatActivity
       playerView.setPlaybackPreparer(this);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
-      if (adsLoader != null) {
-        adsLoader.setPlayer(player);
-      }
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENV_KEY_HERE");
+      customerPlayerData.setEnvironmentKey("YOUR_ENV_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
@@ -430,6 +422,16 @@ public class PlayerActivity extends AppCompatActivity
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
       muxStats.enableMuxCoreDebug(true, false);
+
+      // Set up the ad info after initializing Mux
+      mediaSource = createTopLevelMediaSource(intent);
+      if (mediaSource == null) {
+        return;
+      }
+
+      if (adsLoader != null) {
+        adsLoader.setPlayer(player);
+      }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -636,7 +638,6 @@ public class PlayerActivity extends AppCompatActivity
   private DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
-
   /** Returns an ads media source, reusing the ads loader if one exists. */
   @Nullable
   private MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
@@ -650,18 +651,22 @@ public class PlayerActivity extends AppCompatActivity
         adsLoader = imaAdsLoader;
       }
       MediaSourceFactory adMediaSourceFactory =
-          new MediaSourceFactory() {
-            @Override
-            public MediaSource createMediaSource(Uri uri) {
-              return PlayerActivity.this.createLeafMediaSource(
-                  uri, /* extension=*/ null, DrmSessionManager.getDummyDrmSessionManager());
-            }
+              new MediaSourceFactory() {
+                @Override
+                public MediaSource createMediaSource(Uri uri) {
+                  return PlayerActivity.this.createLeafMediaSource(
+                          uri, /* extension=*/ null, DrmSessionManager.getDummyDrmSessionManager());
+                }
 
-            @Override
-            public int[] getSupportedTypes() {
-              return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
-            }
-          };
+                @Override
+                public int[] getSupportedTypes() {
+                  return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+                }
+              };
+      // Because of how this is loaded via reflection, we know that this will be
+      // a ImaAdsLoader, so cast it over so that we can get a reference to the
+      // real IMA AdsLoader instance.
+      muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
       return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
     } catch (Exception e) {
       throw new RuntimeException(e);
