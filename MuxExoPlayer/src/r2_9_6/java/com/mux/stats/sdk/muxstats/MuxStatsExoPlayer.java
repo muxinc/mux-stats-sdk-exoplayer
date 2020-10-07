@@ -131,7 +131,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
-        isCDNParsed = false;
     }
 
     @Override
@@ -141,10 +140,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-                loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded);
-        if (!isCDNParsed) {
-            sendHeaders(loadEventInfo.responseHeaders);
-        }
+                loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded, loadEventInfo.responseHeaders);
     }
 
     @Override
