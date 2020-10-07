@@ -46,10 +46,15 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -744,7 +749,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
                 long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
-                long bytesLoaded) {
+                long bytesLoaded, Map<String, List<String>> responseHeaders) {
             if (player == null || player.get() == null || muxStats == null || currentBandwidthMetric() == null) {
                 return;
             }
@@ -752,6 +757,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     dataType,
                     trackFormat, mediaStartTimeMs,
                     mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
+
+            if (responseHeaders != null) {
+                headers = stringifyHeaders(responseHeaders);
+
+                if (headers != null) {
+                    loadData.setRequestResponseHeaders(headers);
+                }
+            }
+
             dispatch(loadData);
         }
 
@@ -786,6 +800,37 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 RequestBandwidthEvent playback = new RequestBandwidthEvent(null);
                 playback.setBandwidthMetricData(data);
                 MuxBaseExoPlayer.this.dispatch(playback);
+            }
+        }
+
+        private String stringifyHeaders(Map<String, List<String>> responseHeaders) {
+            if (responseHeaders == null || responseHeaders.size() == 0) {
+                return;
+            }
+
+            try {
+                JSONObject headers = new JSONObject();
+                for (String headerName : responseHeaders.keySet()) {
+                    if (headerName == null) {
+                        continue;
+                    }
+                    List<String> headerValues = responseHeaders.get(headerName);
+                    if (headerValues.size() == 1) {
+                        headersJson.put(headerName, headerValues.get(0));
+                    } else if (headerValues.size() > 1) {
+                        JSONArray jsonArray = new JSONArray();
+                        for (String hValue : headerValues) {
+                            jsonArray.put(hValue);
+                        }
+                        headersJson.put(headerName, jsonArray);
+                    }
+                }
+                return headersJson.toString();
+            } catch (JSONException e) {
+                MuxLogger.d(TAG, "Exception parsing response headers.");
+                MuxLogger.d(TAG, e.printStackTrace());
+
+                return;
             }
         }
     }
