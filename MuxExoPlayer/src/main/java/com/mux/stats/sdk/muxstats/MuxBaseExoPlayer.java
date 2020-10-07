@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
@@ -29,7 +30,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
@@ -53,6 +53,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -110,10 +111,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
             }
         });
-    }
-
-    public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
-        muxStats.allowLogcatOutputForPlayer(allow, verbose);
     }
 
     /**
@@ -759,7 +756,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
 
             if (responseHeaders != null) {
-                headers = stringifyHeaders(responseHeaders);
+                Hashtable<String, String> headers = parseHeaders(responseHeaders);
 
                 if (headers != null) {
                     loadData.setRequestResponseHeaders(headers);
@@ -803,35 +800,31 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             }
         }
 
-        private String stringifyHeaders(Map<String, List<String>> responseHeaders) {
+        private Hashtable<String, String> parseHeaders(Map<String, List<String>> responseHeaders) {
             if (responseHeaders == null || responseHeaders.size() == 0) {
-                return;
+                return null;
             }
 
-            try {
-                JSONObject headers = new JSONObject();
-                for (String headerName : responseHeaders.keySet()) {
-                    if (headerName == null) {
-                        continue;
-                    }
-                    List<String> headerValues = responseHeaders.get(headerName);
-                    if (headerValues.size() == 1) {
-                        headersJson.put(headerName, headerValues.get(0));
-                    } else if (headerValues.size() > 1) {
-                        JSONArray jsonArray = new JSONArray();
-                        for (String hValue : headerValues) {
-                            jsonArray.put(hValue);
-                        }
-                        headersJson.put(headerName, jsonArray);
-                    }
+            Hashtable<String, String> headers = new Hashtable<String, String>();
+            for (String headerName : responseHeaders.keySet()) {
+                if (headerName == null) {
+                    continue;
                 }
-                return headersJson.toString();
-            } catch (JSONException e) {
-                MuxLogger.d(TAG, "Exception parsing response headers.");
-                MuxLogger.d(TAG, e.printStackTrace());
-
-                return;
+                List<String> headerValues = responseHeaders.get(headerName);
+                if (headerValues.size() == 1) {
+                    headers.put(headerName, headerValues.get(0));
+                } else if (headerValues.size() > 1) {
+                    // In the case that there is more than one header, we squash
+                    // it down to a single comma-separated value per RFC 2616
+                    // https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
+                    String headerValue = headerValues.get(0);
+                    for (int i = 1; i < headerValues.size(); i++) {
+                        headerValue = headerValue + ", " + headerValues.get(i);
+                    }
+                    headers.put(headerName, headerValue);
+                }
             }
+            return headers;
         }
     }
 
