@@ -751,7 +751,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     trackFormat, mediaStartTimeMs,
                     mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
 
-            if (responseHeaders != null) {
+            // Only append this data if we have some load data going on already
+            if (loadData != null && responseHeaders != null) {
                 Hashtable<String, String> headers = parseHeaders(responseHeaders);
 
                 if (headers != null) {
