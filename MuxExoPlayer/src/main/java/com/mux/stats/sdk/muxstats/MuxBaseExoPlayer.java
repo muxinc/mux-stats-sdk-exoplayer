@@ -825,7 +825,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     private int pxToDp(int px) {
-        DisplayMetrics displayMetrics = contextRef.get().getResources().getDisplayMetrics();
+        Context context = contextRef.get();
+
+        // Bail out if we don't have the context
+        if (context == null) {
+            MuxLogger.d(TAG, "Error retrieving Context for logical resolution, using physical");
+            return px;
+        }
+
+        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
         int dp = Math.round(px / (displayMetrics.xdpi / displayMetrics.densityDpi));
         return dp;
     }
