@@ -4,12 +4,9 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaFormat;
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
-=======
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -32,7 +29,6 @@ import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
@@ -83,11 +79,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, SEEKING, SEEKED, ENDED
-=======
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -116,13 +108,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
             }
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
-
-            public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
-                playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
-            }
-        });
-=======
 
             public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
                 playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
@@ -131,7 +116,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void allowLogcatOutputForPlayer(boolean allow, boolean verbose) {
-        muxStats.allowLogcatOutputForPlayer(allow, verbose);
+        muxStats.allowLogcatOutput(allow, verbose);
     }
 
     /**
@@ -156,7 +141,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         } catch (ClassNotFoundException cnfe) {
             throw new IllegalStateException("IMA SDK Modules not found");
         }
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
     }
 
     /**
@@ -213,23 +197,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 	
 	@SuppressWarnings("unused")
-    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerData(customPlayerData, customVideoData);
-    }
-
-    public CustomerVideoData getCustomerVideoData() {
-        return muxStats.getCustomerVideoData();
-    }
-
-    public CustomerPlayerData getCustomerPlayerData() {
-        return muxStats.getCustomerPlayerData();
-    }
-
-    public void enableMuxCoreDebug(boolean enable, boolean verbose) {
-        muxStats.allowLogcatOutput(enable, verbose);
-    }
-
-    @SuppressWarnings("unused")
     public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
         muxStats.updateCustomerData(customPlayerData, customVideoData);
     }
@@ -395,14 +362,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         if (state == PlayerState.PLAYING) {
             // Ignore, redundant
             return;
-=======
+        }
         if (state == PlayerState.PAUSED) {
             play();
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
@@ -438,12 +403,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         state = PlayerState.ENDED;
     }
 
-    protected void ended() {
-        dispatch(new PauseEvent(null));
-        dispatch(new EndedEvent(null));
-        state = PlayerState.ENDED;
-    }
-
     protected void internalError(Exception error) {
         if (error instanceof MuxErrorException) {
             MuxErrorException muxError = (MuxErrorException) error;
@@ -455,13 +414,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected void handleRenditionChange(Format format) {
         if (format != null) {
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
             if (format == selectedTrackFormat) {
                 // same track, ignore
                 return;
             }
-=======
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
             sourceAdvertisedBitrate = format.bitrate;
             if (format.frameRate > 0) {
                 sourceAdvertisedFramerate = format.frameRate;
@@ -470,10 +426,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             sourceHeight = format.height;
             RenditionChangeEvent event = new RenditionChangeEvent(null);
             dispatch(event);
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
             selectedTrackFormat = format;
-=======
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         }
     }
 
@@ -590,8 +543,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         @Override
-<<<<<<< HEAD:MuxExoPlayer/src/r2_11_1/base/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
-=======
         public String getNetworkConnectionType() {
             // Checking internet connectivity
             Context context = contextRef.get();
@@ -629,7 +580,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         @Override
->>>>>>> js/v2.0.0:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
         public long getElapsedRealtime() {
             return elapsedRealtime();
         }

@@ -21,7 +21,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.mux.stats.sdk.BuildConfig;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 
@@ -328,6 +327,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 //      if (state == PlayerState.SEEKED || state == PlayerState.SEEKING) {
         if (System.currentTimeMillis() - lastSeekedEventAt < 300) {
             // Skipping play event on seek end, or buffering event
+            Log.e(TAG, "Skipping play when ready: " + playWhenReady + ", playbackState: " + playbackState);
             switch (playbackState) {
                 case Player.STATE_BUFFERING:
                     Log.e(TAG, "Skipped buffer event after seek !!!");

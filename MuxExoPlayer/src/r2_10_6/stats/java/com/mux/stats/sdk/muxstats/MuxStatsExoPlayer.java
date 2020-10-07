@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
@@ -285,7 +286,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-        bandwidthDispatcher.onTracksChanged(trackGroups);
+        for (int selection = 0; selection < trackSelections.length; selection ++) {
+            TrackSelection tSelection = trackSelections.get(selection);
+            if (tSelection != null) {
+                Format tFormat = tSelection.getSelectedFormat();
+                if (tFormat != null && tFormat.sampleMimeType.contains("video/")) {
+                    handleRenditionChange(tFormat);
+                }
+            }
+        }
     }
 
     @Override
@@ -378,31 +387,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onSeekProcessed() {
         dispatch(new SeekedEvent(null));
-    }
-
-    @Override
-    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
-
-    }
-
-    @Override
-    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
-
-    }
-
-    @Override
-    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
-
-    }
-
-    @Override
-    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
-
-    }
-
-    @Override
-    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
-
     }
 
     @Override
