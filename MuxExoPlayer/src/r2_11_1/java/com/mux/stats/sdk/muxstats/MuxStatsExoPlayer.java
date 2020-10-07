@@ -141,7 +141,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-                loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded, loadEventInfo.responseHeaders);
+                loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded,
+                loadEventInfo.responseHeaders);
     }
 
     @Override
