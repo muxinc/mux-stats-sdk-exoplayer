@@ -79,7 +79,6 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
-import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -496,8 +495,6 @@ public class PlayerActivity extends Activity
         releaseAdsLoader();
       }
     }
-    Log.d("MUX DEBUG - ", "" + startWindow);
-    Log.d("MUX DEBUG - ", "" + C.INDEX_UNSET);
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
       player.seekTo(startWindow, startPosition);
