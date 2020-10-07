@@ -670,7 +670,6 @@ public class PlayerActivity extends AppCompatActivity
       // a ImaAdsLoader, so cast it over so that we can get a reference to the
       // real IMA AdsLoader instance.
       muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
-      ((ImaAdsLoader) adsLoader).getAdsLoader().addAdsLoadedListener();
       return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
