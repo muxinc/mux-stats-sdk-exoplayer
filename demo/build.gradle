@@ -35,6 +35,7 @@ android {
     lintOptions {
         // The demo app does not have translations.
         disable 'MissingTranslation', 'GradleCompatible'
+        abortOnError false
         // exoplayer 2.8.1 workaround
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
