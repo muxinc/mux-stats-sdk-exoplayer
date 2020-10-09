@@ -3,7 +3,6 @@ package com.mux.stats.sdk.muxstats;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
-import com.google.android.exoplayer2.util.Log;
 import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
@@ -12,16 +11,12 @@ import com.mux.stats.sdk.core.events.playback.AdMidpointEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
-import com.mux.stats.sdk.core.events.playback.AdRequestEvent;
-import com.mux.stats.sdk.core.events.playback.AdResponseEvent;
 import com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent;
-import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.model.ViewData;
 
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
     private MuxBaseExoPlayer exoPlayerListener;
-    private boolean needSendAdResponse = false;
     private boolean sendPlayOnStarted = false;
 
     public AdsImaSDKListener(MuxBaseExoPlayer listener) {
