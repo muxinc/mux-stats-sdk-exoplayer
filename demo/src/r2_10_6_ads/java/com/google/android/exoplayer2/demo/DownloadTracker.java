@@ -30,16 +30,12 @@ import com.google.android.exoplayer2.offline.DownloadIndex;
 import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.offline.DownloadService;
-import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 /** Tracks media that has been downloaded. */
@@ -84,25 +80,6 @@ public class DownloadTracker {
   public boolean isDownloaded(Uri uri) {
     Download download = downloads.get(uri);
     return download != null && download.state != Download.STATE_FAILED;
-  }
-
-  @SuppressWarnings("unchecked")
-  public List<StreamKey> getOfflineStreamKeys(Uri uri) {
-    ArrayList<StreamKey> offlineKeys = new ArrayList<>();
-    try {
-      DownloadCursor cursor = downloadIndex.getDownloads(Download.STATE_COMPLETED);
-      if (cursor.getCount() > 0) {
-        while (!cursor.isLast()) {
-          Download download = cursor.getDownload();
-          if (download.request.uri.equals(uri)) {
-            offlineKeys.addAll(download.request.streamKeys);
-          }
-        }
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return offlineKeys;
   }
 
   @SuppressWarnings("unchecked")

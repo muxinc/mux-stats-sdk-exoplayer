@@ -22,7 +22,6 @@ import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -36,7 +35,6 @@ import com.google.android.exoplayer2.offline.DownloadManager;
 import com.google.android.exoplayer2.offline.DownloadManager.TaskState;
 import com.google.android.exoplayer2.offline.DownloadService;
 import com.google.android.exoplayer2.offline.ProgressiveDownloadHelper;
-import com.google.android.exoplayer2.offline.SegmentDownloadAction;
 import com.google.android.exoplayer2.offline.StreamKey;
 import com.google.android.exoplayer2.offline.TrackKey;
 import com.google.android.exoplayer2.source.TrackGroup;
@@ -47,6 +45,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.offline.SsDownloadHe
 import com.google.android.exoplayer2.ui.DefaultTrackNameProvider;
 import com.google.android.exoplayer2.ui.TrackNameProvider;
 import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import java.io.File;
 import java.io.IOException;
@@ -86,7 +85,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       Context context,
       DataSource.Factory dataSourceFactory,
       File actionFile,
-      DownloadAction.Deserializer[] deserializers) {
+      DownloadAction.Deserializer... deserializers) {
     this.context = context.getApplicationContext();
     this.dataSourceFactory = dataSourceFactory;
     this.actionFile = new ActionFile(actionFile);
@@ -96,7 +95,8 @@ public class DownloadTracker implements DownloadManager.Listener {
     HandlerThread actionFileWriteThread = new HandlerThread("DownloadTracker");
     actionFileWriteThread.start();
     actionFileWriteHandler = new Handler(actionFileWriteThread.getLooper());
-    loadTrackedActions(deserializers);
+    loadTrackedActions(
+        deserializers.length > 0 ? deserializers : DownloadAction.getDefaultDeserializers());
   }
 
   public void addListener(Listener listener) {
@@ -112,15 +112,11 @@ public class DownloadTracker implements DownloadManager.Listener {
   }
 
   @SuppressWarnings("unchecked")
-  public  List<StreamKey> getOfflineStreamKeys(Uri uri) {
+  public List<StreamKey> getOfflineStreamKeys(Uri uri) {
     if (!trackedDownloadStates.containsKey(uri)) {
       return Collections.emptyList();
     }
-    DownloadAction action = trackedDownloadStates.get(uri);
-    if (action instanceof SegmentDownloadAction) {
-      return ((SegmentDownloadAction) action).keys;
-    }
-    return Collections.emptyList();
+    return trackedDownloadStates.get(uri).getKeys();
   }
 
   public void toggleDownload(Activity activity, String name, Uri uri, String extension) {
@@ -179,14 +175,11 @@ public class DownloadTracker implements DownloadManager.Listener {
     }
     final DownloadAction[] actions = trackedDownloadStates.values().toArray(new DownloadAction[0]);
     actionFileWriteHandler.post(
-        new Runnable() {
-          @Override
-          public void run() {
-            try {
-              actionFile.store(actions);
-            } catch (IOException e) {
-              Log.e(TAG, "Failed to store tracked actions", e);
-            }
+        () -> {
+          try {
+            actionFile.store(actions);
+          } catch (IOException e) {
+            Log.e(TAG, "Failed to store tracked actions", e);
           }
         });
   }
@@ -271,11 +264,11 @@ public class DownloadTracker implements DownloadManager.Listener {
             trackTitles.add(trackNameProvider.getTrackName(trackGroup.getFormat(k)));
           }
         }
-        if (!trackKeys.isEmpty()) {
-          builder.setView(dialogView);
-        }
-        builder.create().show();
       }
+      if (!trackKeys.isEmpty()) {
+        builder.setView(dialogView);
+      }
+      builder.create().show();
     }
 
     @Override
@@ -283,6 +276,7 @@ public class DownloadTracker implements DownloadManager.Listener {
       Toast.makeText(
               context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();
+      Log.e(TAG, "Failed to start download", e);
     }
 
     @Override

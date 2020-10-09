@@ -13,7 +13,14 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/representation_list"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:demo="http://schemas.android.com/apk/res-auto">
+  <item android:id="@+id/prefer_extension_decoders"
+    android:title="@string/prefer_extension_decoders"
+    demo:showAsAction="never"
+    android:checkable="true"/>
+  <item android:id="@+id/random_abr"
+    android:title="@string/random_abr"
+    demo:showAsAction="never"
+    android:checkable="true"/>
+</menu>
