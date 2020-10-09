@@ -1,14 +1,9 @@
 package com.mux.stats.sdk.muxstats;
 
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.util.Log;
-
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
 import com.google.ads.interactivemedia.v3.api.AdEvent;
-import com.google.ads.interactivemedia.v3.api.AdsManager;
+import com.google.android.exoplayer2.util.Log;
 import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
@@ -27,7 +22,7 @@ import com.mux.stats.sdk.core.model.ViewData;
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
     private MuxBaseExoPlayer exoPlayerListener;
     private boolean needSendAdResponse = false;
-    private int adCount = 0;
+    private boolean sendPlayOnStarted = false;
 
     public AdsImaSDKListener(MuxBaseExoPlayer listener) {
         exoPlayerListener = listener;
@@ -40,7 +35,6 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
             setupAdViewData(event, null);
             exoPlayerListener.dispatch(event);
         }
-        adCount = 0;
     }
 
     private void setupAdViewData(PlaybackEvent event, Ad ad) {
@@ -62,72 +56,69 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
             switch (adEvent.getType()) {
                 // Cases sorted in calling sequence
                 case LOADED:
-                    // Send pause event if we are currently playin or preparing to play content
-                    if (adCount == 0) {
-                        if (exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAY
-                                || exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAYING) {
-                            exoPlayerListener.pause();
-                        }
-                        event = new AdBreakStartEvent(null);
-                        setupAdViewData(event, ad);
-                        exoPlayerListener.dispatch(event);
-                        event = new AdRequestEvent(null);
-                        needSendAdResponse = true;
-                    } else {
-                        event = new AdPlayEvent(null);
-                    }
-                    exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.PLAYING_ADS);
-                    adCount++;
+                    // There is nothing needed here, for now. It is unclear what this event
+                    // actually correlates to with regards to VAST _AND_ VMAP responses.
                     break;
                 case CONTENT_PAUSE_REQUESTED:
-                    if (needSendAdResponse) {
-                        event = new AdResponseEvent(null);
-                        setupAdViewData(event, ad);
-                        exoPlayerListener.dispatch(event);
-                        needSendAdResponse = false;
+                    // Send pause event if we are currently playing or preparing to play content
+                    if (exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAY ||
+                            exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAYING) {
+                        exoPlayerListener.pause();
                     }
-                    event = new AdPlayEvent(null);
+                    exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.PLAYING_ADS);
+                    dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
+                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    sendPlayOnStarted = false;
                     break;
                 case STARTED:
-                    event = new AdPlayingEvent(null);
+                    // On the first STARTED, do not send AdPlay, as it was handled in
+                    // CONTENT_PAUSE_REQUESTED
+                    if (sendPlayOnStarted) {
+                        dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    } else {
+                        sendPlayOnStarted = true;
+                    }
+                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
                     break;
                 case FIRST_QUARTILE:
-                    event = new AdFirstQuartileEvent(null);
+                    dispatchAdPlaybackEvent(new AdFirstQuartileEvent(null), ad);
                     break;
                 case MIDPOINT:
-                    event = new AdMidpointEvent(null);
+                    dispatchAdPlaybackEvent(new AdMidpointEvent(null), ad);
                     break;
                 case THIRD_QUARTILE:
-                    event = new AdThirdQuartileEvent(null);
+                    dispatchAdPlaybackEvent(new AdThirdQuartileEvent(null), ad);
                     break;
                 case COMPLETED:
-                    event = new AdEndedEvent(null);
+                    dispatchAdPlaybackEvent(new AdEndedEvent(null), ad);
                     break;
                 case CONTENT_RESUME_REQUESTED:
-                    event = new AdBreakEndEvent(null);
-                    adCount = 0;
-                    break;
-                case PAUSED:
-                    event = new AdPauseEvent(null);
-                    break;
-                case RESUMED:
-                    event = new AdPlayEvent(null);
-                    setupAdViewData(event, ad);
-                    exoPlayerListener.dispatch(event);
-                    event = new AdPlayingEvent(null);
-                    break;
-                case ALL_ADS_COMPLETED:
+                    // End the ad break, and then toggle playback state to ensure that
+                    // we get a play/playing after the ads.
+                    dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
                     exoPlayerListener.player.get().setPlayWhenReady(false);
                     exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.FINISHED_PLAYING_ADS);
                     exoPlayerListener.player.get().setPlayWhenReady(true);
                     break;
+                case PAUSED:
+                    dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);
+                    break;
+                case RESUMED:
+                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
+                    break;
+                case ALL_ADS_COMPLETED:
+                    // Nothing to do here, as this depends on VAST vs VMAP and is not
+                    // consistent between the two.
+                    break;
                 default:
                     return;
             }
-            if (event != null) {
-                setupAdViewData(event, ad);
-                exoPlayerListener.dispatch(event);
-            }
         }
+    }
+
+    private void dispatchAdPlaybackEvent(PlaybackEvent event, Ad ad) {
+        setupAdViewData(event, ad);
+        exoPlayerListener.dispatch(event);
     }
 }
