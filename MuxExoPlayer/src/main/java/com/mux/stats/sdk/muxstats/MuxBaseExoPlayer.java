@@ -79,7 +79,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, INIT, ENDED
+        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -284,6 +284,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return state;
     }
 
+    /*
+     * This will be called by AdsImaSDKListener to set the player state to: PLAYING_ADS
+     * and ADS_PLAYBACK_DONE accordingly
+     */
+    protected void setState(PlayerState newState) {
+        state = newState;
+    }
+
     @Override
     public boolean isBuffering() {
         return getState() == MuxBaseExoPlayer.PlayerState.BUFFERING;
@@ -332,7 +340,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
-        if (state == PlayerState.PAUSED) {
+        if (state == PlayerState.PAUSED || state == PlayerState.FINISHED_PLAYING_ADS) {
             play();
         }
         state = PlayerState.PLAYING;
