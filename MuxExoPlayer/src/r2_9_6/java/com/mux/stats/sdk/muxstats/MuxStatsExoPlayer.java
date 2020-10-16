@@ -23,17 +23,37 @@ import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewData;
 
 import java.io.IOException;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
 
-    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData, true);
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData) {
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, null, true);
     }
 
-    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             CustomerViewData customerViewData) {
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData, true);
+    }
+
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             boolean sentryEnabled) {
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, null, sentryEnabled);
+    }
+
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             CustomerViewData customerViewData, boolean sentryEnabled) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData, sentryEnabled);
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);

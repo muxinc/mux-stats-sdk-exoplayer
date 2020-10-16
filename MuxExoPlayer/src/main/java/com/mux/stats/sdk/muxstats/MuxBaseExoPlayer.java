@@ -44,6 +44,7 @@ import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
@@ -85,14 +86,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected MuxStats muxStats;
 
 
-    MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
+    MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                     CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
+                     CustomerViewData customerViewData, boolean sentryEnabled) {
         super();
         this.player = new WeakReference<>(player);
         this.contextRef = new WeakReference<>(ctx);
         state = PlayerState.INIT;
         MuxStats.setHostDevice(new MuxDevice(ctx));
         MuxStats.setHostNetworkApi(new MuxNetworkRequests());
-        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+        muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, customerViewData, sentryEnabled);
         addListener(muxStats);
         Player.VideoComponent lDecCount = player.getVideoComponent();
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
