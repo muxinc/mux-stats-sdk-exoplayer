@@ -11,15 +11,13 @@ import com.mux.stats.sdk.core.events.playback.AdMidpointEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
-import com.mux.stats.sdk.core.events.playback.AdRequestEvent;
-import com.mux.stats.sdk.core.events.playback.AdResponseEvent;
 import com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent;
 import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.model.ViewData;
 
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
     private MuxBaseExoPlayer exoPlayerListener;
-    private boolean needSendAdResponse = false;
+    private boolean sendPlayOnStarted = false;
 
     public AdsImaSDKListener(MuxBaseExoPlayer listener) {
         exoPlayerListener = listener;
@@ -48,57 +46,74 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     @Override
     public void onAdEvent(AdEvent adEvent) {
         if (exoPlayerListener != null) {
-            PlaybackEvent event;
+            PlaybackEvent event = null;
             Ad ad = adEvent.getAd();
             switch (adEvent.getType()) {
-                case CONTENT_PAUSE_REQUESTED:
-                    event = new AdBreakStartEvent(null);
-                    setupAdViewData(event, ad);
-                    exoPlayerListener.dispatch(event);
-                    event = new AdRequestEvent(null);
-                    needSendAdResponse = true;
-                    break;
-                case CONTENT_RESUME_REQUESTED:
-                    event = new AdBreakEndEvent(null);
-                    break;
+                // Cases sorted in calling sequence
                 case LOADED:
-                    if (needSendAdResponse) {
-                        event = new AdResponseEvent(null);
-                        setupAdViewData(event, ad);
-                        exoPlayerListener.dispatch(event);
-                        needSendAdResponse = false;
+                    // There is nothing needed here, for now. It is unclear what this event
+                    // actually correlates to with regards to VAST _AND_ VMAP responses.
+                    break;
+                case CONTENT_PAUSE_REQUESTED:
+                    // Send pause event if we are currently playing or preparing to play content
+                    if (exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAY ||
+                            exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAYING) {
+                        exoPlayerListener.pause();
                     }
-                    event = new AdPlayEvent(null);
+                    exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.PLAYING_ADS);
+                    dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
+                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    sendPlayOnStarted = false;
                     break;
                 case STARTED:
-                    event = new AdPlayingEvent(null);
+                    // On the first STARTED, do not send AdPlay, as it was handled in
+                    // CONTENT_PAUSE_REQUESTED
+                    if (sendPlayOnStarted) {
+                        dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    } else {
+                        sendPlayOnStarted = true;
+                    }
+                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
                     break;
                 case FIRST_QUARTILE:
-                    event = new AdFirstQuartileEvent(null);
+                    dispatchAdPlaybackEvent(new AdFirstQuartileEvent(null), ad);
                     break;
                 case MIDPOINT:
-                    event = new AdMidpointEvent(null);
+                    dispatchAdPlaybackEvent(new AdMidpointEvent(null), ad);
                     break;
                 case THIRD_QUARTILE:
-                    event = new AdThirdQuartileEvent(null);
+                    dispatchAdPlaybackEvent(new AdThirdQuartileEvent(null), ad);
                     break;
                 case COMPLETED:
-                    event = new AdEndedEvent(null);
+                    dispatchAdPlaybackEvent(new AdEndedEvent(null), ad);
+                    break;
+                case CONTENT_RESUME_REQUESTED:
+                    // End the ad break, and then toggle playback state to ensure that
+                    // we get a play/playing after the ads.
+                    dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
+                    exoPlayerListener.player.get().setPlayWhenReady(false);
+                    exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.FINISHED_PLAYING_ADS);
+                    exoPlayerListener.player.get().setPlayWhenReady(true);
                     break;
                 case PAUSED:
-                    event = new AdPauseEvent(null);
+                    dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);
                     break;
                 case RESUMED:
-                    event = new AdPlayEvent(null);
-                    setupAdViewData(event, ad);
-                    exoPlayerListener.dispatch(event);
-                    event = new AdPlayingEvent(null);
+                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
+                    break;
+                case ALL_ADS_COMPLETED:
+                    // Nothing to do here, as this depends on VAST vs VMAP and is not
+                    // consistent between the two.
                     break;
                 default:
                     return;
             }
-            setupAdViewData(event, ad);
-            exoPlayerListener.dispatch(event);
         }
+    }
+
+    private void dispatchAdPlaybackEvent(PlaybackEvent event, Ad ad) {
+        setupAdViewData(event, ad);
+        exoPlayerListener.dispatch(event);
     }
 }

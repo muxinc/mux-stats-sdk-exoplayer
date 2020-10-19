@@ -20,19 +20,41 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewData;
 
 import java.io.IOException;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
 
-    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData) {
-        this(ctx, player, playerName, customerPlayerData, customerVideoData, true);
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData) {
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, null, true);
     }
 
-    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName, CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData, boolean sentryEnabled) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData, sentryEnabled);
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             CustomerViewData customerViewData) {
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData, true);
+    }
+
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             boolean sentryEnabled) {
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, null, sentryEnabled);
+    }
+
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             CustomerViewData customerViewData, boolean sentryEnabled) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData, sentryEnabled);
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
@@ -82,6 +104,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
+        dispatch(new SeekingEvent(null));
     }
 
     @Override
@@ -138,7 +161,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-                loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded);
+                loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded,
+                loadEventInfo.responseHeaders);
     }
 
     @Override
@@ -159,9 +183,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onDownstreamFormatChanged(EventTime eventTime,
             MediaSourceEventListener.MediaLoadData mediaLoadData) {
-        if (mediaLoadData.trackFormat != null) {
-            mimeType = mediaLoadData.trackFormat.containerMimeType + " ("
-                    + mediaLoadData.trackFormat.sampleMimeType + ")";
+        if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.containerMimeType != null) {
+            mimeType = mediaLoadData.trackFormat.containerMimeType;
         }
     }
 
@@ -295,6 +318,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         this.playWhenReady = playWhenReady;
         PlayerState state = this.getState();
+        if (state == PlayerState.PLAYING_ADS) {
+            // Ignore all normal events while playing ads !!!
+            return;
+        }
         switch (playbackState) {
             case Player.STATE_BUFFERING:
                 // We have entered buffering
@@ -302,7 +329,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // If we are expected to playWhenReady, signal the play event
                 if (playWhenReady) {
                     play();
-                } else if (state != PlayerState.PAUSED){
+                } else if (state != PlayerState.PAUSED) {
                     pause();
                 }
                 break;
@@ -313,7 +340,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 // By the time we get here, it depends on playWhenReady to know if we're playing
                 if (playWhenReady) {
                     playing();
-                } else if (state != PlayerState.PAUSED){
+                } else if (state != PlayerState.PAUSED) {
                     pause();
                 }
                 break;
@@ -375,7 +402,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
-
+        dispatch(new SeekedEvent(null));
     }
 
     @Override
