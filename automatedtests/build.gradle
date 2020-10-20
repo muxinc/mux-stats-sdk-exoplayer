@@ -61,12 +61,6 @@ android {
     }
 
     productFlavors {
-        r2_7_3 {
-            dimension 'api'
-        }
-        r2_8_0 {
-            dimension 'api'
-        }
         r2_9_6 {
             dimension 'api'
         }
@@ -103,8 +97,6 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
 
     implementation project(':MuxExoPlayer')
-    r2_7_3Api 'com.google.android.exoplayer:exoplayer:2.7.3'
-    r2_8_0Api 'com.google.android.exoplayer:exoplayer:2.8.0'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
     r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
