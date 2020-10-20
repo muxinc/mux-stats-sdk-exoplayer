@@ -307,6 +307,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
         bandwidthDispatcher.onTracksChanged(trackGroups);
+        configurePlaybackHeadUpdateInterval();
     }
 
     @Override
