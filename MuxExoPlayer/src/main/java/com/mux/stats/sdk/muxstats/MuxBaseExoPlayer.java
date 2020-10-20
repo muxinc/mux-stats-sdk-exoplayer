@@ -286,14 +286,29 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (player == null || player.get() == null) {
             return;
         }
-        Player.VideoComponent videoComponent = player.get().getVideoComponent();
-        if (videoComponent != null) {
+
+        TrackGroupArray trackGroups = player.get().getCurrentTrackGroups();
+        boolean haveVideo = false;
+        if (trackGroups.length > 0) {
+            for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+                TrackGroup trackGroup = trackGroups.get(groupIndex);
+                if (0 < trackGroup.length) {
+                    Format trackFormat = trackGroup.getFormat(0);
+                    if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType.contains("video")) {
+                        haveVideo = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (updatePlayheadPositionTimer != null) {
+            updatePlayheadPositionTimer.cancel();
+        }
+        if (haveVideo) {
+            Player.VideoComponent videoComponent = player.get().getVideoComponent();
             videoComponent.setVideoFrameMetadataListener(frameRenderedListener);
         } else {
             // Schedule timer to execute, this is for audio only content.
-            if (updatePlayheadPositionTimer != null) {
-                updatePlayheadPositionTimer.cancel();
-            }
             updatePlayheadPositionTimer = new Timer();
             updatePlayheadPositionTimer.schedule(new TimerTask() {
                 @Override
