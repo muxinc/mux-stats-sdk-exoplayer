@@ -1,0 +1,827 @@
+# compiler: R8
+# compiler_version: 1.5.68
+# pg_map_id: 302ba1f
+com.mux.stats.sdk.core.Core -> com.mux.stats.sdk.core.a:
+    com.mux.stats.sdk.core.model.ViewerData viewerData -> d
+    com.mux.stats.sdk.core.model.EnvironmentData environmentData -> c
+    java.util.concurrent.ConcurrentHashMap players -> a
+    boolean environmentDataReady -> f
+    com.mux.stats.sdk.core.events.IEventListener clientEventListener -> b
+    com.mux.stats.sdk.core.Session session -> e
+    com.mux.stats.sdk.core.model.EnvironmentData access$000() -> a
+    void allowLogcatOutputForPlayer(java.lang.String,boolean,boolean) -> a
+    com.mux.stats.sdk.core.CorePlayer createPlayer(java.lang.String,boolean) -> a
+    void destroyPlayer(java.lang.String) -> a
+    void dispatchDataEvent(com.mux.stats.sdk.core.events.data.DataEvent) -> a
+    void dispatchEventForPlayer(java.lang.String,com.mux.stats.sdk.core.events.IEvent) -> a
+    void orientationChangeForPlayer(java.lang.String,com.mux.stats.sdk.core.MuxSDKViewOrientation) -> a
+    com.mux.stats.sdk.core.model.ViewerData access$100() -> b
+    com.mux.stats.sdk.core.events.IEventListener access$200() -> c
+    java.util.concurrent.ConcurrentHashMap access$300() -> d
+    void initEnvironmentData() -> e
+com.mux.stats.sdk.core.Core$EventListener -> com.mux.stats.sdk.core.a$a:
+    java.lang.String playerId -> b
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    void flush() -> b
+com.mux.stats.sdk.core.CorePlayer -> com.mux.stats.sdk.core.b:
+    com.mux.stats.sdk.core.trackers.BeaconBatchTracker beaconDispatcher -> h
+    com.mux.stats.sdk.core.model.PlayerData playerData -> d
+    int playerSequenceNumber -> g
+    com.mux.stats.sdk.core.model.CustomerPlayerData customerPlayerData -> e
+    com.mux.stats.sdk.core.CoreView view -> f
+    void allowLogcatOutput(boolean,boolean) -> a
+    void dispatchOrientationChange(com.mux.stats.sdk.core.MuxSDKViewOrientation) -> a
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    void handleDataEvent(com.mux.stats.sdk.core.events.data.DataEvent) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.IPlaybackEvent) -> a
+    void handleTrackableEvent(com.mux.stats.sdk.core.events.TrackableEvent) -> a
+com.mux.stats.sdk.core.CorePlayer$1 -> com.mux.stats.sdk.core.b$a:
+    int[] $SwitchMap$com$mux$stats$sdk$core$MuxSDKViewOrientation -> a
+com.mux.stats.sdk.core.CoreView -> com.mux.stats.sdk.core.c:
+    com.mux.stats.sdk.core.model.VideoData videoData -> e
+    com.mux.stats.sdk.core.model.CustomerVideoData customerVideoData -> f
+    int viewSequenceNumber -> g
+    com.mux.stats.sdk.core.model.BandwidthMetricData bandwidthMetricData -> h
+    com.mux.stats.sdk.core.model.ViewData viewData -> d
+    void handleDataEvent(com.mux.stats.sdk.core.events.data.DataEvent) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.IPlaybackEvent) -> a
+    void handleTrackableEvent(com.mux.stats.sdk.core.events.TrackableEvent) -> a
+    void viewInit() -> a
+com.mux.stats.sdk.core.MuxSDKViewOrientation -> com.mux.stats.sdk.core.MuxSDKViewOrientation:
+    com.mux.stats.sdk.core.MuxSDKViewOrientation[] $VALUES -> a
+com.mux.stats.sdk.core.Session -> com.mux.stats.sdk.core.d:
+    long start -> b
+    java.lang.String id -> a
+    long expires -> c
+    com.mux.stats.sdk.core.util.CurrentTime currentTime -> d
+    long now() -> a
+    void startSession(long) -> a
+    void updateEnvironmentData(com.mux.stats.sdk.core.model.EnvironmentData) -> a
+    void startSession() -> b
+com.mux.stats.sdk.core.events.BaseEvent -> com.mux.stats.sdk.core.e.a:
+    boolean isError() -> b
+    java.lang.String getType() -> d
+    boolean isData() -> e
+    boolean isViewMetric() -> g
+    boolean isTrackable() -> h
+    boolean isPlayback() -> i
+com.mux.stats.sdk.core.events.BaseEventListener -> com.mux.stats.sdk.core.e.b:
+    int id -> a
+    int getId() -> a
+    void setId(int) -> a
+    void flush() -> b
+com.mux.stats.sdk.core.events.EventBus -> com.mux.stats.sdk.core.e.c:
+    java.util.HashSet once -> c
+    java.util.concurrent.ConcurrentHashMap listenersMap -> b
+    int nextId -> a
+com.mux.stats.sdk.core.events.EventRateExceedTrackableEvent -> com.mux.stats.sdk.core.e.d:
+com.mux.stats.sdk.core.events.IEvent -> com.mux.stats.sdk.core.e.e:
+    boolean isError() -> b
+    java.lang.String getType() -> d
+    boolean isData() -> e
+    boolean isViewMetric() -> g
+    boolean isTrackable() -> h
+    boolean isPlayback() -> i
+com.mux.stats.sdk.core.events.IEventDispatcher -> com.mux.stats.sdk.core.e.f:
+com.mux.stats.sdk.core.events.IEventListener -> com.mux.stats.sdk.core.e.g:
+    int getId() -> a
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    void setId(int) -> a
+    void flush() -> b
+com.mux.stats.sdk.core.events.InternalErrorEvent -> com.mux.stats.sdk.core.e.h:
+    java.lang.String errorMessage -> a
+    int errorCode -> b
+    boolean isError() -> b
+    java.lang.String getType() -> d
+    int getErrorCode() -> j
+    java.lang.String getErrorMessage() -> k
+com.mux.stats.sdk.core.events.RedispatchEventListener -> com.mux.stats.sdk.core.e.i:
+    com.mux.stats.sdk.core.events.IEventDispatcher target -> b
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+com.mux.stats.sdk.core.events.TrackableEvent -> com.mux.stats.sdk.core.e.j:
+    com.mux.stats.sdk.core.model.PlayerData playerData -> f
+    com.mux.stats.sdk.core.model.VideoData videoData -> d
+    com.mux.stats.sdk.core.model.CustomerVideoData customerVideoData -> e
+    com.mux.stats.sdk.core.model.BaseQueryData query -> b
+    java.lang.String eventType -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData bandwidthMetricData -> i
+    com.mux.stats.sdk.core.model.CustomerPlayerData customerPlayerData -> g
+    com.mux.stats.sdk.core.model.EnvironmentData environmentData -> h
+    com.mux.stats.sdk.core.model.ViewData viewData -> c
+    com.mux.stats.sdk.core.model.PlayerData getPlayerData() -> a
+    void setBandwidthMetricData(com.mux.stats.sdk.core.model.BandwidthMetricData) -> a
+    void setCustomerPlayerData(com.mux.stats.sdk.core.model.CustomerPlayerData) -> a
+    void setCustomerVideoData(com.mux.stats.sdk.core.model.CustomerVideoData) -> a
+    void setEnvironmentData(com.mux.stats.sdk.core.model.EnvironmentData) -> a
+    void setPlayerData(com.mux.stats.sdk.core.model.PlayerData) -> a
+    void setVideoData(com.mux.stats.sdk.core.model.VideoData) -> a
+    void setViewData(com.mux.stats.sdk.core.model.ViewData) -> a
+    void setViewerData(com.mux.stats.sdk.core.model.ViewerData) -> a
+    void updateQuery(com.mux.stats.sdk.core.model.BaseQueryData) -> a
+    com.mux.stats.sdk.core.model.ViewData getViewData() -> c
+    java.lang.String getType() -> d
+    boolean isTrackable() -> h
+    java.lang.String getDebugString() -> j
+    java.lang.String getEventType() -> k
+    com.mux.stats.sdk.core.model.BaseQueryData getQuery() -> l
+com.mux.stats.sdk.core.events.ViewMetricEvent -> com.mux.stats.sdk.core.e.k:
+    com.mux.stats.sdk.core.model.ViewData viewData -> a
+    com.mux.stats.sdk.core.model.ViewData getViewData() -> c
+    java.lang.String getType() -> d
+    boolean isViewMetric() -> g
+com.mux.stats.sdk.core.events.data.DataEvent -> com.mux.stats.sdk.core.e.l.a:
+    com.mux.stats.sdk.core.model.CustomerVideoData customerVideoData -> d
+    com.mux.stats.sdk.core.model.EnvironmentData environmentData -> b
+    com.mux.stats.sdk.core.model.VideoData videoData -> c
+    com.mux.stats.sdk.core.model.ViewerData viewerData -> a
+    com.mux.stats.sdk.core.model.CustomerPlayerData customerPlayerData -> e
+    void setCustomerPlayerData(com.mux.stats.sdk.core.model.CustomerPlayerData) -> a
+    void setCustomerVideoData(com.mux.stats.sdk.core.model.CustomerVideoData) -> a
+    void setEnvironmentData(com.mux.stats.sdk.core.model.EnvironmentData) -> a
+    void setVideoData(com.mux.stats.sdk.core.model.VideoData) -> a
+    void setViewerData(com.mux.stats.sdk.core.model.ViewerData) -> a
+    java.lang.String getType() -> d
+    boolean isData() -> e
+    com.mux.stats.sdk.core.model.CustomerPlayerData getCustomerPlayerData() -> j
+    com.mux.stats.sdk.core.model.CustomerVideoData getCustomerVideoData() -> k
+    com.mux.stats.sdk.core.model.EnvironmentData getEnvironmentData() -> l
+    com.mux.stats.sdk.core.model.VideoData getVideoData() -> m
+    com.mux.stats.sdk.core.model.ViewerData getViewerData() -> n
+com.mux.stats.sdk.core.events.playback.AdBreakEndEvent -> com.mux.stats.sdk.core.e.m.a:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdBreakStartEvent -> com.mux.stats.sdk.core.e.m.b:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdEndedEvent -> com.mux.stats.sdk.core.e.m.c:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdErrorEvent -> com.mux.stats.sdk.core.e.m.d:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdFirstQuartileEvent -> com.mux.stats.sdk.core.e.m.e:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdMidpointEvent -> com.mux.stats.sdk.core.e.m.f:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdPauseEvent -> com.mux.stats.sdk.core.e.m.g:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdPlayEvent -> com.mux.stats.sdk.core.e.m.h:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdPlayingEvent -> com.mux.stats.sdk.core.e.m.i:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdRequestEvent -> com.mux.stats.sdk.core.e.m.j:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdResponseEvent -> com.mux.stats.sdk.core.e.m.k:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent -> com.mux.stats.sdk.core.e.m.l:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.EndedEvent -> com.mux.stats.sdk.core.e.m.m:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.ErrorEvent -> com.mux.stats.sdk.core.e.m.n:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.HeartbeatEvent -> com.mux.stats.sdk.core.e.m.o:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.IPlaybackEvent -> com.mux.stats.sdk.core.e.m.p:
+    com.mux.stats.sdk.core.model.PlayerData getPlayerData() -> a
+    void setVideoData(com.mux.stats.sdk.core.model.VideoData) -> a
+    void setViewData(com.mux.stats.sdk.core.model.ViewData) -> a
+    com.mux.stats.sdk.core.model.ViewData getViewData() -> c
+    com.mux.stats.sdk.core.model.BandwidthMetricData getBandwidthMetricData() -> f
+com.mux.stats.sdk.core.events.playback.InternalHeartbeatEndEvent -> com.mux.stats.sdk.core.e.m.q:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.InternalHeartbeatEvent -> com.mux.stats.sdk.core.e.m.r:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.OrientationChangeEvent -> com.mux.stats.sdk.core.e.m.s:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.PauseEvent -> com.mux.stats.sdk.core.e.m.t:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.PlayEvent -> com.mux.stats.sdk.core.e.m.u:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.PlaybackEvent -> com.mux.stats.sdk.core.e.m.v:
+    com.mux.stats.sdk.core.model.VideoData videoData -> c
+    com.mux.stats.sdk.core.model.BandwidthMetricData bandwidthMetricData -> d
+    boolean isSuppressed -> e
+    com.mux.stats.sdk.core.model.PlayerData playerData -> a
+    com.mux.stats.sdk.core.model.ViewData viewData -> b
+    com.mux.stats.sdk.core.model.PlayerData getPlayerData() -> a
+    void setBandwidthMetricData(com.mux.stats.sdk.core.model.BandwidthMetricData) -> a
+    void setVideoData(com.mux.stats.sdk.core.model.VideoData) -> a
+    void setViewData(com.mux.stats.sdk.core.model.ViewData) -> a
+    com.mux.stats.sdk.core.model.ViewData getViewData() -> c
+    com.mux.stats.sdk.core.model.BandwidthMetricData getBandwidthMetricData() -> f
+    boolean isPlayback() -> i
+    com.mux.stats.sdk.core.model.VideoData getVideoData() -> j
+    boolean isSuppressed() -> k
+com.mux.stats.sdk.core.events.playback.PlayerReadyEvent -> com.mux.stats.sdk.core.e.m.w:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.PlayingEvent -> com.mux.stats.sdk.core.e.m.x:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.RebufferEndEvent -> com.mux.stats.sdk.core.e.m.y:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.RebufferStartEvent -> com.mux.stats.sdk.core.e.m.z:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.RenditionChangeEvent -> com.mux.stats.sdk.core.e.m.a0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent -> com.mux.stats.sdk.core.e.m.b0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.SeekedEvent -> com.mux.stats.sdk.core.e.m.c0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.SeekingEvent -> com.mux.stats.sdk.core.e.m.d0:
+    void setIsSuppressed(boolean) -> a
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.TimeUpdateEvent -> com.mux.stats.sdk.core.e.m.e0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.ViewEndEvent -> com.mux.stats.sdk.core.e.m.f0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.ViewInitEvent -> com.mux.stats.sdk.core.e.m.g0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.events.playback.ViewStartEvent -> com.mux.stats.sdk.core.e.m.h0:
+    java.lang.String getType() -> d
+com.mux.stats.sdk.core.model.BandwidthMetricData -> com.mux.stats.sdk.core.model.a:
+    java.lang.Long getRequestBytesLoaded() -> a
+    void setRequestBytesLoaded(java.lang.Long) -> a
+    void setRequestCancel(java.lang.String) -> a
+    void setRequestCurrentLevel(java.lang.Integer) -> a
+    void setRequestRenditionLists(java.util.List) -> a
+    void setRequestResponseHeaders(java.util.Hashtable) -> a
+    java.lang.String getRequestCancel() -> b
+    void setRequestError(java.lang.String) -> b
+    void setRequestErrorCode(java.lang.Integer) -> b
+    void setRequestMediaDuration(java.lang.Long) -> b
+    java.lang.Integer getRequestCurrentLevel() -> c
+    void setRequestErrorText(java.lang.String) -> c
+    void setRequestLabeledBitrate(java.lang.Integer) -> c
+    void setRequestMediaStartTime(java.lang.Long) -> c
+    java.lang.String getRequestError() -> d
+    void setRequestEventType(java.lang.String) -> d
+    void setRequestResponseEnd(java.lang.Long) -> d
+    void setRequestVideoHeight(java.lang.Integer) -> d
+    java.lang.Integer getRequestErrorCode() -> e
+    void setRequestHostName(java.lang.String) -> e
+    void setRequestResponseStart(java.lang.Long) -> e
+    void setRequestVideoWidth(java.lang.Integer) -> e
+    java.lang.String getRequestErrorText() -> f
+    void setRequestType(java.lang.String) -> f
+    java.lang.String getRequestEventType() -> g
+    void setRequestUrl(java.lang.String) -> g
+    java.lang.String getRequestHostName() -> h
+    java.lang.Integer getRequestLabeledBitrate() -> i
+    java.lang.Long getRequestMediaDuration() -> j
+    java.lang.Long getRequestMediaStartTime() -> k
+    java.util.List getRequestRenditionLists() -> l
+    java.lang.Long getRequestResponseEnd() -> m
+    java.lang.Long getRequestResponseStart() -> n
+    java.lang.Long getRequestStart() -> o
+    java.lang.String getRequestType() -> p
+    java.lang.Integer getRequestVideoHeight() -> q
+    java.lang.Integer getRequestVideoWidth() -> r
+com.mux.stats.sdk.core.model.BandwidthMetricData$Rendition -> com.mux.stats.sdk.core.model.a$a:
+    long bitrate -> c
+    int height -> b
+    int width -> a
+    java.lang.String attrs -> d
+com.mux.stats.sdk.core.model.BaseQueryData -> com.mux.stats.sdk.core.model.b:
+com.mux.stats.sdk.core.model.EnvironmentData -> com.mux.stats.sdk.core.model.c:
+    java.lang.String getDebug() -> a
+    void setMuxApiVersion(java.lang.String) -> a
+    void setSessionExpires(java.lang.Long) -> a
+    java.lang.String getMuxApiVersion() -> b
+    void setMuxEmbedVersion(java.lang.String) -> b
+    void setSessionStart(java.lang.Long) -> b
+    java.lang.String getMuxEmbedVersion() -> c
+    void setMuxViewerId(java.lang.String) -> c
+    java.lang.String getMuxViewerId() -> d
+    void setSessionId(java.lang.String) -> d
+    java.lang.Long getSessionExpires() -> e
+    java.lang.String getSessionId() -> f
+    java.lang.Long getSessionStart() -> g
+com.mux.stats.sdk.core.model.PlayerData -> com.mux.stats.sdk.core.model.d:
+    java.lang.Long getPageLoadTime() -> a
+    void setPlayerErrorCode(java.lang.String) -> a
+    void setPlayerHeight(java.lang.Integer) -> a
+    void setPlayerIsPaused(java.lang.Boolean) -> a
+    void setPlayerPlayheadTime(java.lang.Long) -> a
+    java.lang.String getPageUrl() -> b
+    void setPlayerErrorMessage(java.lang.String) -> b
+    void setPlayerSequenceNumber(java.lang.Integer) -> b
+    java.lang.String getPlayerAutoplayOn() -> c
+    void setPlayerInstanceId(java.lang.String) -> c
+    void setPlayerWidth(java.lang.Integer) -> c
+    java.lang.String getPlayerErrorCode() -> d
+    void setPlayerIsFullscreen(java.lang.String) -> d
+    java.lang.String getPlayerErrorMessage() -> e
+    void setPlayerMuxPluginName(java.lang.String) -> e
+    java.lang.Integer getPlayerHeight() -> f
+    void setPlayerMuxPluginVersion(java.lang.String) -> f
+    java.lang.String getPlayerInstanceId() -> g
+    void setPlayerSoftwareName(java.lang.String) -> g
+    java.lang.String getPlayerIsFullscreen() -> h
+    void setPlayerSoftwareVersion(java.lang.String) -> h
+    java.lang.Boolean getPlayerIsPaused() -> i
+    java.lang.String getPlayerLanguageCode() -> j
+    java.lang.Long getPlayerLoadTime() -> k
+    java.lang.String getPlayerMuxPluginName() -> l
+    java.lang.String getPlayerMuxPluginVersion() -> m
+    java.lang.Long getPlayerPlayheadTime() -> n
+    java.lang.String getPlayerPreloadOn() -> o
+    java.lang.Integer getPlayerSequenceNumber() -> p
+    java.lang.String getPlayerSoftwareName() -> q
+    java.lang.String getPlayerSoftwareVersion() -> r
+    java.lang.Long getPlayerStartupTime() -> s
+    java.lang.Integer getPlayerViewCount() -> t
+    java.lang.Integer getPlayerWidth() -> u
+com.mux.stats.sdk.core.model.VideoData -> com.mux.stats.sdk.core.model.e:
+    java.lang.String getVideoPosterUrl() -> a
+    void setVideoSourceAdvertisedBitrate(java.lang.Integer) -> a
+    void setVideoSourceAdvertisedFramerate(java.lang.Float) -> a
+    void setVideoSourceDuration(java.lang.Long) -> a
+    void setVideoSourceMimeType(java.lang.String) -> a
+    java.lang.Integer getVideoSourceAdvertisedBitrate() -> b
+    void setVideoSourceHeight(java.lang.Integer) -> b
+    java.lang.Float getVideoSourceAdvertisedFramerate() -> c
+    void setVideoSourceWidth(java.lang.Integer) -> c
+    java.lang.String getVideoSourceDomain() -> d
+    java.lang.Long getVideoSourceDuration() -> e
+    java.lang.Integer getVideoSourceHeight() -> f
+    java.lang.String getVideoSourceHostName() -> g
+    java.lang.String getVideoSourceIsLive() -> h
+    java.lang.String getVideoSourceMimeType() -> i
+    java.lang.Integer getVideoSourceWidth() -> j
+com.mux.stats.sdk.core.model.ViewData -> com.mux.stats.sdk.core.model.f:
+    java.lang.Boolean getViewPrerollPlayed() -> A
+    java.lang.Long getViewPrerollRequestCount() -> B
+    java.lang.Long getViewPrerollRequestTime() -> C
+    java.lang.Boolean getViewPrerollRequested() -> D
+    java.lang.Boolean getViewProgramChanged() -> E
+    java.lang.Integer getViewRebufferCount() -> F
+    java.lang.Long getViewRebufferDuration() -> G
+    java.lang.Double getViewRebufferFrequency() -> H
+    java.lang.Double getViewRebufferPercentage() -> I
+    java.lang.Integer getViewSeekCount() -> J
+    java.lang.Long getViewSeekDuration() -> K
+    java.lang.Integer getViewSequenceNumber() -> L
+    java.lang.Long getViewStart() -> M
+    java.lang.Long getViewStartupPrerollLoadTime() -> N
+    java.lang.Long getViewStartupPrerollRequestTime() -> O
+    java.lang.Long getViewTimeToFirstFrame() -> P
+    java.lang.Long getViewTimeToPreroll() -> Q
+    java.lang.Long getViewTotalContentPlaybackTime() -> R
+    java.lang.Double getViewTotalDownscaling() -> S
+    java.lang.Double getViewTotalUpscaling() -> T
+    java.lang.Integer getViewWaitingRebufferCount() -> U
+    java.lang.Long getViewWaitingRebufferDuration() -> V
+    java.lang.Long getViewWatchTime() -> W
+    com.mux.stats.sdk.core.model.ViewDeviceOrientationData getViewerOrientationData() -> X
+    java.lang.Long getViewerTime() -> Y
+    java.lang.String getPrerollAdAssetHostname() -> a
+    void setViewAdBreakCount(java.lang.Integer) -> a
+    void setViewAdRequestCount(java.lang.Long) -> a
+    void setViewAverageRequestLatency(java.lang.Double) -> a
+    void setViewId(java.lang.String) -> a
+    void setViewPrerollPlayed(java.lang.Boolean) -> a
+    void setViewerOrientationData(com.mux.stats.sdk.core.model.ViewDeviceOrientationData) -> a
+    java.lang.String getPrerollAdTagHostname() -> b
+    void setViewAdCompleteCount(java.lang.Integer) -> b
+    void setViewAdRequestTime(java.lang.Long) -> b
+    void setViewMaxDownscalePercentage(java.lang.Double) -> b
+    void setViewPrerollAdId(java.lang.String) -> b
+    void setViewPrerollRequested(java.lang.Boolean) -> b
+    java.lang.Integer getViewAdBreakCount() -> c
+    void setViewAdErrorCount(java.lang.Integer) -> c
+    void setViewAdWatchTime(java.lang.Long) -> c
+    void setViewMaxRequestLatency(java.lang.Double) -> c
+    void setViewPrerollCreativeId(java.lang.String) -> c
+    void setViewProgramChanged(java.lang.Boolean) -> c
+    java.lang.Integer getViewAdCompleteCount() -> d
+    void setViewAdPlayCount(java.lang.Integer) -> d
+    void setViewAverageRequestThroughput(java.lang.Long) -> d
+    void setViewMaxUpscalePercentage(java.lang.Double) -> d
+    java.lang.Integer getViewAdErrorCount() -> e
+    void setViewAdViewCount(java.lang.Integer) -> e
+    void setViewMaxSeekTime(java.lang.Long) -> e
+    void setViewRebufferFrequency(java.lang.Double) -> e
+    java.lang.Integer getViewAdPlayCount() -> f
+    void setViewMinRequestThroughput(java.lang.Long) -> f
+    void setViewRebufferCount(java.lang.Integer) -> f
+    void setViewRebufferPercentage(java.lang.Double) -> f
+    java.lang.Long getViewAdRequestCount() -> g
+    void setViewPrerollLoadTime(java.lang.Long) -> g
+    void setViewSeekCount(java.lang.Integer) -> g
+    void setViewTotalDownscaling(java.lang.Double) -> g
+    java.lang.Long getViewAdRequestTime() -> h
+    void setViewPrerollRequestCount(java.lang.Long) -> h
+    void setViewSequenceNumber(java.lang.Integer) -> h
+    void setViewTotalUpscaling(java.lang.Double) -> h
+    java.lang.Integer getViewAdViewCount() -> i
+    void setViewPrerollRequestTime(java.lang.Long) -> i
+    java.lang.Long getViewAdWatchTime() -> j
+    void setViewRebufferDuration(java.lang.Long) -> j
+    java.lang.Double getViewAverageRequestLatency() -> k
+    void setViewSeekDuration(java.lang.Long) -> k
+    java.lang.Long getViewAverageRequestThroughput() -> l
+    void setViewStartupPrerollLoadTime(java.lang.Long) -> l
+    java.lang.Long getViewEnd() -> m
+    void setViewStartupPrerollRequestTime(java.lang.Long) -> m
+    java.lang.String getViewId() -> n
+    void setViewTimeToFirstFrame(java.lang.Long) -> n
+    java.lang.Double getViewMaxDownscalePercentage() -> o
+    void setViewTotalContentPlaybackTime(java.lang.Long) -> o
+    java.lang.Double getViewMaxRequestLatency() -> p
+    void setViewWatchTime(java.lang.Long) -> p
+    java.lang.Long getViewMaxSeekTime() -> q
+    void setViewerTime(java.lang.Long) -> q
+    java.lang.Double getViewMaxUpscalePercentage() -> r
+    java.lang.Long getViewMidrollTimeToFirstAd() -> s
+    java.lang.Long getViewMinRequestThroughput() -> t
+    java.lang.Integer getViewPercentageViewed() -> u
+    java.lang.String getViewPrerollAdAssetDomain() -> v
+    java.lang.String getViewPrerollAdId() -> w
+    java.lang.String getViewPrerollAdTagDomain() -> x
+    java.lang.String getViewPrerollCreativeId() -> y
+    java.lang.Long getViewPrerollLoadTime() -> z
+com.mux.stats.sdk.core.model.ViewDeviceOrientationData -> com.mux.stats.sdk.core.model.g:
+    java.lang.Integer getOrientationX() -> a
+    void setOrientationX(java.lang.Integer) -> a
+    java.lang.Integer getOrientationY() -> b
+    void setOrientationY(java.lang.Integer) -> b
+    java.lang.Integer getOrientationZ() -> c
+    void setOrientationZ(java.lang.Integer) -> c
+    java.lang.String toJsonString() -> d
+com.mux.stats.sdk.core.model.ViewerData -> com.mux.stats.sdk.core.model.h:
+    java.lang.String getViewerApplicationEngine() -> a
+    void setViewerApplicationName(java.lang.String) -> a
+    java.lang.String getViewerApplicationName() -> b
+    void setViewerApplicationVersion(java.lang.String) -> b
+    java.lang.String getViewerApplicationVersion() -> c
+    void setViewerConnectionType(java.lang.String) -> c
+    java.lang.String getViewerConnectionType() -> d
+    void setViewerDeviceManufacturer(java.lang.String) -> d
+    java.lang.String getViewerDeviceCategory() -> e
+    void setViewerDeviceName(java.lang.String) -> e
+    java.lang.String getViewerDeviceManufacturer() -> f
+    void setViewerOsArchitecture(java.lang.String) -> f
+    java.lang.String getViewerDeviceName() -> g
+    void setViewerOsFamily(java.lang.String) -> g
+    java.lang.String getViewerOsArchitecture() -> h
+    void setViewerOsVersion(java.lang.String) -> h
+    java.lang.String getViewerOsFamily() -> i
+    java.lang.String getViewerOsVersion() -> j
+com.mux.stats.sdk.core.trackers.AdTracker -> com.mux.stats.sdk.core.f.a:
+    long prerollRequestStartTime -> l
+    long prerollStartupRequestStartTime -> k
+    int adViewPlayCount -> j
+    int adViewCount -> h
+    int adErrorCount -> i
+    int adBreakCount -> f
+    boolean wouldBeNewAdPlay -> u
+    int adCompleteCount -> g
+    boolean adHavePlayed -> v
+    boolean paused -> s
+    com.mux.stats.sdk.core.util.CurrentTime currentTime -> n
+    boolean prerollPlayed -> e
+    long viewPrerollRequestCount -> r
+    long viewAdRequestCount -> q
+    java.util.ArrayList adRequestTimes -> t
+    long prerollRequestLoadTime -> m
+    long lastAdStartTime -> p
+    boolean prerollRequested -> d
+    long adWatchedTime -> o
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    boolean isPrerollPosition(com.mux.stats.sdk.core.model.PlayerData) -> a
+com.mux.stats.sdk.core.trackers.BaseAdTracker -> com.mux.stats.sdk.core.f.b:
+    boolean isAdBreak -> c
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+com.mux.stats.sdk.core.trackers.BaseTracker -> com.mux.stats.sdk.core.f.c:
+    com.mux.stats.sdk.core.events.IEventDispatcher dispatcher -> b
+    int id -> a
+    int getId() -> a
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void setId(int) -> a
+    void dispatch(com.mux.stats.sdk.core.events.IEvent) -> b
+    void flush() -> b
+com.mux.stats.sdk.core.trackers.BeaconBatchTracker -> com.mux.stats.sdk.core.f.d:
+    java.lang.String envKey -> i
+    boolean rateLimited -> k
+    boolean sentryEnabled -> l
+    long lastBeaconSentTime -> b
+    java.util.ArrayList pendingEventsQueue -> g
+    java.util.ArrayList eventQueue -> f
+    com.mux.stats.sdk.muxstats.INetworkRequest dispatcher -> h
+    int failureCount -> c
+    java.util.Set flushEvents -> j
+    com.mux.stats.sdk.core.model.BaseQueryData previousBeaconData -> n
+    boolean verboseMode -> e
+    java.util.Set dataToAlwaysSend -> o
+    long lastEventTime -> m
+    boolean lastBeaconCompleted -> d
+    void deduplicateBeaconData(com.mux.stats.sdk.core.events.TrackableEvent) -> a
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    void onComplete(boolean) -> a
+    void flush() -> b
+    boolean queueEvent(com.mux.stats.sdk.core.events.TrackableEvent) -> b
+    void setVerboseMode(boolean) -> b
+    long getNextBeaconTimeInterval() -> c
+    void sendBeaconQueue(boolean) -> c
+com.mux.stats.sdk.core.trackers.ExternalEventTracker -> com.mux.stats.sdk.core.f.e:
+    java.util.HashSet externalEvents -> c
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+com.mux.stats.sdk.core.trackers.ExternalHeartbeatTracker -> com.mux.stats.sdk.core.f.f:
+    boolean playing -> e
+    long lastTrackableEvent -> c
+    com.mux.stats.sdk.core.util.CurrentTime currentTime -> d
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    long now() -> c
+com.mux.stats.sdk.core.trackers.ITimeTracker -> com.mux.stats.sdk.core.f.g:
+com.mux.stats.sdk.core.trackers.ITracker -> com.mux.stats.sdk.core.f.h:
+com.mux.stats.sdk.core.trackers.InternalHeartbeatTracker -> com.mux.stats.sdk.core.f.i:
+    boolean playing -> c
+    void endHeartbeat(com.mux.stats.sdk.core.model.PlayerData,com.mux.stats.sdk.core.model.ViewData) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void startHeartbeat(com.mux.stats.sdk.core.model.PlayerData,com.mux.stats.sdk.core.model.ViewData) -> b
+com.mux.stats.sdk.core.trackers.RebufferTracker -> com.mux.stats.sdk.core.f.j:
+    java.lang.Long lastPlayheadTimeUpdatedTime -> i
+    double rebufferFrequency -> l
+    long rebufferDuration -> k
+    double rebufferPercentage -> m
+    int rebufferCount -> j
+    boolean isRebuffering -> e
+    boolean playheadShouldBeProgressing -> f
+    java.lang.Long lastCheckedTime -> g
+    java.lang.Long lastPlayheadTime -> h
+    boolean isSeeking -> d
+    void computeMetrics(com.mux.stats.sdk.core.events.playback.PlaybackEvent,long) -> a
+    long getPlayerPlayheadTime(java.lang.Long) -> a
+    long getViewerTime(com.mux.stats.sdk.core.model.ViewData) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void check(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> b
+    void endRebuffering(com.mux.stats.sdk.core.events.playback.PlaybackEvent,long) -> b
+    void cleanup(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> c
+    boolean sanityCheckLongs() -> c
+    void update(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> d
+com.mux.stats.sdk.core.trackers.RequestMetricsTracker -> com.mux.stats.sdk.core.f.k:
+    long requestFailedCount -> f
+    long requestCanceledCount -> e
+    long totalLoadTime -> h
+    long totalBytes -> g
+    long requestCompletedCount -> d
+    long requestCount -> c
+    double totalLatency -> i
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+com.mux.stats.sdk.core.trackers.ScalingTracker -> com.mux.stats.sdk.core.f.l:
+    java.lang.Integer lastPlayerWidth -> e
+    double viewMaxUpscaling -> l
+    java.lang.Integer lastPlayerHeight -> f
+    long viewTotalContentPlaybackTime -> k
+    double viewMaxDownscaling -> m
+    java.lang.Integer lastSourceWidth -> g
+    double viewTotalUpscaling -> n
+    java.lang.Integer lastSourceHeight -> h
+    double viewTotalDownscaling -> o
+    java.lang.Long lastPlayheadPosition -> d
+    java.util.HashSet preparationEvents -> j
+    java.util.HashSet calculationEvents -> i
+    void calculate(long) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void prepare(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> b
+com.mux.stats.sdk.core.trackers.SeekingTracker -> com.mux.stats.sdk.core.f.m:
+    long viewSeekDuration -> f
+    long viewMaxSeekTime -> g
+    long lastEventTime -> c
+    int viewSeekCount -> e
+    boolean isSeeking -> d
+    void completeSeek(java.lang.Long) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void startSeeking(java.lang.Long,com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+com.mux.stats.sdk.core.trackers.TimeToFirstFrameTracker -> com.mux.stats.sdk.core.f.n:
+    long lastEventTime -> d
+    long playStartTime -> c
+    int state -> e
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void setAndSendTTFF(long) -> a
+com.mux.stats.sdk.core.trackers.ViewStateTracker -> com.mux.stats.sdk.core.f.o:
+    com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState state -> c
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState -> com.mux.stats.sdk.core.f.o$a:
+    com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState STATE_UNKNOWN -> a
+    com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState STATE_INIT -> b
+    com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState[] $VALUES -> d
+    com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState STATE_PLAY -> c
+com.mux.stats.sdk.core.trackers.ViewerTimeTracker -> com.mux.stats.sdk.core.f.p:
+    java.util.HashSet derivativeEvents -> c
+    com.mux.stats.sdk.core.util.CurrentTime currentTime -> d
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void setCurrentTime(com.mux.stats.sdk.core.util.CurrentTime) -> a
+    long now() -> c
+com.mux.stats.sdk.core.trackers.WatchTimeTracker -> com.mux.stats.sdk.core.f.q:
+    long watchTime -> d
+    long lastEventTime -> c
+    void countWatchTime(long) -> a
+    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+com.mux.stats.sdk.core.util.CurrentTime -> com.mux.stats.sdk.core.g.a:
+    long startTimeElapsedSinceBoot -> b
+    long startUtcTimestamp -> a
+    boolean hostDeviceAvailable -> c
+    long now() -> a
+com.mux.stats.sdk.core.util.MuxExceptionTracker -> com.mux.stats.sdk.core.g.b:
+    org.json.JSONObject buildSentryDetails(java.lang.Throwable,java.lang.String) -> a
+    org.json.JSONObject convertStackTrace(java.lang.StackTraceElement[]) -> a
+    void sendException(java.lang.Throwable,java.lang.String) -> b
+com.mux.stats.sdk.core.util.MuxLogger -> com.mux.stats.sdk.core.g.c:
+    java.lang.Boolean allowLogcat -> a
+    void d(java.lang.String,java.lang.String) -> a
+    void setAllowLogcat(boolean) -> a
+com.mux.stats.sdk.core.util.UUID -> com.mux.stats.sdk.core.g.d:
+    java.lang.String generateUUID() -> a
+com.mux.stats.sdk.muxstats.AdsImaSDKListener -> com.mux.stats.sdk.muxstats.a:
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer exoPlayerListener -> a
+    boolean needSendAdResponse -> b
+    void dispatchAdPlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent,com.google.ads.interactivemedia.v3.api.Ad) -> a
+    void setupAdViewData(com.mux.stats.sdk.core.events.playback.PlaybackEvent,com.google.ads.interactivemedia.v3.api.Ad) -> b
+com.mux.stats.sdk.muxstats.AdsImaSDKListener$1 -> com.mux.stats.sdk.muxstats.a$a:
+    int[] $SwitchMap$com$google$ads$interactivemedia$v3$api$AdEvent$AdEventType -> a
+com.mux.stats.sdk.muxstats.IDevice -> com.mux.stats.sdk.muxstats.b:
+    java.lang.String getPlayerSoftware() -> a
+    void outputLog(java.lang.String,java.lang.String) -> a
+    java.lang.String getHardwareArchitecture() -> b
+    java.lang.String getDeviceId() -> c
+    java.lang.String getNetworkConnectionType() -> d
+    java.lang.String getAppName() -> e
+    java.lang.String getAppVersion() -> f
+    java.lang.String getPluginName() -> g
+    java.lang.String getManufacturer() -> h
+    java.lang.String getOSVersion() -> i
+    java.lang.String getPlayerVersion() -> j
+    java.lang.String getOSFamily() -> k
+    java.lang.String getModelName() -> l
+    long getElapsedRealtime() -> m
+    java.lang.String getPluginVersion() -> n
+com.mux.stats.sdk.muxstats.INetworkRequest -> com.mux.stats.sdk.muxstats.c:
+    void post(java.net.URL,org.json.JSONObject,java.util.Hashtable) -> a
+    void postWithCompletion(java.lang.String,java.lang.String,java.util.Hashtable,com.mux.stats.sdk.muxstats.INetworkRequest$IMuxNetworkRequestsCompletion) -> a
+com.mux.stats.sdk.muxstats.INetworkRequest$IMuxNetworkRequestsCompletion -> com.mux.stats.sdk.muxstats.c$a:
+    void onComplete(boolean) -> a
+com.mux.stats.sdk.muxstats.IPlayerListener -> com.mux.stats.sdk.muxstats.d:
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer -> com.mux.stats.sdk.muxstats.e:
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$1 -> com.mux.stats.sdk.muxstats.e$a:
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer this$0 -> a
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$2 -> com.mux.stats.sdk.muxstats.e$b:
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer val$baseExoPlayer -> a
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetric -> com.mux.stats.sdk.muxstats.e$c:
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer this$0 -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoad(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long,long,long) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadCanceled(com.google.android.exoplayer2.upstream.DataSpec) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadError(com.google.android.exoplayer2.upstream.DataSpec,int,java.io.IOException) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadStarted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadCompleted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long,long,long) -> b
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetricDash -> com.mux.stats.sdk.muxstats.e$d:
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadStarted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadCompleted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long,long,long) -> b
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetricDispatcher -> com.mux.stats.sdk.muxstats.e$e:
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetric bandwidthMetricHls -> a
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetric bandwidthMetricDash -> b
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer this$0 -> c
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetric currentBandwidthMetric() -> a
+    void dispatch(com.mux.stats.sdk.core.model.BandwidthMetricData) -> a
+    void onLoadCanceled(com.google.android.exoplayer2.upstream.DataSpec) -> a
+    void onLoadCompleted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long,long,long) -> a
+    void onLoadError(com.google.android.exoplayer2.upstream.DataSpec,int,java.io.IOException) -> a
+    void onLoadStarted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long) -> a
+    void onTracksChanged(com.google.android.exoplayer2.source.TrackGroupArray) -> a
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$BandwidthMetricHls -> com.mux.stats.sdk.muxstats.e$f:
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadCanceled(com.google.android.exoplayer2.upstream.DataSpec) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadError(com.google.android.exoplayer2.upstream.DataSpec,int,java.io.IOException) -> a
+    com.mux.stats.sdk.core.model.BandwidthMetricData onLoadCompleted(com.google.android.exoplayer2.upstream.DataSpec,int,com.google.android.exoplayer2.Format,long,long,long,long,long) -> b
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$ExoPlayerHandler -> com.mux.stats.sdk.muxstats.e$g:
+    java.util.concurrent.atomic.AtomicLong playerCurrentPosition -> a
+    com.google.android.exoplayer2.ExoPlayer player -> b
+    long getPlayerCurrentPosition() -> a
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$MuxDevice -> com.mux.stats.sdk.muxstats.e$h:
+    java.lang.ref.WeakReference contextRef -> a
+    java.lang.String appName -> c
+    java.lang.String deviceId -> b
+    java.lang.String appVersion -> d
+    java.lang.String getPlayerSoftware() -> a
+    void outputLog(java.lang.String,java.lang.String) -> a
+    java.lang.String getHardwareArchitecture() -> b
+    java.lang.String getDeviceId() -> c
+    java.lang.String getNetworkConnectionType() -> d
+    java.lang.String getAppName() -> e
+    java.lang.String getAppVersion() -> f
+    java.lang.String getPluginName() -> g
+    java.lang.String getManufacturer() -> h
+    java.lang.String getOSVersion() -> i
+    java.lang.String getPlayerVersion() -> j
+    java.lang.String getOSFamily() -> k
+    java.lang.String getModelName() -> l
+    long getElapsedRealtime() -> m
+    java.lang.String getPluginVersion() -> n
+com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState -> com.mux.stats.sdk.muxstats.e$i:
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState INIT -> f
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState ENDED -> g
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState ERROR -> b
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PAUSED -> c
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAY -> d
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAYING -> e
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState BUFFERING -> a
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState[] $VALUES -> h
+com.mux.stats.sdk.muxstats.MuxErrorException -> com.mux.stats.sdk.muxstats.MuxErrorException:
+    int code -> a
+com.mux.stats.sdk.muxstats.MuxNetworkRequests -> com.mux.stats.sdk.muxstats.f:
+    java.lang.String getAuthority(java.lang.String) -> a
+    void post(java.net.URL,org.json.JSONObject,java.util.Hashtable) -> a
+    void postWithCompletion(java.lang.String,java.lang.String,java.util.Hashtable,com.mux.stats.sdk.muxstats.INetworkRequest$IMuxNetworkRequestsCompletion) -> a
+com.mux.stats.sdk.muxstats.MuxNetworkRequests$NetworkRequest -> com.mux.stats.sdk.muxstats.f$a:
+    java.lang.String getMethod() -> a
+    java.util.Hashtable getHeaders() -> b
+    java.net.URL getUrl() -> c
+    java.lang.String getBody() -> d
+com.mux.stats.sdk.muxstats.MuxNetworkRequests$NetworkTaskRunner -> com.mux.stats.sdk.muxstats.f$b:
+    com.mux.stats.sdk.muxstats.INetworkRequest$IMuxNetworkRequestsCompletion callback -> a
+    int failureCount -> b
+    java.lang.Void doInBackground(com.mux.stats.sdk.muxstats.MuxNetworkRequests$NetworkRequest[]) -> a
+    boolean executeHttp(java.net.URL,java.lang.String,java.util.Hashtable,java.lang.String) -> a
+    long getNextBeaconTime() -> a
+    byte[] gzip(byte[]) -> a
+com.mux.stats.sdk.muxstats.MuxNetworkRequests$PostRequest -> com.mux.stats.sdk.muxstats.f$c:
+    java.util.Hashtable headers -> c
+    java.net.URL url -> a
+    java.lang.String body -> b
+    java.lang.String getMethod() -> a
+    java.util.Hashtable getHeaders() -> b
+    java.net.URL getUrl() -> c
+    java.lang.String getBody() -> d
+com.mux.stats.sdk.muxstats.MuxStats -> com.mux.stats.sdk.muxstats.g:
+    boolean playerSizeControlledManually -> m
+    int errorCode -> l
+    com.mux.stats.sdk.muxstats.IPlayerListener listener -> s
+    com.mux.stats.sdk.muxstats.IDevice hostDevice -> t
+    java.lang.Integer playerWidth -> f
+    java.lang.Integer playerHeight -> g
+    java.lang.String errorMessage -> k
+    java.lang.Integer screenWidth -> h
+    java.lang.Integer screenHeight -> i
+    java.lang.String packageName -> o
+    java.lang.String muxViewerId -> n
+    java.lang.String packageVersion -> p
+    java.util.Timer timer -> b
+    boolean automaticErrors -> q
+    boolean sentryEnabled -> r
+    com.mux.stats.sdk.core.model.CustomerPlayerData customerPlayerData -> d
+    com.mux.stats.sdk.core.model.CustomerVideoData customerVideoData -> e
+    java.lang.String playerName -> c
+    com.mux.stats.sdk.muxstats.INetworkRequest hostNetworkApi -> u
+    com.mux.stats.sdk.core.model.VideoData videoData -> j
+    com.mux.stats.sdk.muxstats.IPlayerListener access$000(com.mux.stats.sdk.muxstats.MuxStats) -> a
+    void allowLogcatOutput(boolean,boolean) -> a
+    void error(com.mux.stats.sdk.muxstats.MuxErrorException) -> a
+    void handle(com.mux.stats.sdk.core.events.IEvent) -> a
+    void init(com.mux.stats.sdk.muxstats.IPlayerListener) -> a
+    void orientationChange(com.mux.stats.sdk.core.MuxSDKViewOrientation) -> a
+    void programChange(com.mux.stats.sdk.core.model.CustomerVideoData) -> a
+    void setHostDevice(com.mux.stats.sdk.muxstats.IDevice) -> a
+    void setHostNetworkApi(com.mux.stats.sdk.muxstats.INetworkRequest) -> a
+    void setPlayerSize(int,int) -> a
+    com.mux.stats.sdk.core.events.playback.PlaybackEvent setProgramChangeToEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
+    void updateCustomerData(com.mux.stats.sdk.core.model.CustomerPlayerData,com.mux.stats.sdk.core.model.CustomerVideoData) -> a
+    void access$100(com.mux.stats.sdk.muxstats.MuxStats) -> b
+    void dispatch(com.mux.stats.sdk.core.events.IEvent) -> b
+    void setAutomaticErrorTracking(boolean) -> b
+    void setScreenSize(int,int) -> b
+    void videoChange(com.mux.stats.sdk.core.model.CustomerVideoData) -> b
+    boolean access$200(com.mux.stats.sdk.muxstats.MuxStats) -> c
+    com.mux.stats.sdk.core.model.CustomerPlayerData getCustomerPlayerData() -> c
+    void handleAdsEvents(com.mux.stats.sdk.core.events.IEvent) -> c
+    com.mux.stats.sdk.core.model.CustomerPlayerData access$300(com.mux.stats.sdk.muxstats.MuxStats) -> d
+    com.mux.stats.sdk.core.model.CustomerVideoData getCustomerVideoData() -> d
+    void release() -> e
+    void checkVideoData() -> f
+    void dispatchTimeUpdateFromTimer() -> g
+    void enforceNonNull() -> h
+    com.mux.stats.sdk.muxstats.IDevice getHostDevice() -> i
+    com.mux.stats.sdk.muxstats.INetworkRequest getHostNetworkApi() -> j
+    com.mux.stats.sdk.core.model.PlayerData getPlayerData() -> k
+    void prepareEnvironment() -> l
+    void updatePlaybackPosition() -> m
+com.mux.stats.sdk.muxstats.MuxStats$TimeUpdateTask -> com.mux.stats.sdk.muxstats.g$a:
+    java.lang.ref.WeakReference timerReference -> b
+    java.lang.ref.WeakReference muxStatsReference -> a
+com.mux.stats.sdk.muxstats.compat.AsyncTaskCompat -> com.mux.stats.sdk.muxstats.h.a:
+    android.os.AsyncTask executeParallel(android.os.AsyncTask,java.lang.Object[]) -> a
+com.mux.stats.sdk.muxstats.compat.AsyncTaskCompatHoneycomb -> com.mux.stats.sdk.muxstats.h.b:
+    void executeParallel(android.os.AsyncTask,java.lang.Object[]) -> a
+com.mux.stats.sdk.os.MuxArray -> a.a.a.a.a.a:
+    java.util.ArrayList list -> a
+    void append(java.lang.Object) -> a
+    java.lang.Object get(int) -> a
+    int size() -> a
+com.mux.stats.sdk.os.MuxDictionary -> a.a.a.a.a.b:
+    org.json.JSONObject query -> a
+    com.mux.stats.sdk.os.MuxArray getArray(java.lang.String) -> a
+    java.lang.String getJSONString() -> a
+    void putArray(java.lang.String,com.mux.stats.sdk.os.MuxArray) -> a
+    void putDictionary(java.lang.String,com.mux.stats.sdk.os.MuxDictionary) -> a
+    void putInt(java.lang.String,int) -> a
+    void putLong(java.lang.String,long) -> a
+    void putString(java.lang.String,java.lang.String) -> a
+    com.mux.stats.sdk.os.MuxDictionary getDictionary(java.lang.String) -> b
+    com.mux.stats.sdk.os.MuxArray keys() -> b
+    java.lang.Integer getInt(java.lang.String) -> c
+    java.lang.Long getLong(java.lang.String) -> d
+    java.lang.String getString(java.lang.String) -> e

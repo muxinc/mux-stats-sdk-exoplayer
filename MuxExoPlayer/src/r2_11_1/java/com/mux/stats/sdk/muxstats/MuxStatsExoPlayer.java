@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
+import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
@@ -366,7 +367,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             Exception cause = e.getRendererException();
             if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
                 MediaCodecRenderer.DecoderInitializationException die = (MediaCodecRenderer.DecoderInitializationException) cause;
-                if (die.decoderName == null) {
+                if (die.codecInfo != null && die.codecInfo.name == null) {
                     if (die.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
                         internalError(new MuxErrorException(e.type, "Unable to query device decoders"));
                     } else if (die.secureDecoderRequired) {
@@ -402,5 +403,30 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onSeekProcessed() {
         dispatch(new SeekedEvent(null));
+    }
+
+    @Override
+    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
+
+    }
+
+    @Override
+    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
+
+    }
+
+    @Override
+    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
+
+    }
+
+    @Override
+    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
+
+    }
+
+    @Override
+    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
+
     }
 }
