@@ -27,20 +27,20 @@ public class RunInBackgroundTests extends TestBase {
             testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS);
             long playbackStartedAt = System.currentTimeMillis();
             Thread.sleep(PLAY_PERIOD_IN_MS);
-            int playEventIndex = networkRequest.getNumberOfReceivedEvents() - 1;
-            if (!networkRequest.getReceivedEventName(playEventIndex).equalsIgnoreCase(PlayingEvent.TYPE)) {
-                fail("Last received event must be play !!!");
+            int playingEventIndex = networkRequest.getNumberOfReceivedEvents() - 1;
+            if (!networkRequest.getReceivedEventName(playingEventIndex).equalsIgnoreCase(PlayingEvent.TYPE)) {
+                fail("Last received event must be play ! Received: " + networkRequest.getReceivedEventNames());
             }
             // Find preceding playing event
-            int playingEventIndex = playEventIndex - 2;
-            while (playingEventIndex > 0) {
+            int playEventIndex = playingEventIndex - 2;
+            while (playEventIndex > 0) {
                 if (networkRequest.getReceivedEventName(playingEventIndex).equalsIgnoreCase(PlayEvent.TYPE)) {
                     break;
                 }
-                playingEventIndex --;
+                playEventIndex --;
             }
-            if (playingEventIndex == 0) {
-                fail("Playing event missing !!!");
+            if (playEventIndex == 0) {
+                fail("Play event missing ! Received: " + networkRequest.getReceivedEventNames());
             }
             long timeDiff = networkRequest.getCreationTimeForEvent(playEventIndex) -
                     networkRequest.getCreationTimeForEvent(playingEventIndex);

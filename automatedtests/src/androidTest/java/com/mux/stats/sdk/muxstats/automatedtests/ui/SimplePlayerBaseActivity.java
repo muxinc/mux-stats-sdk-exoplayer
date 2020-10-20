@@ -125,7 +125,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         mockNetwork = new MockNetworkRequest();
         muxStats = new MuxStatsExoPlayer(
                 this, player, "demo-player", customerPlayerData, customerVideoData,
-                true, mockNetwork);
+                null,true, mockNetwork);
         Point size = new Point();
         getWindowManager().getDefaultDisplay().getSize(size);
         muxStats.setScreenSize(size.x, size.y);
