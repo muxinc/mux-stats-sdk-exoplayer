@@ -175,16 +175,31 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     @SuppressWarnings("unused")
-    public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
-        muxStats.updateCustomerData(customPlayerData, customVideoData);
+    public void updateCustomerData(CustomerPlayerData customerPlayerData,
+                                   CustomerVideoData customerVideoData) {
+        muxStats.updateCustomerData(customerPlayerData, customerVideoData);
     }
 
+    @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customerPlayerData,
+                                   CustomerVideoData customerVideoData,
+                                   CustomerViewData customerViewData) {
+        muxStats.updateCustomerData(customerPlayerData, customerVideoData, customerViewData);
+    }
+
+    @SuppressWarnings("unused")
     public CustomerVideoData getCustomerVideoData() {
         return muxStats.getCustomerVideoData();
     }
 
+    @SuppressWarnings("unused")
     public CustomerPlayerData getCustomerPlayerData() {
         return muxStats.getCustomerPlayerData();
+    }
+
+    @SuppressWarnings("unused")
+    public CustomerViewData getCustomerViewData() {
+        return muxStats.getCustomerViewData();
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
