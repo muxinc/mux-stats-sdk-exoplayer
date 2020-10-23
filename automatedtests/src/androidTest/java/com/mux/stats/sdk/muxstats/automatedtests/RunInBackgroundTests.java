@@ -29,7 +29,7 @@ public class RunInBackgroundTests extends TestBase {
             Thread.sleep(PLAY_PERIOD_IN_MS);
             int playingEventIndex = networkRequest.getNumberOfReceivedEvents() - 1;
             if (!networkRequest.getReceivedEventName(playingEventIndex).equalsIgnoreCase(PlayingEvent.TYPE)) {
-                fail("Last received event must be play ! Received: " + networkRequest.getReceivedEventNames());
+                fail("Last received event must be playing ! Received: " + networkRequest.getReceivedEventNames());
             }
             // Find preceding playing event
             int playEventIndex = playingEventIndex - 2;
@@ -40,7 +40,7 @@ public class RunInBackgroundTests extends TestBase {
                 playEventIndex --;
             }
             if (playEventIndex == 0) {
-                fail("Play event missing ! Received: " + networkRequest.getReceivedEventNames());
+                fail("Playing event missing ! Received: " + networkRequest.getReceivedEventNames());
             }
             long timeDiff = networkRequest.getCreationTimeForEvent(playEventIndex) -
                     networkRequest.getCreationTimeForEvent(playingEventIndex);

@@ -1,13 +1,23 @@
 package com.mux.stats.sdk.muxstats.automatedtests.ui;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import android.view.WindowManager;
 
+import androidx.annotation.MainThread;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -15,10 +25,12 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -41,6 +53,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public static final String PLAYBACK_URL_KEY = "playback_url";
     public static final int PLAY_AUDIO_SAMPLE = 0;
+    private static final String PLAYBACK_CHANNEL_ID = "playback_channel";
+    private static final int PLAYBACK_NOTIFICATION_ID = 1;
+    private static final String ARG_URI = "uri_string";
+    private static final String ARG_TITLE = "title";
+    private static final String ARG_START_POSITION = "start_position";
 
     PlayerView playerView;
     SimpleExoPlayer player;
@@ -48,6 +65,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     MuxStatsExoPlayer muxStats;
     MockNetworkRequest mockNetwork;
     AtomicBoolean onResumedCalled = new AtomicBoolean(false);
+    PlayerNotificationManager notificationManager;
+    MediaSessionCompat mediaSessionCompat;
+    MediaSessionConnector mediaSessionConnector;
 
     Lock activityLock = new ReentrantLock();
     Condition playbackEnded = activityLock.newCondition();
@@ -74,8 +94,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         playerView.setControllerShowTimeoutMs(0);
         playerView.setControllerHideOnTouch(false);
 
-        initMuxSats();
+        // Setup notification and media session.
+        initAudioSession();
 
+        initMuxSats();
         Intent i = getIntent();
         Bundle extra = i.getExtras();
         String url_to_play = "http://localhost:5000/vod.mp4";
@@ -107,10 +129,36 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        signalActivityClosed();
         muxStats.release();
     }
 
     public abstract void initExoPlayer();
+
+    public void initAudioSession() {
+        notificationManager = PlayerNotificationManager.createWithNotificationChannel(
+                getApplicationContext(),
+                PLAYBACK_CHANNEL_ID,
+                R.string.channel_name,
+                R.string.channel_description,
+                PLAYBACK_NOTIFICATION_ID,
+                new MDAdapter(),
+                new CustomNotificationListener()
+        );
+        notificationManager.setUseNavigationActions(false);
+        notificationManager.setUseStopAction(true);
+        notificationManager.setPlayer(player);
+
+        mediaSessionCompat = new MediaSessionCompat(this, "hello_world_media");
+        notificationManager.setMediaSessionToken(mediaSessionCompat.getSessionToken());
+        mediaSessionConnector = new MediaSessionConnector(mediaSessionCompat);
+        mediaSessionConnector.setPlayer(player);
+    }
 
     public void initMuxSats() {
         // Mux details
@@ -238,12 +286,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        signalActivityClosed();
-    }
-
     ///////////////////////////////////////////////////////////////////////
     ///////// PlaybackPreparer ////////////////////////////////////////////
 
@@ -322,5 +364,65 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     @Override
     public void onSeekProcessed() {
 
+    }
+
+    class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {
+
+        @Override
+        public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
+            // TODO implement this
+            Log.e(TAG, "onNotificationCancelled");
+        }
+
+        @Override
+        public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
+            // TODO implement this
+            Log.e(TAG, "onNotificationPosted");
+        }
+    }
+
+    class MDAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
+
+        @Override
+        public String getCurrentContentTitle(Player player) {
+            return "Tittle";
+        }
+
+        @Nullable
+        @Override
+        public PendingIntent createCurrentContentIntent(Player player) {
+            return PendingIntent.getActivity(
+                    getApplicationContext(),
+                    0,
+                    new Intent(getApplicationContext(), SimplePlayerBaseActivity.class),
+                    PendingIntent.FLAG_UPDATE_CURRENT
+            );
+        }
+
+        @Nullable
+        @Override
+        public String getCurrentContentText(Player player) {
+            return "Automated test playback";
+        }
+
+        @Nullable
+        @Override
+        public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+            return getBitmapFromVectorDrawable(R.drawable.ic_launcher_foreground);
+        }
+
+        @MainThread
+        private Bitmap getBitmapFromVectorDrawable(int drawableId) {
+            Drawable drawable = ContextCompat.getDrawable(getApplicationContext(), drawableId);
+            DrawableCompat.wrap(drawable).mutate();
+            Bitmap bmp = Bitmap.createBitmap(
+                    drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight(),
+                    Bitmap.Config.ARGB_8888);
+            Canvas cnvs = new Canvas(bmp);
+            drawable.setBounds(0, 0, cnvs.getWidth(), cnvs.getHeight());
+            drawable.draw(cnvs);
+            return bmp;
+        }
     }
 }

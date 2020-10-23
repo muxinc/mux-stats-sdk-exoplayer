@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.C;
@@ -85,7 +86,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void release() {
-        if (this.player.get() != null) {
+        if (player != null && this.player.get() != null) {
             ExoPlayer player = this.player.get();
             if (player instanceof SimpleExoPlayer) {
                 ((SimpleExoPlayer) player).removeAnalyticsListener(this);
@@ -327,6 +328,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        Log.e(TAG, "PWR: " + playWhenReady + ", PS: " + playbackState);
         this.playWhenReady = playWhenReady;
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {

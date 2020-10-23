@@ -316,7 +316,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
                             .sendToTarget();
                 }
-            }, 100, 100);
+            }, 0, 50);
         }
     }
 
