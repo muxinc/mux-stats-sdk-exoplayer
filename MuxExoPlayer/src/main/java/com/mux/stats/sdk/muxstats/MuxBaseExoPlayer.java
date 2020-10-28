@@ -86,7 +86,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, REBUFFERING, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS,
+        BUFFERING, REBUFFERING, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS,
         INIT, ENDED
     }
     protected PlayerState state;
@@ -368,6 +368,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void buffering() {
+        // If we are going from playing to buffering then this is rebuffer event
+        if (state == PlayerState.PLAYING) {
+            rebufferingStarted();
+            return;
+        }
+        // This is initial buffering event before playback starts
         state = PlayerState.BUFFERING;
         dispatch(new TimeUpdateEvent(null));
     }
@@ -382,7 +388,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected void play() {
         if (state == PlayerState.REBUFFERING) {
-            rebufferingEnded();
+            // Ignore play event after rebuffering
+            return;
         }
         state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
@@ -391,6 +398,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected void playing() {
         if (state == PlayerState.PAUSED || state == PlayerState.FINISHED_PLAYING_ADS) {
             play();
+        }
+        if (state == PlayerState.REBUFFERING) {
+            rebufferingEnded();
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));

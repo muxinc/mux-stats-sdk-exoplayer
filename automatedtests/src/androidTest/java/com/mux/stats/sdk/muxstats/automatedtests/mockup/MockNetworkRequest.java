@@ -84,6 +84,15 @@ public class MockNetworkRequest implements INetworkRequest {
         return -1;
     }
 
+    public int getIndexForLastEvent(String eventName) throws JSONException {
+        for (int i = receivedEvents.size() - 1; i >= 0; i --) {
+            if(getReceivedEventName(i).equals(eventName)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public ArrayList<String> getReceivedEventNames() throws JSONException {
         ArrayList<String> eventNames = new ArrayList<>();
         for (int i =0; i < receivedEvents.size(); i++) {

@@ -3,6 +3,8 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 import android.os.Bundle;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
@@ -177,24 +179,30 @@ public class PlaybackTests extends TestBase {
             testActivity.waitForPlaybackToStartBuffering();
             long rebufferStartedAT = System.currentTimeMillis();
 
-            // play x seconds
+            // Wait for rebuffer to complete
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
             }
 
             long measuredRebufferPeriod = System.currentTimeMillis() - rebufferStartedAT;
-            Thread.sleep(networkJamPeriodInMs);
-            exitActivity();
+            // play x seconds
+            Thread.sleep(PLAY_PERIOD_IN_MS * 2);
+//            exitActivity();
+            testScenario.close();
 
             // Startup time check
             int viewstartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
+            int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
             int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             // Check if viewstart and playing events are received
             if (viewstartIndex == -1) {
-                fail("viewstartIndex event not received !!!");
+                fail("viewstart event not received !!!");
+            }
+            if (playIndex == -1) {
+                fail("play event not received !!!");
             }
             if (playingIndex == -1) {
-                fail("playingIndex event not received !!!");
+                fail("playing event not received !!!");
             }
 
             long reportedStartupTime = networkRequest.getCreationTimeForEvent(playingIndex) -
@@ -215,28 +223,20 @@ public class PlaybackTests extends TestBase {
             if(rebufferEndEventIndex == -1) {
                 fail("rebufferend event not received !!!");
             }
-
-//            long jamedNetworkBitrate = (long)((double)bandwidthLimitInBitsPerSecond / (double)networkJamFactor);
-//            long bitsReceivedWhileJammed = (long)(jamedNetworkBitrate * ((double)networkJamPeriodInMs / 1000.0));
-//            long requiredBitsForPlaybackPeriod = (long)(sampleFileBitrate * ((double)networkJamPeriodInMs / 1000.0));
-//
-//            long timeReceivedWhileJammed = (long)(bitsReceivedWhileJammed / (double)(sampleFileBitrate) * 1000.0);
-//            long missingVideoTimeInMs = (long)(((double)(requiredBitsForPlaybackPeriod - bitsReceivedWhileJammed) /
-//                    (double)(sampleFileBitrate)) * 1000.0);
-//            long estimatedRebufferPeriod = networkJamPeriodInMs - (bufferedTime - reportedStartupTime);
-
-//            long estimatedRebufferPeriod = (long)((double)missingVideoTimeInMs /
-//                    ( (double)bandwidthLimitInBitsPerSecond / (double) sampleFileBitrate) )
-//                    - (bufferedTime - reportedStartupTime);
-
-            long rebufferStartedAt = networkRequest.getCreationTimeForEvent(rebufferStartEventIndex);
-            long rebufferEndedAt = networkRequest.getCreationTimeForEvent(rebufferEndEventIndex);
-            long rebufferPeriod = rebufferEndedAt - rebufferStartedAt;
-
-            // TODO see what is the best way to calculate this check
-//            if (Math.abs(rebufferPeriod - measuredRebufferPeriod) > 400) {
-//                fail("Calculated rebuffer time do not match reported rebuffer time with in 400 ms range");
-//            }
+            if (rebufferStartEventIndex > rebufferEndEventIndex) {
+                fail("rebufferend received before rebufferstart event !!!");
+            }
+            int secondPlayIndex = networkRequest.getIndexForLastEvent(PlayEvent.TYPE);
+            int secondPlayingIndex = networkRequest.getIndexForLastEvent(PlayingEvent.TYPE);
+            if (secondPlayIndex != playIndex) {
+                fail("Play event received after rebufferend this is not good  ! event: "
+                        + networkRequest.getReceivedEventNames());
+            }
+            if (secondPlayingIndex == playingIndex) {
+                fail("Playing event not received after ebufferEnd ! events: "
+                        + networkRequest.getReceivedEventNames());
+            }
+            // TODO see what is the best way to calculate rebuffer period
         } catch (JSONException e) {
             e.printStackTrace();
             fail();

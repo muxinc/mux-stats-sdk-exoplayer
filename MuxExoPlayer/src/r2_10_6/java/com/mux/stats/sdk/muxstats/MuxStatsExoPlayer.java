@@ -330,6 +330,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        Log.e(TAG, "onPlayerStateChanged, playWhenReady: " + playWhenReady
+                + ", playbackState:" + playbackState);
         this.playWhenReady = playWhenReady;
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
@@ -406,9 +408,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPositionDiscontinuity(int reason) {
-        if (reason == DISCONTINUITY_REASON_INTERNAL) {
-            rebufferingStarted();
-        }
+
     }
 
     @Override

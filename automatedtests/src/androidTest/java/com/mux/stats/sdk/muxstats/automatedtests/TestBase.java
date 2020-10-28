@@ -120,7 +120,7 @@ public abstract class TestBase {
     public void exitActivity() {
         testActivity.runOnUiThread(new Runnable(){
             public void run() {
-                testActivity.onBackPressed();
+                testActivity.finish();
             }
         });
     }
