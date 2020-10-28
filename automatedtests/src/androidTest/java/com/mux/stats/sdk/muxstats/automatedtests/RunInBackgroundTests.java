@@ -27,18 +27,18 @@ public class RunInBackgroundTests extends TestBase {
             backgroundActivity();
             testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS);
             Thread.sleep(PLAY_PERIOD_IN_MS);
-            int playingEventIndex = getFirstIndexForEventType(PlayingEvent.TYPE);
+            int playingEventIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
             if (playingEventIndex == -1) {
                 fail("Playing event missing ! Received : " + networkRequest.getReceivedEventNames());
             }
-            int playEventIndex = getFirstIndexForEventType(PlayEvent.TYPE);
+            int playEventIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
             if (playEventIndex == -1) {
                 fail("Play event missing ! Received : " + networkRequest.getReceivedEventNames());
             }
             if (playEventIndex > playingEventIndex) {
                 fail("Play event came after Playing event ! Received : " + networkRequest.getReceivedEventNames());
             }
-            int rebufferEventIndex = getFirstIndexForEventType(RebufferStartEvent.TYPE);
+            int rebufferEventIndex = networkRequest.getIndexForFirstEvent(RebufferStartEvent.TYPE);
             if (rebufferEventIndex != -1) {
                 fail("Got rebuffer event on a smooth playback ! Received : " + networkRequest.getReceivedEventNames());
             }

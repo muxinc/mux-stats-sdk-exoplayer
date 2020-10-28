@@ -105,15 +105,6 @@ public abstract class TestBase {
 
     public abstract Bundle getActivityOptions();
 
-    public int getFirstIndexForEventType(String eventType) throws JSONException {
-        for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++) {
-            if (networkRequest.getReceivedEventName(i).equalsIgnoreCase(eventType)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
     public void jamNetwork() {
         testActivity.runOnUiThread(new Runnable(){
             public void run() {
