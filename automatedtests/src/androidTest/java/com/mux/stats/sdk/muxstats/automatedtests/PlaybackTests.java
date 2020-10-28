@@ -12,6 +12,7 @@ import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.Event;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
 
 import org.json.JSONException;
 import org.junit.Test;

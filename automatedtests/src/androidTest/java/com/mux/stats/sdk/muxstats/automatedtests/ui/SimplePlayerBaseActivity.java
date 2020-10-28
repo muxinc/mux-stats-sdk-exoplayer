@@ -59,6 +59,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     private static final String ARG_TITLE = "title";
     private static final String ARG_START_POSITION = "start_position";
 
+    String videoTitle = "Test Video";
+    String urlToPlay;
     PlayerView playerView;
     SimpleExoPlayer player;
     MediaSource testMediaSource;
@@ -97,27 +99,20 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         // Setup notification and media session.
         initAudioSession();
 
-        initMuxSats();
         Intent i = getIntent();
         Bundle extra = i.getExtras();
-        String url_to_play = "http://localhost:5000/vod.mp4";
+        urlToPlay = "http://localhost:5000/vod.mp4";
         if (extra != null &&
                 extra.containsKey(PLAYBACK_URL_KEY)) {
             switch(extra.getInt(PLAYBACK_URL_KEY)) {
                 case PLAY_AUDIO_SAMPLE:
-                    url_to_play = "http://localhost:5000/audio.aac";
+                    urlToPlay = "http://localhost:5000/audio.aac";
                     break;
                 default:
-                    url_to_play = "http://localhost:5000/vod.mp4";
+                    urlToPlay = "http://localhost:5000/vod.mp4";
                     break;
             }
         }
-        Uri testUri = Uri.parse(url_to_play);
-        testMediaSource = new ExtractorMediaSource.Factory(
-                new DefaultDataSourceFactory(this, "Test"))
-                .createMediaSource(testUri);
-        player.setPlayWhenReady(true);
-        player.prepare(testMediaSource, false, false);
     }
 
     @Override
@@ -140,6 +135,20 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public abstract void initExoPlayer();
 
+    public void setVideoTitle(String title) {
+        videoTitle = title;
+    }
+
+    public void startPlayback() {
+        Uri testUri = Uri.parse(urlToPlay);
+        testMediaSource = new ExtractorMediaSource.Factory(
+                new DefaultDataSourceFactory(this, "Test"))
+                .createMediaSource(testUri);
+        player.setPlayWhenReady(true);
+        player.prepare(testMediaSource, false, false);
+    }
+
+    // This is for background playback, set appropriate notification and etc
     public void initAudioSession() {
         notificationManager = PlayerNotificationManager.createWithNotificationChannel(
                 getApplicationContext(),
@@ -169,7 +178,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
             customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
         }
         CustomerVideoData customerVideoData = new CustomerVideoData();
-        customerVideoData.setVideoTitle("Test video");
+        customerVideoData.setVideoTitle(videoTitle);
         mockNetwork = new MockNetworkRequest();
         muxStats = new MuxStatsExoPlayer(
                 this, player, "demo-player", customerPlayerData, customerVideoData,

@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.rules.TestName;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -40,7 +41,9 @@ public abstract class TestBase {
             new ActivityScenarioRule(new Intent(
                     ApplicationProvider.getApplicationContext(),
                     SimplePlayerTestActivity.class).putExtras(getActivityOptions())
-                    );
+            );
+
+    @Rule public TestName currentTestName = new TestName();
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
@@ -89,6 +92,11 @@ public abstract class TestBase {
         if (testActivity == null) {
             fail("Test activity not found !!!");
         }
+        testActivity.runOnUiThread(() -> {
+            testActivity.setVideoTitle(currentTestName.getMethodName());
+            testActivity.initMuxSats();
+            testActivity.startPlayback();
+        });
         testScenario = activityRule.getScenario();
         pView = testActivity.getPlayerView();
         testMediaSource = testActivity.getTestMediaSource();
@@ -106,48 +114,37 @@ public abstract class TestBase {
     public abstract Bundle getActivityOptions();
 
     public void jamNetwork() {
-        testActivity.runOnUiThread(new Runnable(){
-            public void run() {
-                startedJammingTheNetworkAt = System.currentTimeMillis();
-                long bufferPosition = pView.getPlayer().getBufferedPosition();
-                long currentPosition = pView.getPlayer().getCurrentPosition();
-                bufferedTime = bufferPosition - currentPosition;
-                httpServer.jamNetwork(networkJamPeriodInMs, networkJamFactor, true);
-            }
+        testActivity.runOnUiThread(() -> {
+            startedJammingTheNetworkAt = System.currentTimeMillis();
+            long bufferPosition = pView.getPlayer().getBufferedPosition();
+            long currentPosition = pView.getPlayer().getCurrentPosition();
+            bufferedTime = bufferPosition - currentPosition;
+            httpServer.jamNetwork(networkJamPeriodInMs, networkJamFactor, true);
         });
     }
 
     public void exitActivity() {
-        testActivity.runOnUiThread(new Runnable(){
-            public void run() {
-                testActivity.finish();
-            }
-        });
+        testActivity.runOnUiThread(() -> testActivity.finish());
     }
 
     public void pausePlayer() {
         // Pause video
-        testActivity.runOnUiThread(new Runnable(){
-            public void run()
-            {
-                if (pauseButton != null) {
-                    pauseButton.performClick();
-                } else {
-                    pView.getPlayer().stop();
-                }
+        testActivity.runOnUiThread(() -> {
+            if (pauseButton != null) {
+                pauseButton.performClick();
+            } else {
+                pView.getPlayer().stop();
             }
         });
     }
 
     public void resumePlayer() {
-        testActivity.runOnUiThread(new Runnable(){
-            public void run() {
-                if (playButton != null) {
-                    playButton.performClick();
-                } else {
-                    SimpleExoPlayer player = ((SimpleExoPlayer)pView.getPlayer());
-                    player.prepare(testMediaSource, false, false);
-                }
+        testActivity.runOnUiThread(() -> {
+            if (playButton != null) {
+                playButton.performClick();
+            } else {
+                SimpleExoPlayer player = ((SimpleExoPlayer)pView.getPlayer());
+                player.prepare(testMediaSource, false, false);
             }
         });
     }
@@ -158,14 +155,12 @@ public abstract class TestBase {
     }
 
     private Activity getActivityInstance(){
-        getInstrumentation().runOnMainSync(new Runnable() {
-            public void run() {
-                Collection<Activity> resumedActivities =
-                        ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
-                for (Activity activity: resumedActivities){
-                    currentActivity = activity;
-                    break;
-                }
+        getInstrumentation().runOnMainSync(() -> {
+            Collection<Activity> resumedActivities =
+                    ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);
+            for (Activity activity: resumedActivities){
+                currentActivity = activity;
+                break;
             }
         });
 
