@@ -38,6 +38,8 @@ import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
+import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
@@ -84,7 +86,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS, INIT, ENDED
+        BUFFERING, ERROR, PAUSED, REBUFFERING, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS,
+        INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -104,7 +107,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         addListener(muxStats);
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
         frameRenderedListener = new FrameRenderedListener(playerHandler);
-        configurePlaybackHeadUpdateInterval();
+        setPlaybackHeadUpdateInterval(false);
     }
 
     /**
@@ -301,6 +304,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 }
             }
         }
+        setPlaybackHeadUpdateInterval(haveVideo);
+    }
+
+    protected void setPlaybackHeadUpdateInterval(boolean haveVideo) {
         if (updatePlayheadPositionTimer != null) {
             updatePlayheadPositionTimer.cancel();
         }
@@ -316,7 +323,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
                             .sendToTarget();
                 }
-            }, 0, 50);
+            }, 0, 15);
         }
     }
 
@@ -366,11 +373,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void pause() {
+        if (state == PlayerState.REBUFFERING) {
+            rebufferingEnded();
+        }
         state = PlayerState.PAUSED;
         dispatch(new PauseEvent(null));
     }
 
     protected void play() {
+        if (state == PlayerState.REBUFFERING) {
+            rebufferingEnded();
+        }
         state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
     }
@@ -381,6 +394,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void rebufferingStarted() {
+        state = PlayerState.REBUFFERING;
+        dispatch(new RebufferStartEvent(null));
+    }
+
+    protected void rebufferingEnded() {
+        dispatch(new RebufferEndEvent(null));
     }
 
     protected void ended() {

@@ -22,6 +22,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 
+import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -103,6 +104,15 @@ public abstract class TestBase {
     }
 
     public abstract Bundle getActivityOptions();
+
+    public int getFirstIndexForEventType(String eventType) throws JSONException {
+        for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++) {
+            if (networkRequest.getReceivedEventName(i).equalsIgnoreCase(eventType)) {
+                return i;
+            }
+        }
+        return -1;
+    }
 
     public void jamNetwork() {
         testActivity.runOnUiThread(new Runnable(){

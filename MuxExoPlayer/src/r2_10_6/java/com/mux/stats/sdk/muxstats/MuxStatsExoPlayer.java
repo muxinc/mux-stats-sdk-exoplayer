@@ -29,6 +29,8 @@ import com.mux.stats.sdk.core.model.CustomerViewData;
 
 import java.io.IOException;
 
+import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_INTERNAL;
+
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
@@ -328,7 +330,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        Log.e(TAG, "PWR: " + playWhenReady + ", PS: " + playbackState);
         this.playWhenReady = playWhenReady;
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
@@ -405,7 +406,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPositionDiscontinuity(int reason) {
-
+        if (reason == DISCONTINUITY_REASON_INTERNAL) {
+            rebufferingStarted();
+        }
     }
 
     @Override
