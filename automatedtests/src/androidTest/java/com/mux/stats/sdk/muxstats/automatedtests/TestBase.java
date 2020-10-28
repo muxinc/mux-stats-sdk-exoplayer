@@ -48,7 +48,7 @@ public abstract class TestBase {
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
     protected int runHttpServerOnPort = 5000;
-    protected int bandwidthLimitInBitsPerSecond = 1200000;
+    protected int bandwidthLimitInBitsPerSecond = 1500000;
     protected int sampleFileBitrate = 1083904;
     // UTC timestamp whenlow network bandwidth was triggered
     long startedJammingTheNetworkAt;

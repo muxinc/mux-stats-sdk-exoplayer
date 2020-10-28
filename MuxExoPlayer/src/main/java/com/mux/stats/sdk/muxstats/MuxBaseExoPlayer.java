@@ -42,6 +42,8 @@ import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -86,8 +88,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, REBUFFERING, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS,
-        INIT, ENDED
+        BUFFERING, REBUFFERING, SEEKING, SEEKED, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS,
+        FINISHED_PLAYING_ADS, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -368,6 +370,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void buffering() {
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+            // ignore
+            return;
+        }
         // If we are going from playing to buffering then this is rebuffer event
         if (state == PlayerState.PLAYING) {
             rebufferingStarted();
@@ -387,8 +393,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void play() {
-        if (state == PlayerState.REBUFFERING) {
-            // Ignore play event after rebuffering
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+            // Ignore play event after rebuffering and Seeking
             return;
         }
         state = PlayerState.PLAY;
@@ -413,6 +419,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     protected void rebufferingEnded() {
         dispatch(new RebufferEndEvent(null));
+    }
+
+    protected void seeking() {
+        state = PlayerState.SEEKING;
+        dispatch(new SeekingEvent(null));
+    }
+
+    protected void seeked() {
+        state = PlayerState.SEEKED;
+        dispatch(new SeekedEvent(null));
     }
 
     protected void ended() {
