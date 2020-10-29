@@ -135,7 +135,9 @@ public abstract class TestBase {
         testActivity.runOnUiThread(() -> testActivity.finish());
     }
 
-    public int checkPlaybackPeriodAtIndex(int index) throws JSONException {
+    public CheckupResult checkPlaybackPeriodAtIndex(int index, long expectedPlayPeriod)
+            throws JSONException {
+        CheckupResult result = new CheckupResult();
         int playIndex = networkRequest.getIndexForNextEvent(index, PlayEvent.TYPE);
         int playingIndex = networkRequest.getIndexForNextEvent(index, PlayingEvent.TYPE);
         int pauseIndex = networkRequest.getIndexForNextEvent(index, PauseEvent.TYPE);
@@ -154,16 +156,20 @@ public abstract class TestBase {
         }
         long playbackPeriod = networkRequest.getCreationTimeForEvent(pauseIndex) -
                 networkRequest.getCreationTimeForEvent(playingIndex);
-        if (Math.abs(playbackPeriod - PLAY_PERIOD_IN_MS) > 500 ) {
+        if (Math.abs(playbackPeriod - expectedPlayPeriod) > 500 ) {
             fail("Reported play period: " + playbackPeriod + " do not match expected play period: "
-                    + PLAY_PERIOD_IN_MS + ", playingIndex: " + playingIndex +
+                    + expectedPlayPeriod + ", playingIndex: " + playingIndex +
                     ", pauseIndex: " + pauseIndex + ", starting at event index: " + index +
                     ", availableEvents: " + networkRequest.getReceivedEventNames());
         }
-        return pauseIndex;
+        result.eventIndex = pauseIndex;
+        result.playbackPeriod = playbackPeriod;
+        return result;
     }
 
-    public int checkPausePeriodAtIndex(int index) throws JSONException {
+    public CheckupResult checkPausePeriodAtIndex(int index, long expectedPausePeriod)
+            throws JSONException {
+        CheckupResult result = new CheckupResult();
         int playIndex = networkRequest.getIndexForNextEvent(index, PlayEvent.TYPE);
         int playingIndex = networkRequest.getIndexForNextEvent(index, PlayingEvent.TYPE);
         int pauseIndex = networkRequest.getIndexForNextEvent(index, PauseEvent.TYPE);
@@ -181,16 +187,19 @@ public abstract class TestBase {
         }
         long pausekPeriod = networkRequest.getCreationTimeForEvent(playIndex) -
                 networkRequest.getCreationTimeForEvent(pauseIndex);
-        if (Math.abs(pausekPeriod - PAUSE_PERIOD_IN_MS) > 500 ) {
+        if (Math.abs(pausekPeriod - expectedPausePeriod) > 500 ) {
             fail("Reported pause period: " + pausekPeriod + " do not match expected play period: "
-                    + PAUSE_PERIOD_IN_MS + ", playIndex: " + playIndex +
+                    + expectedPausePeriod + ", playIndex: " + playIndex +
                     ", pauseIndex: " + pauseIndex +  ", starting at event index: " + index +
                     ", availableEvents: " + networkRequest.getReceivedEventNames());
         }
-        return playingIndex;
+        result.pausePeriod = pausekPeriod;
+        result.eventIndex = playingIndex;
+        return result;
     }
 
-    public int checkSeekAtIndex(int index) throws JSONException {
+    public CheckupResult checkSeekAtIndex(int index) throws JSONException {
+        CheckupResult result = new CheckupResult();
         int seekingIndex = networkRequest.getIndexForNextEvent(index, SeekingEvent.TYPE);
         int seekedIndex = networkRequest.getIndexForNextEvent(index, SeekedEvent.TYPE);
         if (seekingIndex == -1 || seekedIndex == -1) {
@@ -201,7 +210,10 @@ public abstract class TestBase {
             fail("seeked event is preceding the seeking event at event index: " + index +
                     ", availableEvents: " + networkRequest.getReceivedEventNames());
         }
-        return seekedIndex;
+        result.eventIndex = seekedIndex;
+        result.seekPeriod = networkRequest.getCreationTimeForEvent(seekedIndex) -
+                networkRequest.getCreationTimeForEvent(seekingIndex);
+        return result;
     }
 
     public void pausePlayer() {
@@ -242,5 +254,12 @@ public abstract class TestBase {
         });
 
         return currentActivity;
+    }
+
+    class CheckupResult {
+        int eventIndex;
+        long pausePeriod;
+        long seekPeriod;
+        long playbackPeriod;
     }
 }

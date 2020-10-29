@@ -90,25 +90,26 @@ public class PlaybackTests extends TestBase {
             // Play another x seconds, stage 7
             Thread.sleep(PLAY_PERIOD_IN_MS);
 
-            int eventIndex = 0;
+            CheckupResult result;
 
             // Check first playback period, stage 1
-            eventIndex = checkPlaybackPeriodAtIndex(eventIndex);
+            result = checkPlaybackPeriodAtIndex(0, PLAY_PERIOD_IN_MS);
 
             // Check pause period, stage 2
-            eventIndex = checkPausePeriodAtIndex(eventIndex);
+            result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
 
             // Check playback period, stage 3
-            eventIndex = checkPlaybackPeriodAtIndex(eventIndex -1);
+            result = checkPlaybackPeriodAtIndex(result.eventIndex -1, PLAY_PERIOD_IN_MS);
 
             // Check SeekEvents, stage 4
-            eventIndex = checkSeekAtIndex(eventIndex);
+            result = checkSeekAtIndex(result.eventIndex);
 
             // check playback period stage 5
-            eventIndex = checkPlaybackPeriodAtIndex(eventIndex);
+            result = checkPlaybackPeriodAtIndex(result.eventIndex,
+                    PLAY_PERIOD_IN_MS - result.seekPeriod);
 
             // check seeking, stage 6
-            eventIndex = checkSeekAtIndex(eventIndex);
+            result = checkSeekAtIndex(result.eventIndex);
 
             // Exit the player with back button
             testScenario.close();
