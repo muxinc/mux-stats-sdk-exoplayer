@@ -1,4 +1,4 @@
-<vmap:VMAP xmlns:vmap="http://www.iab.net/videosuite/vmap" version="1.0">
+<vmap:VMAP xmlns:vmap="http://localhost:5000/videosuite/vmap" version="1.0">
 <vmap:AdBreak timeOffset="start" breakType="linear" breakId="preroll">
 <vmap:AdSource id="preroll-ad-1" allowMultipleAds="false" followRedirects="true">
 <vmap:AdTagURI templateType="vast3">

@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.offline.DownloadHelper;
 import com.google.android.exoplayer2.offline.DownloadRequest;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -74,31 +75,14 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
         mediaSessionConnector.setPlayer(player);
     }
 
-    protected String userAgent;
-
-    protected static CacheDataSourceFactory buildReadOnlyCacheDataSource(
-            DataSource.Factory upstreamFactory, Cache cache) {
-        return new CacheDataSourceFactory(
-                cache,
-                upstreamFactory,
-                new FileDataSourceFactory(),
-                /* cacheWriteDataSinkFactory= */ null,
-                CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
-                /* eventListener= */ null);
-    }
-
-    /** Returns a {@link HttpDataSource.Factory}. */
-    public HttpDataSource.Factory buildHttpDataSourceFactory() {
-        return new DefaultHttpDataSourceFactory(userAgent);
-    }
-
     public DataSource.Factory buildDataSourceFactory() {
-        DefaultDataSourceFactory upstreamFactory =
-                new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
-        return buildReadOnlyCacheDataSource(upstreamFactory, null);
+//        DefaultDataSourceFactory upstreamFactory =
+//                new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
+//        return buildReadOnlyCacheDataSource(upstreamFactory, null);
+        return new DefaultDataSourceFactory(this, "Android-automated_tests");
     }
 
-    private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
+    public MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
         DataSource.Factory dataSourceFactory = buildDataSourceFactory();
         @C.ContentType int type = Util.inferContentType(uri, overrideExtension);
         muxStats.setStreamType(type);
@@ -110,7 +94,8 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
             case C.TYPE_OTHER:
-                return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+//                return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+                return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
             default:
                 throw new IllegalStateException("Unsupported type: " + type);
         }

@@ -83,10 +83,11 @@ public class ConnectionSender extends Thread {
         if (serveDataFromPosition < assetFileSize) {
             if (sendPartialResponse) {
                 sendHTTPOKPartialResponse(contentType);
+                isPaused = false;
             } else {
-                // TODO Send complete response,, this is a short file
+                // Send complete response,, this is a short file
+                sendHTTPOKCompleteResponse(contentType);
             }
-            isPaused = false;
         } else {
             sendRequestedRangeNotSatisfiable();
         }
@@ -162,6 +163,27 @@ public class ConnectionSender extends Thread {
         writer.flush();
     }
 
+    public void sendHTTPOKCompleteResponse(String contentType) throws IOException {
+        PrintWriter writer = new PrintWriter(new OutputStreamWriter(
+                httpOut, StandardCharsets.US_ASCII), true);
+        String response = "HTTP/1.1 200 OK\r\n" +
+                "Server: SimpleHttpServer/1.0\r\n" +
+                "Content-Type: " + contentType + "; charset=utf-8" + "\r\n" +
+                "Content-Length: " + assetFileSize + "\r\n" +
+                "Connection: keep-alive" + "\r\n" +
+                "Accept-Ranges: bytes" + "\r\n" +
+                "\r\n";
+        // Add asset file content
+        byte[] assetContent = new byte[(int)assetFileSize];
+        int bytesRead = assetInput.read(assetContent);
+        String assetContentStr = new String(assetContent, StandardCharsets.UTF_8);
+        response = response + assetContentStr + "\r\n\r\n";
+
+        Log.w(TAG, "Sending response: \n" + response);
+        writer.write(response);
+        writer.flush();
+    }
+
     /*
      * Send HTTP response 206 partial content
      */
@@ -173,11 +195,10 @@ public class ConnectionSender extends Thread {
                 "Content-Type: " + contentType + "\r\n" +
                 ("Content-Range: bytes " + this.serveDataFromPosition + "-" + (assetFileSize-1)
                     + "/" + assetFileSize) + "\r\n" +
-                "Accept-Ranges: bytes\r\n" +
+                "Accept-Ranges: bytes" + "\r\n" +
                 // content length should be total length - requested byte position
                 "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
-                "Connection: close\r\n" +
-                "\r\n";
+                "Connection: close\r\n";
         Log.w(TAG, "Sending response: \n" + response);
         writer.write(response);
         writer.flush();
