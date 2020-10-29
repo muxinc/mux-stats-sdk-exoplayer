@@ -388,6 +388,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (state == PlayerState.REBUFFERING) {
             rebufferingEnded();
         }
+        if (state == PlayerState.SEEKED) {
+            dispatch(new SeekedEvent(null));
+        }
         state = PlayerState.PAUSED;
         dispatch(new PauseEvent(null));
     }
@@ -408,6 +411,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (state == PlayerState.REBUFFERING) {
             rebufferingEnded();
         }
+        if (state == PlayerState.SEEKED) {
+            dispatch(new SeekedEvent(null));
+        }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
     }
@@ -422,13 +428,20 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void seeking() {
+        if (state == PlayerState.PLAYING) {
+            dispatch(new PauseEvent(null));
+        }
         state = PlayerState.SEEKING;
         dispatch(new SeekingEvent(null));
     }
 
     protected void seeked() {
+        /*
+         * Seeked event will be fired by the player immediately after seeking event
+         * This is not accurate, instead report the seeked event on first playing or pause
+         * event after seeked was reported by the player.
+         */
         state = PlayerState.SEEKED;
-        dispatch(new SeekedEvent(null));
     }
 
     protected void ended() {

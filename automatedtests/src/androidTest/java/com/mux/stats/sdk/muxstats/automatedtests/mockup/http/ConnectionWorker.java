@@ -14,14 +14,17 @@ public class ConnectionWorker extends Thread {
     private long networkJamEndPeriod = -1;
     private int networkJamFactor = 1;
     private boolean constantJam = false;
+    int seekLatency;
 
     public ConnectionWorker(Socket clientSocket, int bandwidthLimit,
-                            long networkJamEndPeriod, int networkJamFactor, boolean constantJam) {
+                            long networkJamEndPeriod, int networkJamFactor,
+                            boolean constantJam, int seekLatency) {
         this.clientSocket = clientSocket;
         this.bandwidthLimit = bandwidthLimit;
         this.constantJam = constantJam;
         this.networkJamEndPeriod = networkJamEndPeriod;
         this.networkJamFactor = networkJamFactor;
+        this.seekLatency = seekLatency;
         start();
     }
 
@@ -35,7 +38,7 @@ public class ConnectionWorker extends Thread {
             receiver = new ConnectionReceiver(clientSocket.getInputStream());
             receiver.start();
             sender = new ConnectionSender(clientSocket.getOutputStream(), bandwidthLimit,
-                    networkJamEndPeriod, networkJamFactor);
+                    networkJamEndPeriod, networkJamFactor, seekLatency);
             sender.pause();
         } catch (IOException e) {
             e.printStackTrace();

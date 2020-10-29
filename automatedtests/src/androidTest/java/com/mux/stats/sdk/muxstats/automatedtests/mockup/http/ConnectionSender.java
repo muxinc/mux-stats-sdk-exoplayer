@@ -31,17 +31,23 @@ public class ConnectionSender extends Thread {
 
     long assetFileSize;
     long serveDataFromPosition;
-    int bandwidthLimit;
+    long previouseDataPositionRequested;
+    long bandwidthLimit;
+    long seekLatency;
+    boolean seekLatencyServed = false;
     byte[] transferBuffer;
     int transferBufferSize;
 
 
     public ConnectionSender(OutputStream httpOut, int bandwidthLimit,
-                            long networkJammingEndPeriod, int networkJamFactor) throws IOException {
+                            long networkJammingEndPeriod, int networkJamFactor,
+                            long seekLatency) throws IOException {
         this.httpOut = httpOut;
         this.bandwidthLimit = bandwidthLimit;
         this.networkJammingEndPeriod = networkJammingEndPeriod;
         this.networkJamFactor = networkJamFactor;
+        this.seekLatency = seekLatency;
+        previouseDataPositionRequested = -1;
 
         transferBufferSize = bandwidthLimit / (8 * 100);
         transferBuffer = new byte[transferBufferSize]; // Max number of bytes to send each 10 ms
@@ -58,7 +64,8 @@ public class ConnectionSender extends Thread {
         isPaused = true;
     }
 
-    public void startServingFromPosition(long startAtByteNumber, String assetName) throws IOException {
+    public void startServingFromPosition(long startAtByteNumber, String assetName) throws IOException,
+            InterruptedException {
         this.serveDataFromPosition = startAtByteNumber;
         openAssetFile(assetName);
         assetInput.reset();
@@ -160,6 +167,13 @@ public class ConnectionSender extends Thread {
      * Write limited amount of bytes to httpOut each 100 ms
      */
     private void serveStaticData() throws IOException, InterruptedException {
+        // TODO see how to implement seek latency correctly
+//        if (!seekLatencyServed && serveDataFromPosition > 1000 &&
+//                serveDataFromPosition < ((assetFileSize / 10) * 7)) {
+//            Log.e("MuxStats", "Sleeping for: " + seekLatency);
+//            Thread.sleep(seekLatency);
+//            seekLatencyServed = true;
+//        }
         int bytesToRead = transferBufferSize;
         if (networkJammingEndPeriod > System.currentTimeMillis()) {
             int jamFactor = this.networkJamFactor;

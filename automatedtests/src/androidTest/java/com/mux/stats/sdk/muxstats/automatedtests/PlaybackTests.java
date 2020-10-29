@@ -4,15 +4,13 @@ import android.os.Bundle;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.R;
-import com.mux.stats.sdk.muxstats.automatedtests.mockup.Event;
-import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
-import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
 
 import org.json.JSONException;
 import org.junit.Test;
@@ -38,32 +36,6 @@ public class PlaybackTests extends TestBase {
         /// No extra requests for test activity
         return new Bundle();
     }
-    /*
-     * Check if given events are dispatched in correct order and timestamp
-     */
-    private void checkEvents(ArrayList<Event> eventsOrder, MockNetworkRequest networkRequest) throws JSONException {
-        int lookingForEventAtIndex = 0;
-
-        for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++ ) {
-            String receivedEventName = networkRequest.getReceivedEventName(i);
-            if (receivedEventName.equals(eventsOrder.get(lookingForEventAtIndex).getName())) {
-                lookingForEventAtIndex++;
-            }
-            if (lookingForEventAtIndex >= eventsOrder.size()) {
-                return;
-            }
-        }
-
-        ArrayList<String> eventsOrderNames = new ArrayList<>();
-        for (int i = 0; i < eventsOrder.size(); i++) {
-            eventsOrderNames.add(eventsOrder.get(i).getName());
-        }
-
-        String failMessage = "Received events not in a correct order:\n";
-        failMessage += "Expected: " + eventsOrderNames + " \n";
-        failMessage += "Received: " + networkRequest.getReceivedEventNames();
-        fail(failMessage);
-    }
 
     /*
      * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
@@ -83,17 +55,17 @@ public class PlaybackTests extends TestBase {
                 playButton = controlView.findViewById(R.id.exo_play);
             }
 
-            // play x seconds
+            // play x seconds, stage 1
             Thread.sleep(PLAY_PERIOD_IN_MS);
             pausePlayer();
-            // Pause x seconds
+            // Pause x seconds, stage 2
             Thread.sleep(PAUSE_PERIOD_IN_MS);
-            // Resume video
+            // Resume video, stage 3
             resumePlayer();
             // Play another x seconds
             Thread.sleep(PLAY_PERIOD_IN_MS);
 
-            // Seek backward
+            // Seek backward, stage 4
             testActivity.runOnUiThread(new Runnable(){
                 public void run() {
                     long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
@@ -101,10 +73,10 @@ public class PlaybackTests extends TestBase {
                 }
             });
 
-            // Play another x seconds
+            // Play another x seconds, stage 5
             Thread.sleep(PLAY_PERIOD_IN_MS);
 
-            // seek forward in the video
+            // seek forward in the video, stage 6
             testActivity.runOnUiThread(new Runnable(){
                 public void run() {
                     long currentPlaybackPosition = pView.getPlayer()
@@ -115,23 +87,41 @@ public class PlaybackTests extends TestBase {
                 }
             });
 
-            // Play another x seconds
+            // Play another x seconds, stage 7
             Thread.sleep(PLAY_PERIOD_IN_MS);
+
+            int eventIndex = 0;
+
+            // Check first playback period, stage 1
+            eventIndex = checkPlaybackPeriodAtIndex(eventIndex);
+
+            // Check pause period, stage 2
+            eventIndex = checkPausePeriodAtIndex(eventIndex);
+
+            // Check playback period, stage 3
+            eventIndex = checkPlaybackPeriodAtIndex(eventIndex -1);
+
+            // Check SeekEvents, stage 4
+            eventIndex = checkSeekAtIndex(eventIndex);
+
+            // check playback period stage 5
+            eventIndex = checkPlaybackPeriodAtIndex(eventIndex);
+
+            // check seeking, stage 6
+            eventIndex = checkSeekAtIndex(eventIndex);
+
             // Exit the player with back button
             testScenario.close();
-//            exitActivity();
-//            testActivity.waitForActivityToClose();
             Log.w(TAG, "See what event should be dispatched on view closed !!!");
             // TODO check player end event
         } catch (InterruptedException e) {
             e.printStackTrace();
             // fail test
             fail();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            fail();
         }
-//        catch (JSONException e) {
-//            e.printStackTrace();
-//            fail();
-//        }
         Log.e(TAG, "All done !!!");
     }
 

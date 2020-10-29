@@ -17,6 +17,7 @@ public class SimpleHTTPServer extends Thread {
     private int bandwidthLimit;
     private long networkJamEndPeriod = -1;
     private int networkJamFactor = 1;
+    private int seekLatency;
     private boolean constantJam = false;
 
     private ServerSocket server;
@@ -32,7 +33,15 @@ public class SimpleHTTPServer extends Thread {
         this.port = port;
         this.bandwidthLimit = bandwidthLimit;
         server = new ServerSocket(port);
+        seekLatency = 0;
         start();
+    }
+
+    /*
+     * This is the number of MS that will be waited before serving data for requested range
+     */
+    public void setSeekLatency(int latency) {
+        seekLatency = latency;
     }
 
     public void jamNetwork(long jamPeriod, int jamFactor, boolean constantJam) {
@@ -87,6 +96,6 @@ public class SimpleHTTPServer extends Thread {
     private void acceptConnection() throws IOException {
         Socket clientSocket = server.accept();
         workers.add(new ConnectionWorker(clientSocket, bandwidthLimit,
-                networkJamEndPeriod, networkJamFactor, constantJam));
+                networkJamEndPeriod, networkJamFactor, constantJam, seekLatency));
     }
 }

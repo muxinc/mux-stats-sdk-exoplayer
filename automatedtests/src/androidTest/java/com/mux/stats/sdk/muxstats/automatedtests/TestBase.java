@@ -18,6 +18,11 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.mux.stats.sdk.core.events.playback.PauseEvent;
+import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
@@ -47,6 +52,8 @@ public abstract class TestBase {
 
     static final int PLAY_PERIOD_IN_MS = 10000;
     static final int PAUSE_PERIOD_IN_MS = 3000;
+    // I could not make this work as expected
+//    static final int SEEK_PERIOD_IN_MS = 5000;
     protected int runHttpServerOnPort = 5000;
     protected int bandwidthLimitInBitsPerSecond = 1500000;
     protected int sampleFileBitrate = 1083904;
@@ -79,6 +86,7 @@ public abstract class TestBase {
     public void init(){
         try {
             httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
+//            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
         } catch (IOException e) {
             e.printStackTrace();
             // Failed to start server
@@ -96,11 +104,11 @@ public abstract class TestBase {
             testActivity.setVideoTitle(currentTestName.getMethodName());
             testActivity.initMuxSats();
             testActivity.startPlayback();
+            pView = testActivity.getPlayerView();
+            testMediaSource = testActivity.getTestMediaSource();
+            networkRequest = testActivity.getMockNetwork();
         });
         testScenario = activityRule.getScenario();
-        pView = testActivity.getPlayerView();
-        testMediaSource = testActivity.getTestMediaSource();
-        networkRequest = testActivity.getMockNetwork();
     }
 
     @After
@@ -125,6 +133,75 @@ public abstract class TestBase {
 
     public void exitActivity() {
         testActivity.runOnUiThread(() -> testActivity.finish());
+    }
+
+    public int checkPlaybackPeriodAtIndex(int index) throws JSONException {
+        int playIndex = networkRequest.getIndexForNextEvent(index, PlayEvent.TYPE);
+        int playingIndex = networkRequest.getIndexForNextEvent(index, PlayingEvent.TYPE);
+        int pauseIndex = networkRequest.getIndexForNextEvent(index, PauseEvent.TYPE);
+        // Play index not necessary
+        if ( pauseIndex == -1 || playingIndex == -1) {
+            fail("Missing basic playback events, playIndex: "
+                    + playIndex + ", playingIndex: " + playingIndex +
+                    ", pauseIndex: " + pauseIndex + ", starting at index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        if (!((playIndex < playingIndex) && (playingIndex < pauseIndex))) {
+            fail("Basic playback events not ordered correctly, playIndex: "
+                    + playIndex + ", playingIndex: " + playingIndex +
+                    ", pauseIndex: " + pauseIndex + ", starting at index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        long playbackPeriod = networkRequest.getCreationTimeForEvent(pauseIndex) -
+                networkRequest.getCreationTimeForEvent(playingIndex);
+        if (Math.abs(playbackPeriod - PLAY_PERIOD_IN_MS) > 500 ) {
+            fail("Reported play period: " + playbackPeriod + " do not match expected play period: "
+                    + PLAY_PERIOD_IN_MS + ", playingIndex: " + playingIndex +
+                    ", pauseIndex: " + pauseIndex + ", starting at event index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        return pauseIndex;
+    }
+
+    public int checkPausePeriodAtIndex(int index) throws JSONException {
+        int playIndex = networkRequest.getIndexForNextEvent(index, PlayEvent.TYPE);
+        int playingIndex = networkRequest.getIndexForNextEvent(index, PlayingEvent.TYPE);
+        int pauseIndex = networkRequest.getIndexForNextEvent(index, PauseEvent.TYPE);
+        if (playIndex == -1 || pauseIndex == -1 || playingIndex == -1) {
+            fail("Missing basic playback events, playIndex: "
+                    + playIndex + ", playingIndex: " + playingIndex +
+                    ", pauseIndex: " + pauseIndex + ", starting at index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        if (!((playIndex < playingIndex) && (playIndex > pauseIndex))) {
+            fail("Basic playback events not ordered correctly, pauseIndex: "
+                    + pauseIndex + ", playIndex: " + playIndex +
+                    ", playingIndex: " + playingIndex + ", starting at index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        long pausekPeriod = networkRequest.getCreationTimeForEvent(playIndex) -
+                networkRequest.getCreationTimeForEvent(pauseIndex);
+        if (Math.abs(pausekPeriod - PAUSE_PERIOD_IN_MS) > 500 ) {
+            fail("Reported pause period: " + pausekPeriod + " do not match expected play period: "
+                    + PAUSE_PERIOD_IN_MS + ", playIndex: " + playIndex +
+                    ", pauseIndex: " + pauseIndex +  ", starting at event index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        return playingIndex;
+    }
+
+    public int checkSeekAtIndex(int index) throws JSONException {
+        int seekingIndex = networkRequest.getIndexForNextEvent(index, SeekingEvent.TYPE);
+        int seekedIndex = networkRequest.getIndexForNextEvent(index, SeekedEvent.TYPE);
+        if (seekingIndex == -1 || seekedIndex == -1) {
+            fail("Missing seeekingEvent or seekEvent at event index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        if (seekedIndex < seekingIndex) {
+            fail("seeked event is preceding the seeking event at event index: " + index +
+                    ", availableEvents: " + networkRequest.getReceivedEventNames());
+        }
+        return seekedIndex;
     }
 
     public void pausePlayer() {
