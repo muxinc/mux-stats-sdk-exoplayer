@@ -242,7 +242,7 @@ public abstract class TestBase {
         device.pressHome();
     }
 
-    private Activity getActivityInstance(){
+    protected Activity getActivityInstance(){
         getInstrumentation().runOnMainSync(() -> {
             Collection<Activity> resumedActivities =
                     ActivityLifecycleMonitorRegistry.getInstance().getActivitiesInStage(Stage.RESUMED);

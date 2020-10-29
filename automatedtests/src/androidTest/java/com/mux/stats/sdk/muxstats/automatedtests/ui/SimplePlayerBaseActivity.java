@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.automatedtests.ui;
 
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
