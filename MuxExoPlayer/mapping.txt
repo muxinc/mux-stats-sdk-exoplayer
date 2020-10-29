@@ -1,6 +1,6 @@
 # compiler: R8
 # compiler_version: 2.0.88
-# pg_map_id: 0aed0b2
+# pg_map_id: f11894a
 # common_typos_disable
 com.mux.stats.sdk.core.Core -> com.mux.stats.sdk.core.a:
     com.mux.stats.sdk.core.model.ViewerData viewerData -> d
@@ -400,39 +400,35 @@ com.mux.stats.sdk.core.model.ViewData -> com.mux.stats.sdk.core.model.g:
     java.lang.Integer getViewAdErrorCount() -> e
     void setViewAdViewCount(java.lang.Integer) -> e
     void setViewContentPlaybackTime(java.lang.Long) -> e
-    void setViewRebufferFrequency(java.lang.Double) -> e
+    void setViewTotalDownscaling(java.lang.Double) -> e
     java.lang.Integer getViewAdPlayCount() -> f
     void setViewMaxSeekTime(java.lang.Long) -> f
-    void setViewRebufferCount(java.lang.Integer) -> f
-    void setViewRebufferPercentage(java.lang.Double) -> f
+    void setViewSeekCount(java.lang.Integer) -> f
+    void setViewTotalUpscaling(java.lang.Double) -> f
     java.lang.Long getViewAdRequestCount() -> g
     void setViewMinRequestThroughput(java.lang.Long) -> g
-    void setViewSeekCount(java.lang.Integer) -> g
-    void setViewTotalDownscaling(java.lang.Double) -> g
+    void setViewSequenceNumber(java.lang.Integer) -> g
     java.lang.Long getViewAdRequestTime() -> h
     void setViewPrerollLoadTime(java.lang.Long) -> h
-    void setViewSequenceNumber(java.lang.Integer) -> h
-    void setViewTotalUpscaling(java.lang.Double) -> h
     java.lang.Integer getViewAdViewCount() -> i
     void setViewPrerollRequestCount(java.lang.Long) -> i
     java.lang.Long getViewAdWatchTime() -> j
     void setViewPrerollRequestTime(java.lang.Long) -> j
     java.lang.Double getViewAverageRequestLatency() -> k
-    void setViewRebufferDuration(java.lang.Long) -> k
+    void setViewSeekDuration(java.lang.Long) -> k
     java.lang.Long getViewAverageRequestThroughput() -> l
-    void setViewSeekDuration(java.lang.Long) -> l
+    void setViewStartupPrerollLoadTime(java.lang.Long) -> l
     java.lang.Long getViewContentPlaybackTime() -> m
-    void setViewStartupPrerollLoadTime(java.lang.Long) -> m
+    void setViewStartupPrerollRequestTime(java.lang.Long) -> m
     java.lang.Long getViewEnd() -> n
-    void setViewStartupPrerollRequestTime(java.lang.Long) -> n
+    void setViewTimeToFirstFrame(java.lang.Long) -> n
     java.lang.String getViewId() -> o
-    void setViewTimeToFirstFrame(java.lang.Long) -> o
+    void setViewTotalContentPlaybackTime(java.lang.Long) -> o
     java.lang.Double getViewMaxDownscalePercentage() -> p
-    void setViewTotalContentPlaybackTime(java.lang.Long) -> p
+    void setViewWatchTime(java.lang.Long) -> p
     java.lang.Double getViewMaxRequestLatency() -> q
-    void setViewWatchTime(java.lang.Long) -> q
+    void setViewerTime(java.lang.Long) -> q
     java.lang.Long getViewMaxSeekTime() -> r
-    void setViewerTime(java.lang.Long) -> r
     java.lang.Double getViewMaxUpscalePercentage() -> s
     java.lang.Long getViewMidrollTimeToFirstAd() -> t
     java.lang.Long getViewMinRequestThroughput() -> u
@@ -503,20 +499,22 @@ com.mux.stats.sdk.core.trackers.BaseTracker -> com.mux.stats.sdk.core.f.c:
     void dispatch(com.mux.stats.sdk.core.events.IEvent) -> b
     void flush() -> b
 com.mux.stats.sdk.core.trackers.BeaconBatchTracker -> com.mux.stats.sdk.core.f.d:
+    boolean sentryEnabled -> m
     java.lang.String envKey -> i
-    boolean rateLimited -> k
-    boolean sentryEnabled -> l
+    boolean rateLimited -> l
     long lastBeaconSentTime -> b
     java.util.ArrayList pendingEventsQueue -> g
     java.util.ArrayList eventQueue -> f
     com.mux.stats.sdk.muxstats.INetworkRequest dispatcher -> h
     int failureCount -> c
-    java.util.Set flushEvents -> j
-    com.mux.stats.sdk.core.model.BaseQueryData previousBeaconData -> n
+    java.util.Timer timer -> j
+    com.mux.stats.sdk.core.model.BaseQueryData previousBeaconData -> o
     boolean verboseMode -> e
-    java.util.Set dataToAlwaysSend -> o
-    long lastEventTime -> m
+    java.util.Set dataToAlwaysSend -> p
+    java.util.Set flushEvents -> k
+    long lastEventTime -> n
     boolean lastBeaconCompleted -> d
+    boolean access$000(com.mux.stats.sdk.core.trackers.BeaconBatchTracker,com.mux.stats.sdk.core.events.TrackableEvent) -> a
     void deduplicateBeaconData(com.mux.stats.sdk.core.events.TrackableEvent) -> a
     void handle(com.mux.stats.sdk.core.events.IEvent) -> a
     void onComplete(boolean) -> a
@@ -525,6 +523,8 @@ com.mux.stats.sdk.core.trackers.BeaconBatchTracker -> com.mux.stats.sdk.core.f.d
     void sendBeaconQueue(boolean) -> b
     long getNextBeaconTimeInterval() -> c
     void setVerboseMode(boolean) -> c
+com.mux.stats.sdk.core.trackers.BeaconBatchTracker$1 -> com.mux.stats.sdk.core.f.d$a:
+    com.mux.stats.sdk.core.trackers.BeaconBatchTracker this$0 -> a
 com.mux.stats.sdk.core.trackers.ExternalEventTracker -> com.mux.stats.sdk.core.f.e:
     java.util.HashSet externalEvents -> c
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
@@ -546,27 +546,7 @@ com.mux.stats.sdk.core.trackers.PlaybackTimeTracker -> com.mux.stats.sdk.core.f.
     void clearPlaybackTimeState(long) -> a
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
     void updatePlaybackTime(long) -> b
-com.mux.stats.sdk.core.trackers.RebufferTracker -> com.mux.stats.sdk.core.f.i:
-    java.lang.Long lastPlayheadTimeUpdatedTime -> i
-    double rebufferFrequency -> l
-    long rebufferDuration -> k
-    double rebufferPercentage -> m
-    int rebufferCount -> j
-    boolean isRebuffering -> e
-    boolean playheadShouldBeProgressing -> f
-    java.lang.Long lastCheckedTime -> g
-    java.lang.Long lastPlayheadTime -> h
-    boolean isSeeking -> d
-    void computeMetrics(com.mux.stats.sdk.core.events.playback.PlaybackEvent,long) -> a
-    long getPlayerPlayheadTime(java.lang.Long) -> a
-    long getViewerTime(com.mux.stats.sdk.core.model.ViewData) -> a
-    void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
-    void check(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> b
-    void endRebuffering(com.mux.stats.sdk.core.events.playback.PlaybackEvent,long) -> b
-    void cleanup(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> c
-    boolean sanityCheckLongs() -> c
-    void update(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> d
-com.mux.stats.sdk.core.trackers.RequestMetricsTracker -> com.mux.stats.sdk.core.f.j:
+com.mux.stats.sdk.core.trackers.RequestMetricsTracker -> com.mux.stats.sdk.core.f.i:
     long requestFailedCount -> f
     long requestCanceledCount -> e
     long totalLoadTime -> h
@@ -575,7 +555,7 @@ com.mux.stats.sdk.core.trackers.RequestMetricsTracker -> com.mux.stats.sdk.core.
     long requestCount -> c
     double totalLatency -> i
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
-com.mux.stats.sdk.core.trackers.ScalingTracker -> com.mux.stats.sdk.core.f.k:
+com.mux.stats.sdk.core.trackers.ScalingTracker -> com.mux.stats.sdk.core.f.j:
     java.lang.Integer lastPlayerWidth -> e
     double viewMaxUpscaling -> l
     java.lang.Integer lastPlayerHeight -> f
@@ -591,7 +571,7 @@ com.mux.stats.sdk.core.trackers.ScalingTracker -> com.mux.stats.sdk.core.f.k:
     void calculate(long) -> a
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
     void prepare(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> b
-com.mux.stats.sdk.core.trackers.SeekingTracker -> com.mux.stats.sdk.core.f.l:
+com.mux.stats.sdk.core.trackers.SeekingTracker -> com.mux.stats.sdk.core.f.k:
     long viewSeekDuration -> f
     long viewMaxSeekTime -> g
     long lastEventTime -> c
@@ -600,25 +580,25 @@ com.mux.stats.sdk.core.trackers.SeekingTracker -> com.mux.stats.sdk.core.f.l:
     void completeSeek(java.lang.Long) -> a
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
     void startSeeking(java.lang.Long,com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
-com.mux.stats.sdk.core.trackers.TimeToFirstFrameTracker -> com.mux.stats.sdk.core.f.m:
+com.mux.stats.sdk.core.trackers.TimeToFirstFrameTracker -> com.mux.stats.sdk.core.f.l:
     int state -> c
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
     void setAndSendTTFF(long) -> a
-com.mux.stats.sdk.core.trackers.ViewStateTracker -> com.mux.stats.sdk.core.f.n:
+com.mux.stats.sdk.core.trackers.ViewStateTracker -> com.mux.stats.sdk.core.f.m:
     com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState state -> c
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
-com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState -> com.mux.stats.sdk.core.f.n$a:
+com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState -> com.mux.stats.sdk.core.f.m$a:
     com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState STATE_UNKNOWN -> a
     com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState STATE_INIT -> b
     com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState[] $VALUES -> d
     com.mux.stats.sdk.core.trackers.ViewStateTracker$ViewState STATE_PLAY -> c
-com.mux.stats.sdk.core.trackers.ViewerTimeTracker -> com.mux.stats.sdk.core.f.o:
+com.mux.stats.sdk.core.trackers.ViewerTimeTracker -> com.mux.stats.sdk.core.f.n:
     java.util.HashSet derivativeEvents -> c
     com.mux.stats.sdk.core.util.CurrentTime currentTime -> d
     void handlePlaybackEvent(com.mux.stats.sdk.core.events.playback.PlaybackEvent) -> a
     void setCurrentTime(com.mux.stats.sdk.core.util.CurrentTime) -> a
     long now() -> c
-com.mux.stats.sdk.core.trackers.WatchTimeTracker -> com.mux.stats.sdk.core.f.p:
+com.mux.stats.sdk.core.trackers.WatchTimeTracker -> com.mux.stats.sdk.core.f.o:
     long watchTime -> d
     long lastEventTime -> c
     void countWatchTime(long) -> a
@@ -725,16 +705,19 @@ com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$MuxDevice -> com.mux.stats.sdk.muxst
     long getElapsedRealtime() -> m
     java.lang.String getPluginVersion() -> n
 com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState -> com.mux.stats.sdk.muxstats.e$j:
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAYING_ADS -> f
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState FINISHED_PLAYING_ADS -> g
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState INIT -> h
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState ENDED -> i
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState ERROR -> b
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PAUSED -> c
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAY -> d
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAYING -> e
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PAUSED -> f
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAY -> g
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAYING -> h
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState PLAYING_ADS -> i
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState REBUFFERING -> b
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState SEEKING -> c
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState SEEKED -> d
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState ERROR -> e
     com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState BUFFERING -> a
-    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState[] $VALUES -> j
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState[] $VALUES -> m
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState FINISHED_PLAYING_ADS -> j
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState INIT -> k
+    com.mux.stats.sdk.muxstats.MuxBaseExoPlayer$PlayerState ENDED -> l
 com.mux.stats.sdk.muxstats.MuxErrorException -> com.mux.stats.sdk.muxstats.MuxErrorException:
     int code -> a
 com.mux.stats.sdk.muxstats.MuxNetworkRequests -> com.mux.stats.sdk.muxstats.f:

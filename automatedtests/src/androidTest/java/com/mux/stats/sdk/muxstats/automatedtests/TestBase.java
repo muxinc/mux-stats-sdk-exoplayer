@@ -222,7 +222,7 @@ public abstract class TestBase {
             if (pauseButton != null) {
                 pauseButton.performClick();
             } else {
-                pView.getPlayer().stop();
+                pView.getPlayer().setPlayWhenReady(false);
             }
         });
     }
@@ -232,8 +232,7 @@ public abstract class TestBase {
             if (playButton != null) {
                 playButton.performClick();
             } else {
-                SimpleExoPlayer player = ((SimpleExoPlayer)pView.getPlayer());
-                player.prepare(testMediaSource, false, false);
+                pView.getPlayer().setPlayWhenReady(true);
             }
         });
     }

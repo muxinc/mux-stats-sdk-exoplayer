@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.google.android.exoplayer2.ControlDispatcher;
+import com.google.android.exoplayer2.DefaultControlDispatcher;
+import com.google.android.exoplayer2.Player;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;

@@ -53,11 +53,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public static final String PLAYBACK_URL_KEY = "playback_url";
     public static final int PLAY_AUDIO_SAMPLE = 0;
-    private static final String PLAYBACK_CHANNEL_ID = "playback_channel";
-    private static final int PLAYBACK_NOTIFICATION_ID = 1;
-    private static final String ARG_URI = "uri_string";
-    private static final String ARG_TITLE = "title";
-    private static final String ARG_START_POSITION = "start_position";
+    protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
+    protected static final int PLAYBACK_NOTIFICATION_ID = 1;
+    protected static final String ARG_URI = "uri_string";
+    protected static final String ARG_TITLE = "title";
+    protected static final String ARG_START_POSITION = "start_position";
 
     String videoTitle = "Test Video";
     String urlToPlay;
@@ -135,6 +135,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public abstract void initExoPlayer();
 
+    public abstract void initAudioSession();
+
     public void setVideoTitle(String title) {
         videoTitle = title;
     }
@@ -146,27 +148,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
                 .createMediaSource(testUri);
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);
-    }
-
-    // This is for background playback, set appropriate notification and etc
-    public void initAudioSession() {
-        notificationManager = PlayerNotificationManager.createWithNotificationChannel(
-                getApplicationContext(),
-                PLAYBACK_CHANNEL_ID,
-                R.string.channel_name,
-                R.string.channel_description,
-                PLAYBACK_NOTIFICATION_ID,
-                new MDAdapter(),
-                new CustomNotificationListener()
-        );
-        notificationManager.setUseNavigationActions(false);
-        notificationManager.setUseStopAction(true);
-        notificationManager.setPlayer(player);
-
-        mediaSessionCompat = new MediaSessionCompat(this, "hello_world_media");
-        notificationManager.setMediaSessionToken(mediaSessionCompat.getSessionToken());
-        mediaSessionConnector = new MediaSessionConnector(mediaSessionCompat);
-        mediaSessionConnector.setPlayer(player);
     }
 
     public void initMuxSats() {
@@ -373,21 +354,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     @Override
     public void onSeekProcessed() {
 
-    }
-
-    class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {
-
-        @Override
-        public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-            // TODO implement this
-            Log.e(TAG, "onNotificationCancelled");
-        }
-
-        @Override
-        public void onNotificationPosted(int notificationId, Notification notification, boolean ongoing) {
-            // TODO implement this
-            Log.e(TAG, "onNotificationPosted");
-        }
     }
 
     class MDAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {

@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.C;
@@ -19,8 +20,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.mux.stats.sdk.core.events.playback.SeekedEvent;
-import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -84,7 +83,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void release() {
-        if (this.player.get() != null) {
+        if (player != null && this.player.get() != null) {
             ExoPlayer player = this.player.get();
             if (player instanceof SimpleExoPlayer) {
                 ((SimpleExoPlayer) player).removeAnalyticsListener(this);
@@ -113,7 +112,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
-        dispatch(new SeekingEvent(null));
+        seeking();
     }
 
     @Override
@@ -316,6 +315,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
         bandwidthDispatcher.onTracksChanged(trackGroups);
+        configurePlaybackHeadUpdateInterval();
     }
 
     @Override
@@ -325,6 +325,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        Log.e(TAG, "onPlayerStateChanged, playWhenReady: " + playWhenReady
+                + ", playbackState:" + playbackState);
         this.playWhenReady = playWhenReady;
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
@@ -411,6 +413,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
-        dispatch(new SeekedEvent(null));
+        seeked();
     }
 }
