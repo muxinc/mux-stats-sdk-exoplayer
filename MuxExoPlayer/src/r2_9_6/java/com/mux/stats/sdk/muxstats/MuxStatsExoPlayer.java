@@ -19,8 +19,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.mux.stats.sdk.core.events.playback.SeekedEvent;
-import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -53,7 +51,17 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                              CustomerPlayerData customerPlayerData,
                              CustomerVideoData customerVideoData,
                              CustomerViewData customerViewData, boolean sentryEnabled) {
-        super(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData, sentryEnabled);
+        this(ctx, player, playerName, customerPlayerData, customerVideoData, null,
+                sentryEnabled, new MuxNetworkRequests());
+    }
+
+    public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+                             CustomerPlayerData customerPlayerData,
+                             CustomerVideoData customerVideoData,
+                             CustomerViewData customerViewData, boolean sentryEnabled,
+                             INetworkRequest networkRequest) {
+        super(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData,
+                sentryEnabled, networkRequest);
 
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
@@ -74,7 +82,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void release() {
-        if (this.player.get() != null) {
+        if (player != null && this.player.get() != null) {
             ExoPlayer player = this.player.get();
             if (player instanceof SimpleExoPlayer) {
                 ((SimpleExoPlayer) player).removeAnalyticsListener(this);
@@ -103,7 +111,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekStarted(EventTime eventTime) {
-        dispatch(new SeekingEvent(null));
+        seeking();
     }
 
     @Override
@@ -306,6 +314,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
         bandwidthDispatcher.onTracksChanged(trackGroups);
+        configurePlaybackHeadUpdateInterval();
     }
 
     @Override
@@ -401,6 +410,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
-        dispatch(new SeekedEvent(null));
+        seeked();
     }
 }
