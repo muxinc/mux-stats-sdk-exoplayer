@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -52,6 +53,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public static final String PLAYBACK_URL_KEY = "playback_url";
     public static final int PLAY_AUDIO_SAMPLE = 0;
+    public static final int PLAY_PRE_ROLL_AND_BUMPER_SAMPLE = 1;
     protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
     protected static final int PLAYBACK_NOTIFICATION_ID = 1;
     protected static final String ARG_URI = "uri_string";
@@ -59,11 +61,14 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     protected static final String ARG_START_POSITION = "start_position";
 
     String videoTitle = "Test Video";
+    boolean setPreRollAndBumperAds = false;
     String urlToPlay;
     PlayerView playerView;
     SimpleExoPlayer player;
     MediaSource testMediaSource;
     MuxStatsExoPlayer muxStats;
+    AdsLoader adsLoader;
+    Uri loadedAdTagUri;
     MockNetworkRequest mockNetwork;
     AtomicBoolean onResumedCalled = new AtomicBoolean(false);
     PlayerNotificationManager notificationManager;
@@ -107,6 +112,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
                 case PLAY_AUDIO_SAMPLE:
                     urlToPlay = "http://localhost:5000/audio.aac";
                     break;
+                case PLAY_PRE_ROLL_AND_BUMPER_SAMPLE:
+                    urlToPlay = "http://localhost:5000/vod.mp4";
+                    setPreRollAndBumperAds = true;
+                    break;
                 default:
                     urlToPlay = "http://localhost:5000/vod.mp4";
                     break;
@@ -136,6 +145,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public abstract void initAudioSession();
 
+    public abstract MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri);
+
     public void setVideoTitle(String title) {
         videoTitle = title;
     }
@@ -145,6 +156,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         testMediaSource = new ExtractorMediaSource.Factory(
                 new DefaultDataSourceFactory(this, "Test"))
                 .createMediaSource(testUri);
+        if (setPreRollAndBumperAds) {
+            Uri adTagUri = Uri.parse("http://localhost:5000/preroll_and_bumper_vast.xml");
+            testMediaSource = createAdsMediaSource(testMediaSource, adTagUri);
+        }
+
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);
     }

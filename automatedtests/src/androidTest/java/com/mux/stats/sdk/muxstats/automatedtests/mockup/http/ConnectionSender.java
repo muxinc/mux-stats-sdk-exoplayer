@@ -67,13 +67,25 @@ public class ConnectionSender extends Thread {
     public void startServingFromPosition(long startAtByteNumber, String assetName) throws IOException,
             InterruptedException {
         this.serveDataFromPosition = startAtByteNumber;
+        boolean sendPartialResponse = true;
+        String contentType = "video/mp4";
+        if (assetName.contains(".xml")) {
+            contentType = "text/xml";
+            sendPartialResponse = false;
+        } else if (assetName.contains(".aac")) {
+            contentType = "audio/aac";
+        }
         openAssetFile(assetName);
         assetInput.reset();
         assetInput.skip(startAtByteNumber);
         Log.i(TAG, "Serving file from position: " + startAtByteNumber + ", remaining bytes: " +
                 assetInput.available() + ", total file size: " + assetFileSize);
         if (serveDataFromPosition < assetFileSize) {
-            sendHTTPOKResponse();
+            if (sendPartialResponse) {
+                sendHTTPOKPartialResponse(contentType);
+            } else {
+                // TODO Send complete response,, this is a short file
+            }
             isPaused = false;
         } else {
             sendRequestedRangeNotSatisfiable();
@@ -114,14 +126,22 @@ public class ConnectionSender extends Thread {
                 // Ignore
             }
         }
-        AssetFileDescriptor fd = InstrumentationRegistry.getInstrumentation()
-                .getContext().getAssets().openFd(assetFile);
-        assetFileSize = fd.getLength();
-        fd.close();
+        try {
+            AssetFileDescriptor fd = InstrumentationRegistry.getInstrumentation()
+                    .getContext().getAssets().openFd(assetFile);
+            assetFileSize = fd.getLength();
+            fd.close();
+        } catch (IOException e) {
+            // Can not determine file size
+            assetFileSize = -1;
+        }
 
         assetInput = InstrumentationRegistry.getInstrumentation()
                 .getContext().getAssets().open(assetFile);
         assetInput.mark(1000000000);
+        if (assetFileSize == -1) {
+            assetFileSize = assetInput.available();
+        }
     }
 
     /*
@@ -145,12 +165,12 @@ public class ConnectionSender extends Thread {
     /*
      * Send HTTP response 206 partial content
      */
-    public void sendHTTPOKResponse() throws IOException {
+    public void sendHTTPOKPartialResponse(String contentType) throws IOException {
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(
                 httpOut, StandardCharsets.US_ASCII), true);
         String response = "HTTP/1.1 206 Partial Content\r\n" +
                 "Server: SimpleHttpServer/1.0\r\n" +
-                "Content-Type: video/mp4\r\n" +
+                "Content-Type: " + contentType + "\r\n" +
                 ("Content-Range: bytes " + this.serveDataFromPosition + "-" + (assetFileSize-1)
                     + "/" + assetFileSize) + "\r\n" +
                 "Accept-Ranges: bytes\r\n" +

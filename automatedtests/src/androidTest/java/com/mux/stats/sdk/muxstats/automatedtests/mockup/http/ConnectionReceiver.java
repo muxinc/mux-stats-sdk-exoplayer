@@ -79,11 +79,9 @@ public class ConnectionReceiver extends Thread {
 
         httpParser.parseRequest(httpRequest);
         String requestLine = httpParser.getRequestLine();
-        if (requestLine.contains("/audio")) {
-            serveAssetFile = "audio.aac";
-        } else {
-            serveAssetFile = "sample.mp4";
-        }
+        String assetFileName = requestLine.split("/")[1];
+        assetFileName = assetFileName.replace(" HTTP", "");
+        serveAssetFile = assetFileName;
         int range = 0;
         String rangeHeader = httpParser.getHeaderParam("Range");
         if (rangeHeader != null) {

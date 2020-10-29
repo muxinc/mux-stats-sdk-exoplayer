@@ -95,6 +95,8 @@ dependencies {
     // Optional -- UI testing with UI Automator
     androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+    androidTestImplementation 'com.google.android.gms:play-services-ads:15.0.1'
+    androidTestImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
 
     implementation project(':MuxExoPlayer')
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
