@@ -76,9 +76,6 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     }
 
     public DataSource.Factory buildDataSourceFactory() {
-//        DefaultDataSourceFactory upstreamFactory =
-//                new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
-//        return buildReadOnlyCacheDataSource(upstreamFactory, null);
         return new DefaultDataSourceFactory(this, "Android-automated_tests");
     }
 

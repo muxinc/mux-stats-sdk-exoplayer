@@ -27,8 +27,6 @@ import com.mux.stats.sdk.core.model.CustomerViewData;
 
 import java.io.IOException;
 
-import static com.google.android.exoplayer2.Player.DISCONTINUITY_REASON_INTERNAL;
-
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
