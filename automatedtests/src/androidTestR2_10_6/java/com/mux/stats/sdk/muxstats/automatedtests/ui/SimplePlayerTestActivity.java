@@ -94,8 +94,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             case C.TYPE_HLS:
                 return new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
             case C.TYPE_OTHER:
-//                return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
-                return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
+                return new ProgressiveMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
             default:
                 throw new IllegalStateException("Unsupported type: " + type);
         }

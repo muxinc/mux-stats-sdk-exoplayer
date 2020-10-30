@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 public class ConnectionSender extends Thread {
@@ -31,6 +33,7 @@ public class ConnectionSender extends Thread {
 
     long assetFileSize;
     long serveDataFromPosition;
+    String originHeaderValue;
     long previouseDataPositionRequested;
     long bandwidthLimit;
     long seekLatency;
@@ -64,9 +67,32 @@ public class ConnectionSender extends Thread {
         isPaused = true;
     }
 
-    public void startServingFromPosition(long startAtByteNumber, String assetName) throws IOException,
-            InterruptedException {
-        this.serveDataFromPosition = startAtByteNumber;
+
+    private void parseRangeHeader(HashMap<String, String> headers) {
+        this.serveDataFromPosition = 0;
+        for (String headerName : headers.keySet()) {
+            if (headerName.equalsIgnoreCase("Range")) {
+                this.serveDataFromPosition =
+                        Integer.valueOf(headers.get(headerName).replaceAll("[^0-9]", ""));
+                Log.i(TAG, "Got range header value: " + this.serveDataFromPosition);
+            }
+        }
+    }
+
+    private void parseOriginHeader(HashMap<String, String> headers) {
+        this.originHeaderValue = "";
+        for (String headerName : headers.keySet()) {
+            if (headerName.equalsIgnoreCase("Origin")) {
+                this.originHeaderValue = headers.get(headerName);
+                Log.i(TAG, "Got range header value: " + this.serveDataFromPosition);
+            }
+        }
+    }
+
+    public void startServingFromPosition(String assetName, HashMap<String, String> headers)
+            throws IOException, InterruptedException {
+        parseRangeHeader(headers);
+        parseOriginHeader(headers);
         boolean sendPartialResponse = true;
         String contentType = "video/mp4";
         if (assetName.contains(".xml")) {
@@ -74,11 +100,14 @@ public class ConnectionSender extends Thread {
             sendPartialResponse = false;
         } else if (assetName.contains(".aac")) {
             contentType = "audio/aac";
+        } else if (assetName.contains(".png")) {
+            contentType = "image/png";
+            sendPartialResponse = false;
         }
         openAssetFile(assetName);
         assetInput.reset();
-        assetInput.skip(startAtByteNumber);
-        Log.i(TAG, "Serving file from position: " + startAtByteNumber + ", remaining bytes: " +
+        assetInput.skip(serveDataFromPosition);
+        Log.i(TAG, "Serving file from position: " + serveDataFromPosition + ", remaining bytes: " +
                 assetInput.available() + ", total file size: " + assetFileSize);
         if (serveDataFromPosition < assetFileSize) {
             if (sendPartialResponse) {
@@ -172,6 +201,9 @@ public class ConnectionSender extends Thread {
                 "Content-Length: " + assetFileSize + "\r\n" +
                 "Connection: keep-alive" + "\r\n" +
                 "Accept-Ranges: bytes" + "\r\n" +
+                (originHeaderValue.length() > 0 ?
+                        ("Access-Control-Allow-Origin: " + originHeaderValue + "\r\n" +
+                                "Access-Control-Allow-Credentials: true\r\n") : "") +
                 "\r\n";
         // Add asset file content
         byte[] assetContent = new byte[(int)assetFileSize];
@@ -194,11 +226,11 @@ public class ConnectionSender extends Thread {
                 "Server: SimpleHttpServer/1.0\r\n" +
                 "Content-Type: " + contentType + "\r\n" +
                 ("Content-Range: bytes " + this.serveDataFromPosition + "-" + (assetFileSize-1)
-                    + "/" + assetFileSize) + "\r\n" +
+                    + "/" + assetFileSize + "\r\n")  +
                 "Accept-Ranges: bytes" + "\r\n" +
                 // content length should be total length - requested byte position
                 "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
-                "Connection: close\r\n";
+                "Connection: close\r\n\r\n";
         Log.w(TAG, "Sending response: \n" + response);
         writer.write(response);
         writer.flush();

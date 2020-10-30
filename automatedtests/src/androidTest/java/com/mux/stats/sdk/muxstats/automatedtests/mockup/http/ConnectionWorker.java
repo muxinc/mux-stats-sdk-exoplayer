@@ -49,7 +49,7 @@ public class ConnectionWorker extends Thread {
                 ServerAction action = receiver.getNextAction();
                 sender.pause();
                 if (action.getType() == ServerAction.SERVE_MEDIA_DATA) {
-                    sender.startServingFromPosition(action.getValue(), action.getAssetFile());
+                    sender.startServingFromPosition(action.getAssetFile(), action.getHeaders());
                 }
             } catch (IOException e) {
                 isRunning = false;

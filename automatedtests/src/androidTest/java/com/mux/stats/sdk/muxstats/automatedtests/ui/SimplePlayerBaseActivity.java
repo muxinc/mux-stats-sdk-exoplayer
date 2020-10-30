@@ -155,14 +155,14 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public void startPlayback() {
         Uri testUri = Uri.parse(urlToPlay);
-//        testMediaSource = buildMediaSource(testUri, null);
-        testMediaSource = new ExtractorMediaSource.Factory(
-                new DefaultDataSourceFactory(this, "Test"))
-                .createMediaSource(testUri);
-//        if (setPreRollAndBumperAds) {
-//            Uri adTagUri = Uri.parse("http://localhost:5000/preroll_and_bumper_vast.xml");
-//            testMediaSource = createAdsMediaSource(testMediaSource, adTagUri);
-//        }
+        testMediaSource = buildMediaSource(testUri, null);
+//        testMediaSource = new ExtractorMediaSource.Factory(
+//                new DefaultDataSourceFactory(this, "Test"))
+//                .createMediaSource(testUri);
+        if (setPreRollAndBumperAds) {
+            Uri adTagUri = Uri.parse("http://localhost:5000/preroll_and_bumper_vmap.xml");
+            testMediaSource = createAdsMediaSource(testMediaSource, adTagUri);
+        }
 
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);

@@ -6,6 +6,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
 
@@ -82,13 +84,17 @@ public class ConnectionReceiver extends Thread {
         String assetFileName = requestLine.split("/")[1];
         assetFileName = assetFileName.replace(" HTTP", "");
         serveAssetFile = assetFileName;
+        HashMap<String, String> headers = new HashMap<String, String>();
         int range = 0;
         String rangeHeader = httpParser.getHeaderParam("Range");
-        if (rangeHeader != null) {
-            range = Integer.valueOf(rangeHeader.replaceAll("[^0-9]", ""));
-            Log.i(TAG, "Got range header value: " + range);
+        String originHeader = httpParser.getHeaderParam("Origin");
+        if (originHeader != null) {
+            headers.put("Origin", originHeader);
         }
-        actions.put(new ServerAction(ServerAction.SERVE_MEDIA_DATA, range, serveAssetFile));
+        if (rangeHeader != null) {
+            headers.put("Range", rangeHeader);
+        }
+        actions.put(new ServerAction(ServerAction.SERVE_MEDIA_DATA, headers, serveAssetFile));
 //        actions.add(new ServerAction(ServerAction.SERVE_MEDIA_DATA));
     }
 }
