@@ -161,6 +161,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 //                .createMediaSource(testUri);
         if (setPreRollAndBumperAds) {
             Uri adTagUri = Uri.parse("http://localhost:5000/preroll_and_bumper_vmap.xml");
+//            Uri adTagUri = Uri.parse("http://localhost:5000/ten_sec_ad_vast.xml");
             testMediaSource = createAdsMediaSource(testMediaSource, adTagUri);
         }
 

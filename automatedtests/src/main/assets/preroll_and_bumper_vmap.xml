@@ -1,19 +1,17 @@
-<vmap:VMAP xmlns:vmap="http://localhost:5000/videosuite/vmap" version="1.0">
-<vmap:AdBreak timeOffset="start" breakType="linear" breakId="preroll">
+<vmap:VMAP xmlns:vmap="http://www.iab.net/videosuite/vmap" version="1.0">
+<vmap:AdBreak timeOffset="start" breakType="linear" breakId="preroll" id="1">
 <vmap:AdSource id="preroll-ad-1" allowMultipleAds="false" followRedirects="true">
 <vmap:AdTagURI templateType="vast3">
-<![CDATA[ https://localhost:5000/bumper_vast.xml ]]>
+<![CDATA[ http://localhost:5000/ten_sec_ad_vast.xml ]]>
 </vmap:AdTagURI>
 </vmap:AdSource>
 </vmap:AdBreak>
-<vmap:AdBreak timeOffset="start" breakType="linear" breakId="preroll">
+<vmap:AdBreak timeOffset="start" breakType="linear" breakId="preroll" id="2">
 <vmap:AdSource id="preroll-post-bumper" allowMultipleAds="false" followRedirects="true">
 <vmap:AdTagURI templateType="vast3">
-<![CDATA[ https://localhost:5000/ten_sec_ad_vast.xml ]]>
+<![CDATA[ http://localhost:5000/bumper_vast.xml ]]>
 </vmap:AdTagURI>
 </vmap:AdSource>
 <vmap:Extensions>
-<vmap:Extension type="bumper" suppress_bumper="true"/>
-</vmap:Extensions>
 </vmap:AdBreak>
 </vmap:VMAP>
