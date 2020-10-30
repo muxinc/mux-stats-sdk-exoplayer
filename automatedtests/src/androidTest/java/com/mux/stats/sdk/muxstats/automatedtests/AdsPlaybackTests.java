@@ -1,7 +1,13 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
+import android.webkit.WebView;
 
+import com.google.ads.interactivemedia.v3.api.Ad;
+import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
@@ -10,27 +16,62 @@ import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
+import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 
+import org.junit.Before;
 import org.junit.Test;
+
+import java.io.IOException;
 
 import static org.junit.Assert.fail;
 
 public class AdsPlaybackTests extends TestBase {
 
     static final int PREROLL_AD_PERIOD =  10000;
-    static final int BUMPERL_AD_PERIOD =  5000;
+    static final int BUMPER_AD_PERIOD =  5000;
+    static final int CAN_SKIP_AD_AFTER =  5000;
 
+    AdsManager adsManager;
+
+    @Override
     public Bundle getActivityOptions() {
-        Bundle b = new Bundle();
-        b.putInt(SimplePlayerBaseActivity.PLAYBACK_URL_KEY,
-                SimplePlayerBaseActivity.PLAY_PRE_ROLL_AND_BUMPER_SAMPLE);
-        return b;
+        return new Bundle();
+    }
+
+    @Before
+    public void init(){
+        try {
+            httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
+//            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Failed to start server
+            fail("Failed to start HTTP server, why !!!");
+        }
+        try {
+            testActivity = (SimplePlayerTestActivity) getActivityInstance();
+        } catch (ClassCastException e) {
+            fail("Got wrong activity instance in test init !!!");
+        }
+        if (testActivity == null) {
+            fail("Test activity not found !!!");
+        }
+        testScenario = activityRule.getScenario();
     }
 
     @Test
     public void testPreRollAndBumperAds() {
         try {
+            testActivity.runOnUiThread(() -> {
+                testActivity.setVideoTitle(currentTestName.getMethodName());
+                testActivity.initMuxSats();
+                testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
+                testActivity.startPlayback();
+                pView = testActivity.getPlayerView();
+                testMediaSource = testActivity.getTestMediaSource();
+            });
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
             }
@@ -41,7 +82,7 @@ public class AdsPlaybackTests extends TestBase {
             Thread.sleep(PAUSE_PERIOD_IN_MS);
             // resume the ad playback
             resumePlayer();
-            Thread.sleep(PREROLL_AD_PERIOD + BUMPERL_AD_PERIOD);
+            Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD);
 
             // Check ad start event
             int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
@@ -98,9 +139,9 @@ public class AdsPlaybackTests extends TestBase {
             adEndedIndex = networkRequest.getIndexForNextEvent(adPlayingIndex, AdEndedEvent.TYPE);
             long bumperAdPlayPeriod = networkRequest.getCreationTimeForEvent(adEndedIndex) -
                     networkRequest.getCreationTimeForEvent(adPlayingIndex);
-            if (Math.abs(bumperAdPlayPeriod - BUMPERL_AD_PERIOD) > 500) {
+            if (Math.abs(bumperAdPlayPeriod - BUMPER_AD_PERIOD) > 500) {
                 fail("Bumper ad period do not match expected bumper period, reported: " +
-                        bumperAdPlayPeriod + ", expected ad play period: " + BUMPERL_AD_PERIOD);
+                        bumperAdPlayPeriod + ", expected ad play period: " + BUMPER_AD_PERIOD);
             }
 
             // Check content play resume events

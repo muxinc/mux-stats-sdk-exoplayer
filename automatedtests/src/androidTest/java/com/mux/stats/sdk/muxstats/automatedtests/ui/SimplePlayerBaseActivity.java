@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -53,7 +54,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public static final String PLAYBACK_URL_KEY = "playback_url";
     public static final int PLAY_AUDIO_SAMPLE = 0;
-    public static final int PLAY_PRE_ROLL_AND_BUMPER_SAMPLE = 1;
     protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
     protected static final int PLAYBACK_NOTIFICATION_ID = 1;
     protected static final String ARG_URI = "uri_string";
@@ -61,7 +61,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     protected static final String ARG_START_POSITION = "start_position";
 
     String videoTitle = "Test Video";
-    boolean setPreRollAndBumperAds = false;
     String urlToPlay;
     PlayerView playerView;
     SimpleExoPlayer player;
@@ -112,10 +111,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
                 case PLAY_AUDIO_SAMPLE:
                     urlToPlay = "http://localhost:5000/audio.aac";
                     break;
-                case PLAY_PRE_ROLL_AND_BUMPER_SAMPLE:
-                    urlToPlay = "http://localhost:5000/vod.mp4";
-                    setPreRollAndBumperAds = true;
-                    break;
                 default:
                     urlToPlay = "http://localhost:5000/vod.mp4";
                     break;
@@ -153,12 +148,19 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         videoTitle = title;
     }
 
+    public void setAdTag(String tag) {
+        loadedAdTagUri = Uri.parse(tag);
+    }
+
+    public ImaAdsLoader getImaAdsLoader() {
+        return (ImaAdsLoader) adsLoader;
+    }
+
     public void startPlayback() {
         Uri testUri = Uri.parse(urlToPlay);
         testMediaSource = buildMediaSource(testUri, null);
-        if (setPreRollAndBumperAds) {
-            Uri adTagUri = Uri.parse("http://localhost:5000/preroll_and_bumper_vmap.xml");
-            testMediaSource = createAdsMediaSource(testMediaSource, adTagUri);
+        if (loadedAdTagUri != null) {
+            testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
         }
 
         player.setPlayWhenReady(true);

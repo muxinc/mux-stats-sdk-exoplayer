@@ -57,6 +57,9 @@ public class MissusageTests extends TestBase {
                 pView = testActivity.getPlayerView();
                 testMediaSource = testActivity.getTestMediaSource();
             });
+            if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
             Thread.sleep(INIT_MUX_STATS_AFTER);
             // Init Mux stats after the playback have started
             testActivity.runOnUiThread(() -> {
