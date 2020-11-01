@@ -10,6 +10,7 @@ import android.view.View;
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 import androidx.test.uiautomator.UiDevice;
@@ -32,6 +33,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+import org.junit.rules.TestRule;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -42,11 +44,14 @@ import static org.junit.Assert.fail;
 public abstract class TestBase {
 
     @Rule
-    public ActivityScenarioRule<SimplePlayerTestActivity> activityRule =
-            new ActivityScenarioRule(new Intent(
-                    ApplicationProvider.getApplicationContext(),
-                    SimplePlayerTestActivity.class).putExtras(getActivityOptions())
-            );
+    public ActivityTestRule<SimplePlayerTestActivity> activityRule  =
+            new ActivityTestRule<>(SimplePlayerTestActivity.class);
+    // This does not work for r2.11.1 flavor
+//    public ActivityScenarioRule<SimplePlayerTestActivity> activityRule =
+//            new ActivityScenarioRule(new Intent(
+//                    ApplicationProvider.getApplicationContext(),
+//                    SimplePlayerTestActivity.class).putExtras(getActivityOptions())
+//            );
 
     @Rule public TestName currentTestName = new TestName();
 
@@ -69,7 +74,7 @@ public abstract class TestBase {
     protected int networkJamFactor = 4;
     protected int waitForPlaybackToStartInMS = 10000;
 
-    protected ActivityScenario<SimplePlayerTestActivity> testScenario;
+//    protected ActivityScenario<SimplePlayerTestActivity> testScenario;
     protected SimplePlayerTestActivity testActivity;
     protected Activity currentActivity;
     protected SimpleHTTPServer httpServer;
@@ -108,7 +113,7 @@ public abstract class TestBase {
             testMediaSource = testActivity.getTestMediaSource();
             networkRequest = testActivity.getMockNetwork();
         });
-        testScenario = activityRule.getScenario();
+//        testScenario = activityRule.getScenario();
     }
 
     @After
@@ -116,7 +121,7 @@ public abstract class TestBase {
         if (httpServer != null) {
             httpServer.kill();
         }
-        testScenario.close();
+//        testScenario.close();
     }
 
     public abstract Bundle getActivityOptions();

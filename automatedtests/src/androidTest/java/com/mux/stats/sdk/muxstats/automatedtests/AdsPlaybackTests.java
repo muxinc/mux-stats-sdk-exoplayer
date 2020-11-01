@@ -58,7 +58,6 @@ public class AdsPlaybackTests extends TestBase {
         if (testActivity == null) {
             fail("Test activity not found !!!");
         }
-        testScenario = activityRule.getScenario();
     }
 
     @Test

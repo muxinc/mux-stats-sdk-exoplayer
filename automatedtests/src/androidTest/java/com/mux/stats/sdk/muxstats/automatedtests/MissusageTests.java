@@ -44,7 +44,7 @@ public class MissusageTests extends TestBase {
         if (testActivity == null) {
             fail("Test activity not found !!!");
         }
-        testScenario = activityRule.getScenario();
+//        testScenario = activityRule.getScenario();
     }
 
     @Test

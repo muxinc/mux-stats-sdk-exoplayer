@@ -115,7 +115,7 @@ public class PlaybackTests extends TestBase {
             result = checkSeekAtIndex(result.eventIndex);
 
             // Exit the player with back button
-            testScenario.close();
+//            testScenario.close();
             Log.w(TAG, "See what event should be dispatched on view closed !!!");
             // TODO check player end event
         } catch (InterruptedException e) {
@@ -154,7 +154,7 @@ public class PlaybackTests extends TestBase {
             // play x seconds
             Thread.sleep(PLAY_PERIOD_IN_MS * 2);
 //            exitActivity();
-            testScenario.close();
+//            testScenario.close();
 
             // Startup time check
             int viewstartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);

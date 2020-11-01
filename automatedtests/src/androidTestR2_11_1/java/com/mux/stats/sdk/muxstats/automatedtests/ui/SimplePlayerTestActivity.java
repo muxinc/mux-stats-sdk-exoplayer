@@ -133,6 +133,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             // Because of how this is loaded via reflection, we know that this will be
             // a ImaAdsLoader, so cast it over so that we can get a reference to the
             // real IMA AdsLoader instance.
+            ((ImaAdsLoader) adsLoader).setPlayer(player);
             muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
             return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
         } catch (ClassNotFoundException e) {
