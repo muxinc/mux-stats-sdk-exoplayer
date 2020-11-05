@@ -21,11 +21,6 @@ public class MissusageTests extends TestBase {
 
     static final int INIT_MUX_STATS_AFTER = 5000;
 
-    @Override
-    public Bundle getActivityOptions() {
-        return new Bundle();
-    }
-
     @Before
     public void init(){
         try {

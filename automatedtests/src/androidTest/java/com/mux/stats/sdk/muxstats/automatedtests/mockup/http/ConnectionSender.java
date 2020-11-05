@@ -94,10 +94,17 @@ public class ConnectionSender extends Thread {
         parseRangeHeader(headers);
         parseOriginHeader(headers);
         boolean sendPartialResponse = true;
+        boolean acceptRangeHeader = true;
         String contentType = "video/mp4";
         if (assetName.contains(".xml")) {
             contentType = "text/xml";
             sendPartialResponse = false;
+        } else if (assetName.contains(".m3u8")) {
+            contentType = "application/x-mpegURL";
+            sendPartialResponse = false;
+        } else if (assetName.contains(".ts")) {
+            contentType = "video/mp2t";
+            acceptRangeHeader = false;
         } else if (assetName.contains(".aac")) {
             contentType = "audio/aac";
         } else if (assetName.contains(".png")) {
@@ -111,7 +118,7 @@ public class ConnectionSender extends Thread {
                 assetInput.available() + ", total file size: " + assetFileSize);
         if (serveDataFromPosition < assetFileSize) {
             if (sendPartialResponse) {
-                sendHTTPOKPartialResponse(contentType);
+                sendHTTPOKPartialResponse(contentType, acceptRangeHeader);
                 isPaused = false;
             } else {
                 // Send complete response,, this is a short file
@@ -219,7 +226,8 @@ public class ConnectionSender extends Thread {
     /*
      * Send HTTP response 206 partial content
      */
-    public void sendHTTPOKPartialResponse(String contentType) throws IOException {
+    public void sendHTTPOKPartialResponse(String contentType, boolean acceptRangeHeader)
+            throws IOException {
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(
                 httpOut, StandardCharsets.US_ASCII), true);
         String response = "HTTP/1.1 206 Partial Content\r\n" +
@@ -227,7 +235,7 @@ public class ConnectionSender extends Thread {
                 "Content-Type: " + contentType + "\r\n" +
                 ("Content-Range: bytes " + this.serveDataFromPosition + "-" + (assetFileSize-1)
                     + "/" + assetFileSize + "\r\n")  +
-                "Accept-Ranges: bytes" + "\r\n" +
+                (acceptRangeHeader ? ("Accept-Ranges: bytes" + "\r\n") : "") +
                 // content length should be total length - requested byte position
                 "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
                 "Connection: close\r\n\r\n";

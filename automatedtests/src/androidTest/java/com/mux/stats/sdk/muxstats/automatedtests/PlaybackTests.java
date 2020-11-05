@@ -16,6 +16,7 @@ import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.R;
 
 import org.json.JSONException;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -33,12 +34,6 @@ public class PlaybackTests extends TestBase {
     public static final String TAG = "playbackTest";
 
     static final int EVENT_MAX_TIME_DIFF_MS = 100;
-
-
-    public Bundle getActivityOptions() {
-        /// No extra requests for test activity
-        return new Bundle();
-    }
 
     /*
      * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#

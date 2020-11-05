@@ -7,17 +7,17 @@ import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.fail;
 
 public class RunInBackgroundTests extends TestBase {
 
-    public Bundle getActivityOptions() {
-        Bundle b = new Bundle();
-        b.putInt(SimplePlayerBaseActivity.PLAYBACK_URL_KEY,
-                SimplePlayerBaseActivity.PLAY_AUDIO_SAMPLE);
-        return b;
+    @Before
+    public void init(){
+        urlToPlay = "http://localhost:5000/audio.aac";
+        super.init();
     }
 
     @Test

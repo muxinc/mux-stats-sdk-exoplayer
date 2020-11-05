@@ -52,8 +52,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     static final String TAG = "SimplePlayerActivity";
 
-    public static final String PLAYBACK_URL_KEY = "playback_url";
-    public static final int PLAY_AUDIO_SAMPLE = 0;
     protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
     protected static final int PLAYBACK_NOTIFICATION_ID = 1;
     protected static final String ARG_URI = "uri_string";
@@ -101,21 +99,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
         // Setup notification and media session.
         initAudioSession();
-
-        Intent i = getIntent();
-        Bundle extra = i.getExtras();
-        urlToPlay = "http://localhost:5000/vod.mp4";
-        if (extra != null &&
-                extra.containsKey(PLAYBACK_URL_KEY)) {
-            switch(extra.getInt(PLAYBACK_URL_KEY)) {
-                case PLAY_AUDIO_SAMPLE:
-                    urlToPlay = "http://localhost:5000/audio.aac";
-                    break;
-                default:
-                    urlToPlay = "http://localhost:5000/vod.mp4";
-                    break;
-            }
-        }
     }
 
     @Override
@@ -150,6 +133,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public void setAdTag(String tag) {
         loadedAdTagUri = Uri.parse(tag);
+    }
+
+    public void setUrlToPlay(String url) {
+        urlToPlay = url;
     }
 
     public ImaAdsLoader getImaAdsLoader() {

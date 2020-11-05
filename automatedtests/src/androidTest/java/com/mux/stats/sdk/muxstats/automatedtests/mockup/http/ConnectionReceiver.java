@@ -81,8 +81,9 @@ public class ConnectionReceiver extends Thread {
 
         httpParser.parseRequest(httpRequest);
         String requestLine = httpParser.getRequestLine();
-        String assetFileName = requestLine.split("/")[1];
-        assetFileName = assetFileName.replace(" HTTP", "");
+        String assetFileName = requestLine.split("HTTP")[0];
+        assetFileName = assetFileName.replace("GET /", "");
+        assetFileName = assetFileName.trim();
         serveAssetFile = assetFileName;
         HashMap<String, String> headers = new HashMap<String, String>();
         int range = 0;

@@ -62,6 +62,7 @@ public abstract class TestBase {
     protected int runHttpServerOnPort = 5000;
     protected int bandwidthLimitInBitsPerSecond = 1500000;
     protected int sampleFileBitrate = 1083904;
+    protected String urlToPlay = "http://localhost:5000/vod.mp4";
     // UTC timestamp whenlow network bandwidth was triggered
     long startedJammingTheNetworkAt;
     // Amount of video playback time in player buffer
@@ -107,6 +108,7 @@ public abstract class TestBase {
         }
         testActivity.runOnUiThread(() -> {
             testActivity.setVideoTitle(currentTestName.getMethodName());
+            testActivity.setUrlToPlay(urlToPlay);
             testActivity.initMuxSats();
             testActivity.startPlayback();
             pView = testActivity.getPlayerView();
@@ -124,7 +126,7 @@ public abstract class TestBase {
 //        testScenario.close();
     }
 
-    public abstract Bundle getActivityOptions();
+//    public abstract Bundle getActivityOptions();
 
     public void jamNetwork() {
         testActivity.runOnUiThread(() -> {

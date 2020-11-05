@@ -33,12 +33,6 @@ public class AdsPlaybackTests extends TestBase {
     static final int BUMPER_AD_PERIOD =  5000;
     static final int CAN_SKIP_AD_AFTER =  5000;
 
-    AdsManager adsManager;
-
-    @Override
-    public Bundle getActivityOptions() {
-        return new Bundle();
-    }
 
     @Before
     public void init(){
