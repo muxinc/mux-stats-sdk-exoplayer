@@ -54,12 +54,47 @@ public class AdsPlaybackTests extends TestBase {
         }
     }
 
+    // Not working,, see how to reproduce
+//    @Test
+//    public void testPlayerReleasedWhileAdsPlaying() {
+//        testActivity.runOnUiThread(() -> {
+//            testActivity.setVideoTitle(currentTestName.getMethodName());
+//            testActivity.initMuxSats();
+//            testActivity.setUrlToPlay(urlToPlay);
+//            testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
+//            testActivity.startPlayback();
+//            pView = testActivity.getPlayerView();
+//            testMediaSource = testActivity.getTestMediaSource();
+//        });
+//        if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+//            fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+//        }
+//        try {
+//            // First ad is 10 second
+//            Thread.sleep(PREROLL_AD_PERIOD / 2);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            fail(e.getMessage());
+//        }
+//        testActivity.runOnUiThread(() -> {
+//           testActivity.releaseExoPlayer();
+//        });
+//        try {
+//            // Wait for ads to finish, and see if there was a crash !!!
+//            Thread.sleep(PREROLL_AD_PERIOD * 2);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            fail(e.getMessage());
+//        }
+//    }
+
     @Test
     public void testPreRollAndBumperAds() {
         try {
             testActivity.runOnUiThread(() -> {
                 testActivity.setVideoTitle(currentTestName.getMethodName());
                 testActivity.initMuxSats();
+                testActivity.setUrlToPlay(urlToPlay);
                 testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();

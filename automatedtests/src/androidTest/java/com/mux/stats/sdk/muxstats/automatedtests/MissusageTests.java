@@ -25,7 +25,6 @@ public class MissusageTests extends TestBase {
     public void init(){
         try {
             httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
-//            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
         } catch (IOException e) {
             e.printStackTrace();
             // Failed to start server
@@ -39,8 +38,38 @@ public class MissusageTests extends TestBase {
         if (testActivity == null) {
             fail("Test activity not found !!!");
         }
-//        testScenario = activityRule.getScenario();
     }
+
+    // Not working, find out how to reproduce Thread safe crash
+//    @Test
+//    public void testPlayerReleasedWhileStatsRunning() {
+//        try {
+//            // Regular start
+//            testActivity.runOnUiThread(() -> {
+//                testActivity.setVideoTitle(currentTestName.getMethodName());
+//                testActivity.setUrlToPlay(urlToPlay);
+//                testActivity.initMuxSats();
+//                testActivity.startPlayback();
+//                pView = testActivity.getPlayerView();
+//                testMediaSource = testActivity.getTestMediaSource();
+//                networkRequest = testActivity.getMockNetwork();
+//            });
+//            if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+//                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+//            }
+//            // Play x seconds
+//            Thread.sleep(PLAY_PERIOD_IN_MS);
+//            // rlease ExoPlayer
+//            testActivity.runOnUiThread(() -> {
+//                testActivity.releaseExoPlayer();
+//            });
+//            // Wait x seconds see if it will crash !!!
+//            Thread.sleep(PLAY_PERIOD_IN_MS * 2);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            fail(e.getMessage());
+//        }
+//    }
 
     @Test
     public void testLateStatsInit() {

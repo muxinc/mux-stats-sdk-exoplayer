@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
@@ -155,6 +156,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
         player.setPlayWhenReady(true);
         player.prepare(testMediaSource, false, false);
+    }
+
+    public void releaseExoPlayer() {
+        player.release();
+        player = null;
     }
 
     public void initMuxSats() {
