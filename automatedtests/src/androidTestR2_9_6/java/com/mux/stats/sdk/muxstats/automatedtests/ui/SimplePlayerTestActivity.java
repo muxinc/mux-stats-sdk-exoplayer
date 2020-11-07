@@ -38,9 +38,12 @@ import java.lang.reflect.Constructor;
 public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
 
     public void initExoPlayer() {
+        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();;
+        DefaultTrackSelector.Parameters trackSelectorParameters
+                = new DefaultTrackSelector.ParametersBuilder().build();
+        trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+        trackSelector.setParameters(trackSelectorParameters);
         RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
-        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();
-        TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
         player = ExoPlayerFactory.newSimpleInstance(this, renderersFactory, trackSelector);
     }
 

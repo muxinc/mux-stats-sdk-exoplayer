@@ -102,6 +102,10 @@ public class MockNetworkRequest implements INetworkRequest {
         return -1;
     }
 
+    public JSONObject getEventForIndex(int index) {
+        return receivedEvents.get(index);
+    }
+
     public ArrayList<String> getReceivedEventNames() throws JSONException {
         ArrayList<String> eventNames = new ArrayList<>();
         for (int i =0; i < receivedEvents.size(); i++) {

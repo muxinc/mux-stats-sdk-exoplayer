@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.net.Uri;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
+import android.view.View;
 
 import androidx.annotation.Nullable;
 
@@ -14,9 +15,6 @@ import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
-import com.google.android.exoplayer2.offline.DownloadHelper;
-import com.google.android.exoplayer2.offline.DownloadRequest;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -31,26 +29,22 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
-import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.google.android.exoplayer2.upstream.HttpDataSource;
-import com.google.android.exoplayer2.upstream.cache.Cache;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSource;
-import com.google.android.exoplayer2.upstream.cache.CacheDataSourceFactory;
-import com.google.android.exoplayer2.upstream.cache.NoOpCacheEvictor;
-import com.google.android.exoplayer2.upstream.cache.SimpleCache;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 
-import java.io.File;
 import java.lang.reflect.Constructor;
 
 public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
 
+    private boolean isShowingTrackSelectionDialog;
+
     public void initExoPlayer() {
+        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();;
+        DefaultTrackSelector.Parameters trackSelectorParameters
+                = new DefaultTrackSelector.ParametersBuilder().build();
+        trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+        trackSelector.setParameters(trackSelectorParameters);
         RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
-        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();
-        TrackSelector trackSelector = new DefaultTrackSelector(trackSelectionFactory);
         player = ExoPlayerFactory.newSimpleInstance(this, renderersFactory, trackSelector);
     }
 
@@ -82,7 +76,6 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     public MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
         DataSource.Factory dataSourceFactory = buildDataSourceFactory();
         @C.ContentType int type = Util.inferContentType(uri, overrideExtension);
-        muxStats.setStreamType(type);
         switch (type) {
             case C.TYPE_DASH:
                 return new DashMediaSource.Factory(dataSourceFactory).createMediaSource(uri);

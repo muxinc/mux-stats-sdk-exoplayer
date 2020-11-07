@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.automatedtests.ui;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -10,7 +11,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
+import android.util.Pair;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
@@ -24,16 +29,14 @@ import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
@@ -62,6 +65,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     String urlToPlay;
     PlayerView playerView;
     SimpleExoPlayer player;
+    DefaultTrackSelector trackSelector;
     MediaSource testMediaSource;
     MuxStatsExoPlayer muxStats;
     AdsLoader adsLoader;
@@ -83,7 +87,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_player_test);
-
         disableUserActions();
 
         playerView = findViewById(R.id.player_view);
@@ -139,8 +142,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         urlToPlay = url;
     }
 
-    public ImaAdsLoader getImaAdsLoader() {
-        return (ImaAdsLoader) adsLoader;
+    public DefaultTrackSelector getTrackSelector() {
+        return trackSelector;
     }
 
     public void startPlayback() {
