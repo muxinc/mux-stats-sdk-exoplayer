@@ -1,9 +1,51 @@
 steps:
-- agents:
-    dind: true
-  command: docker run -it --rm -v "$PWD":/data -w /data muxinc/mux-exoplayer:20190919
-  label: Build AARs
-  artifact_paths:
-    - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
-    - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
-    - "MuxExoPlayer/buildout/outputs/version-*"
+- agents: [dind=true,queue=beta]
+  command: docker run -it --rm -v "$PWD":/data -w="/data" muxinc/mux-exoplayer:20190919 bash -c "./gradlew --info clean build assemble automatedtests:assembleAndroidTest"
+  label: Build AARs and APKs
+  plugins:
+    - artifacts#v1.3.0:
+        upload:
+          - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
+          - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
+          - "MuxExoPlayer/buildout/outputs/version-*"
+          - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"
+          - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
+- wait
+- agents: [dind=true,queue=beta]
+  command: docker run --rm -v "$PWD":/data -e TEST_NAME="r_2_9_6 Buildkite Build $BUILDKITE_BUILD_NUMBER" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_9_6/debug/automatedtests-r2_9_6-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_9_6/debug/automatedtests-r2_9_6-debug.apk -e API_KEY=$SAUCELABS_API_KEY muxinc/saucelabs-test-runner:1.9
+  label: Test Exoplayer r2_9_6 on Samsung Galaxy S9 (US)
+  retry:
+    automatic:
+        - exit_status: 1
+          limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "automatedtests/buildout/outputs/apk/r2_9_6/debug/automatedtests-r2_9_6-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_9_6/debug/automatedtests-r2_9_6-debug-androidTest.apk"
+- wait
+- agents: [dind=true,queue=beta]
+  command: docker run --rm -v "$PWD":/data -e TEST_NAME="r_2_10_6 Buildkite Build $BUILDKITE_BUILD_NUMBER" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk -e API_KEY=$SAUCELABS_API_KEY muxinc/saucelabs-test-runner:1.9
+  label: Test Exoplayer r2_10_6 on Samsung Galaxy S9 (US)
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "automatedtests/buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk"
+- wait
+- agents: [dind=true,queue=beta]
+  command: docker run --rm -v "$PWD":/data -e TEST_NAME="r_2_11_1 Buildkite Build $BUILDKITE_BUILD_NUMBER" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_11_1/debug/automatedtests-r2_11_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_11_1/debug/automatedtests-r2_11_1-debug.apk -e API_KEY=$SAUCELABS_API_KEY muxinc/saucelabs-test-runner:1.9
+  label: Test Exoplayer r2_11_1 on Samsung Galaxy S9 (US)
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "automatedtests/buildout/outputs/apk/r2_11_1/debug/automatedtests-r2_11_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_11_1/debug/automatedtests-r2_11_1-debug-androidTest.apk"
