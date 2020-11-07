@@ -70,7 +70,6 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     @SuppressWarnings("unchecked")
     public MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
         @C.ContentType int type = Util.inferContentType(uri, overrideExtension);
-        muxStats.setStreamType(type);
         DataSource.Factory dataSourceFactory = buildDataSourceFactory();
         switch (type) {
             case C.TYPE_DASH:
