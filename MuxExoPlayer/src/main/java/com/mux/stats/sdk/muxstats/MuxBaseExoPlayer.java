@@ -38,8 +38,12 @@ import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
+import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -53,6 +57,8 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -72,6 +78,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected Float sourceAdvertisedFramerate;
     protected Long sourceDuration;
     protected ExoPlayerHandler playerHandler;
+    protected FrameRenderedListener frameRenderedListener;
+    protected Timer updatePlayheadPositionTimer;
 
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
@@ -80,7 +88,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected int streamType = -1;
 
     public enum PlayerState {
-        BUFFERING, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS, FINISHED_PLAYING_ADS, INIT, ENDED
+        BUFFERING, REBUFFERING, SEEKING, SEEKED, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS,
+        FINISHED_PLAYING_ADS, INIT, ENDED
     }
     protected PlayerState state;
     protected MuxStats muxStats;
@@ -88,28 +97,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
                      CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
-                     CustomerViewData customerViewData, boolean sentryEnabled) {
+                     CustomerViewData customerViewData, boolean sentryEnabled,
+                     INetworkRequest networkRequest) {
         super();
         this.player = new WeakReference<>(player);
         this.contextRef = new WeakReference<>(ctx);
         state = PlayerState.INIT;
         MuxStats.setHostDevice(new MuxDevice(ctx));
-        MuxStats.setHostNetworkApi(new MuxNetworkRequests());
+        MuxStats.setHostNetworkApi(networkRequest);
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, customerViewData, sentryEnabled);
         addListener(muxStats);
-        Player.VideoComponent lDecCount = player.getVideoComponent();
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
-        lDecCount.setVideoFrameMetadataListener(new VideoFrameMetadataListener() {
-            // As of r2.11.x, the signature for this callback has changed. These are not annotated as @Overrides in
-            // order to support both before r2.11.x and after r2.11.x at the same time.
-            public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
-                playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
-            }
-
-            public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
-                playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
-            }
-        });
+        frameRenderedListener = new FrameRenderedListener(playerHandler);
+        setPlaybackHeadUpdateInterval(false);
     }
 
     /**
@@ -287,6 +287,48 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return state;
     }
 
+    protected void configurePlaybackHeadUpdateInterval() {
+        if (player == null || player.get() == null) {
+            return;
+        }
+
+        TrackGroupArray trackGroups = player.get().getCurrentTrackGroups();
+        boolean haveVideo = false;
+        if (trackGroups.length > 0) {
+            for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+                TrackGroup trackGroup = trackGroups.get(groupIndex);
+                if (0 < trackGroup.length) {
+                    Format trackFormat = trackGroup.getFormat(0);
+                    if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType.contains("video")) {
+                        haveVideo = true;
+                        break;
+                    }
+                }
+            }
+        }
+        setPlaybackHeadUpdateInterval(haveVideo);
+    }
+
+    protected void setPlaybackHeadUpdateInterval(boolean haveVideo) {
+        if (updatePlayheadPositionTimer != null) {
+            updatePlayheadPositionTimer.cancel();
+        }
+        if (haveVideo) {
+            Player.VideoComponent videoComponent = player.get().getVideoComponent();
+            videoComponent.setVideoFrameMetadataListener(frameRenderedListener);
+        } else {
+            // Schedule timer to execute, this is for audio only content.
+            updatePlayheadPositionTimer = new Timer();
+            updatePlayheadPositionTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
+                            .sendToTarget();
+                }
+            }, 0, 15);
+        }
+    }
+
     /*
      * This will be called by AdsImaSDKListener to set the player state to: PLAYING_ADS
      * and ADS_PLAYBACK_DONE accordingly
@@ -328,16 +370,36 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void buffering() {
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+            // ignore
+            return;
+        }
+        // If we are going from playing to buffering then this is rebuffer event
+        if (state == PlayerState.PLAYING) {
+            rebufferingStarted();
+            return;
+        }
+        // This is initial buffering event before playback starts
         state = PlayerState.BUFFERING;
         dispatch(new TimeUpdateEvent(null));
     }
 
     protected void pause() {
+        if (state == PlayerState.REBUFFERING) {
+            rebufferingEnded();
+        }
+        if (state == PlayerState.SEEKED) {
+            dispatch(new SeekedEvent(null));
+        }
         state = PlayerState.PAUSED;
         dispatch(new PauseEvent(null));
     }
 
     protected void play() {
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+            // Ignore play event after rebuffering and Seeking
+            return;
+        }
         state = PlayerState.PLAY;
         dispatch(new PlayEvent(null));
     }
@@ -346,8 +408,40 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (state == PlayerState.PAUSED || state == PlayerState.FINISHED_PLAYING_ADS) {
             play();
         }
+        if (state == PlayerState.REBUFFERING) {
+            rebufferingEnded();
+        }
+        if (state == PlayerState.SEEKED) {
+            dispatch(new SeekedEvent(null));
+        }
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
+    }
+
+    protected void rebufferingStarted() {
+        state = PlayerState.REBUFFERING;
+        dispatch(new RebufferStartEvent(null));
+    }
+
+    protected void rebufferingEnded() {
+        dispatch(new RebufferEndEvent(null));
+    }
+
+    protected void seeking() {
+        if (state == PlayerState.PLAYING) {
+            dispatch(new PauseEvent(null));
+        }
+        state = PlayerState.SEEKING;
+        dispatch(new SeekingEvent(null));
+    }
+
+    protected void seeked() {
+        /*
+         * Seeked event will be fired by the player immediately after seeking event
+         * This is not accurate, instead report the seeked event on first playing or pause
+         * event after seeked was reported by the player.
+         */
+        state = PlayerState.SEEKED;
     }
 
     protected void ended() {
@@ -377,6 +471,24 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             dispatch(event);
         }
     }
+
+    static class FrameRenderedListener implements VideoFrameMetadataListener {
+        ExoPlayerHandler handler;
+
+        public FrameRenderedListener(ExoPlayerHandler handler) {
+            this.handler = handler;
+        }
+
+        // As of r2.11.x, the signature for this callback has changed. These are not annotated as @Overrides in
+        // order to support both before r2.11.x and after r2.11.x at the same time.
+        public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format) {
+            handler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+        }
+
+        public void onVideoFrameAboutToBeRendered(long presentationTimeUs, long releaseTimeNs, Format format, @Nullable MediaFormat mediaFormat) {
+            handler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+        }
+    };
 
     static class ExoPlayerHandler extends Handler {
         static final int UPDATE_PLAYER_CURRENT_POSITION = 1;
