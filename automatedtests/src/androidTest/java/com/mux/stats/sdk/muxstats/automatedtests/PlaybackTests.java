@@ -86,7 +86,7 @@ public class PlaybackTests extends TestBase {
             });
 
             // Play another x seconds, stage 7
-            Thread.sleep(PLAY_PERIOD_IN_MS);
+            Thread.sleep(PLAY_PERIOD_IN_MS * 2);
 
             CheckupResult result;
 
