@@ -51,9 +51,24 @@ public class RenditionChangeTests extends TestBase {
             Format changedFmt = availableFormats.get(nextFmtIndex);
             switchRenditionToIndex(nextFmtIndex);
             Thread.sleep(PLAY_PERIOD_IN_MS);
-            int renditionChangeIndex = networkRequest
-                    .getIndexForLastEvent(RenditionChangeEvent.TYPE);
+            int renditionChangeIndex = 0;
             int playinIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
+            while (true) {
+                renditionChangeIndex = networkRequest
+                        .getIndexForNextEvent(renditionChangeIndex + 1, RenditionChangeEvent.TYPE);
+                long lastRenditionChangeAt = networkRequest
+                        .getCreationTimeForEvent(renditionChangeIndex) - networkRequest
+                        .getCreationTimeForEvent(playinIndex);
+                if (Math.abs(lastRenditionChangeAt - PLAY_PERIOD_IN_MS) < 500) {
+                    // We found rendition change index we ware looking for, there may be more after,
+                    // because I dont know how to controll the player bitadaptive settings
+                    break;
+                }
+                if (renditionChangeIndex == -1) {
+                    fail("Failed to find RenditionChangeEvent dispatched after: "
+                            + PLAY_PERIOD_IN_MS + " ms since playback started !!!");
+                }
+            }
             JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
             int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
             int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
@@ -61,15 +76,6 @@ public class RenditionChangeTests extends TestBase {
                 fail("Last reported rendition change width and height (" + videoWidth + "x" +
                         videoHeight + ") do not match requested format resolution: (" +
                         changedFmt.width + "x" + changedFmt.height + ")");
-            }
-            long lastRenditionChangeAt = networkRequest
-                    .getCreationTimeForEvent(renditionChangeIndex) - networkRequest
-                    .getCreationTimeForEvent(playinIndex);
-            long lastRenditionChangeIndexExpectedAt = PLAY_PERIOD_IN_MS ;
-            if (Math.abs(lastRenditionChangeAt - lastRenditionChangeIndexExpectedAt) > 500) {
-                fail("Last rendition change event reported at: " + lastRenditionChangeAt +
-                        ", expected time: " + lastRenditionChangeIndexExpectedAt +
-                        ", renditionChangeEventIndex: " + renditionChangeIndex);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -131,6 +137,9 @@ public class RenditionChangeTests extends TestBase {
     void switchRenditionToIndex(int index) {
         Format fmt = getAvailableVideoRendition().get(index);
         DefaultTrackSelector selector = testActivity.getTrackSelector();
-        selector.setParameters(selector.buildUponParameters().setMaxVideoSize(fmt.width, fmt.height));
+        selector.setParameters(selector.buildUponParameters()
+                .setMaxVideoSize(fmt.width, fmt.height)
+                .setForceHighestSupportedBitrate(true)
+        );
     }
 }
