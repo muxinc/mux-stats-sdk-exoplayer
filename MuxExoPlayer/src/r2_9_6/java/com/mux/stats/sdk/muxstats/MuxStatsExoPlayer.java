@@ -20,6 +20,8 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.events.playback.SeekedEvent;
+import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -63,7 +65,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                              INetworkRequest networkRequest) {
         super(ctx, player, playerName, customerPlayerData, customerVideoData, customerViewData,
                 sentryEnabled, networkRequest);
-
         if (player instanceof SimpleExoPlayer) {
             ((SimpleExoPlayer) player).addAnalyticsListener(this);
         } else {
