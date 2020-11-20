@@ -287,7 +287,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return state;
     }
 
-<<<<<<< HEAD:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
     protected void configurePlaybackHeadUpdateInterval() {
         if (player == null || player.get() == null) {
             return;
@@ -419,7 +418,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         dispatch(new PlayingEvent(null));
     }
 
-<<<<<<< HEAD:MuxExoPlayer/src/main/java/com/mux/stats/sdk/muxstats/MuxBaseExoPlayer.java
     protected void rebufferingStarted() {
         state = PlayerState.REBUFFERING;
         dispatch(new RebufferStartEvent(null));
