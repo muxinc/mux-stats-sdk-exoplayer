@@ -6,7 +6,7 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         versionCode 9
-        versionName "1.5.0"
+        versionName "2.0.1"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -118,9 +118,9 @@ dependencies {
     r2_11_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
     r2_11_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-    r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+    r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
     r2_12_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
+    r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'
     r2_12_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'

@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -17,8 +18,11 @@ import com.google.android.exoplayer2.decoder.DecoderCounters;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
+import com.google.android.exoplayer2.source.LoadEventInfo;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
@@ -86,78 +90,94 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         super.release();
     }
 
+    // ------BEGIN AnalyticsListener callbacks------
     @Override
-    public void onPlayerStateChanged(EventTime eventTime, boolean playWhenReady,
-            int playbackState) {
-        onPlayerStateChanged(playWhenReady, playbackState);
+    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime,
+                                         AudioAttributes audioAttributes) { }
+
+    @Override
+    public void onAudioDecoderInitialized​(AnalyticsListener.EventTime eventTime,
+                                          String decoderName, long initializationDurationMs) { }
+
+    @Override
+    public void onAudioDisabled​(AnalyticsListener.EventTime eventTime, DecoderCounters counters) { }
+
+    @Override
+    public void onAudioEnabled​(AnalyticsListener.EventTime eventTime, DecoderCounters counters) { }
+
+    @Override
+    public void onAudioInputFormatChanged​(AnalyticsListener.EventTime eventTime, Format format) { }
+
+    @Override
+    public void onAudioPositionAdvancing​(AnalyticsListener.EventTime eventTime,
+                                         long playoutStartSystemTimeMs) { }
+
+    @Override
+    public void onAudioSessionId(AnalyticsListener.EventTime eventTime, int audioSessionId) { }
+
+    @Override
+    public void onAudioUnderrun(AnalyticsListener.EventTime eventTime, int bufferSize,
+                                long bufferSizeMs, long elapsedSinceLastFeedMs) { }
+
+    @Override
+    public void onBandwidthEstimate​(AnalyticsListener.EventTime eventTime, int totalLoadTimeMs,
+                                    long totalBytesLoaded, long bitrateEstimate) { }
+
+    // Note: onDecoderDisabled, onDecoderEnabled, onDecoderInitialized, and
+    // onDecoderInputFormatChanged were deprecated by 2.12.0, so they're not included here.
+
+    @Override
+    public void onDownstreamFormatChanged(AnalyticsListener.EventTime eventTime,
+                                          MediaLoadData mediaLoadData) {
+        if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.containerMimeType != null) {
+            mimeType = mediaLoadData.trackFormat.containerMimeType;
+        }
     }
 
     @Override
-    public void onTimelineChanged(EventTime eventTime, int reason) {
-        onTimelineChanged(eventTime.timeline, null, reason);
+    public void onDrmKeysLoaded(AnalyticsListener.EventTime eventTime) { }
+
+    @Override
+    public void onDrmKeysRemoved(AnalyticsListener.EventTime eventTime) { }
+
+    @Override
+    public void onDrmKeysRestored(AnalyticsListener.EventTime eventTime) { }
+
+    @Override
+    public void	onDrmSessionAcquired​(AnalyticsListener.EventTime eventTime) { }
+
+    @Override
+    public void onDrmSessionManagerError(AnalyticsListener.EventTime eventTime, Exception e) {
+        internalError(new MuxErrorException(ERROR_DRM, "DrmSessionManagerError - " + e.getMessage()));
     }
 
     @Override
-    public void onPositionDiscontinuity(EventTime eventTime, int reason) {
-        onPositionDiscontinuity(reason);
+    public void onDrmSessionReleased​(AnalyticsListener.EventTime eventTime) { }
+
+    @Override
+    public void onDroppedVideoFrames​(AnalyticsListener.EventTime eventTime, int droppedFrames,
+                                     long elapsedMs) { }
+
+    // Note: onLoadingChanged was deprecated and moved to onIsLoadingChanged in 2.12.0
+    @Override
+    public void onIsLoadingChanged(AnalyticsListener.EventTime eventTime, boolean isLoading) {
+        onIsLoadingChanged(isLoading);
     }
 
     @Override
-    public void onSeekStarted(EventTime eventTime) {
-        dispatch(new SeekingEvent(null));
+    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) { }
+
+    @Override
+    public void onLoadCanceled(AnalyticsListener.EventTime eventTime,
+                               LoadEventInfo loadEventInfo,
+                               MediaLoadData mediaLoadData) {
+        bandwidthDispatcher.onLoadCanceled(loadEventInfo.dataSpec);
     }
 
     @Override
-    public void onSeekProcessed(EventTime eventTime) {
-        onSeekProcessed();
-    }
-
-    @Override
-    public void onPlaybackParametersChanged(EventTime eventTime,
-            PlaybackParameters playbackParameters) {
-        onPlaybackParametersChanged(playbackParameters);
-    }
-
-    @Override
-    public void onRepeatModeChanged(EventTime eventTime, int repeatMode) {
-        onRepeatModeChanged(repeatMode);
-    }
-
-    @Override
-    public void onShuffleModeChanged(EventTime eventTime,
-            boolean shuffleModeEnabled) {
-        onShuffleModeEnabledChanged(shuffleModeEnabled);
-    }
-
-    @Override
-    public void onLoadingChanged(EventTime eventTime, boolean isLoading) {
-        onLoadingChanged(isLoading);
-    }
-
-    @Override
-    public void onPlayerError(EventTime eventTime, ExoPlaybackException error) {
-        onPlayerError(error);
-    }
-
-    @Override
-    public void onTracksChanged(EventTime eventTime, TrackGroupArray trackGroups,
-            TrackSelectionArray trackSelections) {
-        onTracksChanged(trackGroups, trackSelections);
-    }
-
-    @Override
-    public void onLoadStarted(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
-        bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-                mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-                mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
-    }
-
-    @Override
-    public void onLoadCompleted(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+    public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
+                                LoadEventInfo loadEventInfo,
+                                MediaLoadData mediaLoadData) {
         bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
                 mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
                 mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
@@ -166,157 +186,156 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
-    public void onLoadCanceled(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
-        bandwidthDispatcher.onLoadCanceled(loadEventInfo.dataSpec);
-    }
-
-    @Override
-    public void onLoadError(EventTime eventTime,
-            MediaSourceEventListener.LoadEventInfo loadEventInfo,
-            MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
-            boolean wasCanceled) {
+    public void onLoadError(AnalyticsListener.EventTime eventTime,
+                            LoadEventInfo loadEventInfo,
+                            MediaLoadData mediaLoadData, IOException e,
+                            boolean wasCanceled) {
         bandwidthDispatcher.onLoadError(loadEventInfo.dataSpec, mediaLoadData.dataType, e);
     }
 
     @Override
-    public void onDownstreamFormatChanged(EventTime eventTime,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
-        if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.containerMimeType != null) {
-            mimeType = mediaLoadData.trackFormat.containerMimeType;
-        }
+    public void onLoadStarted(AnalyticsListener.EventTime eventTime,
+                              LoadEventInfo loadEventInfo,
+                              MediaLoadData mediaLoadData) {
+        bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
+                mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
+                mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
     }
 
     @Override
-    public void onUpstreamDiscarded(EventTime eventTime,
-            MediaSourceEventListener.MediaLoadData mediaLoadData) {
+    public void onMediaItemTransition​(AnalyticsListener.EventTime eventTime, MediaItem mediaItem,
+                                      int reason) { }
 
+    @Override
+    public void onMetadata(AnalyticsListener.EventTime eventTime, Metadata metadata) { }
+
+    @Override
+    public void onPlaybackParametersChanged(AnalyticsListener.EventTime eventTime,
+                                            PlaybackParameters playbackParameters) {
+        onPlaybackParametersChanged(playbackParameters);
+    }
+
+    // Note: onPlayerStateChanged was deprecated in 2.12.0, replaced with onPlayWhenReadyChanged
+    // and onPlaybackStateChanged.
+    @Override
+    public void onPlaybackStateChanged​(AnalyticsListener.EventTime eventTime, int state) {
+        onPlaybackStateChanged(state);
     }
 
     @Override
-    public void onMediaPeriodCreated(EventTime eventTime) {
+    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime,
+                                                   int playbackSuppressionReason) { }
 
+    @Override
+    public void onPlayerError(AnalyticsListener.EventTime eventTime, ExoPlaybackException error) {
+        onPlayerError(error);
     }
 
     @Override
-    public void onMediaPeriodReleased(EventTime eventTime) {
-
+    public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
+                                       int reason) {
+        onPlayWhenReadyChanged(playWhenReady, reason);
     }
 
     @Override
-    public void onReadingStarted(EventTime eventTime) {
-
+    public void onPositionDiscontinuity(AnalyticsListener.EventTime eventTime, int reason) {
+        onPositionDiscontinuity(reason);
     }
 
     @Override
-    public void onBandwidthEstimate(EventTime eventTime, int totalLoadTimeMs,
-            long totalBytesLoaded, long bitrateEstimate) {
+    public void onRenderedFirstFrame(AnalyticsListener.EventTime eventTime, Surface surface) { }
 
+    @Override
+    public void onRepeatModeChanged(AnalyticsListener.EventTime eventTime, int repeatMode) {
+        onRepeatModeChanged(repeatMode);
+    }
+
+    // Note: onSeekProcessed was deprecated in 2.12.0
+
+    @Override
+    public void onSeekStarted(AnalyticsListener.EventTime eventTime) {
+        dispatch(new SeekingEvent(null));
     }
 
     @Override
-    public void onMetadata(EventTime eventTime, Metadata metadata) {
-
+    public void onShuffleModeChanged(AnalyticsListener.EventTime eventTime,
+                                     boolean shuffleModeEnabled) {
+        onShuffleModeEnabledChanged(shuffleModeEnabled);
     }
 
     @Override
-    public void onDecoderEnabled(EventTime eventTime, int trackType,
-            DecoderCounters decoderCounters) {
+    public void onSkipSilenceEnabledChanged​(AnalyticsListener.EventTime eventTime,
+                                            boolean skipSilenceEnabled) { }
 
+    @Override
+    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width,
+                                     int height) { }
+
+    @Override
+    public void onTimelineChanged(AnalyticsListener.EventTime eventTime, int reason) {
+        onTimelineChanged(eventTime.timeline, reason);
     }
 
     @Override
-    public void onDecoderInitialized(EventTime eventTime, int trackType,
-            String decoderName, long initializationDurationMs) {
-
+    public void onTracksChanged(AnalyticsListener.EventTime eventTime, TrackGroupArray trackGroups,
+                                TrackSelectionArray trackSelections) {
+        onTracksChanged(trackGroups, trackSelections);
     }
 
     @Override
-    public void onDecoderInputFormatChanged(EventTime eventTime, int trackType,
-            Format format) {
-        if (trackType == C.TRACK_TYPE_VIDEO || trackType == C.TRACK_TYPE_DEFAULT) {
-            handleRenditionChange(format);
-        }
+    public void onUpstreamDiscarded(EventTime eventTime, MediaLoadData mediaLoadData) { }
+
+    @Override
+    public void onVideoDecoderInitialized​(AnalyticsListener.EventTime eventTime,
+                                          String decoderName, long initializationDurationMs) { }
+
+    @Override
+    public void onVideoDisabled​(AnalyticsListener.EventTime eventTime, DecoderCounters counters) { }
+
+    @Override
+    public void onVideoEnabled​(AnalyticsListener.EventTime eventTime, DecoderCounters counters) { }
+
+    @Override
+    public void onVideoFrameProcessingOffset​(AnalyticsListener.EventTime eventTime,
+                                             long totalProcessingOffsetUs, int frameCount) { }
+
+    @Override
+    public void onVideoInputFormatChanged​(AnalyticsListener.EventTime eventTime, Format format) {
+        handleRenditionChange(format);
     }
 
     @Override
-    public void onDecoderDisabled(EventTime eventTime, int trackType,
-            DecoderCounters decoderCounters) {
-
-    }
-
-    @Override
-    public void onAudioSessionId(EventTime eventTime, int audioSessionId) {
-
-    }
-
-    @Override
-    public void onAudioUnderrun(EventTime eventTime, int bufferSize,
-            long bufferSizeMs, long elapsedSinceLastFeedMs) {
-
-    }
-
-    @Override
-    public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames,
-            long elapsedMs) {
-
-    }
-
-    @Override
-    public void onVideoSizeChanged(EventTime eventTime, int width, int height,
-            int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    public void onVideoSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height,
+                                   int unappliedRotationDegrees, float pixelWidthHeightRatio) {
         sourceWidth = width;
         sourceHeight = height;
     }
 
     @Override
-    public void onRenderedFirstFrame(EventTime eventTime, Surface surface) {
+    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) { }
+    // ------END AnalyticsListener callbacks------
 
-    }
+    // ------BEGIN Player.EventListener callbacks------
+    @Override
+    public void onExperimentalOffloadSchedulingEnabledChanged​(boolean offloadSchedulingEnabled) { }
+
+    // Note: As of 2.12.0, onLoadingChanged was deprecated, replaced with onIsLoadingChanged
+    @Override
+    public void onIsLoadingChanged(boolean isLoading) { }
 
     @Override
-    public void onDrmKeysLoaded(EventTime eventTime) {
-
-    }
+    public void onIsPlayingChanged​(boolean isPlaying) { }
 
     @Override
-    public void onDrmSessionManagerError(EventTime eventTime, Exception e) {
-        internalError(new MuxErrorException(ERROR_DRM, "DrmSessionManagerError - " + e.getMessage()));
-    }
+    public void onMediaItemTransition​(MediaItem mediaItem, int reason) { }
 
     @Override
-    public void onDrmKeysRestored(EventTime eventTime) {
+    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) { }
 
-    }
-
+    // Note: onPlayerStateChanged was deprecated and replaced with
+    // onPlayWhenReadyChanged and onPlaybackStateChanged in 2.12.0
     @Override
-    public void onDrmKeysRemoved(EventTime eventTime) {
-
-    }
-
-    @Override
-    public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-        if (timeline != null && timeline.getWindowCount() > 0) {
-            Timeline.Window window = new Timeline.Window();
-            timeline.getWindow(0, window);
-            sourceDuration = window.getDurationMs();
-        }
-    }
-
-    @Override
-    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-        bandwidthDispatcher.onTracksChanged(trackGroups);
-    }
-
-    @Override
-    public void onLoadingChanged(boolean isLoading) {
-
-    }
-
-    @Override
-    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-        this.playWhenReady = playWhenReady;
+    public void onPlaybackStateChanged(int playbackState) {
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
             // Ignore all normal events while playing ads !!!
@@ -352,14 +371,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
-    public void onRepeatModeChanged(int repeatMode) {
-
-    }
-
-    @Override
-    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-    }
+    public void onPlaybackSuppressionReasonChanged​(int playbackSuppressionReason) { }
 
     @Override
     public void onPlayerError(ExoPlaybackException e) {
@@ -391,42 +403,36 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
+    public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
+        this.playWhenReady = playWhenReady;
+    }
+
+    @Override
     public void onPositionDiscontinuity(int reason) {
-
+        if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+            dispatch(new SeekedEvent(null));
+        }
     }
 
     @Override
-    public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+    public void onRepeatModeChanged(int repeatMode) { }
 
+    // Note, onSeekProcessed was deprecated in 2.12.0
+
+    @Override
+    public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) { }
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, int reason) {
+        if (timeline != null && timeline.getWindowCount() > 0) {
+            Timeline.Window window = new Timeline.Window();
+            timeline.getWindow(0, window);
+            sourceDuration = window.getDurationMs();
+        }
     }
 
     @Override
-    public void onSeekProcessed() {
-        dispatch(new SeekedEvent(null));
-    }
-
-    @Override
-    public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height) {
-
-    }
-
-    @Override
-    public void onIsPlayingChanged(AnalyticsListener.EventTime eventTime, boolean isPlaying) {
-
-    }
-
-    @Override
-    public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime, AudioAttributes audioAttributes) {
-
-    }
-
-    @Override
-    public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime, int playbackSuppressionReason) {
-
-    }
-
-    @Override
-    public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
-
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+        bandwidthDispatcher.onTracksChanged(trackGroups);
     }
 }
