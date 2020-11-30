@@ -1,0 +1,14 @@
+bash upload-app-s3.sh tkordic 51490b95-6a72-4edc-8d52-fdf703008c98 automatedtests-r2_10_6-debug.apk ../automatedtests-r2_10_6-debug.apk
+
+Step 1: Generate Basic Authorization
+Step 2: Generate Upload URL
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   576  100   526  100    50    249     23  0:00:02  0:00:02 --:--:--   273
+
+Step 3: Upload File To S3
+Step 4: Create Application Or Version
+
+{"appId":76670,"versionId":87881}...Done
+
+

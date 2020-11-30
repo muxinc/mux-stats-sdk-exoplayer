@@ -1,0 +1,92 @@
+// Build apks
+./gradlew build
+
+// Build test suits
+./gradlew assembleAndroidTest
+
+// Upload testsuite
+
+curl -u "tomislavkordic1:LyNzufBXxrDsywq5FxF1" -X POST "https://api-cloud.browserstack.com/app-automate/espresso/test-suite" -F "file=@./buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk"
+
+{"test_url":"bs://97eecf426c013dcee48bf052faab5a772d1e803d"}
+
+
+// Upload app
+curl -u "tomislavkordic1:LyNzufBXxrDsywq5FxF1" -X POST "https://api-cloud.browserstack.com/app-automate/upload" -F "file=@./buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk"
+
+{"app_url":"bs://6f26113dd31ca192fe8997ec458ac1251b24e34b"}
+
+
+// Run test
+curl -u "tomislavkordic1:LyNzufBXxrDsywq5FxF1" -X POST "https://api-cloud.browserstack.com/app-automate/espresso/build" -d  "{\"devices\": [\"google pixel 3-9.0\"], \"app\": \"bs://6f26113dd31ca192fe8997ec458ac1251b24e34b\", \"devicelogs\" : true, \"testsuite\": \"bs://97eecf426c013dcee48bf052faab5a772d1e803d\"}" -H "content-type: application/json"
+
+
+{"message":"Invalid testing suite specified. Please check if you have uploaded this testing suite or using the right testing suite."}
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+keytool -printcert -jarfile ./buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk
+Signer #1:
+
+Signature:
+
+Owner: C=US, O=Android, CN=Android Debug
+Issuer: C=US, O=Android, CN=Android Debug
+Serial number: 1
+Valid from: Thu May 09 18:36:40 CEST 2019 until: Sat May 01 18:36:40 CEST 2049
+Certificate fingerprints:
+	 SHA1: 03:92:52:BF:C4:97:AB:4C:B6:C6:97:50:77:67:D7:9F:BF:80:CC:CF
+	 SHA256: 69:A1:B0:65:96:EE:A0:99:DC:74:A5:12:EA:DD:EA:60:98:37:8B:6B:24:D6:0C:42:2D:F4:49:5D:B5:79:77:84
+Signature algorithm name: SHA1withRSA
+Subject Public Key Algorithm: 1024-bit RSA key
+Version: 1
+
+
+
+keytool -printcert -jarfile ./buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk
+Signer #1:
+
+Signature:
+
+Owner: C=US, O=Android, CN=Android Debug
+Issuer: C=US, O=Android, CN=Android Debug
+Serial number: 1
+Valid from: Thu May 09 18:36:40 CEST 2019 until: Sat May 01 18:36:40 CEST 2049
+Certificate fingerprints:
+	 SHA1: 03:92:52:BF:C4:97:AB:4C:B6:C6:97:50:77:67:D7:9F:BF:80:CC:CF
+	 SHA256: 69:A1:B0:65:96:EE:A0:99:DC:74:A5:12:EA:DD:EA:60:98:37:8B:6B:24:D6:0C:42:2D:F4:49:5D:B5:79:77:84
+Signature algorithm name: SHA1withRSA
+Subject Public Key Algorithm: 1024-bit RSA key
+Version: 1
+
+
+/////////////////////// ADB command to run on device  ///////////////////////////
+
+adb install automatedtests-r2_10_6-debug.apk
+adb install automatedtests-r2_10_6-debug-androidTest.apk
+
+adb shell pm list instrumentation
+adb shell am instrument -w com.mux.stats.sdk.muxstats.automatedtests.test/androidx.test.runner.AndroidJUnitRunner
+
+
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////// Upload via gradle plugin /////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+https://github.com/browserstack/browserstack-gradle-plugin
+
+gradle clean execute${buildVariantName}TestsOnBrowserstack
+
+./gradlew  automatedtests:executer2_11_1DebugTestsOnBrowserstack
+
+./gradlew  automatedtests:executer2_10_6DebugTestsOnBrowserstack
+
+
+
+
+
