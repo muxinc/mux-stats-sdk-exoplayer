@@ -163,6 +163,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         player = null;
     }
 
+    public MuxStatsExoPlayer getMuxStats() {
+        return muxStats;
+    }
+
     public void initMuxSats() {
         // Mux details
         CustomerPlayerData customerPlayerData = new CustomerPlayerData();

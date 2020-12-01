@@ -103,6 +103,9 @@ public class MockNetworkRequest implements INetworkRequest {
     }
 
     public JSONObject getEventForIndex(int index) {
+        if ( index == -1 || index >= receivedEvents.size()) {
+            return null;
+        }
         return receivedEvents.get(index);
     }
 
@@ -119,7 +122,7 @@ public class MockNetworkRequest implements INetworkRequest {
     }
 
     public long getCreationTimeForEvent(int index) throws JSONException {
-        if (index > receivedEvents.size()) {
+        if (index > receivedEvents.size() || index < 0 ) {
             return -1;
         }
         return receivedEvents.get(index).getLong("uti");

@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
-    protected static final String TAG = "MuxStatsListener";
+    protected static final String TAG = "MuxStatsEventQueue";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
     protected static final int ERROR_UNKNOWN = -1;
     protected static final int ERROR_DRM = -2;
@@ -383,7 +383,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void buffering() {
-        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+                || state == PlayerState.SEEKED ) {
             // ignore
             return;
         }
@@ -409,7 +410,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void play() {
-        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+                || state == PlayerState.SEEKED ) {
             // Ignore play event after rebuffering and Seeking
             return;
         }
@@ -481,6 +483,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             }
             sourceWidth = format.width;
             sourceHeight = format.height;
+            Log.e(TAG, "Dispatching rendition change event, w:" + sourceWidth + ", h: " + sourceHeight);
             RenditionChangeEvent event = new RenditionChangeEvent(null);
             dispatch(event);
         }

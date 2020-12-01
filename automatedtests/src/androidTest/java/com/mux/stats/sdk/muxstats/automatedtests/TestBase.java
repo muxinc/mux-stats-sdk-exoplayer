@@ -43,6 +43,8 @@ import static org.junit.Assert.fail;
 
 public abstract class TestBase {
 
+    static final String TAG = "TestBase";
+
     @Rule
     public ActivityTestRule<SimplePlayerTestActivity> activityRule  =
             new ActivityTestRule<>(SimplePlayerTestActivity.class);
@@ -107,7 +109,7 @@ public abstract class TestBase {
             fail("Test activity not found !!!");
         }
         testActivity.runOnUiThread(() -> {
-            testActivity.setVideoTitle(currentTestName.getMethodName());
+            testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
             testActivity.setUrlToPlay(urlToPlay);
             testActivity.initMuxSats();
             testActivity.startPlayback();

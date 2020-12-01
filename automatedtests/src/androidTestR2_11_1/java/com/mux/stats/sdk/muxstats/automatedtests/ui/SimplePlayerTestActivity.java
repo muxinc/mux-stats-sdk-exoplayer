@@ -105,7 +105,8 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     }
 
     /** Returns an ads media source, reusing the ads loader if one exists. */
-    public MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+    public MediaSource createAdsMediaSource(Uri uri, Uri adTagUri) {
+        MediaSource lOriginalSource = buildMediaSource(uri, null);
         // Load the extension source using reflection so the demo app doesn't have to depend on it.
         // The ads loader is reused for multiple playbacks, so that ad playback can resume.
         try {
@@ -138,7 +139,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             // real IMA AdsLoader instance.
             ((ImaAdsLoader) adsLoader).setPlayer(player);
             muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
-            return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
+            return new AdsMediaSource(lOriginalSource, adMediaSourceFactory, adsLoader, playerView);
         } catch (ClassNotFoundException e) {
             // IMA extension not loaded.
             return null;
