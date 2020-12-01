@@ -114,8 +114,7 @@ public class MissusageTests extends TestBase {
                 fail("Play event received after: " + playReceivedTime + ", expected less the 500 ms");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            fail(getExceptionFullTraceAndMessage( e ));
         }
 
     }

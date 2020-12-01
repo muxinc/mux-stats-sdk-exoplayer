@@ -264,6 +264,15 @@ public abstract class TestBase {
         return currentActivity;
     }
 
+    protected String getExceptionFullTraceAndMessage(Exception e) {
+        String lStackTraceString = "";
+        for (StackTraceElement lStEl : e.getStackTrace() ) {
+            lStackTraceString += lStEl.toString() + "\n";
+        }
+        lStackTraceString += e.getMessage();
+        return lStackTraceString;
+    }
+
     class CheckupResult {
         int eventIndex;
         long pausePeriod;

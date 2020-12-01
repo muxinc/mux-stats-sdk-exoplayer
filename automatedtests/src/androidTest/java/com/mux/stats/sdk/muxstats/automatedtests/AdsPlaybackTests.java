@@ -92,6 +92,7 @@ public class AdsPlaybackTests extends TestBase {
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();
                 testMediaSource = testActivity.getTestMediaSource();
+                networkRequest = testActivity.getMockNetwork();
             });
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
@@ -175,7 +176,7 @@ public class AdsPlaybackTests extends TestBase {
                 fail("Play events after ad break are not ordered correctly");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            fail(getExceptionFullTraceAndMessage( e ));
         }
     }
 

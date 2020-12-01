@@ -93,12 +93,7 @@ public class RenditionChangeTests extends TestBase {
                         changedFmt.width + "x" + changedFmt.height + ")");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            String lStackTraceString = "";
-            for (StackTraceElement lStEl : e.getStackTrace() ) {
-                lStackTraceString += lStEl.toString() + "\n";
-            }
-            fail(lStackTraceString + e.getMessage());
+            fail(getExceptionFullTraceAndMessage( e ));
         }
     }
 

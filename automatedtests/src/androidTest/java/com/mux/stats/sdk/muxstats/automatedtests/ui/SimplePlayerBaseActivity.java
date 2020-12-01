@@ -155,7 +155,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         }
 
         player.setPlayWhenReady(true);
-        player.prepare(testMediaSource, false, false);
+        player.setMediaSource(testMediaSource);
+        player.prepare();
     }
 
     public void releaseExoPlayer() {

@@ -48,7 +48,7 @@ public class RunInBackgroundTests extends TestBase {
                 fail("Playing event is more then 500 ms apart from play event !!!");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            fail(getExceptionFullTraceAndMessage( e ));
         }
     }
 }
