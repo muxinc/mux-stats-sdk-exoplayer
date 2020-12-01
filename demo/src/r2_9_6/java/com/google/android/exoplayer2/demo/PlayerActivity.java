@@ -280,6 +280,7 @@ public class PlayerActivity extends Activity
   @Override
   public void onDestroy() {
     super.onDestroy();
+    muxStats.release();
     releaseAdsLoader();
   }
 
