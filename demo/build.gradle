@@ -88,84 +88,33 @@ android {
     productFlavors {
         r2_9_6 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_9_6_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_10_6 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_10_6_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_11_1 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_11_1_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_12_1 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_12_1_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
@@ -174,8 +123,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'androidx.fragment:fragment:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'
-    r2_12_1Implementation 'androidx.multidex:multidex:2.0.0'
-    r2_12_1_adsImplementation 'androidx.multidex:multidex:2.0.0'
+    implementation 'androidx.multidex:multidex:2.0.0'
     implementation project(':MuxExoPlayer')
     r2_12_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
