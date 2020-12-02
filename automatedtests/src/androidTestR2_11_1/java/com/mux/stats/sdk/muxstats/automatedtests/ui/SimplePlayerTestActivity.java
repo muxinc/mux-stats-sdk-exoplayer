@@ -24,6 +24,7 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -39,10 +40,16 @@ import java.lang.reflect.Constructor;
 public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
 
     public void initExoPlayer() {
-        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();;
+        // Hopfully this will not channge the track selection set programmatically
+        TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(
+                AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS * 10,
+                AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS * 10,
+                AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+                AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION
+        );
         DefaultTrackSelector.Parameters trackSelectorParameters
-                = new DefaultTrackSelector.ParametersBuilder().build();
-        trackSelector = new DefaultTrackSelector(trackSelectionFactory);
+                = new DefaultTrackSelector.ParametersBuilder( this ).build();
+        trackSelector = new DefaultTrackSelector( this, trackSelectionFactory );
         trackSelector.setParameters(trackSelectorParameters);
         RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
         player = ExoPlayerFactory.newSimpleInstance(this, renderersFactory, trackSelector);
@@ -99,14 +106,12 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
         }
     }
 
-    @Override
     public MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
         return createLeafMediaSource(uri, overrideExtension, DrmSessionManager.getDummyDrmSessionManager());
     }
 
     /** Returns an ads media source, reusing the ads loader if one exists. */
-    public MediaSource createAdsMediaSource(Uri uri, Uri adTagUri) {
-        MediaSource lOriginalSource = buildMediaSource(uri, null);
+    public MediaSource createAdsMediaSource(MediaSource aMediaSource, Uri adTagUri) {
         // Load the extension source using reflection so the demo app doesn't have to depend on it.
         // The ads loader is reused for multiple playbacks, so that ad playback can resume.
         try {
@@ -139,13 +144,25 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             // real IMA AdsLoader instance.
             ((ImaAdsLoader) adsLoader).setPlayer(player);
             muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
-            return new AdsMediaSource(lOriginalSource, adMediaSourceFactory, adsLoader, playerView);
+            return new AdsMediaSource(aMediaSource, adMediaSourceFactory, adsLoader, playerView);
         } catch (ClassNotFoundException e) {
             // IMA extension not loaded.
             return null;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void startPlayback() {
+        Uri testUri = Uri.parse(urlToPlay);
+        testMediaSource = buildMediaSource(testUri, null);
+        if (loadedAdTagUri != null) {
+            testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
+        }
+
+        player.setPlayWhenReady(true);
+        player.prepare( testMediaSource );
     }
 
     class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {

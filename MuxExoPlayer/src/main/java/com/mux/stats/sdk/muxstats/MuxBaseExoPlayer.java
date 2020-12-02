@@ -143,11 +143,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     /**
      * Monitor an instance of Google IMA SDK's AdsLoader
      * @param adsLoader
-     */
-    /*
+     *
+     *
      * For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested, this makes
      * this method impossible to use.
      */
+	@SuppressWarnings("unused")
     public void monitorImaAdsLoader(AdsLoader adsLoader) {
         if (adsLoader == null) {
             Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
@@ -317,6 +318,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public PlayerState getState() {
         return state;
     }
+	
     protected void configurePlaybackHeadUpdateInterval() {
         if (player == null || player.get() == null) {
             return;

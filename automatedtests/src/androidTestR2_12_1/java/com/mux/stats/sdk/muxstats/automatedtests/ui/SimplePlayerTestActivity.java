@@ -27,7 +27,9 @@ import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -41,18 +43,26 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
     MediaSourceFactory mediaSourceFactory;
 
     public void initExoPlayer() {
-        RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
+        // Hopfully this will not channge the track selection set programmatically
+        TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(
+                AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS * 10,
+                AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS * 10,
+                AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+                AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION
+        );
         DefaultTrackSelector.ParametersBuilder builder =
                 new DefaultTrackSelector.ParametersBuilder(/* context= */ this);
-        DefaultTrackSelector.Parameters trackSelectorParameters = builder.build();
+        DefaultTrackSelector.Parameters trackSelectorParameters = builder
+                .build();
 
         mediaSourceFactory =
                 new DefaultMediaSourceFactory( buildDataSourceFactory() )
                         .setAdsLoaderProvider(this::getAdsLoader)
                         .setAdViewProvider(playerView);
 
-        trackSelector = new DefaultTrackSelector(/* context= */ this);
+        trackSelector = new DefaultTrackSelector(/* context= */ this, trackSelectionFactory);
         trackSelector.setParameters(trackSelectorParameters);
+        RenderersFactory renderersFactory = new DefaultRenderersFactory(/* context= */ this);
         player =
                 new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
                         .setMediaSourceFactory(mediaSourceFactory)
@@ -113,7 +123,6 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
         }
     }
 
-    @Override
     public MediaSource createAdsMediaSource(MediaSource aMediaSource, Uri adTagUri) {
         return new AdsMediaSource(
                 aMediaSource,
@@ -123,7 +132,6 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
                 playerView );
     }
 
-    @Override
     public MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
         return createMediaSource( uri, overrideExtension );
     }
@@ -161,6 +169,18 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
         }
     }
 
+    @Override
+    public void startPlayback() {
+        Uri testUri = Uri.parse(urlToPlay);
+        testMediaSource = buildMediaSource(testUri, null);
+        if (loadedAdTagUri != null) {
+            testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
+        }
+
+        player.setPlayWhenReady(true);
+        player.setMediaSource( testMediaSource );
+        player.prepare( );
+    }
 
     class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {
 

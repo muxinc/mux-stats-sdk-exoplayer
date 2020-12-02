@@ -48,10 +48,10 @@ public class RenditionChangeTests extends TestBase {
             ArrayList<Format> availableFormats = getAvailableVideoRendition();
             Format startingFmt = availableFormats.get(startingFmtIndex);
             int nextFmtIndex;
-            if (startingFmtIndex < availableFormats.size() -2) {
-                nextFmtIndex = startingFmtIndex + 1;
+            if (startingFmtIndex == availableFormats.size() - 1) {
+                nextFmtIndex = startingFmtIndex - 1;
             } else {
-                nextFmtIndex = startingFmtIndex -1;
+                nextFmtIndex = startingFmtIndex + 1;
             }
             Format changedFmt = availableFormats.get(nextFmtIndex);
             switchRenditionToIndex(nextFmtIndex);
