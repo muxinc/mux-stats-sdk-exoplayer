@@ -1,13 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.webkit.WebView;
 
-import com.google.ads.interactivemedia.v3.api.Ad;
-import com.google.ads.interactivemedia.v3.api.AdsManager;
+
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
@@ -17,7 +11,6 @@ import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
-import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 
 import org.junit.Before;
@@ -92,13 +85,14 @@ public class AdsPlaybackTests extends TestBase {
     public void testPreRollAndBumperAds() {
         try {
             testActivity.runOnUiThread(() -> {
-                testActivity.setVideoTitle(currentTestName.getMethodName());
+                testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
                 testActivity.initMuxSats();
                 testActivity.setUrlToPlay(urlToPlay);
                 testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();
                 testMediaSource = testActivity.getTestMediaSource();
+                networkRequest = testActivity.getMockNetwork();
             });
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
@@ -110,7 +104,7 @@ public class AdsPlaybackTests extends TestBase {
             Thread.sleep(PAUSE_PERIOD_IN_MS);
             // resume the ad playback
             resumePlayer();
-            Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD);
+            Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD * 2);
 
             // Check ad start event
             int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
@@ -176,13 +170,13 @@ public class AdsPlaybackTests extends TestBase {
             playIndex = networkRequest.getIndexForNextEvent(adEndedIndex, PlayEvent.TYPE);
             int playingIndex = networkRequest.getIndexForNextEvent(adEndedIndex, PlayingEvent.TYPE);
             if (playIndex == -1 || playingIndex == -1) {
-                fail("Missing play and playing events after adBreak");
+                fail("Missing play and playing events after adBreakEnd");
             }
             if (playIndex >= playingIndex) {
                 fail("Play events after ad break are not ordered correctly");
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            fail(getExceptionFullTraceAndMessage( e ));
         }
     }
 

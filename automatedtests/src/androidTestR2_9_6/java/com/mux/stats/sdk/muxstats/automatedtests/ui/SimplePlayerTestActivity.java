@@ -23,6 +23,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.hls.playlist.DefaultHlsPlaylistParserFactory;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.manifest.SsManifestParser;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.RandomTrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -38,7 +39,13 @@ import java.lang.reflect.Constructor;
 public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
 
     public void initExoPlayer() {
-        TrackSelection.Factory trackSelectionFactory = new RandomTrackSelection.Factory();;
+        // Hopfully this will not channge the track selection set programmatically
+        TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(
+                AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS * 10,
+                AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS * 10,
+                AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
+                AdaptiveTrackSelection.DEFAULT_BANDWIDTH_FRACTION
+        );
         DefaultTrackSelector.Parameters trackSelectorParameters
                 = new DefaultTrackSelector.ParametersBuilder().build();
         trackSelector = new DefaultTrackSelector(trackSelectionFactory);
@@ -131,5 +138,17 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public void startPlayback() {
+        Uri testUri = Uri.parse(urlToPlay);
+        testMediaSource = buildMediaSource(testUri, null);
+        if (loadedAdTagUri != null) {
+            testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
+        }
+
+        player.setPlayWhenReady(true);
+        player.prepare( testMediaSource );
     }
 }

@@ -113,13 +113,8 @@ public class PlaybackTests extends TestBase {
 //            testScenario.close();
             Log.w(TAG, "See what event should be dispatched on view closed !!!");
             // TODO check player end event
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            // fail test
-            fail();
-        } catch (JSONException e) {
-            e.printStackTrace();
-            fail();
+        } catch (Exception e) {
+            fail(getExceptionFullTraceAndMessage( e ));
         }
         Log.e(TAG, "All done !!!");
     }
@@ -198,12 +193,8 @@ public class PlaybackTests extends TestBase {
                         + networkRequest.getReceivedEventNames());
             }
             // TODO see what is the best way to calculate rebuffer period
-        } catch (JSONException e) {
-            e.printStackTrace();
-            fail();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            fail();
+        } catch (Exception e) {
+            fail(getExceptionFullTraceAndMessage( e ));
         }
     }
 }

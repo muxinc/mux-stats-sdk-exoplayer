@@ -76,7 +76,7 @@ public class MissusageTests extends TestBase {
         try {
             // Init test activity but not the Mux stats
             testActivity.runOnUiThread(() -> {
-                testActivity.setVideoTitle(currentTestName.getMethodName());
+                testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
                 testActivity.setUrlToPlay(urlToPlay);
                 testActivity.startPlayback();
                 pView = testActivity.getPlayerView();
@@ -114,8 +114,7 @@ public class MissusageTests extends TestBase {
                 fail("Play event received after: " + playReceivedTime + ", expected less the 500 ms");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            fail(getExceptionFullTraceAndMessage( e ));
         }
 
     }

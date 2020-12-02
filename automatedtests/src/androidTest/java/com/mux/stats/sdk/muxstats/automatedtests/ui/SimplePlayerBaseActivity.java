@@ -127,9 +127,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public abstract void initAudioSession();
 
-    public abstract MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri);
-
-    public abstract MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension);
+    public abstract void startPlayback();
 
     public void setVideoTitle(String title) {
         videoTitle = title;
@@ -147,20 +145,15 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         return trackSelector;
     }
 
-    public void startPlayback() {
-        Uri testUri = Uri.parse(urlToPlay);
-        testMediaSource = buildMediaSource(testUri, null);
-        if (loadedAdTagUri != null) {
-            testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
-        }
 
-        player.setPlayWhenReady(true);
-        player.prepare(testMediaSource, false, false);
-    }
 
     public void releaseExoPlayer() {
         player.release();
         player = null;
+    }
+
+    public MuxStatsExoPlayer getMuxStats() {
+        return muxStats;
     }
 
     public void initMuxSats() {

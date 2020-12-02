@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import android.util.Log;
+
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -8,7 +10,9 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.model.VideoData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -21,6 +25,7 @@ import static org.junit.Assert.fail;
 
 public class RenditionChangeTests extends TestBase {
 
+    static final String TAG = "RenditionChangeTests";
 
     @Before
     public void init(){
@@ -43,32 +48,42 @@ public class RenditionChangeTests extends TestBase {
             ArrayList<Format> availableFormats = getAvailableVideoRendition();
             Format startingFmt = availableFormats.get(startingFmtIndex);
             int nextFmtIndex;
-            if (startingFmtIndex < availableFormats.size() -2) {
-                nextFmtIndex = startingFmtIndex + 1;
+            if (startingFmtIndex == availableFormats.size() - 1) {
+                nextFmtIndex = startingFmtIndex - 1;
             } else {
-                nextFmtIndex = startingFmtIndex -1;
+                nextFmtIndex = startingFmtIndex + 1;
             }
             Format changedFmt = availableFormats.get(nextFmtIndex);
             switchRenditionToIndex(nextFmtIndex);
             Thread.sleep(PLAY_PERIOD_IN_MS);
             int renditionChangeIndex = 0;
             int playinIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
+            JSONArray receivedRenditionChangeEvents = new JSONArray();
             while (true) {
                 renditionChangeIndex = networkRequest
                         .getIndexForNextEvent(renditionChangeIndex + 1, RenditionChangeEvent.TYPE);
                 long lastRenditionChangeAt = networkRequest
                         .getCreationTimeForEvent(renditionChangeIndex) - networkRequest
                         .getCreationTimeForEvent(playinIndex);
+                if (renditionChangeIndex == -1) {
+                    fail("Failed to find RenditionChangeEvent dispatched after: "
+                            + PLAY_PERIOD_IN_MS + " ms since playback started, with valid data"
+                            + ", received events: " + receivedRenditionChangeEvents.toString());
+                }
+                JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
+                receivedRenditionChangeEvents.put(jo);
                 if (Math.abs(lastRenditionChangeAt - PLAY_PERIOD_IN_MS) < 500) {
                     // We found rendition change index we ware looking for, there may be more after,
                     // because I dont know how to controll the player bitadaptive settings
+                    if ( !jo.has(VideoData.VIDEO_SOURCE_WIDTH) || ! jo.has(VideoData.VIDEO_SOURCE_HEIGHT)) {
+                        Log.w(TAG, "Missing video width and/or video height parameters on Rendition change event, "
+                                + " json: " + jo.toString());
+                        continue;
+                    }
                     break;
                 }
-                if (renditionChangeIndex == -1) {
-                    fail("Failed to find RenditionChangeEvent dispatched after: "
-                            + PLAY_PERIOD_IN_MS + " ms since playback started !!!");
-                }
             }
+
             JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
             int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
             int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
@@ -78,8 +93,7 @@ public class RenditionChangeTests extends TestBase {
                         changedFmt.width + "x" + changedFmt.height + ")");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
+            fail(getExceptionFullTraceAndMessage( e ));
         }
     }
 
@@ -111,16 +125,25 @@ public class RenditionChangeTests extends TestBase {
     }
 
     int getSelectedRenditionIndex() throws JSONException {
-        int renditionChangeEventIndex = networkRequest
-                .getIndexForFirstEvent(RenditionChangeEvent.TYPE);
-        JSONObject jo = networkRequest.getEventForIndex(renditionChangeEventIndex);
+//        MuxStatsExoPlayer lMuxStats = testActivity.getMuxStats();
+//        int videoWidth = lMuxStats.getSourceWidth();
+//        int videoHeight = lMuxStats.getSourceHeight();
+        int renditionChangeIndex = networkRequest.getIndexForFirstEvent(RenditionChangeEvent.TYPE);
+        if ( renditionChangeIndex == -1 ) {
+            return -1;
+        }
+        JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
+        if ( jo == null || !jo.has(VideoData.VIDEO_SOURCE_WIDTH) || ! jo.has(VideoData.VIDEO_SOURCE_HEIGHT)) {
+            return -1;
+        }
         int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
         int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
+
         ArrayList<Format> availableFormats = getAvailableVideoRendition();
         int index = 0;
         for (Format fmt:availableFormats) {
-            if (Math.abs(fmt.width - videoWidth) > 10 &&
-                    Math.abs(fmt.height - videoHeight) > 10) {
+            if (Math.abs(fmt.width - videoWidth) < 10 &&
+                    Math.abs(fmt.height - videoHeight) < 10) {
                 return index;
             }
             index ++;
