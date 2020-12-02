@@ -91,9 +91,11 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     // End the ad break, and then toggle playback state to ensure that
                     // we get a play/playing after the ads.
                     dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
-                    exoPlayerListener.player.get().setPlayWhenReady(false);
-                    exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.FINISHED_PLAYING_ADS);
-                    exoPlayerListener.player.get().setPlayWhenReady(true);
+                    if (exoPlayerListener.player != null && exoPlayerListener.player.get() != null) {
+                        exoPlayerListener.player.get().setPlayWhenReady(false);
+                        exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.FINISHED_PLAYING_ADS);
+                        exoPlayerListener.player.get().setPlayWhenReady(true);
+                    }
                     break;
                 case PAUSED:
                     dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);

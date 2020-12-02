@@ -344,13 +344,6 @@ public class PlayerActivity extends AppCompatActivity
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
       muxStats.enableMuxCoreDebug(true, false);
-
-      if (adsLoader != null) {
-        // Because of how this is loaded via reflection, we know that this will be
-        // a ImaAdsLoader, so cast it over so that we can get a reference to the
-        // real IMA AdsLoader instance.
-        muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
-      }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -419,7 +412,15 @@ public class PlayerActivity extends AppCompatActivity
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this)
+              /*
+               * This replace monitor monitorImaAdsLoader method because in this version ImaAdsLoader
+               * will create google.v3.AdsLoader on adRequest, this means that monitorImaAdsLoader
+               * Will always receive null pointer and will be unable to recieve add events.
+               */
+              .setAdErrorListener( muxStats.getAddErrorEventListener() )
+              .setAdEventListener( muxStats.getAddEventListener() )
+              .build();
     }
     adsLoader.setPlayer(player);
     return adsLoader;
