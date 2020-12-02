@@ -18,6 +18,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -84,6 +86,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
     protected WeakReference<Context> contextRef;
+    protected AdsImaSDKListener adsImaSdkListener;
 
     protected int streamType = -1;
 
@@ -110,6 +113,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
         frameRenderedListener = new FrameRenderedListener(playerHandler);
         setPlaybackHeadUpdateInterval(false);
+        adsImaSdkListener = new AdsImaSDKListener(this);
     }
 
     /**
@@ -140,7 +144,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
      * Monitor an instance of Google IMA SDK's AdsLoader
      * @param adsLoader
      */
-    @SuppressWarnings("unused")
+    /*
+     * For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested, this makes
+     * this method impossible to use.
+     */
     public void monitorImaAdsLoader(AdsLoader adsLoader) {
         if (adsLoader == null) {
             Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
@@ -161,10 +168,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
                     // Set up the ad events that we want to use
                     AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
-                    AdsImaSDKListener imaListener = new AdsImaSDKListener(baseExoPlayer);
+
                     // Attach mux event and error event listeners.
-                    adsManager.addAdErrorListener(imaListener);
-                    adsManager.addAdEventListener(imaListener);
+                    adsManager.addAdErrorListener(adsImaSdkListener);
+                    adsManager.addAdEventListener(adsImaSdkListener);
                 }
 
                 // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
@@ -172,6 +179,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         } catch (ClassNotFoundException cnfe) {
             return;
         }
+    }
+
+    // ExoPlayer 2.12+ need this to hook add events
+    public AdErrorEvent.AdErrorListener getAddErrorEventListener() {
+        return adsImaSdkListener;
+    }
+
+    // ExoPlayer 2.12+ need this to hook add events
+    public AdEvent.AdEventListener getAddEventListener() {
+        return adsImaSdkListener;
     }
 
     @SuppressWarnings("unused")

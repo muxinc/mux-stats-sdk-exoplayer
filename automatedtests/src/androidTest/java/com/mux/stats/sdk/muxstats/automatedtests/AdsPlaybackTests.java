@@ -85,7 +85,7 @@ public class AdsPlaybackTests extends TestBase {
     public void testPreRollAndBumperAds() {
         try {
             testActivity.runOnUiThread(() -> {
-                testActivity.setVideoTitle(currentTestName.getMethodName());
+                testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
                 testActivity.initMuxSats();
                 testActivity.setUrlToPlay(urlToPlay);
                 testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
@@ -104,7 +104,7 @@ public class AdsPlaybackTests extends TestBase {
             Thread.sleep(PAUSE_PERIOD_IN_MS);
             // resume the ad playback
             resumePlayer();
-            Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD);
+            Thread.sleep(PREROLL_AD_PERIOD + BUMPER_AD_PERIOD * 2);
 
             // Check ad start event
             int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
@@ -170,7 +170,7 @@ public class AdsPlaybackTests extends TestBase {
             playIndex = networkRequest.getIndexForNextEvent(adEndedIndex, PlayEvent.TYPE);
             int playingIndex = networkRequest.getIndexForNextEvent(adEndedIndex, PlayingEvent.TYPE);
             if (playIndex == -1 || playingIndex == -1) {
-                fail("Missing play and playing events after adBreak");
+                fail("Missing play and playing events after adBreakEnd");
             }
             if (playIndex >= playingIndex) {
                 fail("Play events after ad break are not ordered correctly");

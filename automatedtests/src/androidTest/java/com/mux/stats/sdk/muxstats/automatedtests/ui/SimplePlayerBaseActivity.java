@@ -127,7 +127,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public abstract void initAudioSession();
 
-    public abstract MediaSource createAdsMediaSource(Uri uri, Uri adTagUri);
+    public abstract MediaSource createAdsMediaSource(MediaSource aMediaSource, Uri adTagUri);
 
     public abstract MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension);
 
@@ -151,12 +151,12 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         Uri testUri = Uri.parse(urlToPlay);
         testMediaSource = buildMediaSource(testUri, null);
         if (loadedAdTagUri != null) {
-            testMediaSource = createAdsMediaSource(testUri, loadedAdTagUri);
+            testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
         }
 
         player.setPlayWhenReady(true);
         player.setMediaSource(testMediaSource);
-        player.prepare();
+        player.prepare( );
     }
 
     public void releaseExoPlayer() {
