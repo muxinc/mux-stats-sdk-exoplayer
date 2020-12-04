@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
 
 import com.google.android.exoplayer2.C;
@@ -33,6 +34,8 @@ import com.mux.stats.sdk.core.model.CustomerViewData;
 import java.io.IOException;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener, Player.EventListener{
+
+    static final String TAG = "MuxStatsEventQueue";
 
     public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
                              CustomerPlayerData customerPlayerData,
@@ -195,13 +198,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         onPlaybackParametersChanged(playbackParameters);
     }
 
-    // Note: onPlayerStateChanged was deprecated in 2.12.0, replaced with onPlayWhenReadyChanged
-    // and onPlaybackStateChanged.
-    @Override
-    public void onPlaybackStateChanged​(AnalyticsListener.EventTime eventTime, int state) {
-        onPlaybackStateChanged(state);
-    }
-
     @Override
     public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime,
                                                    int playbackSuppressionReason) { }
@@ -214,6 +210,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
                                        int reason) {
+//        Log.e( TAG, "onPlayWhenReadyChanged, " + playWhenReady + ", " + reason );
         onPlayWhenReadyChanged(playWhenReady, reason);
         onPlaybackStateChanged( player.get().getPlaybackState() );
     }
@@ -280,6 +277,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlaybackStateChanged(int playbackState) {
+        /*
+         *Because sometimes, onPlaybackStateChanged callback will not be triggered !!!
+         * And it is prone to bugs to keep same value on two places, I have removed internal
+         * PlayWhenReady variable, if needed the value can be accessed from the player object.
+         */
+        boolean playWhenReady = player.get().getPlayWhenReady();
+//        Log.e( TAG, "onPlaybackStateChanged, " + playbackState + ", pwr: " + playWhenReady );
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
             // Ignore all normal events while playing ads !!!
@@ -345,7 +349,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-        this.playWhenReady = playWhenReady;
+        // Nothing to do here
     }
 
     @Override
