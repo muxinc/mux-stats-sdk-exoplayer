@@ -183,12 +183,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     // ExoPlayer 2.12+ need this to hook add events
-    public AdErrorEvent.AdErrorListener getAddErrorEventListener() {
+    public AdErrorEvent.AdErrorListener getAdErrorEventListener() {
         return adsImaSdkListener;
     }
 
     // ExoPlayer 2.12+ need this to hook add events
-    public AdEvent.AdEventListener getAddEventListener() {
+    public AdEvent.AdEventListener getAdEventListener() {
         return adsImaSdkListener;
     }
 

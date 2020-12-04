@@ -334,7 +334,7 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper.start();
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("g48011fena4sr1k35jck5eokt");
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
@@ -418,8 +418,8 @@ public class PlayerActivity extends AppCompatActivity
                * will create google.v3.AdsLoader on adRequest, this means that monitorImaAdsLoader
                * Will always receive null pointer and will be unable to recieve add events.
                */
-              .setAdErrorListener( muxStats.getAddErrorEventListener() )
-              .setAdEventListener( muxStats.getAddEventListener() )
+              .setAdErrorListener( muxStats.getAdErrorEventListener() )
+              .setAdEventListener( muxStats.getAdEventListener() )
               .build();
     }
     adsLoader.setPlayer(player);
