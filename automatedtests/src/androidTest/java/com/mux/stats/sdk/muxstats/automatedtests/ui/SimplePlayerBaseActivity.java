@@ -120,7 +120,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     protected void onDestroy() {
         super.onDestroy();
         signalActivityClosed();
-        muxStats.release();
+        if ( muxStats != null ) {
+            muxStats.release();
+        }
     }
 
     public abstract void initExoPlayer();

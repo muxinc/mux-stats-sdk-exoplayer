@@ -38,8 +38,8 @@ steps:
           - "automatedtests/buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v "$PWD":/data -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_11_1/debug/automatedtests-r2_11_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_11_1/debug/automatedtests-r2_11_1-debug.apk -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucelabs-virtual-test-runner:0.1.2
-  label: Test Exoplayer r2_11_1 on Android GoogleAPI Emulator, platform-version 10.0
+  command: docker run --rm -v "$PWD":/data -e TEST_NAME="r_2_11_1 Buildkite Build $BUILDKITE_BUILD_NUMBER" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_11_1/debug/automatedtests-r2_11_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_11_1/debug/automatedtests-r2_11_1-debug.apk -e API_KEY=$SAUCELABS_API_KEY muxinc/saucelabs-test-runner:1.9
+  label: Test Exoplayer r2_11_1 on Samsung Galaxy S9 (US)
   retry:
     automatic:
       - exit_status: 1

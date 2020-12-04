@@ -1,0 +1,20 @@
+
+java -jar runner.jar android --test ../buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk --app ../buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk  --username tkordic --apikey C9164860DFED40D7987D54130CD7CD84 --datacenter EU --device Samsung_Galaxy_S9_free
+
+Warning: --username argument is DEPRECATED. Please remove it from your configuration.
+23:42:36.816 [main] INFO com.saucelabs.runners.InstrumentationTestRunner - InstrumentationTestRunner 1.8 initialized.
+23:42:36.818 [main] INFO com.saucelabs.runners.InstrumentationTestRunner - Uploading the runner application
+23:42:42.979 [main] INFO com.saucelabs.runners.InstrumentationTestRunner - Runner application id: 4
+23:42:42.979 [main] INFO com.saucelabs.runners.InstrumentationTestRunner - Uploading the application under test
+23:42:47.056 [main] INFO com.saucelabs.runners.InstrumentationTestRunner - Application under test id: 5
+23:42:47.056 [main] INFO com.saucelabs.runners.InstrumentationTestRunner - Starting the tests...
+23:42:47.554 [pool-1-thread-1] INFO com.saucelabs.runners.InstrumentationTestRunner - TestReportId: 2 is started. Will wait for completion
+23:44:18.786 [pool-1-thread-1] INFO com.saucelabs.runners.InstrumentationTestRunner - Wrote XML report to 'tkordic-automatedtests-2.xml'
+23:44:18.961 [pool-1-thread-1] INFO com.saucelabs.runners.InstrumentationTestRunner - 
+Test-Run Status: FAILURE
+Download Video: https://app.testobject.com/api/rest/users/tkordic/projects/automatedtests/video/96ae2427-56de-4259-a7b5-55054d156c2d
+Checkout Test Report: https://app.testobject.com/#/tkordic/automatedtests/android-instrumentation/executions/2
+Results for Class: com.mux.stats.sdk.muxstats.automatedtests.PlaybackTests
+	 testRebuffering FAILURE started at 2020-09-09T21:43:10.588Z took 44539 ms
+	 testVodPlayback FAILURE started at 2020-09-09T21:43:55.403Z took 25 ms
+

@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<testsuite name="com.mux.stats.sdk.muxstats.automatedtests.AdsPlaybackTests" tests="6" failures="0" errors="0" skipped="0" time="188.918" timestamp="2020-11-11T22:32:55" hostname="localhost">
+  <properties>
+    <property name="device" value="Pixel_2_API_27(AVD) - 8.1.0" />
+    <property name="flavor" value="R2_9_6" />
+    <property name="project" value="automatedtests" />
+  </properties>
+  <testcase name="testPreRollAndBumperAds" classname="com.mux.stats.sdk.muxstats.automatedtests.AdsPlaybackTests" time="25.596" />
+  <testcase name="testLateStatsInit" classname="com.mux.stats.sdk.muxstats.automatedtests.MissusageTests" time="17.553" />
+  <testcase name="testVodPlayback" classname="com.mux.stats.sdk.muxstats.automatedtests.PlaybackTests" time="55.472" />
+  <testcase name="testRebufferingAndStartupTime" classname="com.mux.stats.sdk.muxstats.automatedtests.PlaybackTests" time="45.478" />
+  <testcase name="testRenditionChange" classname="com.mux.stats.sdk.muxstats.automatedtests.RenditionChangeTests" time="20.375" />
+  <testcase name="testBackgroundAudioPlayback" classname="com.mux.stats.sdk.muxstats.automatedtests.RunInBackgroundTests" time="22.077" />
+</testsuite>

@@ -18,6 +18,8 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
+import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -64,12 +66,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
-    protected static final String TAG = "MuxStatsListener";
+    protected static final String TAG = "MuxStatsEventQueue";
     // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
     protected static final int ERROR_UNKNOWN = -1;
     protected static final int ERROR_DRM = -2;
     protected static final int ERROR_IO = -3;
-    protected boolean playWhenReady;
 
     protected String mimeType;
     protected Integer sourceWidth;
@@ -84,6 +85,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected WeakReference<ExoPlayer> player;
     protected WeakReference<View> playerView;
     protected WeakReference<Context> contextRef;
+    protected AdsImaSDKListener adsImaSdkListener;
 
     protected int streamType = -1;
 
@@ -110,6 +112,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
         frameRenderedListener = new FrameRenderedListener(playerHandler);
         setPlaybackHeadUpdateInterval(false);
+        try {
+            adsImaSdkListener = new AdsImaSDKListener(this);
+        } catch ( NoClassDefFoundError Err ) {
+            Log.w(TAG, "Google Ima Ads is not included in project, using ads will be impossible !!!");
+        }
     }
 
     /**
@@ -139,8 +146,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     /**
      * Monitor an instance of Google IMA SDK's AdsLoader
      * @param adsLoader
+     *
+     *
+     * For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested, this makes
+     * this method impossible to use.
      */
-    @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
     public void monitorImaAdsLoader(AdsLoader adsLoader) {
         if (adsLoader == null) {
             Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
@@ -161,10 +172,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
                     // Set up the ad events that we want to use
                     AdsManager adsManager = adsManagerLoadedEvent.getAdsManager();
-                    AdsImaSDKListener imaListener = new AdsImaSDKListener(baseExoPlayer);
+
                     // Attach mux event and error event listeners.
-                    adsManager.addAdErrorListener(imaListener);
-                    adsManager.addAdEventListener(imaListener);
+                    adsManager.addAdErrorListener(adsImaSdkListener);
+                    adsManager.addAdEventListener(adsImaSdkListener);
                 }
 
                 // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
@@ -174,17 +185,41 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
     }
 
+    // ExoPlayer 2.12+ need this to hook add events
+    public AdErrorEvent.AdErrorListener getAdErrorEventListener() {
+        return adsImaSdkListener;
+    }
+
+    // ExoPlayer 2.12+ need this to hook add events
+    public AdEvent.AdEventListener getAdEventListener() {
+        return adsImaSdkListener;
+    }
+
     @SuppressWarnings("unused")
     public void updateCustomerData(CustomerPlayerData customPlayerData, CustomerVideoData customVideoData) {
         muxStats.updateCustomerData(customPlayerData, customVideoData);
     }
 
+    @SuppressWarnings("unused")
+    public void updateCustomerData(CustomerPlayerData customerPlayerData,
+                                   CustomerVideoData customerVideoData,
+                                   CustomerViewData customerViewData) {
+        muxStats.updateCustomerData(customerPlayerData, customerVideoData, customerViewData);
+    }
+
+    @SuppressWarnings("unused")
     public CustomerVideoData getCustomerVideoData() {
         return muxStats.getCustomerVideoData();
     }
 
+    @SuppressWarnings("unused")
     public CustomerPlayerData getCustomerPlayerData() {
         return muxStats.getCustomerPlayerData();
+    }
+
+    @SuppressWarnings("unused")
+    public CustomerViewData getCustomerViewData() {
+        return muxStats.getCustomerViewData();
     }
 
     public void enableMuxCoreDebug(boolean enable, boolean verbose) {
@@ -286,6 +321,48 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public PlayerState getState() {
         return state;
     }
+	
+    protected void configurePlaybackHeadUpdateInterval() {
+        if (player == null || player.get() == null) {
+            return;
+        }
+
+        TrackGroupArray trackGroups = player.get().getCurrentTrackGroups();
+        boolean haveVideo = false;
+        if (trackGroups.length > 0) {
+            for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+                TrackGroup trackGroup = trackGroups.get(groupIndex);
+                if (0 < trackGroup.length) {
+                    Format trackFormat = trackGroup.getFormat(0);
+                    if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType.contains("video")) {
+                        haveVideo = true;
+                        break;
+                    }
+                }
+            }
+        }
+        setPlaybackHeadUpdateInterval(haveVideo);
+    }
+
+    protected void setPlaybackHeadUpdateInterval(boolean haveVideo) {
+        if (updatePlayheadPositionTimer != null) {
+            updatePlayheadPositionTimer.cancel();
+        }
+        if (haveVideo) {
+            Player.VideoComponent videoComponent = player.get().getVideoComponent();
+            videoComponent.setVideoFrameMetadataListener(frameRenderedListener);
+        } else {
+            // Schedule timer to execute, this is for audio only content.
+            updatePlayheadPositionTimer = new Timer();
+            updatePlayheadPositionTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
+                            .sendToTarget();
+                }
+            }, 0, 15);
+        }
+    }
 
     protected void configurePlaybackHeadUpdateInterval() {
         if (player == null || player.get() == null) {
@@ -370,7 +447,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void buffering() {
+<<<<<<< HEAD
         if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+=======
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+                || state == PlayerState.SEEKED ) {
+>>>>>>> v2.0.1_automatedtests
             // ignore
             return;
         }
@@ -396,7 +478,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void play() {
+<<<<<<< HEAD
         if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING) {
+=======
+        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+                || state == PlayerState.SEEKED ) {
+>>>>>>> v2.0.1_automatedtests
             // Ignore play event after rebuffering and Seeking
             return;
         }
@@ -418,6 +505,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         dispatch(new PlayingEvent(null));
     }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> v2.0.1_automatedtests
     protected void rebufferingStarted() {
         state = PlayerState.REBUFFERING;
         dispatch(new RebufferStartEvent(null));
@@ -467,6 +558,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             }
             sourceWidth = format.width;
             sourceHeight = format.height;
+            Log.e(TAG, "Dispatching rendition change event, w:" + sourceWidth + ", h: " + sourceHeight);
             RenditionChangeEvent event = new RenditionChangeEvent(null);
             dispatch(event);
         }

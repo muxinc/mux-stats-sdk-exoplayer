@@ -5,10 +5,20 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+<<<<<<< HEAD
+=======
+import android.view.MotionEvent;
+>>>>>>> v2.0.1_automatedtests
 import android.view.View;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.core.app.ApplicationProvider;
+<<<<<<< HEAD
+=======
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.espresso.action.MotionEvents;
+>>>>>>> v2.0.1_automatedtests
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
@@ -28,6 +38,10 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 
+<<<<<<< HEAD
+=======
+import org.hamcrest.Matcher;
+>>>>>>> v2.0.1_automatedtests
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
@@ -38,12 +52,22 @@ import org.junit.rules.TestRule;
 import java.io.IOException;
 import java.util.Collection;
 
+<<<<<<< HEAD
+=======
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+>>>>>>> v2.0.1_automatedtests
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.fail;
 
 public abstract class TestBase {
 
     static final String TAG = "TestBase";
+<<<<<<< HEAD
+=======
+
+>>>>>>> v2.0.1_automatedtests
     @Rule
     public ActivityTestRule<SimplePlayerTestActivity> activityRule  =
             new ActivityTestRule<>(SimplePlayerTestActivity.class);
@@ -84,9 +108,16 @@ public abstract class TestBase {
     protected MediaSource testMediaSource;
     protected MockNetworkRequest networkRequest;
 
+<<<<<<< HEAD
     PlayerControlView controlView;
     View pauseButton;
     View playButton;
+=======
+    protected boolean testActivityFinished;
+    protected PlayerControlView controlView;
+    protected View pauseButton;
+    protected View playButton;
+>>>>>>> v2.0.1_automatedtests
 
 
     @Before
@@ -107,6 +138,10 @@ public abstract class TestBase {
         if (testActivity == null) {
             fail("Test activity not found !!!");
         }
+<<<<<<< HEAD
+=======
+        testActivityFinished = false;
+>>>>>>> v2.0.1_automatedtests
         testActivity.runOnUiThread(() -> {
             testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
             testActivity.setUrlToPlay(urlToPlay);
@@ -124,6 +159,10 @@ public abstract class TestBase {
         if (httpServer != null) {
             httpServer.kill();
         }
+<<<<<<< HEAD
+=======
+        finishActivity();
+>>>>>>> v2.0.1_automatedtests
 //        testScenario.close();
     }
 
@@ -250,6 +289,16 @@ public abstract class TestBase {
         device.pressHome();
     }
 
+<<<<<<< HEAD
+=======
+    public void finishActivity() {
+        if ( !testActivityFinished && testActivity != null ) {
+            testActivity.finish();
+            testActivityFinished = true;
+        }
+    }
+
+>>>>>>> v2.0.1_automatedtests
     protected Activity getActivityInstance(){
         getInstrumentation().runOnMainSync(() -> {
             Collection<Activity> resumedActivities =
@@ -272,6 +321,43 @@ public abstract class TestBase {
         return lStackTraceString;
     }
 
+<<<<<<< HEAD
+=======
+    public void triggerTouchEvent( float x, float y ) {
+        onView(withId(R.id.player_view)).perform(touchDownAndUpAction(x, y));
+    }
+
+    public static ViewAction touchDownAndUpAction(final float x, final float y) {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "Send touch events.";
+            }
+
+            @Override
+            public void perform(UiController uiController, final View view) {
+                // Get view absolute position
+                int[] location = new int[2];
+                view.getLocationOnScreen(location);
+
+                // Offset coordinates by view position
+                float[] coordinates = new float[] { x + location[0], y + location[1] };
+                float[] precision = new float[] { 1f, 1f };
+
+                // Send down event, pause, and send up
+                MotionEvent down = MotionEvents.sendDown(uiController, coordinates, precision).down;
+                uiController.loopMainThreadForAtLeast(200);
+                MotionEvents.sendUp(uiController, down, coordinates);
+            }
+        };
+    }
+
+>>>>>>> v2.0.1_automatedtests
     class CheckupResult {
         int eventIndex;
         long pausePeriod;

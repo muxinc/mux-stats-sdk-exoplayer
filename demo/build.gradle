@@ -71,6 +71,16 @@ android {
             res.srcDirs = ['./src/r2_11_1_ads/res']
             assets.srcDirs = ['./src/r2_11_1_ads/assets']
         }
+        r2_12_1 {
+            java.srcDirs = ['./src/r2_12_1/java']
+            res.srcDirs = ['./src/r2_12_1/res']
+            assets.srcDirs = ['./src/r2_12_1/assets']
+        }
+        r2_12_1_ads {
+            java.srcDirs = ['./src/r2_12_1_ads/java']
+            res.srcDirs = ['./src/r2_12_1_ads/res']
+            assets.srcDirs = ['./src/r2_12_1_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -78,64 +88,33 @@ android {
     productFlavors {
         r2_9_6 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_9_6_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_10_6 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_10_6_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_11_1 {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
         r2_11_1_ads {
             dimension 'api'
-            minSdkVersion 24
-            compileSdkVersion 29
-            targetSdkVersion 29
-            compileOptions {
-                sourceCompatibility = JavaVersion.VERSION_1_8
-                targetCompatibility = JavaVersion.VERSION_1_8
-            }
         }
+        r2_12_1 {
+            dimension 'api'
+        }
+        r2_12_1_ads {
+            dimension 'api'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
 
@@ -144,7 +123,10 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
     implementation 'androidx.fragment:fragment:1.1.0'
     implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.multidex:multidex:2.0.0'
     implementation project(':MuxExoPlayer')
+    r2_12_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+    r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
     // Include the below to test ads for each product flavor that supports them
     r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
     r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
@@ -152,4 +134,6 @@ dependencies {
     r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
     r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+    r2_12_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    r2_12_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
 }
