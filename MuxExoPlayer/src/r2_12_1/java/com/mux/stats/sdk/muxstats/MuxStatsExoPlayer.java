@@ -199,6 +199,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
 
     @Override
+    public void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {
+        onPlaybackStateChanged( state );
+    }
+
+    @Override
     public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime,
                                                    int playbackSuppressionReason) { }
 
@@ -210,7 +215,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
                                        int reason) {
-//        Log.e( TAG, "onPlayWhenReadyChanged, " + playWhenReady + ", " + reason );
+        Log.e( TAG, "onPlayWhenReadyChanged, " + playWhenReady + ", " + reason );
         onPlayWhenReadyChanged(playWhenReady, reason);
         onPlaybackStateChanged( player.get().getPlaybackState() );
     }
@@ -283,7 +288,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
          * PlayWhenReady variable, if needed the value can be accessed from the player object.
          */
         boolean playWhenReady = player.get().getPlayWhenReady();
-//        Log.e( TAG, "onPlaybackStateChanged, " + playbackState + ", pwr: " + playWhenReady );
+        Log.e( TAG, "onPlaybackStateChanged, " + playbackState + ", pwr: " + playWhenReady );
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
             // Ignore all normal events while playing ads !!!

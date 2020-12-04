@@ -334,7 +334,7 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper.start();
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("bar8fjevgudvf4o7r8fdjrfii");
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
@@ -350,7 +350,6 @@ public class PlayerActivity extends AppCompatActivity
       player.seekTo(startWindow, startPosition);
     }
     player.setMediaItems(mediaItems, /* resetPosition= */ !haveStartPosition);
-//    player.setPlayWhenReady( true );
     player.prepare();
     updateButtonVisibility();
     return true;
