@@ -33,7 +33,30 @@ public class PlaybackTests extends TestBase {
 
     public static final String TAG = "playbackTest";
 
-    static final int EVENT_MAX_TIME_DIFF_MS = 100;
+    /*
+     * Test Seeking, event order
+     */
+    @Test
+    public void testSeekingOnLowBufferAndViewEndEvent() {
+        try {
+            if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
+            initPlayerControls();
+            // play x seconds, stage 1
+            Thread.sleep(PLAY_PERIOD_IN_MS);
+            // Seek to the end by triggering touch event
+            testActivity.runOnUiThread(() -> {
+                long duration = pView.getPlayer().getDuration();
+                pView.getPlayer().seekTo( duration - PLAY_PERIOD_IN_MS );
+            });
+            testActivity.waitForPlaybackToFinish();
+            finishActivity();
+            // TODO check View end event and seking events
+        } catch (Exception e) {
+            fail(getExceptionFullTraceAndMessage( e ));
+        }
+    }
 
     /*
      * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
@@ -45,13 +68,7 @@ public class PlaybackTests extends TestBase {
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
             }
-
-            // Init player controlls
-            controlView = pView.findViewById(R.id.exo_controller);
-            if (controlView != null) {
-                pauseButton = controlView.findViewById(R.id.exo_pause);
-                playButton = controlView.findViewById(R.id.exo_play);
-            }
+            initPlayerControls();
 
             // play x seconds, stage 1
             Thread.sleep(PLAY_PERIOD_IN_MS);
@@ -64,25 +81,21 @@ public class PlaybackTests extends TestBase {
             Thread.sleep(PLAY_PERIOD_IN_MS);
 
             // Seek backward, stage 4
-            testActivity.runOnUiThread(new Runnable(){
-                public void run() {
-                    long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
-                    pView.getPlayer().seekTo(currentPlaybackPosition/2);
-                }
+            testActivity.runOnUiThread(() -> {
+                long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
+                pView.getPlayer().seekTo(currentPlaybackPosition/2);
             });
 
             // Play another x seconds, stage 5
             Thread.sleep(PLAY_PERIOD_IN_MS);
 
             // seek forward in the video, stage 6
-            testActivity.runOnUiThread(new Runnable(){
-                public void run() {
-                    long currentPlaybackPosition = pView.getPlayer()
-                            .getCurrentPosition();
-                    long videoDuration = pView.getPlayer().getDuration();
-                    long seekToInFuture = currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
-                    pView.getPlayer().seekTo(seekToInFuture);
-                }
+            testActivity.runOnUiThread(() -> {
+                long currentPlaybackPosition = pView.getPlayer()
+                        .getCurrentPosition();
+                long videoDuration = pView.getPlayer().getDuration();
+                long seekToInFuture = currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
+                pView.getPlayer().seekTo(seekToInFuture);
             });
 
             // Play another x seconds, stage 7
@@ -195,6 +208,14 @@ public class PlaybackTests extends TestBase {
             // TODO see what is the best way to calculate rebuffer period
         } catch (Exception e) {
             fail(getExceptionFullTraceAndMessage( e ));
+        }
+    }
+
+    void initPlayerControls() {
+        controlView = pView.findViewById(R.id.exo_controller);
+        if (controlView != null) {
+            pauseButton = controlView.findViewById(R.id.exo_pause);
+            playButton = controlView.findViewById(R.id.exo_play);
         }
     }
 }

@@ -153,8 +153,8 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
         // The ads loader is reused for multiple playbacks, so that ad playback can resume.
         if (adsLoader == null) {
             adsLoader = new ImaAdsLoader.Builder(/* context= */ this)
-                    .setAdErrorListener( muxStats.getAddErrorEventListener() )
-                    .setAdEventListener( muxStats.getAddEventListener() )
+                    .setAdErrorListener( muxStats.getAdErrorEventListener() )
+                    .setAdEventListener( muxStats.getAdEventListener() )
                     .build();
         }
         adsLoader.setPlayer(player);

@@ -71,7 +71,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_UNKNOWN = -1;
     protected static final int ERROR_DRM = -2;
     protected static final int ERROR_IO = -3;
-    protected boolean playWhenReady;
 
     protected String mimeType;
     protected Integer sourceWidth;
@@ -113,7 +112,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
         frameRenderedListener = new FrameRenderedListener(playerHandler);
         setPlaybackHeadUpdateInterval(false);
-        adsImaSdkListener = new AdsImaSDKListener(this);
+        try {
+            adsImaSdkListener = new AdsImaSDKListener(this);
+        } catch ( NoClassDefFoundError Err ) {
+            Log.w(TAG, "Google Ima Ads is not included in project, using ads will be impossible !!!");
+        }
     }
 
     /**

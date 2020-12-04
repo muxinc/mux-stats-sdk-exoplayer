@@ -275,6 +275,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlaybackStateChanged(int playbackState) {
+        /*
+         *Because sometimes, onPlaybackStateChanged callback will not be triggered !!!
+         * And it is prone to bugs to keep same value on two places, I have removed internal
+         * PlayWhenReady variable, if needed the value can be accessed from the player object.
+         */
+        boolean playWhenReady = player.get().getPlayWhenReady();
         Log.e( TAG, "onPlaybackStateChanged, " + playbackState + ", pwr: " + playWhenReady );
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
@@ -341,7 +347,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-        this.playWhenReady = playWhenReady;
+        // Nothing to do here
     }
 
     @Override
