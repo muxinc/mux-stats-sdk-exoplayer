@@ -114,8 +114,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         setPlaybackHeadUpdateInterval(false);
         try {
             adsImaSdkListener = new AdsImaSDKListener(this);
-        } catch ( NoClassDefFoundError Err ) {
-            Log.w(TAG, "Google Ima Ads is not included in project, using ads will be impossible !!!");
+        } catch (NoClassDefFoundError Err) {
+            // The ad modules are not included here, so we silently swallow the
+            // exception as the application can't be running ads anyway.
         }
     }
 
@@ -321,7 +322,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public PlayerState getState() {
         return state;
     }
-	
+
     protected void configurePlaybackHeadUpdateInterval() {
         if (player == null || player.get() == null) {
             return;

@@ -95,7 +95,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void release() {
-        if ( this.player != null && this.player.get() != null ) {
+        if (this.player != null && this.player.get() != null) {
             ExoPlayer player = this.player.get();
             if (player instanceof SimpleExoPlayer) {
                 ((SimpleExoPlayer) player).removeAnalyticsListener(this);
@@ -120,7 +120,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onVideoInputFormatChanged(EventTime eventTime, Format format) {
-        handleRenditionChange( format );
+        handleRenditionChange(format);
     }
 
     @Override
@@ -200,7 +200,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {
-        onPlaybackStateChanged( state );
+        onPlaybackStateChanged(state);
     }
 
     @Override
@@ -215,9 +215,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
                                        int reason) {
-        Log.e( TAG, "onPlayWhenReadyChanged, " + playWhenReady + ", " + reason );
         onPlayWhenReadyChanged(playWhenReady, reason);
-        onPlaybackStateChanged( player.get().getPlaybackState() );
+        onPlaybackStateChanged(player.get().getPlaybackState());
     }
 
     @Override
@@ -276,22 +275,20 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     // ------END AnalyticsListener callbacks------
 
     // ------BEGIN Player.EventListener callbacks------
-
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) { }
 
     @Override
     public void onPlaybackStateChanged(int playbackState) {
         /*
-         *Because sometimes, onPlaybackStateChanged callback will not be triggered !!!
-         * And it is prone to bugs to keep same value on two places, I have removed internal
-         * PlayWhenReady variable, if needed the value can be accessed from the player object.
+         * Sometimes onPlaybackStateChanged callback will not be triggered, and it is
+         * prone to bugs to keep same value in two places, so we should always access
+         * playWhenReady via the player object.
          */
         boolean playWhenReady = player.get().getPlayWhenReady();
-        Log.e( TAG, "onPlaybackStateChanged, " + playbackState + ", pwr: " + playWhenReady );
         PlayerState state = this.getState();
         if (state == PlayerState.PLAYING_ADS) {
-            // Ignore all normal events while playing ads !!!
+            // Ignore all normal events while playing ads
             return;
         }
         switch (playbackState) {
