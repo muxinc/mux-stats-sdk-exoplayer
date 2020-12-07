@@ -81,15 +81,12 @@ public class AdsPlaybackTests extends TestBase {
 //        }
 //    }
 
-    @Test
-<<<<<<< HEAD
-=======
+//    @Test
     public void testNoAdsPreRoll() {
 
     }
 
     @Test
->>>>>>> v2.0.1_automatedtests
     public void testPreRollAndBumperAds() {
         try {
             testActivity.runOnUiThread(() -> {

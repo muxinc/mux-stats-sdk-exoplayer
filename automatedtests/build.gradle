@@ -1,9 +1,6 @@
 apply plugin: 'com.android.application'
 
-<<<<<<< HEAD
-=======
 
->>>>>>> v2.0.1_automatedtests
 android {
     compileSdkVersion project.ext.compileSdkVersion
 
@@ -65,12 +62,9 @@ android {
         r2_11_1 {
             dimension 'api'
         }
-<<<<<<< HEAD
-=======
         r2_12_1 {
             dimension 'api'
         }
->>>>>>> v2.0.1_automatedtests
     }
 
     compileOptions {
@@ -102,10 +96,7 @@ dependencies {
     androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
     androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
     androidTestR2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
-<<<<<<< HEAD
-=======
     androidTestR2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
->>>>>>> v2.0.1_automatedtests
 
     implementation project(':MuxExoPlayer')
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
@@ -114,9 +105,5 @@ dependencies {
     r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
     r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
     r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
-<<<<<<< HEAD
-}
-=======
     r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
 }
->>>>>>> v2.0.1_automatedtests
