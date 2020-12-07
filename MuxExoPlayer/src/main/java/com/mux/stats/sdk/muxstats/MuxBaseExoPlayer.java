@@ -114,8 +114,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         setPlaybackHeadUpdateInterval(false);
         try {
             adsImaSdkListener = new AdsImaSDKListener(this);
-        } catch ( NoClassDefFoundError Err ) {
-            Log.w(TAG, "Google Ima Ads is not included in project, using ads will be impossible !!!");
+        } catch (NoClassDefFoundError Err) {
+            // The ad modules are not included here, so we silently swallow the
+            // exception as the application can't be running ads anyway.
         }
     }
 
@@ -364,6 +365,48 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
     }
 
+    protected void configurePlaybackHeadUpdateInterval() {
+        if (player == null || player.get() == null) {
+            return;
+        }
+
+        TrackGroupArray trackGroups = player.get().getCurrentTrackGroups();
+        boolean haveVideo = false;
+        if (trackGroups.length > 0) {
+            for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
+                TrackGroup trackGroup = trackGroups.get(groupIndex);
+                if (0 < trackGroup.length) {
+                    Format trackFormat = trackGroup.getFormat(0);
+                    if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType.contains("video")) {
+                        haveVideo = true;
+                        break;
+                    }
+                }
+            }
+        }
+        setPlaybackHeadUpdateInterval(haveVideo);
+    }
+
+    protected void setPlaybackHeadUpdateInterval(boolean haveVideo) {
+        if (updatePlayheadPositionTimer != null) {
+            updatePlayheadPositionTimer.cancel();
+        }
+        if (haveVideo) {
+            Player.VideoComponent videoComponent = player.get().getVideoComponent();
+            videoComponent.setVideoFrameMetadataListener(frameRenderedListener);
+        } else {
+            // Schedule timer to execute, this is for audio only content.
+            updatePlayheadPositionTimer = new Timer();
+            updatePlayheadPositionTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
+                            .sendToTarget();
+                }
+            }, 0, 15);
+        }
+    }
+
     /*
      * This will be called by AdsImaSDKListener to set the player state to: PLAYING_ADS
      * and ADS_PLAYBACK_DONE accordingly
@@ -454,6 +497,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
     }
+
 
     protected void rebufferingStarted() {
         state = PlayerState.REBUFFERING;

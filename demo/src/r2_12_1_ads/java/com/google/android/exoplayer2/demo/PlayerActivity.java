@@ -414,12 +414,12 @@ public class PlayerActivity extends AppCompatActivity
     if (adsLoader == null) {
       adsLoader = new ImaAdsLoader.Builder(/* context= */ this)
               /*
-               * This replace monitor monitorImaAdsLoader method because in this version ImaAdsLoader
-               * will create google.v3.AdsLoader on adRequest, this means that monitorImaAdsLoader
+               * This replaces `monitorImaAdsLoader` method because in r2.12.x ImaAdsLoader
+               * will create google.v3.AdsLoader on adRequest, which means that monitorImaAdsLoader
                * Will always receive null pointer and will be unable to recieve add events.
                */
-              .setAdErrorListener( muxStats.getAdErrorEventListener() )
-              .setAdEventListener( muxStats.getAdEventListener() )
+              .setAdErrorListener(muxStats.getAdErrorEventListener())
+              .setAdEventListener(muxStats.getAdEventListener())
               .build();
     }
     adsLoader.setPlayer(player);
