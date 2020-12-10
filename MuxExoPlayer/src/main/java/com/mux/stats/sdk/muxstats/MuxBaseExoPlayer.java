@@ -365,48 +365,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
     }
 
-    protected void configurePlaybackHeadUpdateInterval() {
-        if (player == null || player.get() == null) {
-            return;
-        }
-
-        TrackGroupArray trackGroups = player.get().getCurrentTrackGroups();
-        boolean haveVideo = false;
-        if (trackGroups.length > 0) {
-            for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
-                TrackGroup trackGroup = trackGroups.get(groupIndex);
-                if (0 < trackGroup.length) {
-                    Format trackFormat = trackGroup.getFormat(0);
-                    if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType.contains("video")) {
-                        haveVideo = true;
-                        break;
-                    }
-                }
-            }
-        }
-        setPlaybackHeadUpdateInterval(haveVideo);
-    }
-
-    protected void setPlaybackHeadUpdateInterval(boolean haveVideo) {
-        if (updatePlayheadPositionTimer != null) {
-            updatePlayheadPositionTimer.cancel();
-        }
-        if (haveVideo) {
-            Player.VideoComponent videoComponent = player.get().getVideoComponent();
-            videoComponent.setVideoFrameMetadataListener(frameRenderedListener);
-        } else {
-            // Schedule timer to execute, this is for audio only content.
-            updatePlayheadPositionTimer = new Timer();
-            updatePlayheadPositionTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
-                            .sendToTarget();
-                }
-            }, 0, 15);
-        }
-    }
-
     /*
      * This will be called by AdsImaSDKListener to set the player state to: PLAYING_ADS
      * and ADS_PLAYBACK_DONE accordingly
