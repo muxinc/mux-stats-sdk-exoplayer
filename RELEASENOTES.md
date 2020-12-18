@@ -1,6 +1,6 @@
 # Release notes
 
-## v2.2.1
+## v2.2.0
  - Upgrade to Android Studio 4.1
  - Upgrade to Gradle 6.1.1
  - Update dockerfile and build script for new tooling
