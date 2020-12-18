@@ -1,5 +1,65 @@
 # Release notes
 
+## v2.2.1
+ - Upgrade to Android Studio 4.1
+ - Upgrade to Gradle 6.1.1
+ - Update dockerfile and build script for new tooling
+ - Support back to minAPI 16 via multidexing support
+
+## v2.1.0
+ - Support ExoPlayer r2.12.x flavors
+ - Expose CustomerViewData through ProGuard
+ - Ensure packages are scoped to com.mux.stats.sdk in ProGuard
+ - Update version reported by the plugin (v2.0.0 reported v1.5.0 unintentionally, now will report v2.1.0)
+ - Fix an issue where accessing ad integration could cause a crash
+ - Bump to MuxCore v6.0.0
+ - Fix invalid rebuffering reported for audio-only and playback
+ - Ensure that events are sent in a more timely manner (some events are held after a PauseEvent until
+the next active event)
+
+## v2.0.0
+ - Bump to v5.0.0 of MuxCore
+   - Update ad handling logic to ensure that ad metrics and dimensions are tracked correctly
+   - Retry sending failed beacons, rather than letting them drop
+   - Fix issue where we were incorrectly calculating scaling metrics when screen or video resolution was negative
+   - Fix an issue where watch time is incorrectly increasing after certain events
+   - Make sure that time to first frame is not tracked for views that result from `programchange`
+   - Add support for `viewer_connection_type`, which is a breaking change for `IDevice`, as it adds another method that must be implemented
+   - Add support for `view_session_id`, which includes an additional `CustomerViewData` class. This changes the constructor for creating a `MuxStats` instance
+ - Drop support for ExoPlayer r2.7.x and r2.8.x
+ - Implement SeekingEvent directly in `MuxStatsExoPlayer`
+ - Fix issue where source type could be null and cause a crash
+ - Fix an issue where ad events are sent out of order in some cases
+ - Add connection type detection
+ - Report logical sizes for player size, rather than physical size
+ - Fix an issue where time to first frame was incorrectly measured in some cases, such as mid- or post-roll ad playback without a pre-roll
+ - Add support for `CustomerViewData`, including `setViewSessionId`
+
+## v1.5.0
+ - Fix an issue where if you were using `muxStatsExoPlayer.setPlayerSize(width, height)` those values were not used correctly. Note: If you call this, you must update the player size whenever that changes, as the SDK will no longer pull those values automatically.
+
+## v1.4.0
+ - Move `MuxSDKViewOrientation` to `com.mux.stats.sdk.core.MuxSDKViewOrientation` and expose it publicly
+
+## v1.3.0
+ - Add support for `RenditionChangeEvent`, which is tracked automatically
+ - Add support for `OrientationChangeEvent`, which can be triggered by calling `muxStatsExoPlayer.orientationChange(MuxSDKViewOrientation orientation)`. Supported orientations are `MuxSDKViewOrientation.LANDSCAPE` and `MuxSDKViewOrientation.PORTRAIT`.
+ - Fix an issue where fullscreen tracking was not working correctly
+
+## v1.2.0
+ - Add support for ExoPlayer 2.11.x
+ - Note: there is a known issue right now with ExoPlayer r2.11.x where ads are not tracked correctly. This is under development.
+
+## v1.1.0
+ - Add support for additional debug logging. See `muxStatsExoPlayer.enableMuxCoreDebug(Boolean enable, Boolean verbose)`
+ - Add the ability to update customerVideoData and customerPlayerData mid-stream, in cases that certain metadata may not be available at the beginning of playback. See `muxStatsExoPlayer.updateCustomerData(CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData)`
+ - Fix an issue where if `MuxStatsExoPlayer` is initialized too late, the stream is not tracked correctly
+ - Fix an issue where Mux Plugin Version is reported incorrectly
+ - Fix an issue where the `EndedEvent` is not sent to the backend
+ - Fix an issue where tracking playback is not correct when playWhenReady is set to false (i.e. non-autoplay playback)
+ - Fix an issue where events could be sent after playback completes, forcing the view to be active for longer than it actually was
+ - Utilize more accurate client timestamps for event timing
+
 ## v1.0.0
 - Add support for ExoPlayer 2.9.x
 - Add support for ExoPlayer 2.10.x
