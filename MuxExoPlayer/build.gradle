@@ -6,8 +6,8 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         versionCode 9
-        versionName "2.1.0"
-
+        versionName "2.2.0"
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
@@ -82,8 +82,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_7
-        targetCompatibility = JavaVersion.VERSION_1_7
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 
     build  {
@@ -93,7 +93,7 @@ android {
                     def versionName = flavor.name.replaceAll(/_/, ".")
                     if (!versionName.endsWith(".ads")) {
                         copy {
-                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
+                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
                             into "${buildDir}/outputs/artifacts/"
                             rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
                             rename("mapping.txt", "mapping-${versionName}.txt")
@@ -106,6 +106,7 @@ android {
 }
 
 dependencies {
+    implementation 'com.android.support:multidex:1.0.3'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
