@@ -34,6 +34,7 @@
       android:largeHeap="true"
       android:allowBackup="false"
       android:name="com.google.android.exoplayer2.demo.DemoApplication"
+      android:usesCleartextTraffic="true"
       tools:ignore="UnusedAttribute">
 
     <meta-data
