@@ -93,7 +93,7 @@ android {
                     def versionName = flavor.name.replaceAll(/_/, ".")
                     if (!versionName.endsWith(".ads")) {
                         copy {
-                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}/release/mapping.txt"
+                            from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
                             into "${buildDir}/outputs/artifacts/"
                             rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
                             rename("mapping.txt", "mapping-${versionName}.txt")
