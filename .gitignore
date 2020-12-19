@@ -63,3 +63,6 @@ extensions/cronet/jniLibs/*
 !extensions/cronet/jniLibs/README.md
 extensions/cronet/libs/*
 !extensions/cronet/libs/README.md
+
+# Automated test output
+automatedtests/automated_test_results
