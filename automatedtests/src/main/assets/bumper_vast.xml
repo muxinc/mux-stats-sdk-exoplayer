@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VAST xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="vast.xsd" version="3.0">
+ <Ad id="933183496">
+  <InLine>
+   <AdSystem>GDFP</AdSystem>
+   <AdTitle>External NCA1C1L2 Bumper</AdTitle>
+   <Description><![CDATA[External NCA1C1L2 Bumper ad]]></Description>
+   <Creatives>
+    <Creative id="86648174296" sequence="1">
+     <Linear>
+      <Duration>00:00:05</Duration>
+      <MediaFiles>
+       <MediaFile id="GDFP" delivery="progressive" width="640" height="360" type="video/mp4" bitrate="118" scalable="true" maintainAspectRatio="true"><![CDATA[http://localhost:5000/bumper.mp4]]></MediaFile>
+      </MediaFiles>
+     </Linear>
+    </Creative>
+    <Creative id="86648174416" sequence="1">
+     <CompanionAds>
+      <Companion id="86648174416" width="300" height="250">
+       <StaticResource creativeType="image/png"><![CDATA[http://localhost:5000/companion_ad_image.png]]></StaticResource>
+       <TrackingEvents>
+     </CompanionAds>
+    </Creative>
+   </Creatives>
+  </InLine>
+ </Ad>
+</VAST>
