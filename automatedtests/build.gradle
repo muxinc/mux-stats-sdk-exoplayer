@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.mux.stats.sdk.muxstats.automatedtests"
-        minSdkVersion project.ext.minSdkVersion
+        minSdkVersion 18
         targetSdkVersion project.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
