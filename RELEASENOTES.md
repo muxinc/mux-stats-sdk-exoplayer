@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.3.0
+ - Fix an issue where logical resolution was calculated incorrectly
+ - Report `wired` instead of `ethernet` for certain connection types
+ - [internal] Integrate automated integration tests
+
 ## v2.2.0
  - Upgrade to Android Studio 4.1
  - Upgrade to Gradle 6.1.1
