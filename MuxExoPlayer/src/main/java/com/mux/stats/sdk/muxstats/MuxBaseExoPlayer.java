@@ -998,8 +998,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        int dp = Math.round(px / (displayMetrics.xdpi / displayMetrics.densityDpi));
-        return dp;
+        return (int)Math.ceil(px / displayMetrics.density);
     }
 
     protected BandwidthMetricDispatcher bandwidthDispatcher = new BandwidthMetricDispatcher();
