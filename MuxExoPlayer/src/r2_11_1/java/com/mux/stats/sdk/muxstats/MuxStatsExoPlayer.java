@@ -388,6 +388,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                     internalError(new MuxErrorException(e.type, "Unable to instantiate decoder for " + die.mimeType));
                 }
             }
+            else {
+                internalError(new MuxErrorException(e.type, cause.getClass().getCanonicalName() + " - " + cause.getMessage()));
+            }
         } else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
             Exception error = e.getSourceException();
             internalError(new MuxErrorException(e.type, error.getClass().getCanonicalName() + " - " + error.getMessage()));
