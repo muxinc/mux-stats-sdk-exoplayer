@@ -560,7 +560,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
         static final String CONNECTION_TYPE_CELLULAR = "cellular";
         static final String CONNECTION_TYPE_WIFI = "wifi";
-        static final String CONNECTION_TYPE_ETHERNET = "ethernet";
+        static final String CONNECTION_TYPE_WIRED = "wired";
         static final String CONNECTION_TYPE_OTHER = "other";
 
         protected WeakReference<Context> contextRef;
@@ -655,7 +655,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     NetworkCapabilities nc = connectivityMgr.getNetworkCapabilities(connectivityMgr.getActiveNetwork());
                     if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                        return CONNECTION_TYPE_ETHERNET;
+                        return CONNECTION_TYPE_WIRED;
                     } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                         return CONNECTION_TYPE_WIFI;
                     } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
@@ -665,7 +665,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                     }
                 } else {
                     if (activeNetwork.getType() == ConnectivityManager.TYPE_ETHERNET) {
-                        return CONNECTION_TYPE_ETHERNET;
+                        return CONNECTION_TYPE_WIRED;
                     } else if (activeNetwork.getType() == ConnectivityManager.TYPE_WIFI) {
                         return CONNECTION_TYPE_WIFI;
                     } else if (activeNetwork.getType() == ConnectivityManager.TYPE_MOBILE) {
@@ -998,8 +998,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        int dp = Math.round(px / (displayMetrics.xdpi / displayMetrics.densityDpi));
-        return dp;
+        return (int)Math.ceil(px / displayMetrics.density);
     }
 
     protected BandwidthMetricDispatcher bandwidthDispatcher = new BandwidthMetricDispatcher();
