@@ -412,7 +412,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
-        seeked();
+        seeked( false );
     }
 
     @Override

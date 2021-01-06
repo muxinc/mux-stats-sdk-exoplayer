@@ -357,7 +357,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     @Override
     public void onPositionDiscontinuity(int reason) {
         if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-            seeked();
+            if ( state == PlayerState.PAUSED || !playItemHaveVideoTrack ) {
+                seeked(false);
+            }
         }
     }
 

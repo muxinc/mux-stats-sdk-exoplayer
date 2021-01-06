@@ -95,6 +95,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
     protected PlayerState state;
     protected MuxStats muxStats;
+    boolean seekingInProgress;
+    int numberOfFramesRenderedSinceSeekingStarted;
+    boolean playItemHaveVideoTrack;
 
 
     MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
@@ -109,9 +112,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MuxStats.setHostNetworkApi(networkRequest);
         muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData, customerViewData, sentryEnabled);
         addListener(muxStats);
-        playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), player);
+        playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), this );
         frameRenderedListener = new FrameRenderedListener(playerHandler);
-        setPlaybackHeadUpdateInterval(false);
+        playItemHaveVideoTrack = false;
+        setPlaybackHeadUpdateInterval();
         try {
             adsImaSdkListener = new AdsImaSDKListener(this);
         } catch (NoClassDefFoundError Err) {
@@ -329,27 +333,27 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
 
         TrackGroupArray trackGroups = player.get().getCurrentTrackGroups();
-        boolean haveVideo = false;
+        playItemHaveVideoTrack = false;
         if (trackGroups.length > 0) {
             for (int groupIndex = 0; groupIndex < trackGroups.length; groupIndex++) {
                 TrackGroup trackGroup = trackGroups.get(groupIndex);
                 if (0 < trackGroup.length) {
                     Format trackFormat = trackGroup.getFormat(0);
                     if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType.contains("video")) {
-                        haveVideo = true;
+                        playItemHaveVideoTrack = true;
                         break;
                     }
                 }
             }
         }
-        setPlaybackHeadUpdateInterval(haveVideo);
+        setPlaybackHeadUpdateInterval();
     }
 
-    protected void setPlaybackHeadUpdateInterval(boolean haveVideo) {
+    protected void setPlaybackHeadUpdateInterval() {
         if (updatePlayheadPositionTimer != null) {
             updatePlayheadPositionTimer.cancel();
         }
-        if (haveVideo) {
+        if (playItemHaveVideoTrack) {
             Player.VideoComponent videoComponent = player.get().getVideoComponent();
             videoComponent.setVideoFrameMetadataListener(frameRenderedListener);
         } else {
@@ -406,7 +410,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void buffering() {
-        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+        if (state == PlayerState.REBUFFERING || seekingInProgress
                 || state == PlayerState.SEEKED ) {
             // ignore
             return;
@@ -422,18 +426,24 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void pause() {
+        if ( state == PlayerState.SEEKED ) {
+            // No pause event after seeked
+            return;
+        }
         if (state == PlayerState.REBUFFERING) {
             rebufferingEnded();
         }
-        if (state == PlayerState.SEEKED) {
-            dispatch(new SeekedEvent(null));
+        if ( seekingInProgress ) {
+            seeked( false );
+            return;
         }
         state = PlayerState.PAUSED;
         dispatch(new PauseEvent(null));
     }
 
     protected void play() {
-        if (state == PlayerState.REBUFFERING || state == PlayerState.SEEKING
+        if (state == PlayerState.REBUFFERING
+                || seekingInProgress
                 || state == PlayerState.SEEKED ) {
             // Ignore play event after rebuffering and Seeking
             return;
@@ -443,19 +453,20 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected void playing() {
+        if ( seekingInProgress ) {
+            // We will dispatch playing event after seeked event
+            return;
+        }
         if (state == PlayerState.PAUSED || state == PlayerState.FINISHED_PLAYING_ADS) {
             play();
         }
         if (state == PlayerState.REBUFFERING) {
             rebufferingEnded();
         }
-        if (state == PlayerState.SEEKED) {
-            dispatch(new SeekedEvent(null));
-        }
+
         state = PlayerState.PLAYING;
         dispatch(new PlayingEvent(null));
     }
-
 
     protected void rebufferingStarted() {
         state = PlayerState.REBUFFERING;
@@ -471,16 +482,34 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
             dispatch(new PauseEvent(null));
         }
         state = PlayerState.SEEKING;
+        seekingInProgress = true;
+        numberOfFramesRenderedSinceSeekingStarted = 0;
         dispatch(new SeekingEvent(null));
     }
 
-    protected void seeked() {
+    protected void seeked( boolean newFrameRendered ) {
         /*
          * Seeked event will be fired by the player immediately after seeking event
-         * This is not accurate, instead report the seeked event on first playing or pause
-         * event after seeked was reported by the player.
+         * This is not accurate, instead report the seeked event on first few frames rendered.
+         * This function is called each time a new frame is about to be rendered.
          */
-        state = PlayerState.SEEKED;
+        if ( seekingInProgress ) {
+            if ( newFrameRendered ) {
+                if ( numberOfFramesRenderedSinceSeekingStarted > 5 ) {
+                    // This is a playback !!!
+                    dispatch(new SeekedEvent(null));
+                    seekingInProgress = false;
+                    playing();
+                } else {
+                    numberOfFramesRenderedSinceSeekingStarted++;
+                }
+            } else {
+                // the player was seeking while paused
+                dispatch(new SeekedEvent(null));
+                seekingInProgress = false;
+                state = PlayerState.SEEKED;
+            }
+        }
     }
 
     protected void ended() {
@@ -533,11 +562,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         static final int UPDATE_PLAYER_CURRENT_POSITION = 1;
 
         AtomicLong playerCurrentPosition = new AtomicLong(0);
-        ExoPlayer player;
+        MuxBaseExoPlayer muxStats;
 
-        public ExoPlayerHandler(Looper looper, ExoPlayer player) {
+        public ExoPlayerHandler(Looper looper, MuxBaseExoPlayer muxStats) {
             super(looper);
-            this.player = player;
+            this.muxStats = muxStats;
         }
 
         public long getPlayerCurrentPosition() {
@@ -547,7 +576,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE_PLAYER_CURRENT_POSITION:
-                    playerCurrentPosition.set(player.getContentPosition());
+                    if ( muxStats != null && muxStats.player != null
+                            && muxStats.player.get() != null ) {
+                        playerCurrentPosition.set(muxStats.player.get().getContentPosition());
+                    }
+                    muxStats.seeked( true );
                     break;
                 default:
                     Log.e(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
