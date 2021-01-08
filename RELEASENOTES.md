@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.3.1
+ - Fix an issue where AAR file size was too large due to inadverting inclusion of a video file
+
 ## v2.3.0
  - Fix an issue where logical resolution was calculated incorrectly
  - Report `wired` instead of `ethernet` for certain connection types
