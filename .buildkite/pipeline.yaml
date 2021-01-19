@@ -1,6 +1,6 @@
 steps:
 - agents: [dind=true,queue=beta]
-  command: docker run -it --rm -v "$PWD":/data -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info clean build assemble automatedtests:assembleAndroidTest"
+  command: docker run -it --rm -v "$PWD":/data -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:build assemble automatedtests:assembleAndroidTest"
   label: Build AARs and APKs
   plugins:
     - artifacts#v1.3.0:
