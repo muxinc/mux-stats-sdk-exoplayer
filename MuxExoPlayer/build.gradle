@@ -97,6 +97,13 @@ android {
                             into "${buildDir}/outputs/artifacts/"
                             rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
                             rename("mapping.txt", "mapping-${versionName}.txt")
+                            File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
+                            println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
+                            if ( aarFile.length() > 120000 ) {
+                                // Fail
+                                throw new GradleException(
+                                        "${project.name}-${flavor.name}-release.aar exceed 112K !!!");
+                            }
                         }
                     }
             }
