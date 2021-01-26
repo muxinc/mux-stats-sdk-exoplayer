@@ -418,8 +418,8 @@ public class PlayerActivity extends AppCompatActivity
                * will create google.v3.AdsLoader on adRequest, which means that monitorImaAdsLoader
                * Will always receive null pointer and will be unable to recieve add events.
                */
-              .setAdErrorListener(muxStats.getAdErrorEventListener())
-              .setAdEventListener(muxStats.getAdEventListener())
+              .setAdErrorListener(muxStats.getAdsImaSdkListener())
+              .setAdEventListener(muxStats.getAdsImaSdkListener())
               .build();
     }
     adsLoader.setPlayer(player);
