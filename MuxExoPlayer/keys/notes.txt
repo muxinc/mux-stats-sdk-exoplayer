@@ -1,2 +1,0 @@
-gpg --export-secret-keys > secring.gpg
-gpg --list-secret-keys --keyid-format LONG
