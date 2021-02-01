@@ -326,7 +326,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
             Exception cause = e.getRendererException();
             if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
                 MediaCodecRenderer.DecoderInitializationException die = (MediaCodecRenderer.DecoderInitializationException) cause;
-                if (die.codecInfo != null && die.codecInfo.name == null) {
+                if (die.codecInfo == null) {
                     if (die.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
                         internalError(new MuxErrorException(e.type, "Unable to query device decoders"));
                     } else if (die.secureDecoderRequired) {
@@ -337,6 +337,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 } else {
                     internalError(new MuxErrorException(e.type, "Unable to instantiate decoder for " + die.mimeType));
                 }
+            }
+            else {
+                internalError(new MuxErrorException(e.type, cause.getClass().getCanonicalName() + " - " + cause.getMessage()));
             }
         } else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
             Exception error = e.getSourceException();

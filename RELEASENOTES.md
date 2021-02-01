@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.4.0
+ - Fix an issue where additional icons and image files were included
+ - Fix an issue where the application would crash on Android 11
+ - Expose additional fatal playback errors
+
 ## v2.3.1
  - Fix an issue where AAR file size was too large due to inadverting inclusion of a video file
 

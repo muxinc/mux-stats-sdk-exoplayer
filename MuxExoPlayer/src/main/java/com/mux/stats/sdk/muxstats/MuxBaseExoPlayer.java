@@ -18,8 +18,6 @@ import android.view.View;
 
 import androidx.annotation.Nullable;
 
-import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
-import com.google.ads.interactivemedia.v3.api.AdEvent;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -187,12 +185,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     // ExoPlayer 2.12+ need this to hook add events
-    public AdErrorEvent.AdErrorListener getAdErrorEventListener() {
+    public AdsImaSDKListener getAdsImaSdkListener() {
         return adsImaSdkListener;
     }
 
-    // ExoPlayer 2.12+ need this to hook add events
-    public AdEvent.AdEventListener getAdEventListener() {
+    @Deprecated
+    public AdsImaSDKListener getAdErrorEventListener() {
+        return adsImaSdkListener;
+    }
+
+    @Deprecated
+    public AdsImaSDKListener getAdEventListener() {
         return adsImaSdkListener;
     }
 

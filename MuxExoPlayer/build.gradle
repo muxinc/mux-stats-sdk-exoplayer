@@ -5,8 +5,8 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 10
-        versionName "2.3.1"
+        versionCode 11
+        versionName "2.4.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -97,6 +97,13 @@ android {
                             into "${buildDir}/outputs/artifacts/"
                             rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
                             rename("mapping.txt", "mapping-${versionName}.txt")
+                            File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
+                            println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
+                            if ( aarFile.length() > 120000 ) {
+                                // Fail
+                                throw new GradleException(
+                                        "${project.name}-${flavor.name}-release.aar exceed 120KB!");
+                            }
                         }
                     }
             }
@@ -125,6 +132,6 @@ dependencies {
     r2_12_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
-    compileOnly 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
     api files('libs/MuxCore.jar')
 }
