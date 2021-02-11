@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.media.MediaFormat;
@@ -59,6 +60,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static android.os.SystemClock.elapsedRealtime;
@@ -566,14 +568,22 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         static final String CONNECTION_TYPE_WIRED = "wired";
         static final String CONNECTION_TYPE_OTHER = "other";
 
+        static final String MUX_DEVICE_ID = "MUX_DEVICE_ID";
+
         protected WeakReference<Context> contextRef;
         private String deviceId;
         private String appName = "";
         private String appVersion = "";
 
         MuxDevice(Context ctx) {
-            deviceId = Settings.Secure.getString(ctx.getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
+            SharedPreferences sharedPreferences = ctx.getSharedPreferences(MUX_DEVICE_ID, Context.MODE_PRIVATE);
+            deviceId = sharedPreferences.getString(MUX_DEVICE_ID, null);
+            if (deviceId == null) {
+                deviceId = UUID.randomUUID().toString();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(MUX_DEVICE_ID, deviceId);
+                editor.commit();
+            }
             contextRef = new WeakReference<>(ctx);
             try {
                 PackageInfo pi = ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0);
