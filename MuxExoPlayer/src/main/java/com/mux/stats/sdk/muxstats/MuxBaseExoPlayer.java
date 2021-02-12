@@ -72,6 +72,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected static final int ERROR_DRM = -2;
     protected static final int ERROR_IO = -3;
 
+    protected static final int NUMBER_OF_FRAMES_THAT_ARE_CONSIDERED_PLAYBACK = 2;
+
     protected String mimeType;
     protected Integer sourceWidth;
     protected Integer sourceHeight;
@@ -495,7 +497,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
          */
         if ( seekingInProgress ) {
             if ( newFrameRendered ) {
-                if ( numberOfFramesRenderedSinceSeekingStarted > 5 ) {
+                if ( numberOfFramesRenderedSinceSeekingStarted > NUMBER_OF_FRAMES_THAT_ARE_CONSIDERED_PLAYBACK ) {
                     // This is a playback !!!
                     dispatch(new SeekedEvent(null));
                     seekingInProgress = false;
