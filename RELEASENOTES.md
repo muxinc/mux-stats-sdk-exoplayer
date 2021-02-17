@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.2
+ - Fix propagation of `customerViewData` through all constructors.
+
 ## v2.4.1
  - Fix detection of rebuffering after seeking
  - Use a random UUID stored in shared preferences for mux_viewer_id
