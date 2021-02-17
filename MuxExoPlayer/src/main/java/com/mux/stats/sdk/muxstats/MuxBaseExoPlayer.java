@@ -583,8 +583,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case UPDATE_PLAYER_CURRENT_POSITION:
-                    if ( muxStats != null && muxStats.player != null
-                            && muxStats.player.get() != null ) {
+                    if (muxStats == null || muxStats.player == null) {
+                        return;
+                    }
+                    if (muxStats.player.get() != null) {
                         playerCurrentPosition.set(muxStats.player.get().getContentPosition());
                     }
                     muxStats.seeked( true );
