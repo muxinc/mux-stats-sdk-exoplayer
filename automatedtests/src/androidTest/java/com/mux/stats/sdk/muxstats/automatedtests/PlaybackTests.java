@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class PlaybackTests extends TestBase {
+public class PlaybackTests extends SeekingTestBase {
 
     public static final String TAG = "playbackTest";
 
@@ -37,25 +37,13 @@ public class PlaybackTests extends TestBase {
      * Test Seeking, event order
      */
     @Test
-    public void testSeekingOnLowBufferAndViewEndEvent() {
-        try {
-            if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
-                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
-            }
-            initPlayerControls();
-            // play x seconds, stage 1
-            Thread.sleep(PLAY_PERIOD_IN_MS);
-            // Seek to the end by triggering touch event
-            testActivity.runOnUiThread(() -> {
-                long duration = pView.getPlayer().getDuration();
-                pView.getPlayer().seekTo( duration - PLAY_PERIOD_IN_MS );
-            });
-            testActivity.waitForPlaybackToFinish();
-            finishActivity();
-            // TODO check View end event and seking events
-        } catch (Exception e) {
-            fail(getExceptionFullTraceAndMessage( e ));
-        }
+    public void testSeekingWhilePausedVideoAndAudio() {
+        testSeekingWhilePaused();
+    }
+
+    @Test
+    public void testSeekingWhilePlayingVideoAndAudio() {
+        testSeekingWhilePlaying();
     }
 
     /*

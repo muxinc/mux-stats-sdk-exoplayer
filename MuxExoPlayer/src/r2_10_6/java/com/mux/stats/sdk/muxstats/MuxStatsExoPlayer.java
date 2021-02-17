@@ -20,8 +20,6 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.mux.stats.sdk.core.events.playback.SeekedEvent;
-import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -405,7 +403,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onPositionDiscontinuity(int reason) {
-
+        if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+            if ( state == PlayerState.PAUSED || !playItemHaveVideoTrack ) {
+                seeked(false);
+            }
+        }
     }
 
     @Override
@@ -415,7 +417,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
     @Override
     public void onSeekProcessed() {
-        seeked();
     }
 
     @Override
