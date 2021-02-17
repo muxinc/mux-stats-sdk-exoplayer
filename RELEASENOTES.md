@@ -3,6 +3,7 @@
 ## v2.4.1
  - Fix detection of rebuffering after seeking
  - Use a random UUID stored in shared preferences for mux_viewer_id
+ - Fix sending of `view_session_id`
 
 ## v2.4.0
  - Fix an issue where additional icons and image files were included
