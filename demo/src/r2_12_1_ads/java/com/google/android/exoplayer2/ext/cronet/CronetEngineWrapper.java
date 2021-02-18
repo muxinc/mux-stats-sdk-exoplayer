@@ -40,8 +40,10 @@ public final class CronetEngineWrapper {
 
   private static final String TAG = "CronetEngineWrapper";
 
-  @Nullable private final CronetEngine cronetEngine;
-  @CronetEngineSource private final int cronetEngineSource;
+  @Nullable
+  private final CronetEngine cronetEngine;
+  @CronetEngineSource
+  private final int cronetEngineSource;
 
   /**
    * Source of {@link CronetEngine}. One of {@link #SOURCE_NATIVE}, {@link #SOURCE_GMS}, {@link
@@ -50,7 +52,10 @@ public final class CronetEngineWrapper {
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({SOURCE_NATIVE, SOURCE_GMS, SOURCE_UNKNOWN, SOURCE_USER_PROVIDED, SOURCE_UNAVAILABLE})
-  public @interface CronetEngineSource {}
+  public @interface CronetEngineSource {
+
+  }
+
   /**
    * Natively bundled Cronet implementation.
    */
@@ -74,8 +79,8 @@ public final class CronetEngineWrapper {
 
   /**
    * Creates a wrapper for a {@link CronetEngine} which automatically selects the most suitable
-   * {@link CronetProvider}. Sets wrapper to prefer natively bundled Cronet over GMSCore Cronet
-   * if both are available.
+   * {@link CronetProvider}. Sets wrapper to prefer natively bundled Cronet over GMSCore Cronet if
+   * both are available.
    *
    * @param context A context.
    */
@@ -87,9 +92,9 @@ public final class CronetEngineWrapper {
    * Creates a wrapper for a {@link CronetEngine} which automatically selects the most suitable
    * {@link CronetProvider} based on user preference.
    *
-   * @param context A context.
+   * @param context             A context.
    * @param preferGMSCoreCronet Whether Cronet from GMSCore should be preferred over natively
-   *     bundled Cronet if both are available.
+   *                            bundled Cronet if both are available.
    */
   public CronetEngineWrapper(Context context, boolean preferGMSCoreCronet) {
     CronetEngine cronetEngine = null;
@@ -164,7 +169,8 @@ public final class CronetEngineWrapper {
 
   private static class CronetProviderComparator implements Comparator<CronetProvider> {
 
-    @Nullable private final String gmsCoreCronetName;
+    @Nullable
+    private final String gmsCoreCronetName;
     private final boolean preferGMSCoreCronet;
 
     // Multi-catch can only be used for API 19+ in this case.
@@ -209,8 +215,7 @@ public final class CronetEngineWrapper {
     }
 
     /**
-     * Convert Cronet provider name into a sortable preference value.
-     * Smaller values are preferred.
+     * Convert Cronet provider name into a sortable preference value. Smaller values are preferred.
      */
     private int evaluateCronetProviderType(String providerName) {
       if (isNativeProvider(providerName)) {

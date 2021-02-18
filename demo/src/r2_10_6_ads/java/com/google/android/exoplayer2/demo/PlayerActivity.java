@@ -86,7 +86,9 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.UUID;
 
-/** An activity that plays media using {@link SimpleExoPlayer}. */
+/**
+ * An activity that plays media using {@link SimpleExoPlayer}.
+ */
 public class PlayerActivity extends AppCompatActivity
     implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
 
@@ -126,6 +128,7 @@ public class PlayerActivity extends AppCompatActivity
   private static final String KEY_AUTO_PLAY = "auto_play";
 
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
+
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
@@ -356,8 +359,8 @@ public class PlayerActivity extends AppCompatActivity
       Uri[] uris;
       String[] extensions;
       if (ACTION_VIEW.equals(action)) {
-        uris = new Uri[] {intent.getData()};
-        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
+        uris = new Uri[]{intent.getData()};
+        extensions = new String[]{intent.getStringExtra(EXTENSION_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
@@ -452,7 +455,7 @@ public class PlayerActivity extends AppCompatActivity
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
-              this, player, "demo-player", customerPlayerData, customerVideoData);
+          this, player, "demo-player", customerPlayerData, customerVideoData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
@@ -588,13 +591,18 @@ public class PlayerActivity extends AppCompatActivity
     startPosition = C.TIME_UNSET;
   }
 
-  /** Returns a new DataSource factory. */
+  /**
+   * Returns a new DataSource factory.
+   */
   private DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
 
-  /** Returns an ads media source, reusing the ads loader if one exists. */
-  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+  /**
+   * Returns an ads media source, reusing the ads loader if one exists.
+   */
+  private @Nullable
+  MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
@@ -619,7 +627,7 @@ public class PlayerActivity extends AppCompatActivity
 
             @Override
             public int[] getSupportedTypes() {
-              return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+              return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
             }
           };
 

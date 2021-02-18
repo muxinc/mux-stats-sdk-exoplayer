@@ -44,7 +44,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/** Dialog to select tracks. */
+/**
+ * Dialog to select tracks.
+ */
 public final class TrackSelectionDialog extends DialogFragment {
 
   private final SparseArray<TrackSelectionViewFragment> tabFragments;
@@ -80,9 +82,9 @@ public final class TrackSelectionDialog extends DialogFragment {
    * Creates a dialog for a given {@link DefaultTrackSelector}, whose parameters will be
    * automatically updated when tracks are selected.
    *
-   * @param trackSelector The {@link DefaultTrackSelector}.
+   * @param trackSelector     The {@link DefaultTrackSelector}.
    * @param onDismissListener A {@link DialogInterface.OnDismissListener} to call when the dialog is
-   *     dismissed.
+   *                          dismissed.
    */
   public static TrackSelectionDialog createForTrackSelector(
       DefaultTrackSelector trackSelector, DialogInterface.OnDismissListener onDismissListener) {
@@ -122,16 +124,17 @@ public final class TrackSelectionDialog extends DialogFragment {
   /**
    * Creates a dialog for given {@link MappedTrackInfo} and {@link DefaultTrackSelector.Parameters}.
    *
-   * @param titleId The resource id of the dialog title.
-   * @param mappedTrackInfo The {@link MappedTrackInfo} to display.
-   * @param initialParameters The {@link DefaultTrackSelector.Parameters} describing the initial
-   *     track selection.
+   * @param titleId                 The resource id of the dialog title.
+   * @param mappedTrackInfo         The {@link MappedTrackInfo} to display.
+   * @param initialParameters       The {@link DefaultTrackSelector.Parameters} describing the
+   *                                initial track selection.
    * @param allowAdaptiveSelections Whether adaptive selections (consisting of more than one track)
-   *     can be made.
-   * @param allowMultipleOverrides Whether tracks from multiple track groups can be selected.
-   * @param onClickListener {@link DialogInterface.OnClickListener} called when tracks are selected.
-   * @param onDismissListener {@link DialogInterface.OnDismissListener} called when the dialog is
-   *     dismissed.
+   *                                can be made.
+   * @param allowMultipleOverrides  Whether tracks from multiple track groups can be selected.
+   * @param onClickListener         {@link DialogInterface.OnClickListener} called when tracks are
+   *                                selected.
+   * @param onDismissListener       {@link DialogInterface.OnDismissListener} called when the dialog
+   *                                is dismissed.
    */
   public static TrackSelectionDialog createForMappedTrackInfoAndParameters(
       int titleId,
@@ -306,7 +309,9 @@ public final class TrackSelectionDialog extends DialogFragment {
     }
   }
 
-  /** Fragment to show a track selection in tab of the track selection dialog. */
+  /**
+   * Fragment to show a track selection in tab of the track selection dialog.
+   */
   public static final class TrackSelectionViewFragment extends Fragment
       implements TrackSelectionView.TrackSelectionListener {
 

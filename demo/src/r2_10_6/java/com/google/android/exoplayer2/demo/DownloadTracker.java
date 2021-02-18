@@ -42,13 +42,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/** Tracks media that has been downloaded. */
+/**
+ * Tracks media that has been downloaded.
+ */
 public class DownloadTracker {
 
-  /** Listens for changes in the tracked downloads. */
+  /**
+   * Listens for changes in the tracked downloads.
+   */
   public interface Listener {
 
-    /** Called when the tracked downloads changed. */
+    /**
+     * Called when the tracked downloads changed.
+     */
     void onDownloadsChanged();
   }
 
@@ -60,7 +66,8 @@ public class DownloadTracker {
   private final HashMap<Uri, Download> downloads;
   private final DownloadIndex downloadIndex;
 
-  @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
+  @Nullable
+  private StartDownloadDialogHelper startDownloadDialogHelper;
 
   public DownloadTracker(
       Context context, DataSource.Factory dataSourceFactory, DownloadManager downloadManager) {
@@ -180,8 +187,8 @@ public class DownloadTracker {
 
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback,
-          DialogInterface.OnClickListener,
-          DialogInterface.OnDismissListener {
+      DialogInterface.OnClickListener,
+      DialogInterface.OnDismissListener {
 
     private final FragmentManager fragmentManager;
     private final DownloadHelper downloadHelper;
@@ -237,7 +244,7 @@ public class DownloadTracker {
     @Override
     public void onPrepareError(DownloadHelper helper, IOException e) {
       Toast.makeText(
-              context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
+          context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();
       Log.e(TAG, "Failed to start download", e);
     }

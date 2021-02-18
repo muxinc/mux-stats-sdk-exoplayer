@@ -80,31 +80,37 @@ import java.util.Set;
  * #setPlayer(Player)}. If the ads loader is no longer required, it must be released by calling
  * {@link #release()}.
  *
- * <p>The IMA SDK can take into account video control overlay views when calculating ad viewability.
+ * <p>The IMA SDK can take into account video control overlay views when calculating ad
+ * viewability.
  * For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)} and {@link
  * AdViewProvider#getAdOverlayViews()}.
  */
 public final class ImaAdsLoader
     implements Player.EventListener,
-        AdsLoader,
-        VideoAdPlayer,
-        ContentProgressProvider,
-        AdErrorListener,
-        AdsLoadedListener,
-        AdEventListener {
+    AdsLoader,
+    VideoAdPlayer,
+    ContentProgressProvider,
+    AdErrorListener,
+    AdsLoadedListener,
+    AdEventListener {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
   }
 
-  /** Builder for {@link ImaAdsLoader}. */
+  /**
+   * Builder for {@link ImaAdsLoader}.
+   */
   public static final class Builder {
 
     private final Context context;
 
-    @Nullable private ImaSdkSettings imaSdkSettings;
-    @Nullable private AdEventListener adEventListener;
-    @Nullable private Set<UiElement> adUiElements;
+    @Nullable
+    private ImaSdkSettings imaSdkSettings;
+    @Nullable
+    private AdEventListener adEventListener;
+    @Nullable
+    private Set<UiElement> adUiElements;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
     private int mediaBitrate;
@@ -140,8 +146,7 @@ public final class ImaAdsLoader
     }
 
     /**
-     * Sets a listener for ad events that will be passed to {@link
-     * AdsManager#addAdEventListener(AdEventListener)}.
+     * Sets a listener for ad events that will be passed to {@link AdsManager#addAdEventListener(AdEventListener)}.
      *
      * @param adEventListener The ad event listener.
      * @return This builder, for convenience.
@@ -207,7 +212,7 @@ public final class ImaAdsLoader
      * setting is {@code true}.
      *
      * @param focusSkipButtonWhenAvailable Whether to focus the skip button (when available) on
-     *     Android TV devices.
+     *                                     Android TV devices.
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setFocusSkipButtonWhenAvailable(boolean)
      */
@@ -225,9 +230,8 @@ public final class ImaAdsLoader
     /**
      * Returns a new {@link ImaAdsLoader} for the specified ad tag.
      *
-     * @param adTagUri The URI of a compatible ad tag to load. See
-     *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-     *     information on compatible ad tags.
+     * @param adTagUri The URI of a compatible ad tag to load. See https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility
+     *                 for information on compatible ad tags.
      * @return The new {@link ImaAdsLoader}.
      */
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
@@ -249,7 +253,7 @@ public final class ImaAdsLoader
      * Returns a new {@link ImaAdsLoader} with the specified sideloaded ads response.
      *
      * @param adsResponse The sideloaded VAST, VMAP, or ad rules response to be used instead of
-     *     making a request via an ad tag URL.
+     *                    making a request via an ad tag URL.
      * @return The new {@link ImaAdsLoader}.
      */
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
@@ -279,7 +283,9 @@ public final class ImaAdsLoader
   private static final String IMA_SDK_SETTINGS_PLAYER_TYPE = "google/exo.ext.ima";
   private static final String IMA_SDK_SETTINGS_PLAYER_VERSION = ExoPlayerLibraryInfo.VERSION;
 
-  /** The value used in {@link VideoProgressUpdate}s to indicate an unset duration. */
+  /**
+   * The value used in {@link VideoProgressUpdate}s to indicate an unset duration.
+   */
   private static final long IMA_DURATION_UNSET = -1L;
 
   /**
@@ -288,17 +294,24 @@ public final class ImaAdsLoader
    */
   private static final long END_OF_CONTENT_POSITION_THRESHOLD_MS = 5000;
 
-  /** The maximum duration before an ad break that IMA may start preloading the next ad. */
+  /**
+   * The maximum duration before an ad break that IMA may start preloading the next ad.
+   */
   private static final long MAXIMUM_PRELOAD_DURATION_MS = 8000;
 
   private static final int TIMEOUT_UNSET = -1;
   private static final int BITRATE_UNSET = -1;
 
-  /** The state of ad playback. */
+  /**
+   * The state of ad playback.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({IMA_AD_STATE_NONE, IMA_AD_STATE_PLAYING, IMA_AD_STATE_PAUSED})
-  private @interface ImaAdState {}
+  private @interface ImaAdState {
+
+  }
+
   /**
    * The ad playback state when IMA is not playing an ad.
    */
@@ -312,25 +325,32 @@ public final class ImaAdsLoader
    */
   private static final int IMA_AD_STATE_PAUSED = 2;
 
-  private final @Nullable Uri adTagUri;
-  private final @Nullable String adsResponse;
+  private final @Nullable
+  Uri adTagUri;
+  private final @Nullable
+  String adsResponse;
   private final int vastLoadTimeoutMs;
   private final int mediaLoadTimeoutMs;
   private final boolean focusSkipButtonWhenAvailable;
   private final int mediaBitrate;
-  private final @Nullable Set<UiElement> adUiElements;
-  private final @Nullable AdEventListener adEventListener;
+  private final @Nullable
+  Set<UiElement> adUiElements;
+  private final @Nullable
+  AdEventListener adEventListener;
   private final ImaFactory imaFactory;
   private final Timeline.Period period;
   private final List<VideoAdPlayerCallback> adCallbacks;
   private final AdDisplayContainer adDisplayContainer;
   private final com.google.ads.interactivemedia.v3.api.AdsLoader adsLoader;
 
-  @Nullable private Player nextPlayer;
+  @Nullable
+  private Player nextPlayer;
   private Object pendingAdRequestContext;
   private List<String> supportedMimeTypes;
-  @Nullable private EventListener eventListener;
-  @Nullable private Player player;
+  @Nullable
+  private EventListener eventListener;
+  @Nullable
+  private Player player;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercentage;
@@ -344,14 +364,23 @@ public final class ImaAdsLoader
 
   // Fields tracking IMA's state.
 
-  /** The expected ad group index that IMA should load next. */
+  /**
+   * The expected ad group index that IMA should load next.
+   */
   private int expectedAdGroupIndex;
-  /** The index of the current ad group that IMA is loading. */
+  /**
+   * The index of the current ad group that IMA is loading.
+   */
   private int adGroupIndex;
-  /** Whether IMA has sent an ad event to pause content since the last resume content event. */
+  /**
+   * Whether IMA has sent an ad event to pause content since the last resume content event.
+   */
   private boolean imaPausedContent;
-  /** The current ad playback state. */
-  private @ImaAdState int imaAdState;
+  /**
+   * The current ad playback state.
+   */
+  private @ImaAdState
+  int imaAdState;
   /**
    * Whether {@link com.google.ads.interactivemedia.v3.api.AdsLoader#contentComplete()} has been
    * called since starting ad playback.
@@ -360,7 +389,9 @@ public final class ImaAdsLoader
 
   // Fields tracking the player/loader state.
 
-  /** Whether the player is playing an ad. */
+  /**
+   * Whether the player is playing an ad.
+   */
   private boolean playingAd;
   /**
    * If the player is playing an ad, stores the ad index in its ad group. {@link C#INDEX_UNSET}
@@ -383,9 +414,13 @@ public final class ImaAdsLoader
    * content progress should increase. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressOffsetMs;
-  /** Stores the pending content position when a seek operation was intercepted to play an ad. */
+  /**
+   * Stores the pending content position when a seek operation was intercepted to play an ad.
+   */
   private long pendingContentPositionMs;
-  /** Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA. */
+  /**
+   * Whether {@link #getContentProgress()} has sent {@link #pendingContentPositionMs} to IMA.
+   */
   private boolean sentPendingContentPositionMs;
 
   /**
@@ -393,10 +428,10 @@ public final class ImaAdsLoader
    *
    * <p>If you need to customize the ad request, use {@link ImaAdsLoader.Builder} instead.
    *
-   * @param context The context.
+   * @param context  The context.
    * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
-   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-   *     more information.
+   *                 https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility
+   *                 for more information.
    */
   public ImaAdsLoader(Context context, Uri adTagUri) {
     this(
@@ -416,12 +451,13 @@ public final class ImaAdsLoader
   /**
    * Creates a new IMA ads loader.
    *
-   * @param context The context.
-   * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
-   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-   *     more information.
+   * @param context        The context.
+   * @param adTagUri       The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
+   *                       https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility
+   *                       for more information.
    * @param imaSdkSettings {@link ImaSdkSettings} used to configure the IMA SDK, or {@code null} to
-   *     use the default settings. If set, the player type and version fields may be overwritten.
+   *                       use the default settings. If set, the player type and version fields may
+   *                       be overwritten.
    * @deprecated Use {@link ImaAdsLoader.Builder}.
    */
   @Deprecated
@@ -485,8 +521,8 @@ public final class ImaAdsLoader
   }
 
   /**
-   * Returns the underlying {@code com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by
-   * this instance.
+   * Returns the underlying {@code com.google.ads.interactivemedia.v3.api.AdsLoader} wrapped by this
+   * instance.
    */
   public com.google.ads.interactivemedia.v3.api.AdsLoader getAdsLoader() {
     return adsLoader;
@@ -1350,7 +1386,7 @@ public final class ImaAdsLoader
   private static long[] getAdGroupTimesUs(List<Float> cuePoints) {
     if (cuePoints.isEmpty()) {
       // If no cue points are specified, there is a preroll ad.
-      return new long[] {0};
+      return new long[]{0};
     }
 
     int count = cuePoints.size();
@@ -1388,24 +1424,44 @@ public final class ImaAdsLoader
     }
   }
 
-  /** Factory for objects provided by the IMA SDK. */
+  /**
+   * Factory for objects provided by the IMA SDK.
+   */
   // @VisibleForTesting
   /* package */ interface ImaFactory {
-    /** @see ImaSdkSettings */
+
+    /**
+     * @see ImaSdkSettings
+     */
     ImaSdkSettings createImaSdkSettings();
-    /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRenderingSettings() */
+
+    /**
+     * @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRenderingSettings()
+     */
     AdsRenderingSettings createAdsRenderingSettings();
-    /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdDisplayContainer() */
+
+    /**
+     * @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdDisplayContainer()
+     */
     AdDisplayContainer createAdDisplayContainer();
-    /** @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRequest() */
+
+    /**
+     * @see com.google.ads.interactivemedia.v3.api.ImaSdkFactory#createAdsRequest()
+     */
     AdsRequest createAdsRequest();
-    /** @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings, AdDisplayContainer) */
+
+    /**
+     * @see ImaSdkFactory#createAdsLoader(Context, ImaSdkSettings, AdDisplayContainer)
+     */
     com.google.ads.interactivemedia.v3.api.AdsLoader createAdsLoader(
         Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
   }
 
-  /** Default {@link ImaFactory} for non-test usage, which delegates to {@link ImaSdkFactory}. */
+  /**
+   * Default {@link ImaFactory} for non-test usage, which delegates to {@link ImaSdkFactory}.
+   */
   private static final class DefaultImaFactory implements ImaFactory {
+
     @Override
     public ImaSdkSettings createImaSdkSettings() {
       return ImaSdkFactory.getInstance().createImaSdkSettings();

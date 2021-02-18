@@ -32,7 +32,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Util to read from and populate an intent. */
+/**
+ * Util to read from and populate an intent.
+ */
 public class IntentUtil {
 
   // Actions.
@@ -65,7 +67,9 @@ public class IntentUtil {
   public static final String SUBTITLE_MIME_TYPE_EXTRA = "subtitle_mime_type";
   public static final String SUBTITLE_LANGUAGE_EXTRA = "subtitle_language";
 
-  /** Creates a list of {@link MediaItem media items} from an {@link Intent}. */
+  /**
+   * Creates a list of {@link MediaItem media items} from an {@link Intent}.
+   */
   public static List<MediaItem> createMediaItemsFromIntent(Intent intent) {
     List<MediaItem> mediaItems = new ArrayList<>();
     if (ACTION_VIEW_LIST.equals(intent.getAction())) {
@@ -82,7 +86,9 @@ public class IntentUtil {
     return mediaItems;
   }
 
-  /** Populates the intent with the given list of {@link MediaItem media items}. */
+  /**
+   * Populates the intent with the given list of {@link MediaItem media items}.
+   */
   public static void addToIntent(List<MediaItem> mediaItems, Intent intent) {
     Assertions.checkArgument(!mediaItems.isEmpty());
     if (mediaItems.size() == 1) {

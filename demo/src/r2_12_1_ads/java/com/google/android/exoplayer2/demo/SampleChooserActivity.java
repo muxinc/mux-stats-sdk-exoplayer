@@ -66,7 +66,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** An activity for selecting from a list of media samples. */
+/**
+ * An activity for selecting from a list of media samples.
+ */
 public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
@@ -94,7 +96,7 @@ public class SampleChooserActivity extends AppCompatActivity
     Intent intent = getIntent();
     String dataUri = intent.getDataString();
     if (dataUri != null) {
-      uris = new String[] {dataUri};
+      uris = new String[]{dataUri};
     } else {
       ArrayList<String> uriList = new ArrayList<>();
       AssetManager assetManager = getAssets();

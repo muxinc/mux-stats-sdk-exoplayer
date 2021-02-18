@@ -39,13 +39,19 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/** Tracks media that has been downloaded. */
+/**
+ * Tracks media that has been downloaded.
+ */
 public class DownloadTracker {
 
-  /** Listens for changes in the tracked downloads. */
+  /**
+   * Listens for changes in the tracked downloads.
+   */
   public interface Listener {
 
-    /** Called when the tracked downloads changed. */
+    /**
+     * Called when the tracked downloads changed.
+     */
     void onDownloadsChanged();
   }
 
@@ -58,7 +64,8 @@ public class DownloadTracker {
   private final DownloadIndex downloadIndex;
   private final DefaultTrackSelector.Parameters trackSelectorParameters;
 
-  @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
+  @Nullable
+  private StartDownloadDialogHelper startDownloadDialogHelper;
 
   public DownloadTracker(
       Context context, DataSource.Factory dataSourceFactory, DownloadManager downloadManager) {
@@ -159,8 +166,8 @@ public class DownloadTracker {
 
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback,
-          DialogInterface.OnClickListener,
-          DialogInterface.OnDismissListener {
+      DialogInterface.OnClickListener,
+      DialogInterface.OnDismissListener {
 
     private final FragmentManager fragmentManager;
     private final DownloadHelper downloadHelper;
