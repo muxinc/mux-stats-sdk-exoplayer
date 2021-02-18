@@ -90,9 +90,11 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
-/** An activity that plays media using {@link SimpleExoPlayer}. */
+/**
+ * An activity that plays media using {@link SimpleExoPlayer}.
+ */
 public class PlayerActivity extends Activity
-        implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
+    implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
 
   public static final String DRM_SCHEME_EXTRA = "drm_scheme";
   public static final String DRM_LICENSE_URL_EXTRA = "drm_license_url";
@@ -104,7 +106,7 @@ public class PlayerActivity extends Activity
   public static final String EXTENSION_EXTRA = "extension";
 
   public static final String ACTION_VIEW_LIST =
-          "com.google.android.exoplayer.demo.action.VIEW_LIST";
+      "com.google.android.exoplayer.demo.action.VIEW_LIST";
   public static final String URI_LIST_EXTRA = "uri_list";
   public static final String EXTENSION_LIST_EXTRA = "extension_list";
 
@@ -130,6 +132,7 @@ public class PlayerActivity extends Activity
   private static final String KEY_AUTO_PLAY = "auto_play";
 
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
+
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
@@ -285,7 +288,7 @@ public class PlayerActivity extends Activity
 
   @Override
   public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                         @NonNull int[] grantResults) {
+      @NonNull int[] grantResults) {
     if (grantResults.length == 0) {
       // Empty results are triggered if a permission is requested while another request was already
       // pending and can be safely ignored in this case.
@@ -328,12 +331,12 @@ public class PlayerActivity extends Activity
         int rendererIndex = (int) view.getTag();
         int rendererType = mappedTrackInfo.getRendererType(rendererIndex);
         boolean allowAdaptiveSelections =
-                rendererType == C.TRACK_TYPE_VIDEO
-                        || (rendererType == C.TRACK_TYPE_AUDIO
-                        && mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
-                        == MappedTrackInfo.RENDERER_SUPPORT_NO_TRACKS);
+            rendererType == C.TRACK_TYPE_VIDEO
+                || (rendererType == C.TRACK_TYPE_AUDIO
+                && mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
+                == MappedTrackInfo.RENDERER_SUPPORT_NO_TRACKS);
         Pair<AlertDialog, TrackSelectionView> dialogPair =
-                TrackSelectionView.getDialog(this, title, trackSelector, rendererIndex);
+            TrackSelectionView.getDialog(this, title, trackSelector, rendererIndex);
         dialogPair.second.setShowDisableOption(true);
         dialogPair.second.setAllowAdaptiveSelections(allowAdaptiveSelections);
         dialogPair.first.show();
@@ -364,8 +367,8 @@ public class PlayerActivity extends Activity
       Uri[] uris;
       String[] extensions;
       if (ACTION_VIEW.equals(action)) {
-        uris = new Uri[] {intent.getData()};
-        extensions = new String[] {intent.getStringExtra(EXTENSION_EXTRA)};
+        uris = new Uri[]{intent.getData()};
+        extensions = new String[]{intent.getStringExtra(EXTENSION_EXTRA)};
       } else if (ACTION_VIEW_LIST.equals(action)) {
         String[] uriStrings = intent.getStringArrayExtra(URI_LIST_EXTRA);
         uris = new Uri[uriStrings.length];
@@ -394,7 +397,7 @@ public class PlayerActivity extends Activity
       if (intent.hasExtra(DRM_SCHEME_EXTRA) || intent.hasExtra(DRM_SCHEME_UUID_EXTRA)) {
         String drmLicenseUrl = intent.getStringExtra(DRM_LICENSE_URL_EXTRA);
         String[] keyRequestPropertiesArray =
-                intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA);
+            intent.getStringArrayExtra(DRM_KEY_REQUEST_PROPERTIES_EXTRA);
         boolean multiSession = intent.getBooleanExtra(DRM_MULTI_SESSION_EXTRA, false);
         int errorStringId = R.string.error_drm_unknown;
         if (Util.SDK_INT < 18) {
@@ -402,18 +405,18 @@ public class PlayerActivity extends Activity
         } else {
           try {
             String drmSchemeExtra = intent.hasExtra(DRM_SCHEME_EXTRA) ? DRM_SCHEME_EXTRA
-                    : DRM_SCHEME_UUID_EXTRA;
+                : DRM_SCHEME_UUID_EXTRA;
             UUID drmSchemeUuid = Util.getDrmUuid(intent.getStringExtra(drmSchemeExtra));
             if (drmSchemeUuid == null) {
               errorStringId = R.string.error_drm_unsupported_scheme;
             } else {
               drmSessionManager =
-                      buildDrmSessionManagerV18(
-                              drmSchemeUuid, drmLicenseUrl, keyRequestPropertiesArray, multiSession);
+                  buildDrmSessionManagerV18(
+                      drmSchemeUuid, drmLicenseUrl, keyRequestPropertiesArray, multiSession);
             }
           } catch (UnsupportedDrmException e) {
             errorStringId = e.reason == UnsupportedDrmException.REASON_UNSUPPORTED_SCHEME
-                    ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;
+                ? R.string.error_drm_unsupported_scheme : R.string.error_drm_unknown;
           }
         }
         if (drmSessionManager == null) {
@@ -436,28 +439,29 @@ public class PlayerActivity extends Activity
       }
 
       boolean preferExtensionDecoders =
-              intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
+          intent.getBooleanExtra(PREFER_EXTENSION_DECODERS_EXTRA, false);
       @DefaultRenderersFactory.ExtensionRendererMode int extensionRendererMode =
-              ((DemoApplication) getApplication()).useExtensionRenderers()
-                      ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-                      : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
-                      : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
+          ((DemoApplication) getApplication()).useExtensionRenderers()
+              ? (preferExtensionDecoders ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+              : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
       DefaultRenderersFactory renderersFactory =
-              new DefaultRenderersFactory(this, extensionRendererMode);
+          new DefaultRenderersFactory(this, extensionRendererMode);
 
       trackSelector = new DefaultTrackSelector(trackSelectionFactory);
       trackSelector.setParameters(trackSelectorParameters);
       lastSeenTrackGroupArray = null;
 
       player =
-              ExoPlayerFactory.newSimpleInstance(
-                      /* context= */ this, renderersFactory, trackSelector, drmSessionManager);
+          ExoPlayerFactory.newSimpleInstance(
+              /* context= */ this, renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData, customerVideoData, false);
+      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData,
+          customerVideoData, false);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
@@ -476,7 +480,7 @@ public class PlayerActivity extends Activity
         mediaSources[i] = buildMediaSource(uris[i], extensions[i]);
       }
       mediaSource =
-              mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
+          mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
       String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
       if (adTagUriString != null) {
         Uri adTagUri = Uri.parse(adTagUriString);
@@ -512,19 +516,19 @@ public class PlayerActivity extends Activity
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory)
-                .setManifestParser(
-                        new FilteringManifestParser<>(new DashManifestParser(), getOfflineStreamKeys(uri)))
-                .createMediaSource(uri);
+            .setManifestParser(
+                new FilteringManifestParser<>(new DashManifestParser(), getOfflineStreamKeys(uri)))
+            .createMediaSource(uri);
       case C.TYPE_SS:
         return new SsMediaSource.Factory(dataSourceFactory)
-                .setManifestParser(
-                        new FilteringManifestParser<>(new SsManifestParser(), getOfflineStreamKeys(uri)))
-                .createMediaSource(uri);
+            .setManifestParser(
+                new FilteringManifestParser<>(new SsManifestParser(), getOfflineStreamKeys(uri)))
+            .createMediaSource(uri);
       case C.TYPE_HLS:
         return new HlsMediaSource.Factory(dataSourceFactory)
-                .setPlaylistParserFactory(
-                        new DefaultHlsPlaylistParserFactory(getOfflineStreamKeys(uri)))
-                .createMediaSource(uri);
+            .setPlaylistParserFactory(
+                new DefaultHlsPlaylistParserFactory(getOfflineStreamKeys(uri)))
+            .createMediaSource(uri);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
       default: {
@@ -538,16 +542,16 @@ public class PlayerActivity extends Activity
   }
 
   private DefaultDrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(
-          UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
-          throws UnsupportedDrmException {
+      UUID uuid, String licenseUrl, String[] keyRequestPropertiesArray, boolean multiSession)
+      throws UnsupportedDrmException {
     HttpDataSource.Factory licenseDataSourceFactory =
-            ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
+        ((DemoApplication) getApplication()).buildHttpDataSourceFactory();
     HttpMediaDrmCallback drmCallback =
-            new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
+        new HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory);
     if (keyRequestPropertiesArray != null) {
       for (int i = 0; i < keyRequestPropertiesArray.length - 1; i += 2) {
         drmCallback.setKeyRequestProperty(keyRequestPropertiesArray[i],
-                keyRequestPropertiesArray[i + 1]);
+            keyRequestPropertiesArray[i + 1]);
       }
     }
     releaseMediaDrm();
@@ -610,13 +614,18 @@ public class PlayerActivity extends Activity
     startPosition = C.TIME_UNSET;
   }
 
-  /** Returns a new DataSource factory. */
+  /**
+   * Returns a new DataSource factory.
+   */
   private DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
 
-  /** Returns an ads media source, reusing the ads loader if one exists. */
-  private @Nullable MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
+  /**
+   * Returns an ads media source, reusing the ads loader if one exists.
+   */
+  private @Nullable
+  MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
     // Load the extension source using reflection so the demo app doesn't have to depend on it.
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
@@ -625,25 +634,25 @@ public class PlayerActivity extends Activity
         // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
         // LINT.IfChange
         Constructor<? extends AdsLoader> loaderConstructor =
-                loaderClass
-                        .asSubclass(AdsLoader.class)
-                        .getConstructor(android.content.Context.class, android.net.Uri.class);
+            loaderClass
+                .asSubclass(AdsLoader.class)
+                .getConstructor(android.content.Context.class, android.net.Uri.class);
         // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
         adsLoader = loaderConstructor.newInstance(this, adTagUri);
       }
       adsLoader.setPlayer(player);
       AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
-              new AdsMediaSource.MediaSourceFactory() {
-                @Override
-                public MediaSource createMediaSource(Uri uri) {
-                  return PlayerActivity.this.buildMediaSource(uri);
-                }
+          new AdsMediaSource.MediaSourceFactory() {
+            @Override
+            public MediaSource createMediaSource(Uri uri) {
+              return PlayerActivity.this.buildMediaSource(uri);
+            }
 
-                @Override
-                public int[] getSupportedTypes() {
-                  return new int[] {C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
-                }
-              };
+            @Override
+            public int[] getSupportedTypes() {
+              return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
+            }
+          };
       return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
     } catch (ClassNotFoundException e) {
       // IMA extension not loaded.
@@ -757,11 +766,11 @@ public class PlayerActivity extends Activity
         MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
         if (mappedTrackInfo != null) {
           if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
-                  == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
             showToast(R.string.error_unsupported_video);
           }
           if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
-                  == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
+              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
             showToast(R.string.error_unsupported_audio);
           }
         }
@@ -780,23 +789,23 @@ public class PlayerActivity extends Activity
         if (cause instanceof DecoderInitializationException) {
           // Special case for decoder initialization failures.
           DecoderInitializationException decoderInitializationException =
-                  (DecoderInitializationException) cause;
+              (DecoderInitializationException) cause;
           if (decoderInitializationException.decoderName == null) {
             if (decoderInitializationException.getCause() instanceof DecoderQueryException) {
               errorString = getString(R.string.error_querying_decoders);
             } else if (decoderInitializationException.secureDecoderRequired) {
               errorString =
-                      getString(
-                              R.string.error_no_secure_decoder, decoderInitializationException.mimeType);
+                  getString(
+                      R.string.error_no_secure_decoder, decoderInitializationException.mimeType);
             } else {
               errorString =
-                      getString(R.string.error_no_decoder, decoderInitializationException.mimeType);
+                  getString(R.string.error_no_decoder, decoderInitializationException.mimeType);
             }
           } else {
             errorString =
-                    getString(
-                            R.string.error_instantiating_decoder,
-                            decoderInitializationException.decoderName);
+                getString(
+                    R.string.error_instantiating_decoder,
+                    decoderInitializationException.decoderName);
           }
         }
       }

@@ -48,41 +48,62 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-/** Utilities for working with IMA SDK and IMA extension data types. */
+/**
+ * Utilities for working with IMA SDK and IMA extension data types.
+ */
 /* package */ final class ImaUtil {
 
-  /** Factory for objects provided by the IMA SDK. */
+  /**
+   * Factory for objects provided by the IMA SDK.
+   */
   public interface ImaFactory {
-    /** Creates {@link ImaSdkSettings} for configuring the IMA SDK. */
+
+    /**
+     * Creates {@link ImaSdkSettings} for configuring the IMA SDK.
+     */
     ImaSdkSettings createImaSdkSettings();
+
     /**
      * Creates {@link AdsRenderingSettings} for giving the {@link AdsManager} parameters that
      * control rendering of ads.
      */
     AdsRenderingSettings createAdsRenderingSettings();
+
     /**
      * Creates an {@link AdDisplayContainer} to hold the player for video ads, a container for
      * non-linear ads, and slots for companion ads.
      */
     AdDisplayContainer createAdDisplayContainer(ViewGroup container, VideoAdPlayer player);
-    /** Creates an {@link AdDisplayContainer} to hold the player for audio ads. */
+
+    /**
+     * Creates an {@link AdDisplayContainer} to hold the player for audio ads.
+     */
     AdDisplayContainer createAudioAdDisplayContainer(Context context, VideoAdPlayer player);
+
     /**
      * Creates a {@link FriendlyObstruction} to describe an obstruction considered "friendly" for
      * viewability measurement purposes.
      */
     FriendlyObstruction createFriendlyObstruction(
-            View view,
-            FriendlyObstructionPurpose friendlyObstructionPurpose,
-            @Nullable String reasonDetail);
-    /** Creates an {@link AdsRequest} to contain the data used to request ads. */
+        View view,
+        FriendlyObstructionPurpose friendlyObstructionPurpose,
+        @Nullable String reasonDetail);
+
+    /**
+     * Creates an {@link AdsRequest} to contain the data used to request ads.
+     */
     AdsRequest createAdsRequest();
-    /** Creates an {@link AdsLoader} for requesting ads using the specified settings. */
+
+    /**
+     * Creates an {@link AdsLoader} for requesting ads using the specified settings.
+     */
     AdsLoader createAdsLoader(
-            Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
+        Context context, ImaSdkSettings imaSdkSettings, AdDisplayContainer adDisplayContainer);
   }
 
-  /** Stores configuration for ad loading and playback. */
+  /**
+   * Stores configuration for ad loading and playback.
+   */
   public static final class Configuration {
 
     public final long adPreloadTimeoutMs;
@@ -91,13 +112,20 @@ import java.util.Set;
     public final boolean focusSkipButtonWhenAvailable;
     public final boolean playAdBeforeStartPosition;
     public final int mediaBitrate;
-    @Nullable public final List<String> adMediaMimeTypes;
-    @Nullable public final Set<UiElement> adUiElements;
-    @Nullable public final Collection<CompanionAdSlot> companionAdSlots;
-    @Nullable public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
-    @Nullable public final AdEvent.AdEventListener applicationAdEventListener;
-    @Nullable public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
-    @Nullable public final ImaSdkSettings imaSdkSettings;
+    @Nullable
+    public final List<String> adMediaMimeTypes;
+    @Nullable
+    public final Set<UiElement> adUiElements;
+    @Nullable
+    public final Collection<CompanionAdSlot> companionAdSlots;
+    @Nullable
+    public final AdErrorEvent.AdErrorListener applicationAdErrorListener;
+    @Nullable
+    public final AdEvent.AdEventListener applicationAdEventListener;
+    @Nullable
+    public final VideoAdPlayer.VideoAdPlayerCallback applicationVideoAdPlayerCallback;
+    @Nullable
+    public final ImaSdkSettings imaSdkSettings;
     public final boolean debugModeEnabled;
 
     public Configuration(
@@ -179,7 +207,9 @@ import java.util.Set;
     return new AdPlaybackState(adGroupTimesUs);
   }
 
-  /** Returns an {@link AdsRequest} based on the specified ad tag {@link DataSpec}. */
+  /**
+   * Returns an {@link AdsRequest} based on the specified ad tag {@link DataSpec}.
+   */
   public static AdsRequest getAdsRequestForAdTagDataSpec(
       ImaFactory imaFactory, DataSpec adTagDataSpec) throws IOException {
     AdsRequest request = imaFactory.createAdsRequest();
@@ -197,7 +227,9 @@ import java.util.Set;
     return request;
   }
 
-  /** Returns whether the ad error indicates that an entire ad group failed to load. */
+  /**
+   * Returns whether the ad error indicates that an entire ad group failed to load.
+   */
   public static boolean isAdGroupLoadError(AdError adError) {
     // TODO: Find out what other errors need to be handled (if any), and whether each one relates to
     // a single ad, ad group or the whole timeline.
@@ -205,5 +237,6 @@ import java.util.Set;
         || adError.getErrorCode() == AdError.AdErrorCode.UNKNOWN_ERROR;
   }
 
-  private ImaUtil() {}
+  private ImaUtil() {
+  }
 }

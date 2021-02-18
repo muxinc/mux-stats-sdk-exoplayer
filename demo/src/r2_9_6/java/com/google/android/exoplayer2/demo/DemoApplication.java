@@ -47,12 +47,12 @@ public class DemoApplication extends Application {
   private static final String DOWNLOAD_CONTENT_DIRECTORY = "downloads";
   private static final int MAX_SIMULTANEOUS_DOWNLOADS = 2;
   private static final DownloadAction.Deserializer[] DOWNLOAD_DESERIALIZERS =
-          new DownloadAction.Deserializer[] {
-                  DashDownloadAction.DESERIALIZER,
-                  HlsDownloadAction.DESERIALIZER,
-                  SsDownloadAction.DESERIALIZER,
-                  ProgressiveDownloadAction.DESERIALIZER
-          };
+      new DownloadAction.Deserializer[]{
+          DashDownloadAction.DESERIALIZER,
+          HlsDownloadAction.DESERIALIZER,
+          SsDownloadAction.DESERIALIZER,
+          ProgressiveDownloadAction.DESERIALIZER
+      };
 
   protected String userAgent;
 
@@ -67,19 +67,25 @@ public class DemoApplication extends Application {
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
   }
 
-  /** Returns a {@link DataSource.Factory}. */
+  /**
+   * Returns a {@link DataSource.Factory}.
+   */
   public DataSource.Factory buildDataSourceFactory() {
     DefaultDataSourceFactory upstreamFactory =
-            new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
+        new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
     return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
   }
 
-  /** Returns a {@link HttpDataSource.Factory}. */
+  /**
+   * Returns a {@link HttpDataSource.Factory}.
+   */
   public HttpDataSource.Factory buildHttpDataSourceFactory() {
     return new DefaultHttpDataSourceFactory(userAgent);
   }
 
-  /** Returns whether extension renderers should be used. */
+  /**
+   * Returns whether extension renderers should be used.
+   */
   public boolean useExtensionRenderers() {
     return "withExtensions".equals(BuildConfig.FLAVOR);
   }
@@ -97,20 +103,20 @@ public class DemoApplication extends Application {
   private synchronized void initDownloadManager() {
     if (downloadManager == null) {
       DownloaderConstructorHelper downloaderConstructorHelper =
-              new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
+          new DownloaderConstructorHelper(getDownloadCache(), buildHttpDataSourceFactory());
       downloadManager =
-              new DownloadManager(
-                      downloaderConstructorHelper,
-                      MAX_SIMULTANEOUS_DOWNLOADS,
-                      DownloadManager.DEFAULT_MIN_RETRY_COUNT,
-                      new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE));
+          new DownloadManager(
+              downloaderConstructorHelper,
+              MAX_SIMULTANEOUS_DOWNLOADS,
+              DownloadManager.DEFAULT_MIN_RETRY_COUNT,
+              new File(getDownloadDirectory(), DOWNLOAD_ACTION_FILE));
       downloadTracker =
-              new DownloadTracker(
-                      /* context= */ this,
-                      buildDataSourceFactory(),
-                      new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE),
-                      DOWNLOAD_DESERIALIZERS
-              );
+          new DownloadTracker(
+              /* context= */ this,
+              buildDataSourceFactory(),
+              new File(getDownloadDirectory(), DOWNLOAD_TRACKER_ACTION_FILE),
+              DOWNLOAD_DESERIALIZERS
+          );
       downloadManager.addListener(downloadTracker);
     }
   }
@@ -134,13 +140,13 @@ public class DemoApplication extends Application {
   }
 
   private static CacheDataSourceFactory buildReadOnlyCacheDataSource(
-          DefaultDataSourceFactory upstreamFactory, Cache cache) {
+      DefaultDataSourceFactory upstreamFactory, Cache cache) {
     return new CacheDataSourceFactory(
-            cache,
-            upstreamFactory,
-            new FileDataSourceFactory(),
-            /* cacheWriteDataSinkFactory= */ null,
-            CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
-            /* eventListener= */ null);
+        cache,
+        upstreamFactory,
+        new FileDataSourceFactory(),
+        /* cacheWriteDataSinkFactory= */ null,
+        CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR,
+        /* eventListener= */ null);
   }
 }

@@ -54,7 +54,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** An activity for selecting from a list of media samples. */
+/**
+ * An activity for selecting from a list of media samples.
+ */
 public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
@@ -79,7 +81,7 @@ public class SampleChooserActivity extends AppCompatActivity
     String dataUri = intent.getDataString();
     String[] uris;
     if (dataUri != null) {
-      uris = new String[] {dataUri};
+      uris = new String[]{dataUri};
     } else {
       ArrayList<String> uriList = new ArrayList<>();
       AssetManager assetManager = getAssets();
@@ -499,6 +501,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   private static final class DrmInfo {
+
     public final String drmScheme;
     public final String drmLicenseUrl;
     public final String[] drmKeyRequestProperties;
@@ -525,6 +528,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   private abstract static class Sample {
+
     public final String name;
     public final DrmInfo drmInfo;
 

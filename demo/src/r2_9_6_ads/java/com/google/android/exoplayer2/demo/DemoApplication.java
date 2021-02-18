@@ -54,19 +54,25 @@ public class DemoApplication extends Application {
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
   }
 
-  /** Returns a {@link DataSource.Factory}. */
+  /**
+   * Returns a {@link DataSource.Factory}.
+   */
   public DataSource.Factory buildDataSourceFactory() {
     DefaultDataSourceFactory upstreamFactory =
         new DefaultDataSourceFactory(this, buildHttpDataSourceFactory());
     return buildReadOnlyCacheDataSource(upstreamFactory, getDownloadCache());
   }
 
-  /** Returns a {@link HttpDataSource.Factory}. */
+  /**
+   * Returns a {@link HttpDataSource.Factory}.
+   */
   public HttpDataSource.Factory buildHttpDataSourceFactory() {
     return new DefaultHttpDataSourceFactory(userAgent);
   }
 
-  /** Returns whether extension renderers should be used. */
+  /**
+   * Returns whether extension renderers should be used.
+   */
   public boolean useExtensionRenderers() {
     return "withExtensions".equals(BuildConfig.FLAVOR);
   }

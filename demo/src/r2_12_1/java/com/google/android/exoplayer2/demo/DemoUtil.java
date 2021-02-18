@@ -39,7 +39,9 @@ import java.io.IOException;
 import java.util.concurrent.Executors;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
-/** Utility methods for the demo app. */
+/**
+ * Utility methods for the demo app.
+ */
 public final class DemoUtil {
 
   public static final String DOWNLOAD_NOTIFICATION_CHANNEL_ID = "download_channel";
@@ -51,14 +53,22 @@ public final class DemoUtil {
 
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
   private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
-  private static @MonotonicNonNull DatabaseProvider databaseProvider;
-  private static @MonotonicNonNull File downloadDirectory;
-  private static @MonotonicNonNull Cache downloadCache;
-  private static @MonotonicNonNull DownloadManager downloadManager;
-  private static @MonotonicNonNull DownloadTracker downloadTracker;
-  private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
+  private static @MonotonicNonNull
+  DatabaseProvider databaseProvider;
+  private static @MonotonicNonNull
+  File downloadDirectory;
+  private static @MonotonicNonNull
+  Cache downloadCache;
+  private static @MonotonicNonNull
+  DownloadManager downloadManager;
+  private static @MonotonicNonNull
+  DownloadTracker downloadTracker;
+  private static @MonotonicNonNull
+  DownloadNotificationHelper downloadNotificationHelper;
 
-  /** Returns whether extension renderers should be used. */
+  /**
+   * Returns whether extension renderers should be used.
+   */
   public static boolean useExtensionRenderers() {
 //    return BuildConfig.USE_DECODER_EXTENSIONS;
     return false;
@@ -70,8 +80,8 @@ public final class DemoUtil {
     int extensionRendererMode =
         useExtensionRenderers()
             ? (preferExtensionRenderer
-                ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
-                : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
+            ? DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER
+            : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_ON)
             : DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF;
     return new DefaultRenderersFactory(context.getApplicationContext())
         .setExtensionRendererMode(extensionRendererMode);
@@ -87,7 +97,9 @@ public final class DemoUtil {
     return httpDataSourceFactory;
   }
 
-  /** Returns a {@link DataSource.Factory}. */
+  /**
+   * Returns a {@link DataSource.Factory}.
+   */
   public static synchronized DataSource.Factory getDataSourceFactory(Context context) {
     if (dataSourceFactory == null) {
       context = context.getApplicationContext();
@@ -193,5 +205,6 @@ public final class DemoUtil {
         .setFlags(CacheDataSource.FLAG_IGNORE_CACHE_ON_ERROR);
   }
 
-  private DemoUtil() {}
+  private DemoUtil() {
+  }
 }
