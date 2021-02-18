@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.3
+ - Propagate `customerViewData` through the constructors for 2.9.6, 2.11.1, and 2.12.1 as well.
+
 ## v2.4.2
  - Fix propagation of `customerViewData` through all constructors.
 
