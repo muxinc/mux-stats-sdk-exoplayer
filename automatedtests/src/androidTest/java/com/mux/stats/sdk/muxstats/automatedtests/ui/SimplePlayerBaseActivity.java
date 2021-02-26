@@ -71,6 +71,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     MuxStatsExoPlayer muxStats;
     AdsLoader adsLoader;
     Uri loadedAdTagUri;
+    boolean playWhenReady = true;
     MockNetworkRequest mockNetwork;
     AtomicBoolean onResumedCalled = new AtomicBoolean(false);
     PlayerNotificationManager notificationManager;
@@ -131,6 +132,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     public abstract void startPlayback();
 
+    public void setPlayWhenReady(boolean playWhenReady) {
+        this.playWhenReady = playWhenReady;
+    }
+
     public void setVideoTitle(String title) {
         videoTitle = title;
     }
@@ -146,7 +151,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     public DefaultTrackSelector getTrackSelector() {
         return trackSelector;
     }
-
 
 
     public void releaseExoPlayer() {

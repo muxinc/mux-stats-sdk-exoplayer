@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 
 
 
+import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
 import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
@@ -9,7 +10,9 @@ import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.AdPlayingEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.PlayerReadyEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
+import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 
@@ -47,39 +50,54 @@ public class AdsPlaybackTests extends TestBase {
         }
     }
 
-    // Not working,, see how to reproduce
-//    @Test
-//    public void testPlayerReleasedWhileAdsPlaying() {
-//        testActivity.runOnUiThread(() -> {
-//            testActivity.setVideoTitle(currentTestName.getMethodName());
-//            testActivity.initMuxSats();
-//            testActivity.setUrlToPlay(urlToPlay);
-//            testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
-//            testActivity.startPlayback();
-//            pView = testActivity.getPlayerView();
-//            testMediaSource = testActivity.getTestMediaSource();
-//        });
-//        if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
-//            fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
-//        }
-//        try {
-//            // First ad is 10 second
-//            Thread.sleep(PREROLL_AD_PERIOD / 2);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            fail(e.getMessage());
-//        }
-//        testActivity.runOnUiThread(() -> {
-//           testActivity.releaseExoPlayer();
-//        });
-//        try {
-//            // Wait for ads to finish, and see if there was a crash !!!
-//            Thread.sleep(PREROLL_AD_PERIOD * 2);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            fail(e.getMessage());
-//        }
-//    }
+    @Test
+    public void testPreRollAdsWhenPlayWhenReadyIsFalse() {
+        try {
+            setupPrerolAndBumper(false, "http://localhost:5000/ten_sec_ad_vast.xml");
+            // Wait for ads to finish playing, wait for X seconds
+            Thread.sleep(PREROLL_AD_PERIOD);
+            // make sure that we have playerready, pause, adbreakstart, adplay, adpause !!!
+            int playreadyIndex = networkRequest.getIndexForFirstEvent(PlayerReadyEvent.TYPE);
+            int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
+            int adBreakstartIndex = networkRequest.getIndexForFirstEvent(AdBreakStartEvent.TYPE);
+            int adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
+            int adPauseIndex = networkRequest.getIndexForFirstEvent(AdPauseEvent.TYPE);
+            int viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
+            if (playreadyIndex == -1 || pauseIndex == -1
+                    || adBreakstartIndex == -1 || adPlayIndex == -1 || adPauseIndex == -1) {
+                fail("Missing basic start events ! adBreakstartIndex: " + adBreakstartIndex +
+                        ", pauseIndex: " + pauseIndex + ", adBreakStartIndex: " +
+                        adBreakstartIndex + ", adPlayIndex: " + adPlayIndex + ", adPauseIndex: "
+                        + adPauseIndex);
+            }
+            if (viewStartIndex != -1) {
+                fail("We dispatched viewStartEvent before actual content playback started, this is a error !!!");
+            }
+            // same as start play
+            resumePlayer();
+            // Wait for preroll to finish
+            Thread.sleep(PREROLL_AD_PERIOD);
+            // Wait for playback to start
+            if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
+            // Play X seconds
+            Thread.sleep(PLAY_PERIOD_IN_MS);
+            viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
+            if (viewStartIndex == -1) {
+                fail("Missing viewStartEvent after playback have started !!!");
+            }
+            int adBreakEndEvent = networkRequest.getIndexForFirstEvent(AdBreakEndEvent.TYPE);
+            if (adBreakEndEvent == -1) {
+                fail("Missing adBreakEndEvent !!!");
+            }
+            if (viewStartIndex < adBreakEndEvent) {
+                fail("viewstartEvent dispatched before adBreakEndEvent, SERIOUS ERROR !!!");
+            }
+        } catch (Exception e) {
+            fail(getExceptionFullTraceAndMessage( e ));
+        }
+    }
 
 //    @Test
     public void testNoAdsPreRoll() {
@@ -89,16 +107,7 @@ public class AdsPlaybackTests extends TestBase {
     @Test
     public void testPreRollAndBumperAds() {
         try {
-            testActivity.runOnUiThread(() -> {
-                testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
-                testActivity.initMuxSats();
-                testActivity.setUrlToPlay(urlToPlay);
-                testActivity.setAdTag("http://localhost:5000/preroll_and_bumper_vmap.xml");
-                testActivity.startPlayback();
-                pView = testActivity.getPlayerView();
-                testMediaSource = testActivity.getTestMediaSource();
-                networkRequest = testActivity.getMockNetwork();
-            });
+            setupPrerolAndBumper(true, "http://localhost:5000/preroll_and_bumper_vmap.xml");
             if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
                 fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
             }
@@ -181,8 +190,21 @@ public class AdsPlaybackTests extends TestBase {
                 fail("Play events after ad break are not ordered correctly");
             }
         } catch (Exception e) {
-            fail(getExceptionFullTraceAndMessage( e ));
+            fail(getExceptionFullTraceAndMessage(e));
         }
     }
 
+    void setupPrerolAndBumper(boolean playWhenReady, String urlToPlay) {
+        testActivity.runOnUiThread(() -> {
+            testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
+            testActivity.initMuxSats();
+            testActivity.setUrlToPlay(urlToPlay);
+            testActivity.setPlayWhenReady(playWhenReady);
+            testActivity.setAdTag(urlToPlay);
+            testActivity.startPlayback();
+            pView = testActivity.getPlayerView();
+            testMediaSource = testActivity.getTestMediaSource();
+            networkRequest = testActivity.getMockNetwork();
+        });
+    }
 }
