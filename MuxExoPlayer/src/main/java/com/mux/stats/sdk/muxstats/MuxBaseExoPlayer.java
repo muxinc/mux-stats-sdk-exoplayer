@@ -35,9 +35,13 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
+import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
+import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
@@ -88,6 +92,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected WeakReference<View> playerView;
     protected WeakReference<Context> contextRef;
     protected AdsImaSDKListener adsImaSdkListener;
+    protected boolean missingAdBreakStartEvent;
+    protected ArrayList<String> earlyEventTypes = new ArrayList<>();
 
     protected int streamType = -1;
 
@@ -107,6 +113,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
                      CustomerViewData customerViewData, boolean sentryEnabled,
                      INetworkRequest networkRequest) {
         super();
+        earlyEventTypes.add(AdBreakStartEvent.TYPE);
+        earlyEventTypes.add(AdPlayEvent.TYPE);
+        earlyEventTypes.add(AdPauseEvent.TYPE);
+        missingAdBreakStartEvent = false;
+
         this.player = new WeakReference<>(player);
         this.contextRef = new WeakReference<>(ctx);
         state = PlayerState.INIT;
@@ -285,8 +296,24 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         streamType = type;
     }
 
+    protected void dispatchMissingAdBreakStartEvent() {
+	    if (missingAdBreakStartEvent) {
+            dispatch(new AdBreakStartEvent(null));
+            dispatch(new AdPlayEvent(null));
+            missingAdBreakStartEvent = false;
+        }
+    }
+
     @Override
     public void dispatch(IEvent event) {
+	    if (!player.get().getPlayWhenReady() && (player.get().getCurrentPosition() == 0)) {
+            if (earlyEventTypes.contains(event.getType())) {
+                // Ignore these events, they should not be dispatched
+                // Dispatch adBreakStart event when adPlayback resume
+                missingAdBreakStartEvent = true;
+                return;
+            }
+        }
         if (player != null && player.get() != null && muxStats != null) {
             super.dispatch(event);
         }

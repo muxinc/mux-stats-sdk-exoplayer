@@ -63,36 +63,68 @@ public class AdsPlaybackTests extends TestBase {
             int adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
             int adPauseIndex = networkRequest.getIndexForFirstEvent(AdPauseEvent.TYPE);
             int viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
-            if (playreadyIndex == -1 || pauseIndex == -1
-                    || adBreakstartIndex == -1 || adPlayIndex == -1 || adPauseIndex == -1) {
-                fail("Missing basic start events ! adBreakstartIndex: " + adBreakstartIndex +
-                        ", pauseIndex: " + pauseIndex + ", adBreakStartIndex: " +
-                        adBreakstartIndex + ", adPlayIndex: " + adPlayIndex + ", adPauseIndex: "
-                        + adPauseIndex);
+            if (adBreakstartIndex != -1
+                    || adPlayIndex != -1 || adPauseIndex != -1) {
+                fail("Ad events dispatched too early: " + adBreakstartIndex +
+                        ", adPlayIndex: " + adPlayIndex + ", adPauseIndex: " +
+                        adPauseIndex);
+            }
+            if (playreadyIndex == -1) {
+                fail("Missing playready event !!!");
             }
             if (viewStartIndex != -1) {
                 fail("We dispatched viewStartEvent before actual content playback started, this is a error !!!");
+            }
+            if (pauseIndex == -1) {
+                fail("Missing pause event !!!");
             }
             // same as start play
             resumePlayer();
             // Wait for preroll to finish
             Thread.sleep(PREROLL_AD_PERIOD);
-            // Wait for playback to start
-            if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
-                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
-            }
             // Play X seconds
             Thread.sleep(PLAY_PERIOD_IN_MS);
+            adBreakstartIndex = networkRequest.getIndexForFirstEvent(AdBreakStartEvent.TYPE);
+            adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
+            int adPlayingIndex = networkRequest.getIndexForFirstEvent(AdPlayingEvent.TYPE);
+            int adEndEventIndex = networkRequest.getIndexForFirstEvent(AdEndedEvent.TYPE);
+            int adBreakEndEventIndex = networkRequest.getIndexForFirstEvent(AdBreakEndEvent.TYPE);
+
+            if ( adBreakstartIndex == -1 || adPlayIndex == -1 || adPlayingIndex == -1
+                    || adEndEventIndex == -1 || adBreakEndEventIndex == -1) {
+                fail("Missing basic ad events: adBreakstartIndex = " + adBreakstartIndex
+                        + ", adPlayIndex = " + adPlayIndex + ", adPlayingIndex = " + adPlayingIndex
+                        + ", adEndEventIndex = " + adEndEventIndex
+                        + ", adBreakEndEventIndex = " + adBreakEndEventIndex);
+            }
+
+            if (!(adBreakstartIndex < adPlayIndex && adPlayIndex < adPlayingIndex
+                    && adPlayingIndex < adEndEventIndex && adEndEventIndex < adBreakEndEventIndex)) {
+                fail("Ad events not ordered correctly adBreakstartIndex = " + adBreakstartIndex
+                        + ", adPlayIndex = " + adPlayIndex + ", adPlayingIndex = " + adPlayingIndex
+                        + ", adEndEventIndex = " + adEndEventIndex
+                        + ", adBreakEndEventIndex = " + adBreakEndEventIndex);
+            }
+
             viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
             if (viewStartIndex == -1) {
                 fail("Missing viewStartEvent after playback have started !!!");
             }
-            int adBreakEndEvent = networkRequest.getIndexForFirstEvent(AdBreakEndEvent.TYPE);
-            if (adBreakEndEvent == -1) {
-                fail("Missing adBreakEndEvent !!!");
+            if (viewStartIndex > adBreakstartIndex) {
+                fail("viewstartEvent dispatched after adBreakstartIndex, SERIOUS ERROR !!!");
             }
-            if (viewStartIndex < adBreakEndEvent) {
-                fail("viewstartEvent dispatched before adBreakEndEvent, SERIOUS ERROR !!!");
+
+            int playEventIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
+            int playingEventIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
+            // Check playback start index
+            if (playEventIndex == -1 || playingEventIndex == -1) {
+                fail("Missing playback events: playEventIndex = " + playEventIndex
+                        + ", playingEventIndex = " + playingEventIndex);
+            }
+            // Check playback event order
+            if (playEventIndex > playingEventIndex) {
+                fail("Playback events ordered incorrectly: playEventIndex = " + playEventIndex
+                        + ", playingEventIndex = " + playingEventIndex);
             }
         } catch (Exception e) {
             fail(getExceptionFullTraceAndMessage( e ));
@@ -194,13 +226,13 @@ public class AdsPlaybackTests extends TestBase {
         }
     }
 
-    void setupPrerolAndBumper(boolean playWhenReady, String urlToPlay) {
+    void setupPrerolAndBumper(boolean playWhenReady, String adUrlToPlay) {
         testActivity.runOnUiThread(() -> {
             testActivity.setVideoTitle( BuildConfig.FLAVOR + "-" + currentTestName.getMethodName() );
             testActivity.initMuxSats();
             testActivity.setUrlToPlay(urlToPlay);
             testActivity.setPlayWhenReady(playWhenReady);
-            testActivity.setAdTag(urlToPlay);
+            testActivity.setAdTag(adUrlToPlay);
             testActivity.startPlayback();
             pView = testActivity.getPlayerView();
             testMediaSource = testActivity.getTestMediaSource();

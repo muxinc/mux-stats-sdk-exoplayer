@@ -101,8 +101,14 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);
                     break;
                 case RESUMED:
-                    dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
-                    dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
+                    if (exoPlayerListener.missingAdBreakStartEvent) {
+                        // This is special case when we have ad preroll and play when ready is set to false
+                        // in that case we need to dispatch AdBreakStartEvent first and resume the playback.
+                        exoPlayerListener.dispatchMissingAdBreakStartEvent();
+                    } else {
+                        dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                        dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
+                    }
                     break;
                 case ALL_ADS_COMPLETED:
                     // Nothing to do here, as this depends on VAST vs VMAP and is not
