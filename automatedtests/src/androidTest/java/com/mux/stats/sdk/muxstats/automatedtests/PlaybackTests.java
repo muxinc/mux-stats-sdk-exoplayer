@@ -7,11 +7,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.DefaultControlDispatcher;
 import com.google.android.exoplayer2.Player;
+import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
+import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.R;
 
@@ -32,6 +34,42 @@ import static org.junit.Assert.fail;
 public class PlaybackTests extends SeekingTestBase {
 
     public static final String TAG = "playbackTest";
+
+    @Test
+    public void testEndEvents() {
+        try {
+            if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
+            // Seek backward, stage 4
+            testActivity.runOnUiThread(new Runnable() {
+                public void run() {
+                    long contentDuration = pView.getPlayer().getContentDuration();
+                    pView.getPlayer().seekTo(contentDuration - 2000);
+                }
+            });
+            if (!testActivity.waitForPlaybackToFinish(waitForPlaybackToStartInMS)) {
+                fail("Playback did not finish in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+            }
+            testActivity.finishAffinity();
+            Thread.sleep(PAUSE_PERIOD_IN_MS);
+            int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
+            int endedIndex = networkRequest.getIndexForFirstEvent(EndedEvent.TYPE);
+            int viewEndEventIndex = networkRequest.getIndexForFirstEvent(ViewEndEvent.TYPE);
+            if (viewEndEventIndex == -1 || endedIndex == -1 || pauseIndex == -1) {
+                fail("Missing end events: viewEndEventIndex = " + viewEndEventIndex
+                        + ", viewEndEventIndex: " + viewEndEventIndex
+                        + ", pauseEventIndex: " + pauseIndex);
+            }
+            if (!(pauseIndex < endedIndex && endedIndex < viewEndEventIndex)) {
+                fail("End events not ordered correctly: viewEndEventIndex = " + viewEndEventIndex
+                        + ", viewEndEventIndex: " + viewEndEventIndex
+                        + ", pauseEventIndex: " + pauseIndex);
+            }
+        } catch (Exception e) {
+            fail(getExceptionFullTraceAndMessage(e));
+        }
+    }
 
     /*
      * Test Seeking, event order
@@ -206,7 +244,7 @@ public class PlaybackTests extends SeekingTestBase {
             }
             // TODO see what is the best way to calculate rebuffer period
         } catch (Exception e) {
-            fail(getExceptionFullTraceAndMessage( e ));
+            fail(getExceptionFullTraceAndMessage(e));
         }
     }
 

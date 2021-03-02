@@ -191,12 +191,14 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
         return mockNetwork;
     }
 
-    public void waitForPlaybackToFinish() {
+    public boolean waitForPlaybackToFinish(long timeoutInMs) {
         try {
             activityLock.lock();
-            playbackEnded.await();
+            playbackEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
+            return true;
         } catch (InterruptedException e) {
             e.printStackTrace();
+            return false;
         } finally {
             activityLock.unlock();
         }
