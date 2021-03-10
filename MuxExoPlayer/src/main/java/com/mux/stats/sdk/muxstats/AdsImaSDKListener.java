@@ -18,6 +18,7 @@ import com.mux.stats.sdk.core.model.ViewData;
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
     private MuxBaseExoPlayer exoPlayerListener;
     private boolean sendPlayOnStarted = false;
+    private boolean missingAdBreakStartEvent = false;
 
     public AdsImaSDKListener(MuxBaseExoPlayer listener) {
         exoPlayerListener = listener;
@@ -60,10 +61,16 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                             exoPlayerListener.getState() == MuxBaseExoPlayer.PlayerState.PLAYING) {
                         exoPlayerListener.pause();
                     }
+                    sendPlayOnStarted = false;
                     exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.PLAYING_ADS);
+                    if (!exoPlayerListener.player.get().getPlayWhenReady() &&
+                        (exoPlayerListener.player.get().getCurrentPosition() == 0)) {
+                        // This is preroll ads when play when ready is set to false, we need to ignore these events
+                        missingAdBreakStartEvent = true;
+                        break;
+                    }
                     dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
                     dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
-                    sendPlayOnStarted = false;
                     break;
                 case STARTED:
                     // On the first STARTED, do not send AdPlay, as it was handled in
@@ -98,13 +105,20 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
                     }
                     break;
                 case PAUSED:
+                    if (!exoPlayerListener.player.get().getPlayWhenReady() &&
+                        (exoPlayerListener.player.get().getCurrentPosition() == 0)) {
+                        // This is preroll ads when play when ready is set to false, we need to ignore these events
+                        break;
+                    }
                     dispatchAdPlaybackEvent(new AdPauseEvent(null), ad);
                     break;
                 case RESUMED:
-                    if (exoPlayerListener.missingAdBreakStartEvent) {
+                    if (missingAdBreakStartEvent) {
                         // This is special case when we have ad preroll and play when ready is set to false
                         // in that case we need to dispatch AdBreakStartEvent first and resume the playback.
-                        exoPlayerListener.dispatchMissingAdBreakStartEvent();
+                        dispatchAdPlaybackEvent(new AdBreakStartEvent(null), ad);
+                        dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
+                        missingAdBreakStartEvent = false;
                     } else {
                         dispatchAdPlaybackEvent(new AdPlayEvent(null), ad);
                         dispatchAdPlaybackEvent(new AdPlayingEvent(null), ad);
