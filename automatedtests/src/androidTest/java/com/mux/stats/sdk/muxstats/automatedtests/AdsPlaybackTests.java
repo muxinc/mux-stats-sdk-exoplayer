@@ -65,7 +65,7 @@ public class AdsPlaybackTests extends TestBase {
             int viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
             if (adBreakstartIndex != -1
                     || adPlayIndex != -1 || adPauseIndex != -1) {
-                fail("Ad events dispatched too early: " + adBreakstartIndex +
+                fail("Ad events dispatched too early, adBreakstartIndex: " + adBreakstartIndex +
                         ", adPlayIndex: " + adPlayIndex + ", adPauseIndex: " +
                         adPauseIndex);
             }
