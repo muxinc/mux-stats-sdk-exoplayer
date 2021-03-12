@@ -64,10 +64,14 @@ import java.util.concurrent.CopyOnWriteArraySet;
  */
 public class DownloadTracker implements DownloadManager.Listener {
 
-  /** Listens for changes in the tracked downloads. */
+  /**
+   * Listens for changes in the tracked downloads.
+   */
   public interface Listener {
 
-    /** Called when the tracked downloads changed. */
+    /**
+     * Called when the tracked downloads changed.
+     */
     void onDownloadsChanged();
   }
 
@@ -274,7 +278,7 @@ public class DownloadTracker implements DownloadManager.Listener {
     @Override
     public void onPrepareError(DownloadHelper helper, IOException e) {
       Toast.makeText(
-              context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
+          context.getApplicationContext(), R.string.download_start_error, Toast.LENGTH_LONG)
           .show();
       Log.e(TAG, "Failed to start download", e);
     }
