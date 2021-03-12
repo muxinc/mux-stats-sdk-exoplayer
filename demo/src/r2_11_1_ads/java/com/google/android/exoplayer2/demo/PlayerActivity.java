@@ -84,9 +84,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.AdsImaSDKListener;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-
 import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;

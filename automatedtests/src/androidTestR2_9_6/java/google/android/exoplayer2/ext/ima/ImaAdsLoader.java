@@ -81,9 +81,8 @@ import java.util.Set;
  * {@link #release()}.
  *
  * <p>The IMA SDK can take into account video control overlay views when calculating ad
- * viewability.
- * For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)} and {@link
- * AdViewProvider#getAdOverlayViews()}.
+ * viewability. For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)}
+ * and {@link AdViewProvider#getAdOverlayViews()}.
  */
 public final class ImaAdsLoader
     implements Player.EventListener,

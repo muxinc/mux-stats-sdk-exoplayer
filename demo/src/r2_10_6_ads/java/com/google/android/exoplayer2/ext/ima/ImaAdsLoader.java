@@ -19,11 +19,11 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.view.View;
+import android.view.ViewGroup;
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
-import android.view.View;
-import android.view.ViewGroup;
 import com.google.ads.interactivemedia.v3.api.Ad;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
@@ -82,9 +82,8 @@ import java.util.Set;
  * {@link #release()}.
  *
  * <p>The IMA SDK can take into account video control overlay views when calculating ad
- * viewability.
- * For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)} and {@link
- * AdViewProvider#getAdOverlayViews()}.
+ * viewability. For more details see {@link AdDisplayContainer#registerVideoControlsOverlay(View)}
+ * and {@link AdViewProvider#getAdOverlayViews()}.
  */
 public final class ImaAdsLoader
     implements Player.EventListener,

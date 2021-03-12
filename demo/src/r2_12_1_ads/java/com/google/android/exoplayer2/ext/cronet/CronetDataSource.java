@@ -60,9 +60,8 @@ import org.chromium.net.UrlResponseInfo;
  * DataSource without intermediate buffer based on Cronet API set using UrlRequest.
  *
  * <p>Note: HTTP request headers will be set using all parameters passed via (in order of
- * decreasing
- * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
- * construct the instance.
+ * decreasing priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters
+ * used to construct the instance.
  */
 public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -587,16 +586,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * bytes read and returns this length.
    *
    * <p>If there is an error, a {@link HttpDataSourceException} is thrown and the contents of
-   * {@code
-   * buffer} should be ignored. If the exception has error code {@code
+   * {@code buffer} should be ignored. If the exception has error code {@code
    * HttpDataSourceException.TYPE_READ}, note that Cronet may continue writing into {@code buffer}
    * after the method has returned. Thus the caller should not attempt to reuse the buffer.
    *
    * <p>If {@code buffer.remaining()} is zero then 0 is returned. Otherwise, if no data is
-   * available
-   * because the end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is
-   * returned. Otherwise, the call will block until at least one byte of data has been read and the
-   * number of bytes read is returned.
+   * available because the end of the opened range has been reached, then {@link
+   * C#RESULT_END_OF_INPUT} is returned. Otherwise, the call will block until at least one byte of
+   * data has been read and the number of bytes read is returned.
    *
    * <p>Passed buffer must be direct ByteBuffer. If you have a non-direct ByteBuffer, consider the
    * alternative read method with its backed array.

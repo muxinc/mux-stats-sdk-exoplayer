@@ -3,13 +3,8 @@ package com.mux.stats.sdk.muxstats;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-
 import com.mux.stats.sdk.core.util.MuxLogger;
-import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.compat.AsyncTaskCompat;
-
-import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +15,7 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
+import org.json.JSONObject;
 
 public class MuxNetworkRequests implements INetworkRequest {
 

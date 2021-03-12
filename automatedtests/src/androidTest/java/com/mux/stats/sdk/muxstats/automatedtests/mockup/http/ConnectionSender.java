@@ -2,17 +2,14 @@ package com.mux.stats.sdk.muxstats.automatedtests.mockup.http;
 
 import android.content.Context;
 import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 

@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup.http;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 public class ServerAction {

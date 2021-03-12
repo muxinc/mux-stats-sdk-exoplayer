@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.automatedtests.ui;
 
-import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,18 +10,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
-import android.util.Pair;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.LinearLayout;
-
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
@@ -39,12 +32,10 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.MuxStats;
-import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
-
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
@@ -120,7 +111,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   protected void onDestroy() {
     super.onDestroy();
     signalActivityClosed();
-    if ( muxStats != null ) {
+    if (muxStats != null) {
       muxStats.release();
     }
   }
@@ -148,7 +139,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   }
 
 
-
   public void releaseExoPlayer() {
     player.release();
     player = null;
@@ -171,7 +161,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     mockNetwork = new MockNetworkRequest();
     muxStats = new MuxStatsExoPlayer(
         this, player, "demo-player", customerPlayerData, customerVideoData,
-        null,true, mockNetwork);
+        null, true, mockNetwork);
     Point size = new Point();
     getWindowManager().getDefaultDisplay().getSize(size);
     muxStats.setScreenSize(size.x, size.y);
@@ -392,7 +382,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     @Nullable
     @Override
-    public Bitmap getCurrentLargeIcon(Player player, PlayerNotificationManager.BitmapCallback callback) {
+    public Bitmap getCurrentLargeIcon(Player player,
+        PlayerNotificationManager.BitmapCallback callback) {
       return getBitmapFromVectorDrawable(R.drawable.ic_launcher_foreground);
     }
 

@@ -1,16 +1,12 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
-import android.os.Bundle;
+import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
-import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
-
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.fail;
 
 public class RunInBackgroundTests extends TestBase {
 

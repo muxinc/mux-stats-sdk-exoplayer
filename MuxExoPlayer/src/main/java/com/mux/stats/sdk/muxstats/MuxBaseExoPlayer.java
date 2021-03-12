@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
+import static android.os.SystemClock.elapsedRealtime;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -12,13 +14,10 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-
 import androidx.annotation.Nullable;
-
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -51,7 +50,6 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -62,8 +60,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static android.os.SystemClock.elapsedRealtime;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
@@ -295,9 +291,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   @Override
   public long getCurrentPosition() {
-      if (playerHandler != null) {
-          return playerHandler.getPlayerCurrentPosition();
-      }
+    if (playerHandler != null) {
+      return playerHandler.getPlayerCurrentPosition();
+    }
     return 0;
   }
 
@@ -573,7 +569,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
   }
 
-    static class ExoPlayerHandler extends Handler {
+  static class ExoPlayerHandler extends Handler {
 
     static final int UPDATE_PLAYER_CURRENT_POSITION = 1;
 
@@ -878,9 +874,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           default:
             break;
         }
-          if (trackFormat != null) {
-              loadData.setRequestLabeledBitrate(trackFormat.bitrate);
-          }
+        if (trackFormat != null) {
+          loadData.setRequestLabeledBitrate(trackFormat.bitrate);
+        }
       }
       return loadData;
     }

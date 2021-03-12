@@ -1,21 +1,15 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
-import android.os.Bundle;
-import android.os.Handler;
+import static org.junit.Assert.fail;
 
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
-import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerBaseActivity;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
-
+import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.io.IOException;
-
-import static org.junit.Assert.fail;
 
 public class MissusageTests extends TestBase {
 

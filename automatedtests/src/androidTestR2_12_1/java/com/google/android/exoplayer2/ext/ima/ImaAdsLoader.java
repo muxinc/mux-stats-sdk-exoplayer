@@ -274,8 +274,7 @@ public final class ImaAdsLoader
      * #DEFAULT_AD_PRELOAD_TIMEOUT_MS} ms.
      *
      * <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case
-     * that
-     * the IMA SDK does not load an ad break based on the player's reported content position.
+     * that the IMA SDK does not load an ad break based on the player's reported content position.
      *
      * @param adPreloadTimeoutMs The timeout buffering duration in milliseconds, or {@link
      *                           C#TIME_UNSET} for no timeout.

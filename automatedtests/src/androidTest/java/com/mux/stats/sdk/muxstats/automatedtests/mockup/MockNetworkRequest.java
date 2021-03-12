@@ -1,16 +1,14 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 
-import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class MockNetworkRequest implements INetworkRequest {
 

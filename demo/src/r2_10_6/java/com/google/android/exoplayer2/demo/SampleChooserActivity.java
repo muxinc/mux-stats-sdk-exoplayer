@@ -21,8 +21,6 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +34,8 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DownloadService;
@@ -231,7 +231,8 @@ public class SampleChooserActivity extends AppCompatActivity
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
         try {
-          readSampleGroups(new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)), result);
+          readSampleGroups(
+              new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)), result);
         } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;

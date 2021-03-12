@@ -1,7 +1,9 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
-import android.util.Log;
+import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
+import static org.junit.Assert.fail;
 
+import android.util.Log;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -10,18 +12,12 @@ import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.model.VideoData;
-import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-
+import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-
-import java.util.ArrayList;
-
-import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
-import static org.junit.Assert.fail;
 
 public class RenditionChangeTests extends TestBase {
 

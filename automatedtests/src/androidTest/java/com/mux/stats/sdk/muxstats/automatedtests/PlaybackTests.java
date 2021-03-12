@@ -1,12 +1,9 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
-import android.os.Bundle;
+import static org.junit.Assert.fail;
+
 import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-
-import com.google.android.exoplayer2.ControlDispatcher;
-import com.google.android.exoplayer2.DefaultControlDispatcher;
-import com.google.android.exoplayer2.Player;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -16,14 +13,8 @@ import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.R;
-
-import org.json.JSONException;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.ArrayList;
-import static org.junit.Assert.fail;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -91,7 +82,7 @@ public class PlaybackTests extends SeekingTestBase {
   @Test
   public void testVodPlayback() {
     try {
-      if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
 
@@ -114,10 +105,10 @@ public class PlaybackTests extends SeekingTestBase {
       Thread.sleep(PLAY_PERIOD_IN_MS);
 
       // Seek backward, stage 4
-      testActivity.runOnUiThread(new Runnable(){
+      testActivity.runOnUiThread(new Runnable() {
         public void run() {
           long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
-          pView.getPlayer().seekTo(currentPlaybackPosition/2);
+          pView.getPlayer().seekTo(currentPlaybackPosition / 2);
         }
       });
 
@@ -125,12 +116,13 @@ public class PlaybackTests extends SeekingTestBase {
       Thread.sleep(PLAY_PERIOD_IN_MS);
 
       // seek forward in the video, stage 6
-      testActivity.runOnUiThread(new Runnable(){
+      testActivity.runOnUiThread(new Runnable() {
         public void run() {
           long currentPlaybackPosition = pView.getPlayer()
               .getCurrentPosition();
           long videoDuration = pView.getPlayer().getDuration();
-          long seekToInFuture = currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
+          long seekToInFuture =
+              currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
           pView.getPlayer().seekTo(seekToInFuture);
         }
       });
@@ -147,7 +139,7 @@ public class PlaybackTests extends SeekingTestBase {
       result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
 
       // Check playback period, stage 3
-      result = checkPlaybackPeriodAtIndex(result.eventIndex -1, PLAY_PERIOD_IN_MS);
+      result = checkPlaybackPeriodAtIndex(result.eventIndex - 1, PLAY_PERIOD_IN_MS);
 
       // Check SeekEvents, stage 4
       result = checkSeekAtIndex(result.eventIndex);
@@ -164,7 +156,7 @@ public class PlaybackTests extends SeekingTestBase {
       Log.w(TAG, "See what event should be dispatched on view closed !!!");
       // TODO check player end event
     } catch (Exception e) {
-      fail(getExceptionFullTraceAndMessage( e ));
+      fail(getExceptionFullTraceAndMessage(e));
     }
     Log.e(TAG, "All done !!!");
   }
@@ -186,7 +178,7 @@ public class PlaybackTests extends SeekingTestBase {
       long rebufferStartedAT = System.currentTimeMillis();
 
       // Wait for rebuffer to complete
-      if(!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
 
@@ -216,7 +208,8 @@ public class PlaybackTests extends SeekingTestBase {
       // Check if startup time match with in 200 ms precission
       if (Math.abs(reportedStartupTime - expectedStartupTime) > 500) {
         fail("Reported startup time and expected startup time do not match within 500 ms,"
-            + "reported time: " + reportedStartupTime + ", measured startup time: " + expectedStartupTime);
+            + "reported time: " + reportedStartupTime + ", measured startup time: "
+            + expectedStartupTime);
       }
 
       // check rebuffering events
@@ -226,7 +219,7 @@ public class PlaybackTests extends SeekingTestBase {
       if (rebufferStartEventIndex == -1) {
         fail("rebufferstart event not received !!!");
       }
-      if(rebufferEndEventIndex == -1) {
+      if (rebufferEndEventIndex == -1) {
         fail("rebufferend event not received !!!");
       }
       if (rebufferStartEventIndex > rebufferEndEventIndex) {
