@@ -115,7 +115,9 @@ public final class ImaAdsLoader
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
   }
 
-  /** Builder for {@link ImaAdsLoader}. */
+  /**
+   * Builder for {@link ImaAdsLoader}.
+   */
   public static final class Builder {
 
     /**
@@ -131,13 +133,20 @@ public final class ImaAdsLoader
 
     private final Context context;
 
-    @Nullable private ImaSdkSettings imaSdkSettings;
-    @Nullable private AdErrorListener adErrorListener;
-    @Nullable private AdEventListener adEventListener;
-    @Nullable private VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback;
-    @Nullable private List<String> adMediaMimeTypes;
-    @Nullable private Set<UiElement> adUiElements;
-    @Nullable private Collection<CompanionAdSlot> companionAdSlots;
+    @Nullable
+    private ImaSdkSettings imaSdkSettings;
+    @Nullable
+    private AdErrorListener adErrorListener;
+    @Nullable
+    private AdEventListener adEventListener;
+    @Nullable
+    private VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback;
+    @Nullable
+    private List<String> adMediaMimeTypes;
+    @Nullable
+    private Set<UiElement> adUiElements;
+    @Nullable
+    private Collection<CompanionAdSlot> companionAdSlots;
     private long adPreloadTimeoutMs;
     private int vastLoadTimeoutMs;
     private int mediaLoadTimeoutMs;
@@ -178,9 +187,8 @@ public final class ImaAdsLoader
     }
 
     /**
-     * Sets a listener for ad errors that will be passed to {@link
-     * AdsLoader#addAdErrorListener(AdErrorListener)} and {@link
-     * AdsManager#addAdErrorListener(AdErrorListener)}.
+     * Sets a listener for ad errors that will be passed to {@link AdsLoader#addAdErrorListener(AdErrorListener)}
+     * and {@link AdsManager#addAdErrorListener(AdErrorListener)}.
      *
      * @param adErrorListener The ad error listener.
      * @return This builder, for convenience.
@@ -191,8 +199,7 @@ public final class ImaAdsLoader
     }
 
     /**
-     * Sets a listener for ad events that will be passed to {@link
-     * AdsManager#addAdEventListener(AdEventListener)}.
+     * Sets a listener for ad events that will be passed to {@link AdsManager#addAdEventListener(AdEventListener)}.
      *
      * @param adEventListener The ad event listener.
      * @return This builder, for convenience.
@@ -248,9 +255,10 @@ public final class ImaAdsLoader
      * AdsMediaSource} will be used.
      *
      * @param adMediaMimeTypes The MIME types to prioritize for linear ad media. May contain {@link
-     *     MimeTypes#APPLICATION_MPD}, {@link MimeTypes#APPLICATION_M3U8}, {@link
-     *     MimeTypes#VIDEO_MP4}, {@link MimeTypes#VIDEO_WEBM}, {@link MimeTypes#VIDEO_H263}, {@link
-     *     MimeTypes#AUDIO_MP4} and {@link MimeTypes#AUDIO_MPEG}.
+     *                         MimeTypes#APPLICATION_MPD}, {@link MimeTypes#APPLICATION_M3U8},
+     *                         {@link MimeTypes#VIDEO_MP4}, {@link MimeTypes#VIDEO_WEBM}, {@link
+     *                         MimeTypes#VIDEO_H263}, {@link MimeTypes#AUDIO_MP4} and {@link
+     *                         MimeTypes#AUDIO_MPEG}.
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setMimeTypes(List)
      */
@@ -265,11 +273,11 @@ public final class ImaAdsLoader
      * C#TIME_UNSET} if there should be no such timeout. The default value is {@value
      * #DEFAULT_AD_PRELOAD_TIMEOUT_MS} ms.
      *
-     * <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case that
-     * the IMA SDK does not load an ad break based on the player's reported content position.
+     * <p>The purpose of this timeout is to avoid playback getting stuck in the unexpected case
+     * that the IMA SDK does not load an ad break based on the player's reported content position.
      *
      * @param adPreloadTimeoutMs The timeout buffering duration in milliseconds, or {@link
-     *     C#TIME_UNSET} for no timeout.
+     *                           C#TIME_UNSET} for no timeout.
      * @return This builder, for convenience.
      */
     public Builder setAdPreloadTimeoutMs(long adPreloadTimeoutMs) {
@@ -322,7 +330,7 @@ public final class ImaAdsLoader
      * setting is {@code true}.
      *
      * @param focusSkipButtonWhenAvailable Whether to focus the skip button (when available) on
-     *     Android TV devices.
+     *                                     Android TV devices.
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setFocusSkipButtonWhenAvailable(boolean)
      */
@@ -338,7 +346,7 @@ public final class ImaAdsLoader
      * setting is {@code true}.
      *
      * @param playAdBeforeStartPosition Whether to play an ad before the start position when
-     *     beginning playback.
+     *                                  beginning playback.
      * @return This builder, for convenience.
      */
     public Builder setPlayAdBeforeStartPosition(boolean playAdBeforeStartPosition) {
@@ -352,7 +360,7 @@ public final class ImaAdsLoader
      * enabled in production applications.
      *
      * @param debugModeEnabled Whether to enable outputting verbose logs for the IMA extension and
-     *     IMA SDK.
+     *                         IMA SDK.
      * @return This builder, for convenience.
      * @see ImaSdkSettings#setDebugMode(boolean)
      */
@@ -362,7 +370,7 @@ public final class ImaAdsLoader
     }
 
     @VisibleForTesting
-    /* package */ Builder setImaFactory(ImaUtil.ImaFactory imaFactory) {
+      /* package */ Builder setImaFactory(ImaUtil.ImaFactory imaFactory) {
       this.imaFactory = checkNotNull(imaFactory);
       return this;
     }
@@ -370,13 +378,12 @@ public final class ImaAdsLoader
     /**
      * Returns a new {@link ImaAdsLoader} for the specified ad tag.
      *
-     * @param adTagUri The URI of a compatible ad tag to load. See
-     *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-     *     information on compatible ad tags.
+     * @param adTagUri The URI of a compatible ad tag to load. See https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility
+     *                 for information on compatible ad tags.
      * @return The new {@link ImaAdsLoader}.
      * @deprecated Pass the ad tag URI when setting media item playback properties (if using the
-     *     media item API) or as a {@link DataSpec} when constructing the {@link AdsMediaSource} (if
-     *     using media sources directly).
+     * media item API) or as a {@link DataSpec} when constructing the {@link AdsMediaSource} (if
+     * using media sources directly).
      */
     @Deprecated
     public ImaAdsLoader buildForAdTag(Uri adTagUri) {
@@ -392,13 +399,13 @@ public final class ImaAdsLoader
      * Returns a new {@link ImaAdsLoader} with the specified sideloaded ads response.
      *
      * @param adsResponse The sideloaded VAST, VMAP, or ad rules response to be used instead of
-     *     making a request via an ad tag URL.
+     *                    making a request via an ad tag URL.
      * @return The new {@link ImaAdsLoader}.
      * @deprecated Pass the ads response as a data URI when setting media item playback properties
-     *     (if using the media item API) or as a {@link DataSpec} when constructing the {@link
-     *     AdsMediaSource} (if using media sources directly). {@link
-     *     Util#getDataUriForString(String, String)} can be used to construct a data URI from
-     *     literal string ads response (with MIME type text/xml).
+     * (if using the media item API) or as a {@link DataSpec} when constructing the {@link
+     * AdsMediaSource} (if using media sources directly). {@link Util#getDataUriForString(String,
+     * String)} can be used to construct a data URI from literal string ads response (with MIME type
+     * text/xml).
      */
     @Deprecated
     public ImaAdsLoader buildForAdsResponse(String adsResponse) {
@@ -406,7 +413,9 @@ public final class ImaAdsLoader
           context, getConfiguration(), imaFactory, /* adTagUri= */ null, adsResponse);
     }
 
-    /** Returns a new {@link ImaAdsLoader}. */
+    /**
+     * Returns a new {@link ImaAdsLoader}.
+     */
     public ImaAdsLoader build() {
       return new ImaAdsLoader(
           context, getConfiguration(), imaFactory, /* adTagUri= */ null, /* adsResponse= */ null);
@@ -445,7 +454,9 @@ public final class ImaAdsLoader
    */
   private static final int AD_PROGRESS_UPDATE_INTERVAL_MS = 100;
 
-  /** The value used in {@link VideoProgressUpdate}s to indicate an unset duration. */
+  /**
+   * The value used in {@link VideoProgressUpdate}s to indicate an unset duration.
+   */
   private static final long IMA_DURATION_UNSET = -1L;
 
   /**
@@ -458,18 +469,27 @@ public final class ImaAdsLoader
    * milliseconds.
    */
   private static final long THRESHOLD_AD_PRELOAD_MS = 4000;
-  /** The threshold below which ad cue points are treated as matching, in microseconds. */
+  /**
+   * The threshold below which ad cue points are treated as matching, in microseconds.
+   */
   private static final long THRESHOLD_AD_MATCH_US = 1000;
 
   private static final int TIMEOUT_UNSET = -1;
   private static final int BITRATE_UNSET = -1;
 
-  /** The state of ad playback. */
+  /**
+   * The state of ad playback.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({IMA_AD_STATE_NONE, IMA_AD_STATE_PLAYING, IMA_AD_STATE_PAUSED})
-  private @interface ImaAdState {}
-  /** The ad playback state when IMA is not playing an ad. */
+  private @interface ImaAdState {
+
+  }
+
+  /**
+   * The ad playback state when IMA is not playing an ad.
+   */
   private static final int IMA_AD_STATE_NONE = 0;
   /**
    * The ad playback state when IMA has called {@link ComponentListener#playAd(AdMediaInfo)} and not
@@ -487,8 +507,10 @@ public final class ImaAdsLoader
   private final ImaUtil.Configuration configuration;
   private final Context context;
   private final ImaUtil.ImaFactory imaFactory;
-  @Nullable private final Uri adTagUri;
-  @Nullable private final String adsResponse;
+  @Nullable
+  private final Uri adTagUri;
+  @Nullable
+  private final String adsResponse;
   private final ImaSdkSettings imaSdkSettings;
   private final Timeline.Period period;
   private final Handler handler;
@@ -497,45 +519,70 @@ public final class ImaAdsLoader
   private final Runnable updateAdProgressRunnable;
   private final BiMap<AdMediaInfo, AdInfo> adInfoByAdMediaInfo;
 
-  private @MonotonicNonNull AdDisplayContainer adDisplayContainer;
-  private @MonotonicNonNull AdsLoader adsLoader;
+  private @MonotonicNonNull
+  AdDisplayContainer adDisplayContainer;
+  private @MonotonicNonNull
+  AdsLoader adsLoader;
   private boolean wasSetPlayerCalled;
-  @Nullable private Player nextPlayer;
-  @Nullable private Object pendingAdRequestContext;
+  @Nullable
+  private Player nextPlayer;
+  @Nullable
+  private Object pendingAdRequestContext;
   private List<String> supportedMimeTypes;
-  @Nullable private EventListener eventListener;
-  @Nullable private Player player;
+  @Nullable
+  private EventListener eventListener;
+  @Nullable
+  private Player player;
   private DataSpec adTagDataSpec;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercent;
 
-  @Nullable private AdsManager adsManager;
+  @Nullable
+  private AdsManager adsManager;
   private boolean isAdsManagerInitialized;
   private boolean hasAdPlaybackState;
-  @Nullable private AdLoadException pendingAdLoadError;
+  @Nullable
+  private AdLoadException pendingAdLoadError;
   private Timeline timeline;
   private long contentDurationMs;
   private AdPlaybackState adPlaybackState;
 
   // Fields tracking IMA's state.
 
-  /** Whether IMA has sent an ad event to pause content since the last resume content event. */
+  /**
+   * Whether IMA has sent an ad event to pause content since the last resume content event.
+   */
   private boolean imaPausedContent;
-  /** The current ad playback state. */
-  private @ImaAdState int imaAdState;
-  /** The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
-  @Nullable private AdMediaInfo imaAdMediaInfo;
-  /** The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
-  @Nullable private AdInfo imaAdInfo;
-  /** Whether IMA has been notified that playback of content has finished. */
+  /**
+   * The current ad playback state.
+   */
+  private @ImaAdState
+  int imaAdState;
+  /**
+   * The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}.
+   */
+  @Nullable
+  private AdMediaInfo imaAdMediaInfo;
+  /**
+   * The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}.
+   */
+  @Nullable
+  private AdInfo imaAdInfo;
+  /**
+   * Whether IMA has been notified that playback of content has finished.
+   */
   private boolean sentContentComplete;
 
   // Fields tracking the player/loader state.
 
-  /** Whether the player is playing an ad. */
+  /**
+   * Whether the player is playing an ad.
+   */
   private boolean playingAd;
-  /** Whether the player is buffering an ad. */
+  /**
+   * Whether the player is buffering an ad.
+   */
   private boolean bufferingAd;
   /**
    * If the player is playing an ad, stores the ad index in its ad group. {@link C#INDEX_UNSET}
@@ -546,7 +593,8 @@ public final class ImaAdsLoader
    * The ad info for a pending ad for which the media failed preparation, or {@code null} if no
    * pending ads have failed to prepare.
    */
-  @Nullable private AdInfo pendingAdPrepareErrorAdInfo;
+  @Nullable
+  private AdInfo pendingAdPrepareErrorAdInfo;
   /**
    * If a content period has finished but IMA has not yet called {@link
    * ComponentListener#playAd(AdMediaInfo)}, stores the value of {@link
@@ -559,7 +607,9 @@ public final class ImaAdsLoader
    * content progress should increase. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressOffsetMs;
-  /** Stores the pending content position when a seek operation was intercepted to play an ad. */
+  /**
+   * Stores the pending content position when a seek operation was intercepted to play an ad.
+   */
   private long pendingContentPositionMs;
   /**
    * Whether {@link ComponentListener#getContentProgress()} has sent {@link
@@ -577,13 +627,13 @@ public final class ImaAdsLoader
    *
    * <p>If you need to customize the ad request, use {@link ImaAdsLoader.Builder} instead.
    *
-   * @param context The context.
+   * @param context  The context.
    * @param adTagUri The {@link Uri} of an ad tag compatible with the Android IMA SDK. See
-   *     https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility for
-   *     more information.
+   *                 https://developers.google.com/interactive-media-ads/docs/sdks/android/compatibility
+   *                 for more information.
    * @deprecated Use {@link Builder} to create an instance. Pass the ad tag URI when setting media
-   *     item playback properties (if using the media item API) or as a {@link DataSpec} when
-   *     constructing the {@link AdsMediaSource} (if using media sources directly).
+   * item playback properties (if using the media item API) or as a {@link DataSpec} when
+   * constructing the {@link AdsMediaSource} (if using media sources directly).
    */
   @Deprecated
   public ImaAdsLoader(Context context, Uri adTagUri) {
@@ -672,10 +722,10 @@ public final class ImaAdsLoader
    * the player.
    *
    * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
-   *     null} if playing audio-only ads.
+   *                    null} if playing audio-only ads.
    * @deprecated Use {@link #requestAds(DataSpec, ViewGroup)}, specifying the ad tag data spec to
-   *     request, and migrate off deprecated builder methods/constructor that require an ad tag or
-   *     ads response.
+   * request, and migrate off deprecated builder methods/constructor that require an ad tag or ads
+   * response.
    */
   @Deprecated
   public void requestAds(@Nullable ViewGroup adViewGroup) {
@@ -690,9 +740,9 @@ public final class ImaAdsLoader
    * the player.
    *
    * @param adTagDataSpec The data specification of the ad tag to load. See class javadoc for
-   *     information about compatible ad tag formats.
-   * @param adViewGroup A {@link ViewGroup} on top of the player that will show any ad UI, or {@code
-   *     null} if playing audio-only ads.
+   *                      information about compatible ad tag formats.
+   * @param adViewGroup   A {@link ViewGroup} on top of the player that will show any ad UI, or
+   *                      {@code null} if playing audio-only ads.
    */
   public void requestAds(DataSpec adTagDataSpec, @Nullable ViewGroup adViewGroup) {
     if (hasAdPlaybackState || adsManager != null || pendingAdRequestContext != null) {
@@ -1529,8 +1579,8 @@ public final class ImaAdsLoader
         && contentDurationMs != C.TIME_UNSET
         && pendingContentPositionMs == C.TIME_UNSET
         && getContentPeriodPositionMs(checkNotNull(player), timeline, period)
-                + THRESHOLD_END_OF_CONTENT_MS
-            >= contentDurationMs) {
+        + THRESHOLD_END_OF_CONTENT_MS
+        >= contentDurationMs) {
       sendContentComplete();
     }
   }
@@ -1634,8 +1684,8 @@ public final class ImaAdsLoader
     long contentWindowPositionMs = player.getContentPosition();
     return contentWindowPositionMs
         - (timeline.isEmpty()
-            ? 0
-            : timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs());
+        ? 0
+        : timeline.getPeriod(/* periodIndex= */ 0, period).getPositionInWindowMs());
   }
 
   private static Looper getImaLooper() {
@@ -1673,10 +1723,10 @@ public final class ImaAdsLoader
 
   private final class ComponentListener
       implements AdsLoadedListener,
-          ContentProgressProvider,
-          AdEventListener,
-          AdErrorListener,
-          VideoAdPlayer {
+      ContentProgressProvider,
+      AdEventListener,
+      AdErrorListener,
+      VideoAdPlayer {
 
     // AdsLoader.AdsLoadedListener implementation.
 
@@ -1850,6 +1900,7 @@ public final class ImaAdsLoader
 
   // TODO: Consider moving this into AdPlaybackState.
   private static final class AdInfo {
+
     public final int adGroupIndex;
     public final int adIndexInAdGroup;
 
@@ -1891,6 +1942,7 @@ public final class ImaAdsLoader
    * ImaSdkFactory}.
    */
   private static final class DefaultImaFactory implements ImaUtil.ImaFactory {
+
     @Override
     public ImaSdkSettings createImaSdkSettings() {
       return ImaSdkFactory.getInstance().createImaSdkSettings();

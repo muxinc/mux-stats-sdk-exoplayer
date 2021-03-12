@@ -63,8 +63,10 @@ import java.util.UUID;
     public final boolean isLive;
     public final DrmInfo drmInfo;
     public final Uri adTagUri;
-    @Nullable public final String sphericalStereoMode;
-    @Nullable SubtitleInfo subtitleInfo;
+    @Nullable
+    public final String sphericalStereoMode;
+    @Nullable
+    SubtitleInfo subtitleInfo;
 
     public UriSample(
         String name,
@@ -192,7 +194,8 @@ import java.util.UUID;
 
     public final Uri uri;
     public final String mimeType;
-    @Nullable public final String language;
+    @Nullable
+    public final String language;
 
     public SubtitleInfo(Uri uri, String mimeType, @Nullable String language) {
       this.uri = Assertions.checkNotNull(uri);
@@ -226,7 +229,8 @@ import java.util.UUID;
     }
   }
 
-  @Nullable public final String name;
+  @Nullable
+  public final String name;
 
   public Sample(String name) {
     this.name = name;

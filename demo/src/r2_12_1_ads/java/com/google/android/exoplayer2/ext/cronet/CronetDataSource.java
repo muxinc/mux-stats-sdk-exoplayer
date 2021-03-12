@@ -59,9 +59,9 @@ import org.chromium.net.UrlResponseInfo;
 /**
  * DataSource without intermediate buffer based on Cronet API set using UrlRequest.
  *
- * <p>Note: HTTP request headers will be set using all parameters passed via (in order of decreasing
- * priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters used to
- * construct the instance.
+ * <p>Note: HTTP request headers will be set using all parameters passed via (in order of
+ * decreasing priority) the {@code dataSpec}, {@link #setRequestProperty} and the default parameters
+ * used to construct the instance.
  */
 public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
@@ -119,12 +119,14 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   private final int readTimeoutMs;
   private final boolean resetTimeoutOnRedirects;
   private final boolean handleSetCookieRequests;
-  @Nullable private final RequestProperties defaultRequestProperties;
+  @Nullable
+  private final RequestProperties defaultRequestProperties;
   private final RequestProperties requestProperties;
   private final ConditionVariable operation;
   private final Clock clock;
 
-  @Nullable private Predicate<String> contentTypePredicate;
+  @Nullable
+  private Predicate<String> contentTypePredicate;
 
   // Accessed by the calling thread only.
   private boolean opened;
@@ -133,18 +135,23 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
 
   // Written from the calling thread only. currentUrlRequest.start() calls ensure writes are visible
   // to reads made by the Cronet thread.
-  @Nullable private UrlRequest currentUrlRequest;
-  @Nullable private DataSpec currentDataSpec;
+  @Nullable
+  private UrlRequest currentUrlRequest;
+  @Nullable
+  private DataSpec currentDataSpec;
 
   // Reference written and read by calling thread only. Passed to Cronet thread as a local variable.
   // operation.open() calls ensure writes into the buffer are visible to reads made by the calling
   // thread.
-  @Nullable private ByteBuffer readBuffer;
+  @Nullable
+  private ByteBuffer readBuffer;
 
   // Written from the Cronet thread only. operation.open() calls ensure writes are visible to reads
   // made by the calling thread.
-  @Nullable private UrlResponseInfo responseInfo;
-  @Nullable private IOException exception;
+  @Nullable
+  private UrlResponseInfo responseInfo;
+  @Nullable
+  private IOException exception;
   private boolean finished;
 
   private volatile long currentConnectTimeoutMs;
@@ -153,11 +160,12 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * Creates an instance.
    *
    * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
-   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
-   *     hop from Cronet's internal network thread to the response handling thread. However, to
-   *     avoid slowing down overall network performance, care must be taken to make sure response
-   *     handling is a fast operation when using a direct executor.
+   * @param executor     The {@link java.util.concurrent.Executor} that will handle responses. This
+   *                     may be a direct executor (i.e. executes tasks on the calling thread) in
+   *                     order to avoid a thread hop from Cronet's internal network thread to the
+   *                     response handling thread. However, to avoid slowing down overall network
+   *                     performance, care must be taken to make sure response handling is a fast
+   *                     operation when using a direct executor.
    */
   public CronetDataSource(CronetEngine cronetEngine, Executor executor) {
     this(
@@ -172,17 +180,19 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * Creates an instance.
    *
-   * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
-   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
-   *     hop from Cronet's internal network thread to the response handling thread. However, to
-   *     avoid slowing down overall network performance, care must be taken to make sure response
-   *     handling is a fast operation when using a direct executor.
-   * @param connectTimeoutMs The connection timeout, in milliseconds.
-   * @param readTimeoutMs The read timeout, in milliseconds.
-   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param cronetEngine             A CronetEngine.
+   * @param executor                 The {@link java.util.concurrent.Executor} that will handle
+   *                                 responses. This may be a direct executor (i.e. executes tasks
+   *                                 on the calling thread) in order to avoid a thread hop from
+   *                                 Cronet's internal network thread to the response handling
+   *                                 thread. However, to avoid slowing down overall network
+   *                                 performance, care must be taken to make sure response handling
+   *                                 is a fast operation when using a direct executor.
+   * @param connectTimeoutMs         The connection timeout, in milliseconds.
+   * @param readTimeoutMs            The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects  Whether the connect timeout is reset when a redirect occurs.
    * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
-   *     server as HTTP headers on every request.
+   *                                 server as HTTP headers on every request.
    */
   public CronetDataSource(
       CronetEngine cronetEngine,
@@ -205,19 +215,21 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * Creates an instance.
    *
-   * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
-   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
-   *     hop from Cronet's internal network thread to the response handling thread. However, to
-   *     avoid slowing down overall network performance, care must be taken to make sure response
-   *     handling is a fast operation when using a direct executor.
-   * @param connectTimeoutMs The connection timeout, in milliseconds.
-   * @param readTimeoutMs The read timeout, in milliseconds.
-   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param cronetEngine             A CronetEngine.
+   * @param executor                 The {@link java.util.concurrent.Executor} that will handle
+   *                                 responses. This may be a direct executor (i.e. executes tasks
+   *                                 on the calling thread) in order to avoid a thread hop from
+   *                                 Cronet's internal network thread to the response handling
+   *                                 thread. However, to avoid slowing down overall network
+   *                                 performance, care must be taken to make sure response handling
+   *                                 is a fast operation when using a direct executor.
+   * @param connectTimeoutMs         The connection timeout, in milliseconds.
+   * @param readTimeoutMs            The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects  Whether the connect timeout is reset when a redirect occurs.
    * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
-   *     server as HTTP headers on every request.
-   * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
-   *     the redirect url in the "Cookie" header.
+   *                                 server as HTTP headers on every request.
+   * @param handleSetCookieRequests  Whether "Set-Cookie" requests on redirect should be forwarded
+   *                                 to the redirect url in the "Cookie" header.
    */
   public CronetDataSource(
       CronetEngine cronetEngine,
@@ -241,17 +253,19 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * Creates an instance.
    *
-   * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
-   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
-   *     hop from Cronet's internal network thread to the response handling thread. However, to
-   *     avoid slowing down overall network performance, care must be taken to make sure response
-   *     handling is a fast operation when using a direct executor.
+   * @param cronetEngine         A CronetEngine.
+   * @param executor             The {@link java.util.concurrent.Executor} that will handle
+   *                             responses. This may be a direct executor (i.e. executes tasks on
+   *                             the calling thread) in order to avoid a thread hop from Cronet's
+   *                             internal network thread to the response handling thread. However,
+   *                             to avoid slowing down overall network performance, care must be
+   *                             taken to make sure response handling is a fast operation when using
+   *                             a direct executor.
    * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
+   *                             predicate then an {@link InvalidContentTypeException} is thrown
+   *                             from {@link #open(DataSpec)}.
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor)} and {@link
-   *     #setContentTypePredicate(Predicate)}.
+   * #setContentTypePredicate(Predicate)}.
    */
   @SuppressWarnings("deprecation")
   @Deprecated
@@ -272,22 +286,24 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * Creates an instance.
    *
-   * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
-   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
-   *     hop from Cronet's internal network thread to the response handling thread. However, to
-   *     avoid slowing down overall network performance, care must be taken to make sure response
-   *     handling is a fast operation when using a direct executor.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param connectTimeoutMs The connection timeout, in milliseconds.
-   * @param readTimeoutMs The read timeout, in milliseconds.
-   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param cronetEngine             A CronetEngine.
+   * @param executor                 The {@link java.util.concurrent.Executor} that will handle
+   *                                 responses. This may be a direct executor (i.e. executes tasks
+   *                                 on the calling thread) in order to avoid a thread hop from
+   *                                 Cronet's internal network thread to the response handling
+   *                                 thread. However, to avoid slowing down overall network
+   *                                 performance, care must be taken to make sure response handling
+   *                                 is a fast operation when using a direct executor.
+   * @param contentTypePredicate     An optional {@link Predicate}. If a content type is rejected by
+   *                                 the predicate then an {@link InvalidContentTypeException} is
+   *                                 thrown from {@link #open(DataSpec)}.
+   * @param connectTimeoutMs         The connection timeout, in milliseconds.
+   * @param readTimeoutMs            The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects  Whether the connect timeout is reset when a redirect occurs.
    * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
-   *     server as HTTP headers on every request.
+   *                                 server as HTTP headers on every request.
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
-   *     RequestProperties)} and {@link #setContentTypePredicate(Predicate)}.
+   * RequestProperties)} and {@link #setContentTypePredicate(Predicate)}.
    */
   @SuppressWarnings("deprecation")
   @Deprecated
@@ -313,24 +329,26 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
   /**
    * Creates an instance.
    *
-   * @param cronetEngine A CronetEngine.
-   * @param executor The {@link java.util.concurrent.Executor} that will handle responses. This may
-   *     be a direct executor (i.e. executes tasks on the calling thread) in order to avoid a thread
-   *     hop from Cronet's internal network thread to the response handling thread. However, to
-   *     avoid slowing down overall network performance, care must be taken to make sure response
-   *     handling is a fast operation when using a direct executor.
-   * @param contentTypePredicate An optional {@link Predicate}. If a content type is rejected by the
-   *     predicate then an {@link InvalidContentTypeException} is thrown from {@link
-   *     #open(DataSpec)}.
-   * @param connectTimeoutMs The connection timeout, in milliseconds.
-   * @param readTimeoutMs The read timeout, in milliseconds.
-   * @param resetTimeoutOnRedirects Whether the connect timeout is reset when a redirect occurs.
+   * @param cronetEngine             A CronetEngine.
+   * @param executor                 The {@link java.util.concurrent.Executor} that will handle
+   *                                 responses. This may be a direct executor (i.e. executes tasks
+   *                                 on the calling thread) in order to avoid a thread hop from
+   *                                 Cronet's internal network thread to the response handling
+   *                                 thread. However, to avoid slowing down overall network
+   *                                 performance, care must be taken to make sure response handling
+   *                                 is a fast operation when using a direct executor.
+   * @param contentTypePredicate     An optional {@link Predicate}. If a content type is rejected by
+   *                                 the predicate then an {@link InvalidContentTypeException} is
+   *                                 thrown from {@link #open(DataSpec)}.
+   * @param connectTimeoutMs         The connection timeout, in milliseconds.
+   * @param readTimeoutMs            The read timeout, in milliseconds.
+   * @param resetTimeoutOnRedirects  Whether the connect timeout is reset when a redirect occurs.
    * @param defaultRequestProperties Optional default {@link RequestProperties} to be sent to the
-   *     server as HTTP headers on every request.
-   * @param handleSetCookieRequests Whether "Set-Cookie" requests on redirect should be forwarded to
-   *     the redirect url in the "Cookie" header.
+   *                                 server as HTTP headers on every request.
+   * @param handleSetCookieRequests  Whether "Set-Cookie" requests on redirect should be forwarded
+   *                                 to the redirect url in the "Cookie" header.
    * @deprecated Use {@link #CronetDataSource(CronetEngine, Executor, int, int, boolean,
-   *     RequestProperties, boolean)} and {@link #setContentTypePredicate(Predicate)}.
+   * RequestProperties, boolean)} and {@link #setContentTypePredicate(Predicate)}.
    */
   @Deprecated
   public CronetDataSource(
@@ -382,7 +400,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * {@link HttpDataSource.InvalidContentTypeException} is thrown from {@link #open(DataSpec)}.
    *
    * @param contentTypePredicate The content type {@link Predicate}, or {@code null} to clear a
-   *     predicate that was previously set.
+   *                             predicate that was previously set.
    */
   public void setContentTypePredicate(@Nullable Predicate<String> contentTypePredicate) {
     this.contentTypePredicate = contentTypePredicate;
@@ -567,24 +585,24 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
    * starting at {@code buffer.position()}. Advances the position of the buffer by the number of
    * bytes read and returns this length.
    *
-   * <p>If there is an error, a {@link HttpDataSourceException} is thrown and the contents of {@code
-   * buffer} should be ignored. If the exception has error code {@code
+   * <p>If there is an error, a {@link HttpDataSourceException} is thrown and the contents of
+   * {@code buffer} should be ignored. If the exception has error code {@code
    * HttpDataSourceException.TYPE_READ}, note that Cronet may continue writing into {@code buffer}
    * after the method has returned. Thus the caller should not attempt to reuse the buffer.
    *
-   * <p>If {@code buffer.remaining()} is zero then 0 is returned. Otherwise, if no data is available
-   * because the end of the opened range has been reached, then {@link C#RESULT_END_OF_INPUT} is
-   * returned. Otherwise, the call will block until at least one byte of data has been read and the
-   * number of bytes read is returned.
+   * <p>If {@code buffer.remaining()} is zero then 0 is returned. Otherwise, if no data is
+   * available because the end of the opened range has been reached, then {@link
+   * C#RESULT_END_OF_INPUT} is returned. Otherwise, the call will block until at least one byte of
+   * data has been read and the number of bytes read is returned.
    *
    * <p>Passed buffer must be direct ByteBuffer. If you have a non-direct ByteBuffer, consider the
    * alternative read method with its backed array.
    *
    * @param buffer The ByteBuffer into which the read data should be stored. Must be a direct
-   *     ByteBuffer.
+   *               ByteBuffer.
    * @return The number of bytes read, or {@link C#RESULT_END_OF_INPUT} if no data is available
-   *     because the end of the opened range has been reached.
-   * @throws HttpDataSourceException If an error occurs reading from the source.
+   * because the end of the opened range has been reached.
+   * @throws HttpDataSourceException  If an error occurs reading from the source.
    * @throws IllegalArgumentException If {@code buffer} is not a direct ByteBuffer.
    */
   public int read(ByteBuffer buffer) throws HttpDataSourceException {
@@ -687,13 +705,17 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
     }
   }
 
-  /** Returns current {@link UrlRequest}. May be null if the data source is not opened. */
+  /**
+   * Returns current {@link UrlRequest}. May be null if the data source is not opened.
+   */
   @Nullable
   protected UrlRequest getCurrentUrlRequest() {
     return currentUrlRequest;
   }
 
-  /** Returns current {@link UrlResponseInfo}. May be null if the data source is not opened. */
+  /**
+   * Returns current {@link UrlResponseInfo}. May be null if the data source is not opened.
+   */
   @Nullable
   protected UrlResponseInfo getCurrentUrlResponseInfo() {
     return responseInfo;
@@ -1014,7 +1036,7 @@ public class CronetDataSource extends BaseDataSource implements HttpDataSource {
       }
       if (error instanceof NetworkException
           && ((NetworkException) error).getErrorCode()
-              == NetworkException.ERROR_HOSTNAME_NOT_RESOLVED) {
+          == NetworkException.ERROR_HOSTNAME_NOT_RESOLVED) {
         exception = new UnknownHostException();
       } else {
         exception = error;

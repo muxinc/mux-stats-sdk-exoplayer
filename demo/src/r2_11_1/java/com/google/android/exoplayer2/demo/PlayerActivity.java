@@ -81,12 +81,13 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 
-/** An activity that plays media using {@link SimpleExoPlayer}. */
+/**
+ * An activity that plays media using {@link SimpleExoPlayer}.
+ */
 public class PlayerActivity extends AppCompatActivity
     implements OnClickListener, PlaybackPreparer, PlayerControlView.VisibilityListener {
 
@@ -138,6 +139,7 @@ public class PlayerActivity extends AppCompatActivity
   private static final String KEY_AUTO_PLAY = "auto_play";
 
   private static final CookieManager DEFAULT_COOKIE_MANAGER;
+
   static {
     DEFAULT_COOKIE_MANAGER = new CookieManager();
     DEFAULT_COOKIE_MANAGER.setCookiePolicy(CookiePolicy.ACCEPT_ORIGINAL_SERVER);
@@ -393,9 +395,9 @@ public class PlayerActivity extends AppCompatActivity
       lastSeenTrackGroupArray = null;
 
       player =
-              new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
-                      .setTrackSelector(trackSelector)
-                      .build();
+          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+              .setTrackSelector(trackSelector)
+              .build();
       player.addListener(new PlayerEventListener());
       player.setPlayWhenReady(startAutoPlay);
       player.addAnalyticsListener(new EventLogger(trackSelector));
@@ -409,7 +411,7 @@ public class PlayerActivity extends AppCompatActivity
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
       muxStats = new MuxStatsExoPlayer(
-              this, player, "demo-player", customerPlayerData, customerVideoData);
+          this, player, "demo-player", customerPlayerData, customerVideoData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
@@ -438,7 +440,7 @@ public class PlayerActivity extends AppCompatActivity
     UriSample[] samples =
         intentAsSample instanceof Sample.PlaylistSample
             ? ((Sample.PlaylistSample) intentAsSample).children
-            : new UriSample[] {(UriSample) intentAsSample};
+            : new UriSample[]{(UriSample) intentAsSample};
 
     for (UriSample sample : samples) {
       if (!Util.checkCleartextTrafficPermitted(sample.uri)) {
@@ -582,7 +584,9 @@ public class PlayerActivity extends AppCompatActivity
     startPosition = C.TIME_UNSET;
   }
 
-  /** Returns a new DataSource factory. */
+  /**
+   * Returns a new DataSource factory.
+   */
   private DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
   }
