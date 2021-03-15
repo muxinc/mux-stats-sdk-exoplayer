@@ -63,11 +63,13 @@ public class AdsPlaybackTests extends TestBase {
             int adPlayIndex = networkRequest.getIndexForFirstEvent(AdPlayEvent.TYPE);
             int adPauseIndex = networkRequest.getIndexForFirstEvent(AdPauseEvent.TYPE);
             int viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
+            long playbackPosition = pView.getPlayer().getCurrentPosition();
+            boolean playWhenReady = pView.getPlayer().getPlayWhenReady();
             if (adBreakstartIndex != -1
                     || adPlayIndex != -1 || adPauseIndex != -1) {
                 fail("Ad events dispatched too early, adBreakstartIndex: " + adBreakstartIndex +
                         ", adPlayIndex: " + adPlayIndex + ", adPauseIndex: " +
-                        adPauseIndex);
+                        adPauseIndex + ", content position: " + playbackPosition + ", playWhenReady: " + playWhenReady);
             }
             if (playreadyIndex == -1) {
                 fail("Missing playready event !!!");
