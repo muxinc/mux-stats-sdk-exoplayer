@@ -65,6 +65,7 @@ public class AdsPlaybackTests extends TestBase {
             int viewStartIndex = networkRequest.getIndexForFirstEvent(ViewStartEvent.TYPE);
             long playbackPosition = pView.getPlayer().getCurrentPosition();
             boolean playWhenReady = pView.getPlayer().getPlayWhenReady();
+            // Make sure we do not have ad events before we start the playback.
             if (adBreakstartIndex != -1
                     || adPlayIndex != -1 || adPauseIndex != -1) {
                 fail("Ad events dispatched too early, adBreakstartIndex: " + adBreakstartIndex +
