@@ -148,7 +148,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
         }
 
-        player.setPlayWhenReady(true);
+        player.setPlayWhenReady(playWhenReady);
         player.prepare( testMediaSource );
     }
 }
