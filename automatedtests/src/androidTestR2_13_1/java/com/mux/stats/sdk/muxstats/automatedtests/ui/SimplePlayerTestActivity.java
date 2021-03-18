@@ -9,6 +9,7 @@ import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaItem.AdsConfiguration;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -25,7 +26,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelection;
+import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -40,7 +41,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
 
   public void initExoPlayer() {
     // Hopfully this will not channge the track selection set programmatically
-    TrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(
+    ExoTrackSelection.Factory trackSelectionFactory = new AdaptiveTrackSelection.Factory(
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_FOR_QUALITY_INCREASE_MS * 10,
         AdaptiveTrackSelection.DEFAULT_MAX_DURATION_FOR_QUALITY_DECREASE_MS * 10,
         AdaptiveTrackSelection.DEFAULT_MIN_DURATION_TO_RETAIN_AFTER_DISCARD_MS,
@@ -123,8 +124,9 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
     return new AdsMediaSource(
         aMediaSource,
         new DataSpec(loadedAdTagUri),
+        this, // I hope this is ok
         mediaSourceFactory,
-        getAdsLoader(loadedAdTagUri),
+        getAdsLoader(aMediaSource.getMediaItem().playbackProperties.adsConfiguration),
         playerView);
   }
 
@@ -141,10 +143,13 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
   }
 
 
-  private AdsLoader getAdsLoader(Uri adTagUri) {
-    if (!adTagUri.equals(loadedAdTagUri)) {
-      releaseAdsLoader();
-      loadedAdTagUri = adTagUri;
+  private AdsLoader getAdsLoader(AdsConfiguration adsConfiguration) {
+    if ( adsConfiguration != null && adsConfiguration.adTagUri != null ) {
+      Uri adTagUri = adsConfiguration.adTagUri;
+      if (!adTagUri.equals(loadedAdTagUri)) {
+        releaseAdsLoader();
+        loadedAdTagUri = adTagUri;
+      }
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
