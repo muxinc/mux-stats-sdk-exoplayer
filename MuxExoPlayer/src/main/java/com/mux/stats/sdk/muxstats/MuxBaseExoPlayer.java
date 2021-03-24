@@ -90,6 +90,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected WeakReference<Context> contextRef;
   protected AdsImaSDKListener adsImaSdkListener;
   protected int numberOfEventsSent = 0;
+  protected int numberOfPlayEventsSent = 0;
+  protected int numberOfPauseEventsSent = 0;
 
   protected int streamType = -1;
 
@@ -291,6 +293,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   public void dispatch(IEvent event) {
     if (player != null && player.get() != null && muxStats != null) {
       numberOfEventsSent ++;
+      if (event.getType().equalsIgnoreCase(PlayEvent.TYPE)) {
+        numberOfPlayEventsSent ++;
+      }
+      if (event.getType().equalsIgnoreCase(PauseEvent.TYPE)) {
+        numberOfPauseEventsSent ++;
+      }
       super.dispatch(event);
     }
   }
@@ -438,7 +446,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   protected void pause() {
-    if (state == PlayerState.SEEKED) {
+    if (state == PlayerState.SEEKED && numberOfPauseEventsSent > 0) {
       // No pause event after seeked
       return;
     }
@@ -454,9 +462,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   protected void play() {
-    if (state == PlayerState.REBUFFERING
+    // If this is the first play event it may be very important not to be skipped
+    // In all other cases skip this play event
+    if (
+        (state == PlayerState.REBUFFERING
         || seekingInProgress
-        || state == PlayerState.SEEKED) {
+        || state == PlayerState.SEEKED) &&
+            (numberOfPlayEventsSent > 0)
+    ) {
       // Ignore play event after rebuffering and Seeking
       return;
     }
@@ -496,11 +509,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     state = PlayerState.SEEKING;
     seekingInProgress = true;
     numberOfFramesRenderedSinceSeekingStarted = 0;
-    if (numberOfEventsSent == 0 && player.get().getPlayWhenReady()) {
-      // This is first event sent, a special case when playback starts from a certain point of time
-      // We need to dispatch the play event first
-      dispatch(new PlayEvent(null));
-    }
     dispatch(new SeekingEvent(null));
   }
 
