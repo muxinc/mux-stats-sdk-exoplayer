@@ -20,6 +20,11 @@ public class SeekingTests extends SeekingTestBase {
         .equalsIgnoreCase("testPlaybackWhenStartingFromThePosition")) {
       playbackStartPosition = contentDurationInMs / 3;
     }
+    if (currentTestName.getMethodName()
+        .equalsIgnoreCase("testSeekWhilePlayWhenReadyIsFalse")) {
+      playbackStartPosition = contentDurationInMs / 3;
+
+    }
     super.init();
   }
 
@@ -34,6 +39,11 @@ public class SeekingTests extends SeekingTestBase {
   @Test
   public void testSeekingWhilePlayingVideoAndAudio() {
     testSeekingWhilePlaying();
+  }
+
+  @Test
+  public void testSeekWhilePlayWhenReadyIsFalse() {
+
   }
 
   /*
