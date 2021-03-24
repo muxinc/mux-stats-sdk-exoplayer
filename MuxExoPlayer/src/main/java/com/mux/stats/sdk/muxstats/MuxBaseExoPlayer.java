@@ -496,7 +496,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     state = PlayerState.SEEKING;
     seekingInProgress = true;
     numberOfFramesRenderedSinceSeekingStarted = 0;
-    if (numberOfEventsSent == 0) {
+    if (numberOfEventsSent == 0 && player.get().getPlayWhenReady()) {
       // This is first event sent, a special case when playback starts from a certain point of time
       // We need to dispatch the play event first
       dispatch(new PlayEvent(null));

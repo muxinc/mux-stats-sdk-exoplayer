@@ -81,6 +81,7 @@ public abstract class TestBase {
   protected MediaSource testMediaSource;
   protected MockNetworkRequest networkRequest;
   protected long playbackStartPosition = 0;
+  protected boolean playWhenReady = true;
 
   protected boolean testActivityFinished;
   protected PlayerControlView controlView;
@@ -110,6 +111,7 @@ public abstract class TestBase {
     testActivity.runOnUiThread(() -> {
       testActivity.setVideoTitle(BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
       testActivity.setUrlToPlay(urlToPlay);
+      testActivity.setPlayWhenReady(playWhenReady);
       testActivity.initMuxSats();
       testActivity.setPlaybackStartPosition(playbackStartPosition);
       testActivity.startPlayback();
