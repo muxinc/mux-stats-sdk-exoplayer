@@ -85,6 +85,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected WeakReference<View> playerView;
   protected WeakReference<Context> contextRef;
   protected AdsImaSDKListener adsImaSdkListener;
+  protected int numberOfEventsSent = 0;
 
   protected int streamType = -1;
 
@@ -285,6 +286,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   @Override
   public void dispatch(IEvent event) {
     if (player != null && player.get() != null && muxStats != null) {
+      numberOfEventsSent ++;
       super.dispatch(event);
     }
   }
@@ -490,6 +492,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     state = PlayerState.SEEKING;
     seekingInProgress = true;
     numberOfFramesRenderedSinceSeekingStarted = 0;
+    if (numberOfEventsSent == 0) {
+      // This is first event sent, a special case when playback starts from a certain point of time
+      // We need to dispatch the play event first
+      dispatch(new PlayEvent(null));
+    }
     dispatch(new SeekingEvent(null));
   }
 

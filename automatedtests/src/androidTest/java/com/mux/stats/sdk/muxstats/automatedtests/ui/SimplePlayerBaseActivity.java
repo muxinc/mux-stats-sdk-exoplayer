@@ -67,6 +67,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   PlayerNotificationManager notificationManager;
   MediaSessionCompat mediaSessionCompat;
   MediaSessionConnector mediaSessionConnector;
+  long playbackStartPosition = 0;
 
   Lock activityLock = new ReentrantLock();
   Condition playbackEnded = activityLock.newCondition();
@@ -138,6 +139,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     return trackSelector;
   }
 
+  public void setPlaybackStartPosition(long position) {
+    playbackStartPosition = position;
+  }
 
   public void releaseExoPlayer() {
     player.release();

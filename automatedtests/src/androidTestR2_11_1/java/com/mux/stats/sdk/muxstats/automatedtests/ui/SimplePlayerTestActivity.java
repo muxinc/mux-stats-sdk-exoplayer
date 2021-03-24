@@ -160,7 +160,8 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     }
 
     player.setPlayWhenReady(true);
-    player.prepare(testMediaSource);
+    player.seekTo(playbackStartPosition);
+    player.prepare(testMediaSource, false, true);
   }
 
   class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {

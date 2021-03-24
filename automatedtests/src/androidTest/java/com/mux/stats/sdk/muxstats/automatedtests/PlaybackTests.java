@@ -22,7 +22,7 @@ import org.junit.runner.RunWith;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class PlaybackTests extends SeekingTestBase {
+public class PlaybackTests extends TestBase {
 
   public static final String TAG = "playbackTest";
 
@@ -60,19 +60,6 @@ public class PlaybackTests extends SeekingTestBase {
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
-  }
-
-  /*
-   * Test Seeking, event order
-   */
-  @Test
-  public void testSeekingWhilePausedVideoAndAudio() {
-    testSeekingWhilePaused();
-  }
-
-  @Test
-  public void testSeekingWhilePlayingVideoAndAudio() {
-    testSeekingWhilePlaying();
   }
 
   /*
