@@ -53,13 +53,19 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-/** Tracks media that has been downloaded. */
+/**
+ * Tracks media that has been downloaded.
+ */
 public class DownloadTracker {
 
-  /** Listens for changes in the tracked downloads. */
+  /**
+   * Listens for changes in the tracked downloads.
+   */
   public interface Listener {
 
-    /** Called when the tracked downloads changed. */
+    /**
+     * Called when the tracked downloads changed.
+     */
     void onDownloadsChanged();
   }
 
@@ -72,7 +78,8 @@ public class DownloadTracker {
   private final DownloadIndex downloadIndex;
   private final DefaultTrackSelector.Parameters trackSelectorParameters;
 
-  @Nullable private StartDownloadDialogHelper startDownloadDialogHelper;
+  @Nullable
+  private StartDownloadDialogHelper startDownloadDialogHelper;
 
   public DownloadTracker(
       Context context,
@@ -163,8 +170,8 @@ public class DownloadTracker {
 
   private final class StartDownloadDialogHelper
       implements DownloadHelper.Callback,
-          DialogInterface.OnClickListener,
-          DialogInterface.OnDismissListener {
+      DialogInterface.OnClickListener,
+      DialogInterface.OnDismissListener {
 
     private final FragmentManager fragmentManager;
     private final DownloadHelper downloadHelper;
@@ -173,7 +180,8 @@ public class DownloadTracker {
     private TrackSelectionDialog trackSelectionDialog;
     private MappedTrackInfo mappedTrackInfo;
     private WidevineOfflineLicenseFetchTask widevineOfflineLicenseFetchTask;
-    @Nullable private byte[] keySetId;
+    @Nullable
+    private byte[] keySetId;
 
     public StartDownloadDialogHelper(
         FragmentManager fragmentManager, DownloadHelper downloadHelper, MediaItem mediaItem) {
@@ -368,7 +376,9 @@ public class DownloadTracker {
     }
   }
 
-  /** Downloads a Widevine offline license in a background thread. */
+  /**
+   * Downloads a Widevine offline license in a background thread.
+   */
   @RequiresApi(18)
   private static final class WidevineOfflineLicenseFetchTask extends AsyncTask<Void, Void, Void> {
 
@@ -378,8 +388,10 @@ public class DownloadTracker {
     private final StartDownloadDialogHelper dialogHelper;
     private final DownloadHelper downloadHelper;
 
-    @Nullable private byte[] keySetId;
-    @Nullable private DrmSession.DrmSessionException drmSessionException;
+    @Nullable
+    private byte[] keySetId;
+    @Nullable
+    private DrmSession.DrmSessionException drmSessionException;
 
     public WidevineOfflineLicenseFetchTask(
         Format format,

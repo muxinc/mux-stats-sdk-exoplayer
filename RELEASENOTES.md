@@ -1,5 +1,12 @@
 # Release notes
 
+## v2.4.4
+ - Removed all content from res directory under MuxExoPlayer. (#92)
+ - Added test for playback end events and view end event. (#94)
+ - Reformat code with Google Java style (#88)
+ - Upgrade MuxCore to 6.2.0, which includes:
+   - Added viewEnd event on player release.
+
 ## v2.4.3
  - Propagate `customerViewData` through the constructors for 2.9.6, 2.11.1, and 2.12.1 as well.
 

@@ -20,9 +20,9 @@ import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import android.util.JsonReader;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,6 +36,8 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.ParserException;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.offline.DownloadService;
@@ -49,12 +51,15 @@ import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** An activity for selecting from a list of media samples. */
+/**
+ * An activity for selecting from a list of media samples.
+ */
 public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
@@ -79,7 +84,7 @@ public class SampleChooserActivity extends AppCompatActivity
     String dataUri = intent.getDataString();
     String[] uris;
     if (dataUri != null) {
-      uris = new String[] {dataUri};
+      uris = new String[]{dataUri};
     } else {
       ArrayList<String> uriList = new ArrayList<>();
       AssetManager assetManager = getAssets();
@@ -228,7 +233,12 @@ public class SampleChooserActivity extends AppCompatActivity
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
         InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
         try {
-          readSampleGroups(new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
+          if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+            readSampleGroups(
+                new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)), result);
+          } else {
+            new JsonReader(new InputStreamReader(inputStream));
+          }
         } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
@@ -499,6 +509,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   private static final class DrmInfo {
+
     public final String drmScheme;
     public final String drmLicenseUrl;
     public final String[] drmKeyRequestProperties;
@@ -525,6 +536,7 @@ public class SampleChooserActivity extends AppCompatActivity
   }
 
   private abstract static class Sample {
+
     public final String name;
     public final DrmInfo drmInfo;
 
