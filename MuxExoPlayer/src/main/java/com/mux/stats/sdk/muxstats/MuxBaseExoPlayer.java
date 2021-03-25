@@ -244,14 +244,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   @SuppressWarnings("unused")
   public void videoChange(CustomerVideoData customerVideoData) {
-    numberOfPauseEventsSent = 0;
-    numberOfPlayEventsSent = 0;
-    numberOfEventsSent = 0;
+    resetInternalStats();
     muxStats.videoChange(customerVideoData);
   }
 
   @SuppressWarnings("unused")
   public void programChange(CustomerVideoData customerVideoData) {
+    resetInternalStats();
     muxStats.programChange(customerVideoData);
   }
 
@@ -568,6 +567,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       RenditionChangeEvent event = new RenditionChangeEvent(null);
       dispatch(event);
     }
+  }
+
+  private void resetInternalStats() {
+    numberOfPauseEventsSent = 0;
+    numberOfPlayEventsSent = 0;
+    numberOfEventsSent = 0;
   }
 
   static class FrameRenderedListener implements VideoFrameMetadataListener {
