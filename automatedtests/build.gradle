@@ -65,6 +65,9 @@ android {
         r2_12_1 {
             dimension 'api'
         }
+        r2_13_1 {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -97,6 +100,7 @@ dependencies {
     androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
     androidTestR2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
     androidTestR2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
+    androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
 
     implementation project(':MuxExoPlayer')
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
@@ -105,5 +109,8 @@ dependencies {
     r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
     r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
     r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
+    r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
     r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
+    r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+    r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
 }

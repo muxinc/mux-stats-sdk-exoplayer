@@ -20,6 +20,8 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         multiDexEnabled true
+
+        buildConfigField "boolean", "USE_DECODER_EXTENSIONS", "true"
     }
 
     buildTypes {
@@ -111,6 +113,12 @@ android {
         r2_12_1_ads {
             dimension 'api'
         }
+        r2_13_1 {
+            dimension 'api'
+        }
+        r2_13_1_ads {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -127,8 +135,6 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'com.android.support:multidex:1.0.3'
     implementation project(':MuxExoPlayer')
-    r2_12_1Api "com.google.android.gms:play-services-cronet:17.0.0"
-    r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
     // Include the below to test ads for each product flavor that supports them
     r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
     r2_9_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
@@ -138,4 +144,11 @@ dependencies {
     r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
     r2_12_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     r2_12_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
+    r2_12_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+    r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
+
+    r2_13_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    r2_13_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+    r2_13_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+    r2_13_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
 }
