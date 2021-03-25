@@ -244,6 +244,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   @SuppressWarnings("unused")
   public void videoChange(CustomerVideoData customerVideoData) {
+    numberOfPauseEventsSent = 0;
+    numberOfPlayEventsSent = 0;
+    numberOfEventsSent = 0;
     muxStats.videoChange(customerVideoData);
   }
 
