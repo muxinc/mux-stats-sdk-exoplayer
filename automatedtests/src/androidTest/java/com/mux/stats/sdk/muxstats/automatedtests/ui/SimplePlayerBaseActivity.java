@@ -219,8 +219,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   }
 
   public void waitForPlaybackToStartBuffering() {
-    if (player.getPlaybackState() == Player.STATE_READY &&
-        player.getPlayWhenReady()) {
+    if (!muxStats.isPaused()) {
       try {
         activityLock.lock();
         playbackBuffering.await();
