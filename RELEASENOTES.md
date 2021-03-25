@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.5
+ - Added support for Exoplayer version 2.13.1 (#98)
+
 ## v2.4.4
  - Removed all content from res directory under MuxExoPlayer. (#92)
  - Added test for playback end events and view end event. (#94)
