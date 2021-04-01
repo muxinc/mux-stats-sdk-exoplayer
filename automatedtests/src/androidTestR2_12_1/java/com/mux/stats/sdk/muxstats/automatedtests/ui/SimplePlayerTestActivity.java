@@ -173,18 +173,13 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
       testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
     }
 
-    player.setPlayWhenReady(true);
+    player.setPlayWhenReady(playWhenReady);
     player.setMediaSource(testMediaSource);
+    player.seekTo(playbackStartPosition);
     player.prepare();
   }
 
   class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {
-
-    @Override
-    public void onNotificationCancelled(int notificationId, boolean dismissedByUser) {
-      // TODO implement this
-      Log.e(TAG, "onNotificationCancelled");
-    }
 
     @Override
     public void onNotificationPosted(int notificationId, Notification notification,
