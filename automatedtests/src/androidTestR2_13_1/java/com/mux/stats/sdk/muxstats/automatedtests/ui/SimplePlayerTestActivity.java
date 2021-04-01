@@ -144,7 +144,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
 
 
   private AdsLoader getAdsLoader(AdsConfiguration adsConfiguration) {
-    if ( adsConfiguration != null && adsConfiguration.adTagUri != null ) {
+    if (adsConfiguration != null && adsConfiguration.adTagUri != null) {
       Uri adTagUri = adsConfiguration.adTagUri;
       if (!adTagUri.equals(loadedAdTagUri)) {
         releaseAdsLoader();

@@ -294,12 +294,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   @Override
   public void dispatch(IEvent event) {
     if (player != null && player.get() != null && muxStats != null) {
-      numberOfEventsSent ++;
+      numberOfEventsSent++;
       if (event.getType().equalsIgnoreCase(PlayEvent.TYPE)) {
-        numberOfPlayEventsSent ++;
+        numberOfPlayEventsSent++;
       }
       if (event.getType().equalsIgnoreCase(PauseEvent.TYPE)) {
-        numberOfPauseEventsSent ++;
+        numberOfPauseEventsSent++;
       }
       super.dispatch(event);
     }
@@ -468,8 +468,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     // In all other cases skip this play event
     if (
         (state == PlayerState.REBUFFERING
-        || seekingInProgress
-        || state == PlayerState.SEEKED) &&
+            || seekingInProgress
+            || state == PlayerState.SEEKED) &&
             (numberOfPlayEventsSent > 0)
     ) {
       // Ignore play event after rebuffering and Seeking

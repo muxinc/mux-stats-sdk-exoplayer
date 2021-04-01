@@ -16,6 +16,7 @@ import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.model.ViewData;
 
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
+
   private MuxBaseExoPlayer exoPlayerListener;
   private boolean sendPlayOnStarted = false;
   private boolean missingAdBreakStartEvent = false;
