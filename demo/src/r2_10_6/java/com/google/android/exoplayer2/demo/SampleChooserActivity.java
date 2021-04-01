@@ -237,7 +237,8 @@ public class SampleChooserActivity extends AppCompatActivity
             readSampleGroups(
                 new JsonReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8)), result);
           } else {
-            new JsonReader(new InputStreamReader(inputStream));
+            readSampleGroups(
+                new JsonReader(new InputStreamReader(inputStream)), result);
           }
         } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
