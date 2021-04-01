@@ -19,6 +19,7 @@ public class SimpleHTTPServer extends Thread {
   private int networkJamFactor = 1;
   private int seekLatency;
   private boolean constantJam = false;
+  private long manifestDelay = 0;
 
   private final ServerSocket server;
   ArrayList<ConnectionWorker> workers = new ArrayList<>();
@@ -50,6 +51,13 @@ public class SimpleHTTPServer extends Thread {
     this.constantJam = constantJam;
     for (ConnectionWorker worker : workers) {
       worker.jamNetwork(jamPeriod, jamFactor, constantJam);
+    }
+  }
+
+  public void setHLSManifestDelay(long manifestDelay) {
+    this.manifestDelay = manifestDelay;
+    for (ConnectionWorker worker : workers) {
+      worker.setNetworkDelay(manifestDelay);
     }
   }
 
@@ -96,6 +104,6 @@ public class SimpleHTTPServer extends Thread {
   private void acceptConnection() throws IOException {
     Socket clientSocket = server.accept();
     workers.add(new ConnectionWorker(clientSocket, bandwidthLimit,
-        networkJamEndPeriod, networkJamFactor, constantJam, seekLatency));
+        networkJamEndPeriod, networkJamFactor, constantJam, seekLatency, manifestDelay));
   }
 }

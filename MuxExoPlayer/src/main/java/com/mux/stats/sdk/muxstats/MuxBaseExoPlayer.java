@@ -59,7 +59,11 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
@@ -85,6 +89,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected WeakReference<View> playerView;
   protected WeakReference<Context> contextRef;
   protected AdsImaSDKListener adsImaSdkListener;
+  protected Lock muxStatsLock = new ReentrantLock();
+  protected Condition newMediaSegmentStarted = muxStatsLock.newCondition();
 
   protected int streamType = -1;
 
@@ -185,6 +191,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       });
     } catch (ClassNotFoundException cnfe) {
       return;
+    }
+  }
+
+  // Used in automated tests
+  public boolean waitForNextSegmentToLoad(long timeoutInMs) {
+    try {
+      muxStatsLock.lock();
+      return newMediaSegmentStarted.await(timeoutInMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      muxStatsLock.unlock();
     }
   }
 

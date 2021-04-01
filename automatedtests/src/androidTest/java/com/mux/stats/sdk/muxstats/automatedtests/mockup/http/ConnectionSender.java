@@ -37,22 +37,28 @@ public class ConnectionSender extends Thread {
   boolean seekLatencyServed = false;
   byte[] transferBuffer;
   int transferBufferSize;
+  long networkRequestDelay;
 
 
   public ConnectionSender(OutputStream httpOut, int bandwidthLimit,
       long networkJammingEndPeriod, int networkJamFactor,
-      long seekLatency) throws IOException {
+      long seekLatency, long networkRequestDelay) throws IOException {
     this.httpOut = httpOut;
     this.bandwidthLimit = bandwidthLimit;
     this.networkJammingEndPeriod = networkJammingEndPeriod;
     this.networkJamFactor = networkJamFactor;
     this.seekLatency = seekLatency;
+    this.networkRequestDelay = networkRequestDelay;
     previouseDataPositionRequested = -1;
 
     transferBufferSize = bandwidthLimit / (8 * 100);
     transferBuffer = new byte[transferBufferSize]; // Max number of bytes to send each 10 ms
     isPaused = true;
     start();
+  }
+
+  public void setNetworkDelay(long delay) {
+    networkRequestDelay = delay;
   }
 
   public void kill() {
@@ -93,6 +99,8 @@ public class ConnectionSender extends Thread {
     boolean sendPartialResponse = true;
     boolean acceptRangeHeader = true;
     String contentType = "video/mp4";
+    // Delay x seconds serving of request
+    Thread.sleep(networkRequestDelay);
     if (assetName.contains(".xml")) {
       contentType = "text/xml";
       sendPartialResponse = false;

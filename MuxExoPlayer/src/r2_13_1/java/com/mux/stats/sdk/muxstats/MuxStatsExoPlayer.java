@@ -1,7 +1,9 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -178,6 +180,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadStarted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
+    if (mediaLoadData.dataType == C.DATA_TYPE_MANIFEST || mediaLoadData.dataType == C.DATA_TYPE_MEDIA) {
+      muxStatsLock.lock();
+      newMediaSegmentStarted.signalAll();
+      muxStatsLock.unlock();
+    }
     bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
         mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
         mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);

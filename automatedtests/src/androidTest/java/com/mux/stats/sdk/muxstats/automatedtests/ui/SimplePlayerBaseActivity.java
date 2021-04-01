@@ -184,8 +184,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   public boolean waitForPlaybackToFinish(long timeoutInMs) {
     try {
       activityLock.lock();
-      playbackEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
-      return true;
+      return playbackEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
       return false;
