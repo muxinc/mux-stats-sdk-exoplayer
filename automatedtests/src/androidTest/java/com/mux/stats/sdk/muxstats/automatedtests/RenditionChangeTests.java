@@ -19,7 +19,7 @@ import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 
-public class RenditionChangeTests extends TestBase {
+public class RenditionChangeTests extends AdaptiveBitStreamTestBase {
 
   static final String TAG = "RenditionChangeTests";
 
@@ -94,73 +94,5 @@ public class RenditionChangeTests extends TestBase {
     }
   }
 
-  TrackGroupArray getVideoTrackGroupArray() {
-    DefaultTrackSelector selector = testActivity.getTrackSelector();
-    MappingTrackSelector.MappedTrackInfo mappedTrackInfo = selector.getCurrentMappedTrackInfo();
-    for (int rendererTrackIndex = 0; rendererTrackIndex < mappedTrackInfo.getRendererCount();
-        rendererTrackIndex++) {
-      int trackType = mappedTrackInfo.getRendererType(rendererTrackIndex);
-      if (trackType == TRACK_TYPE_VIDEO) {
-        return mappedTrackInfo
-            .getTrackGroups(rendererTrackIndex);
-      }
 
-    }
-    return null;
-  }
-
-  ArrayList<Format> getAvailableVideoRendition() {
-    ArrayList<Format> result = new ArrayList<>();
-    TrackGroupArray videoTrackGroupArray = getVideoTrackGroupArray();
-    for (int trackIndex = 0; trackIndex < videoTrackGroupArray.length; trackIndex++) {
-      TrackGroup trackGroup = videoTrackGroupArray.get(trackIndex);
-      for (int formatIndex = 0; formatIndex < trackGroup.length; formatIndex++) {
-        result.add(trackGroup.getFormat(formatIndex));
-      }
-    }
-    return result;
-  }
-
-  int getSelectedRenditionIndex() throws JSONException {
-//        MuxStatsExoPlayer lMuxStats = testActivity.getMuxStats();
-//        int videoWidth = lMuxStats.getSourceWidth();
-//        int videoHeight = lMuxStats.getSourceHeight();
-    int renditionChangeIndex = networkRequest.getIndexForFirstEvent(RenditionChangeEvent.TYPE);
-    if (renditionChangeIndex == -1) {
-      return -1;
-    }
-    JSONObject jo = networkRequest.getEventForIndex(renditionChangeIndex);
-    if (jo == null || !jo.has(VideoData.VIDEO_SOURCE_WIDTH) || !jo
-        .has(VideoData.VIDEO_SOURCE_HEIGHT)) {
-      return -1;
-    }
-    int videoWidth = jo.getInt(VideoData.VIDEO_SOURCE_WIDTH);
-    int videoHeight = jo.getInt(VideoData.VIDEO_SOURCE_HEIGHT);
-
-    ArrayList<Format> availableFormats = getAvailableVideoRendition();
-    int index = 0;
-    for (Format fmt : availableFormats) {
-      if (Math.abs(fmt.width - videoWidth) < 10 &&
-          Math.abs(fmt.height - videoHeight) < 10) {
-        return index;
-      }
-      index++;
-    }
-    String availableFormatsStr = "";
-    for (Format fmt : availableFormats) {
-      availableFormatsStr += "(" + fmt.width + "x" + fmt.height + ") ";
-    }
-    fail("Reported source resolution: " + videoWidth + "x" + videoHeight +
-        " do not match any of available formats: " + availableFormatsStr);
-    return -1;
-  }
-
-  void switchRenditionToIndex(int index) {
-    Format fmt = getAvailableVideoRendition().get(index);
-    DefaultTrackSelector selector = testActivity.getTrackSelector();
-    selector.setParameters(selector.buildUponParameters()
-        .setMaxVideoSize(fmt.width, fmt.height)
-        .setForceHighestSupportedBitrate(true)
-    );
-  }
 }

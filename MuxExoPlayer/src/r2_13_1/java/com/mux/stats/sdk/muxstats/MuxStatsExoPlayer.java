@@ -1,7 +1,9 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
+import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -17,6 +19,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
@@ -110,6 +113,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onVideoInputFormatChanged(EventTime eventTime, Format format) {
+    detectStreamType(format);
     handleRenditionChange(format);
   }
 
@@ -141,7 +145,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   // Note: onLoadingChanged was deprecated and moved to onIsLoadingChanged in 2.12.0
   @Override
   public void onIsLoadingChanged(AnalyticsListener.EventTime eventTime, boolean isLoading) {
-    onIsLoadingChanged(isLoading);
   }
 
   @Override
@@ -152,18 +155,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCanceled(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCanceled(loadEventInfo.dataSpec);
+    bandwidthDispatcher.onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
   }
 
   @Override
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-        loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded,
-        loadEventInfo.responseHeaders);
+    bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+        mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
   }
 
   @Override
@@ -171,20 +171,20 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo.dataSpec, mediaLoadData.dataType, e);
+    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
   }
 
   @Override
   public void onLoadStarted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
+    bandwidthDispatcher.onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+        loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
   }
 
   @Override
   public void onMetadata(AnalyticsListener.EventTime eventTime, Metadata metadata) {
+    Log.i("MuxStats", "Got metadata !!!");
   }
 
   @Override

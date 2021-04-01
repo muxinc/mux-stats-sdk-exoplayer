@@ -4,14 +4,18 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 public class ConnectionSender extends Thread {
 
@@ -19,6 +23,7 @@ public class ConnectionSender extends Thread {
 
   OutputStream httpOut;
   InputStream assetInput;
+  String assetName;
   Context context;
   boolean isPaused;
   boolean isRunning;
@@ -37,22 +42,36 @@ public class ConnectionSender extends Thread {
   boolean seekLatencyServed = false;
   byte[] transferBuffer;
   int transferBufferSize;
+  long networkRequestDelay;
+  ConnectionListener listener;
+  SegmentStatistics segmentStat;
+  HashMap<String, String> additionalHeaders = new HashMap<>();
+  String requestUuid;
 
 
-  public ConnectionSender(OutputStream httpOut, int bandwidthLimit,
+  public ConnectionSender(ConnectionListener listener, OutputStream httpOut, int bandwidthLimit,
       long networkJammingEndPeriod, int networkJamFactor,
-      long seekLatency) throws IOException {
+      long seekLatency, long networkRequestDelay,
+      HashMap<String, String> additionalHeaders) throws IOException {
+    this.listener = listener;
     this.httpOut = httpOut;
     this.bandwidthLimit = bandwidthLimit;
     this.networkJammingEndPeriod = networkJammingEndPeriod;
     this.networkJamFactor = networkJamFactor;
     this.seekLatency = seekLatency;
+    this.networkRequestDelay = networkRequestDelay;
+    this.additionalHeaders = additionalHeaders;
     previouseDataPositionRequested = -1;
 
     transferBufferSize = bandwidthLimit / (8 * 100);
     transferBuffer = new byte[transferBufferSize]; // Max number of bytes to send each 10 ms
     isPaused = true;
+    segmentStat = new SegmentStatistics();
     start();
+  }
+
+  public void setNetworkDelay(long delay) {
+    networkRequestDelay = delay;
   }
 
   public void kill() {
@@ -88,11 +107,15 @@ public class ConnectionSender extends Thread {
 
   public void startServingFromPosition(String assetName, HashMap<String, String> headers)
       throws IOException, InterruptedException {
+    this.assetName = assetName;
     parseRangeHeader(headers);
     parseOriginHeader(headers);
     boolean sendPartialResponse = true;
     boolean acceptRangeHeader = true;
     String contentType = "video/mp4";
+    segmentStat.setSegmentRequestedAt(System.currentTimeMillis());
+    // Delay x milly seconds serving of request
+    Thread.sleep(networkRequestDelay);
     if (assetName.contains(".xml")) {
       contentType = "text/xml";
       sendPartialResponse = false;
@@ -111,6 +134,8 @@ public class ConnectionSender extends Thread {
     openAssetFile(assetName);
     assetInput.reset();
     assetInput.skip(serveDataFromPosition);
+    segmentStat.setSegmentFileName(assetName);
+    segmentStat.setSegmentLengthInBytes(assetInput.available() - serveDataFromPosition);
     Log.i(TAG, "Serving file from position: " + serveDataFromPosition + ", remaining bytes: " +
         assetInput.available() + ", total file size: " + assetFileSize);
     if (serveDataFromPosition < assetFileSize) {
@@ -147,12 +172,14 @@ public class ConnectionSender extends Thread {
       } catch (IOException e) {
         e.printStackTrace();
         Log.e(TAG, "Connection closed by the client !!!");
+        listener.segmentServed(requestUuid, segmentStat);
         isRunning = false;
       }
     }
   }
 
   private void openAssetFile(String assetFile) throws IOException {
+    requestUuid = UUID.randomUUID().toString();
     if (assetInput != null) {
       try {
         assetInput.close();
@@ -189,11 +216,16 @@ public class ConnectionSender extends Thread {
         "Content-Range: bytes */" + assetFileSize + "\r\n" +
         "Content-Type: text/plain\r\n" +
         "Content-Length: 0\r\n" +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
+        getAdditionalHeadersAsString() +
         "Connection: close\r\n" +
         "\r\n";
     Log.i(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+    listener.segmentServed(requestUuid, segmentStat);
   }
 
   public void sendHTTPOKCompleteResponse(String contentType) throws IOException {
@@ -203,21 +235,36 @@ public class ConnectionSender extends Thread {
         "Server: SimpleHttpServer/1.0\r\n" +
         "Content-Type: " + contentType + "; charset=utf-8" + "\r\n" +
         "Content-Length: " + assetFileSize + "\r\n" +
+        getAdditionalHeadersAsString() +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
+        SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
         "Connection: keep-alive" + "\r\n" +
         "Accept-Ranges: bytes" + "\r\n" +
         (originHeaderValue.length() > 0 ?
             ("Access-Control-Allow-Origin: " + originHeaderValue + "\r\n" +
                 "Access-Control-Allow-Credentials: true\r\n") : "") +
         "\r\n";
-    // Add asset file content
-    byte[] assetContent = new byte[(int) assetFileSize];
-    int bytesRead = assetInput.read(assetContent);
-    String assetContentStr = new String(assetContent, StandardCharsets.UTF_8);
-    response = response + assetContentStr + "\r\n\r\n";
-
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+    int staticBuffSize = 200000;
+    byte[] staticBuff = new byte[staticBuffSize];
+    while(true) {
+      int bytesRead = assetInput.read(staticBuff);
+      String line = new String(staticBuff, 0, bytesRead, StandardCharsets.UTF_8);
+      Log.w(TAG,  line);
+      writer.write(line);
+      writer.flush();
+      if (bytesRead < staticBuffSize) {
+        break;
+      }
+    }
+    writer.write("\r\n\r\n");
+    writer.flush();
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+    listener.segmentServed(requestUuid, segmentStat);
+    segmentStat = new SegmentStatistics();
   }
 
   /*
@@ -235,10 +282,24 @@ public class ConnectionSender extends Thread {
         (acceptRangeHeader ? ("Accept-Ranges: bytes" + "\r\n") : "") +
         // content length should be total length - requested byte position
         "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
+        SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
+        getAdditionalHeadersAsString() +
         "Connection: close\r\n\r\n";
+
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+  }
+
+  private String getAdditionalHeadersAsString() {
+    String additionalHeadersString = "";
+    for (String headerName : additionalHeaders.keySet()) {
+      additionalHeadersString += headerName + ": " + additionalHeaders.get(headerName) + "\r\n";
+    }
+    return additionalHeadersString;
   }
 
   /*
@@ -260,12 +321,15 @@ public class ConnectionSender extends Thread {
       }
       bytesToRead = (int) ((double) bytesToRead / (double) jamFactor);
     }
-
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
     int bytesRead = assetInput.read(transferBuffer, 0, bytesToRead);
     if (bytesRead == -1) {
       // EOF reached
       Log.e(TAG, "EOF reached !!!");
       isRunning = false;
+      segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+      listener.segmentServed(requestUuid, segmentStat);
+      segmentStat = new SegmentStatistics();
       return;
     }
     if (bytesRead > 0) {
