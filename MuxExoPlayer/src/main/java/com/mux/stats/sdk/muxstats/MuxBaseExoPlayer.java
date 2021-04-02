@@ -34,9 +34,13 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
+import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
+import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
@@ -85,6 +89,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected WeakReference<View> playerView;
   protected WeakReference<Context> contextRef;
   protected AdsImaSDKListener adsImaSdkListener;
+  protected int numberOfEventsSent = 0;
+  protected int numberOfPlayEventsSent = 0;
+  protected int numberOfPauseEventsSent = 0;
 
   protected int streamType = -1;
 
@@ -237,11 +244,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   @SuppressWarnings("unused")
   public void videoChange(CustomerVideoData customerVideoData) {
+    resetInternalStats();
     muxStats.videoChange(customerVideoData);
   }
 
   @SuppressWarnings("unused")
   public void programChange(CustomerVideoData customerVideoData) {
+    resetInternalStats();
     muxStats.programChange(customerVideoData);
   }
 
@@ -285,6 +294,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   @Override
   public void dispatch(IEvent event) {
     if (player != null && player.get() != null && muxStats != null) {
+      numberOfEventsSent++;
+      if (event.getType().equalsIgnoreCase(PlayEvent.TYPE)) {
+        numberOfPlayEventsSent++;
+      }
+      if (event.getType().equalsIgnoreCase(PauseEvent.TYPE)) {
+        numberOfPauseEventsSent++;
+      }
       super.dispatch(event);
     }
   }
@@ -432,7 +448,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   protected void pause() {
-    if (state == PlayerState.SEEKED) {
+    if (state == PlayerState.SEEKED && numberOfPauseEventsSent > 0) {
       // No pause event after seeked
       return;
     }
@@ -448,9 +464,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   protected void play() {
-    if (state == PlayerState.REBUFFERING
-        || seekingInProgress
-        || state == PlayerState.SEEKED) {
+    // If this is the first play event it may be very important not to be skipped
+    // In all other cases skip this play event
+    if (
+        (state == PlayerState.REBUFFERING
+            || seekingInProgress
+            || state == PlayerState.SEEKED) &&
+            (numberOfPlayEventsSent > 0)
+    ) {
       // Ignore play event after rebuffering and Seeking
       return;
     }
@@ -546,6 +567,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       RenditionChangeEvent event = new RenditionChangeEvent(null);
       dispatch(event);
     }
+  }
+
+  private void resetInternalStats() {
+    numberOfPauseEventsSent = 0;
+    numberOfPlayEventsSent = 0;
+    numberOfEventsSent = 0;
   }
 
   static class FrameRenderedListener implements VideoFrameMetadataListener {
