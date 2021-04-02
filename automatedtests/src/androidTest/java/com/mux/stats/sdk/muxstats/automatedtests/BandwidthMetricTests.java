@@ -3,10 +3,13 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 import static org.junit.Assert.fail;
 
 import android.util.Log;
+import com.mux.stats.sdk.core.events.playback.RequestCompleted;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+import org.json.JSONException;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.Request;
 
 public class BandwidthMetricTests extends TestBase {
 
@@ -28,20 +31,27 @@ public class BandwidthMetricTests extends TestBase {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       MuxStatsExoPlayer muxStats = testActivity.getMuxStats();
+      int lastRequestEventIndex = 0;
       for (int i = 1; i < manifestDelayList.length; i++) {
         httpServer.setHLSManifestDelay(manifestDelayList[i]);
         if (!muxStats.waitForNextSegmentToLoad(waitForPlaybackToStartInMS * 3)) {
           fail("HLS playback segment did not start in " + waitForPlaybackToStartInMS + " ms !!!");
         }
-        checkManifestDelayAndEvents();
+//        lastRequestEventIndex = checkManifestDelayAndEvents(lastRequestEventIndex);
       }
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
   }
 
-  private void checkManifestDelayAndEvents() {
+  private int checkManifestDelayAndEvents(int startEventSearchAt) throws JSONException {
     // TODO check the manifest delay
     Log.e("MuxStats", "Checking Media Segments !!!");
+    int requestCompletedEventIndex = networkRequest.getIndexForNextEvent(startEventSearchAt,
+        RequestCompleted.TYPE);
+    if (requestCompletedEventIndex == -1) {
+      fail("Missing request completed event on position: " + startEventSearchAt);
+    }
+    return requestCompletedEventIndex;
   }
 }

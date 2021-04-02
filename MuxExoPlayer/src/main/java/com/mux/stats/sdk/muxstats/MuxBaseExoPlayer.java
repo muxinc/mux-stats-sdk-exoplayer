@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats;
 
 import static android.os.SystemClock.elapsedRealtime;
 
+import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -26,8 +27,10 @@ import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
@@ -37,11 +40,15 @@ import com.mux.stats.sdk.core.events.InternalErrorEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
+import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
+import com.mux.stats.sdk.core.events.playback.RequestCanceled;
+import com.mux.stats.sdk.core.events.playback.RequestCompleted;
+import com.mux.stats.sdk.core.events.playback.RequestFailed;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
@@ -965,7 +972,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return;
       }
       BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(dataSpec, dataType, e);
-      dispatch(loadData);
+      dispatch(loadData, new RequestFailed(null));
     }
 
     public void onLoadCanceled(DataSpec dataSpec) {
@@ -974,11 +981,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         return;
       }
       BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(dataSpec);
-      dispatch(loadData);
+      dispatch(loadData, new RequestCanceled(null));
     }
 
     public void onLoadStarted(DataSpec dataSpec, int dataType, Format trackFormat,
         long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
+      detectStreamType(trackFormat);
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
@@ -991,6 +999,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
         long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
         long bytesLoaded, Map<String, List<String>> responseHeaders) {
+      detectStreamType(trackFormat);
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
@@ -1010,7 +1019,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 //                }
 //            }
 
-      dispatch(loadData);
+      dispatch(loadData, new RequestCompleted(null));
     }
 
     public void onTracksChanged(TrackGroupArray trackGroups) {
@@ -1041,12 +1050,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
     }
 
-    private void dispatch(BandwidthMetricData data) {
+    private void dispatch(BandwidthMetricData data, PlaybackEvent event) {
       if (data != null) {
-        // TODO replace this with appropriate Request event
-        RequestBandwidthEvent playback = new RequestBandwidthEvent(null);
-        playback.setBandwidthMetricData(data);
-        MuxBaseExoPlayer.this.dispatch(playback);
+        event.setBandwidthMetricData(data);
+        MuxBaseExoPlayer.this.dispatch(event);
       }
     }
 
@@ -1075,6 +1082,21 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         }
       }
       return headers;
+    }
+
+    private void detectStreamType(Format trackFormat) {
+      if (trackFormat != null && trackFormat.metadata != null
+          && trackFormat.metadata.length() > 0) {
+        for (int entryIndex = 0; entryIndex < trackFormat.metadata.length(); entryIndex++) {
+          if (trackFormat.metadata.get(entryIndex) instanceof HlsTrackMetadataEntry) {
+            streamType = C.TYPE_HLS;
+          }
+          // TODO see how to detect dash stream type
+//        if (mediaLoadData.trackFormat.metadata.get(entryIndex) instanceof ) {
+//
+//        }
+        }
+      }
     }
   }
 
