@@ -1043,6 +1043,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     private void dispatch(BandwidthMetricData data) {
       if (data != null) {
+        // TODO replace this with appropriate Request event
         RequestBandwidthEvent playback = new RequestBandwidthEvent(null);
         playback.setBandwidthMetricData(data);
         MuxBaseExoPlayer.this.dispatch(playback);
