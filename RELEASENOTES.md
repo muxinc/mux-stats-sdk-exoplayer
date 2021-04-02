@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.4.6
+ - Fix for use case when playback starts with the seek. (#99)
+ - Upgrade MuxCore to 6.3.0, which includes:
+   - Reset error-tracking state when loading a new video.
+
 ## v2.4.5
  - Added support for Exoplayer version 2.13.1 (#98)
 
