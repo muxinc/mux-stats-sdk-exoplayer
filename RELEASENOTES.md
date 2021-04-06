@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.7
+ - Use playWhenReady and playbackStartPosition in Exoplayer r2.13 test. (#105)
+
 ## v2.4.6
  - Fix for use case when playback starts with the seek. (#99)
  - Upgrade MuxCore to 6.3.0, which includes:
