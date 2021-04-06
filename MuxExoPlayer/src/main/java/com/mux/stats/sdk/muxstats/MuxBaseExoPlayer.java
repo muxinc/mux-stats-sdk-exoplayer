@@ -11,6 +11,7 @@ import android.media.MediaFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
@@ -26,12 +27,17 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.VideoComponent;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -813,6 +819,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs,
         long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
       BandwidthMetricData loadData = new BandwidthMetricData();
+      loadData.setRequestStart(System.currentTimeMillis());
+      loadData.setRequestMediaStartTime(mediaStartTimeMs);
+      loadData.setRequestVideoWidth(sourceWidth);
+      loadData.setRequestVideoWidth(sourceHeight);
+
       if (bytesLoaded > 0) {
         loadData.setRequestBytesLoaded(bytesLoaded);
       }
@@ -864,6 +875,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         loadData.setRequestResponseStart(elapsedRealtimeMs - loadDurationMs);
         loadData.setRequestResponseEnd(elapsedRealtimeMs);
       }
+      if (dataSpec != null) {
+        // TODO not sure if this is the right value
+       loadData.setRequestMediaDuration(dataSpec.length);
+      }
       return loadData;
     }
   }
@@ -908,62 +923,28 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
   }
 
-  class BandwidthMetricDash extends BandwidthMetric {
-
-    @Override
-    public BandwidthMetricData onLoadStarted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-      BandwidthMetricData loadData = super.onLoadStarted(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs);
-      if (loadData != null) {
-        switch (dataType) {
-          case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("initFragmentLoaded");
-            break;
-          default:
-            break;
-        }
-      }
-      return loadData;
-    }
-
-    @Override
-    public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-        long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = super.onLoadCompleted(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
-      if (loadData != null) {
-        switch (dataType) {
-          case C.DATA_TYPE_MANIFEST:
-            loadData.setRequestEventType("manifestLoaded");
-            break;
-          case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("mediaFragmentLoaded");
-            break;
-          default:
-            break;
-        }
-      }
-      return loadData;
-    }
-  }
 
   class BandwidthMetricDispatcher {
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
-    private final BandwidthMetric bandwidthMetricDash = new BandwidthMetricDash();
+//    private final BandwidthMetric bandwidthMetricDash = new BandwidthMetricDash();
+
 
     public BandwidthMetric currentBandwidthMetric() {
-      switch (streamType) {
-        case C.TYPE_HLS:
-          return bandwidthMetricHls;
-        case C.TYPE_DASH:
-          return bandwidthMetricDash;
-        default:
-          break;
-      }
-      return null;
+      // TODO see if we need different data for HLS and for DASH
+//      if (streamType == -1) {
+//        detectStreamType();
+//      }
+//      switch (streamType) {
+//        case C.TYPE_HLS:
+//          return bandwidthMetricHls;
+//        case C.TYPE_DASH:
+//          return bandwidthMetricDash;
+//        default:
+//          break;
+//      }
+//      return null;
+      return bandwidthMetricHls;
     }
 
     public void onLoadError(DataSpec dataSpec, int dataType, IOException e) {
@@ -986,7 +967,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     public void onLoadStarted(DataSpec dataSpec, int dataType, Format trackFormat,
         long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-      detectStreamType(trackFormat);
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
@@ -999,7 +979,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
         long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
         long bytesLoaded, Map<String, List<String>> responseHeaders) {
-      detectStreamType(trackFormat);
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
@@ -1084,18 +1063,26 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return headers;
     }
 
-    private void detectStreamType(Format trackFormat) {
-      if (trackFormat != null && trackFormat.metadata != null
-          && trackFormat.metadata.length() > 0) {
-        for (int entryIndex = 0; entryIndex < trackFormat.metadata.length(); entryIndex++) {
-          if (trackFormat.metadata.get(entryIndex) instanceof HlsTrackMetadataEntry) {
-            streamType = C.TYPE_HLS;
-          }
-          // TODO see how to detect dash stream type
-//        if (mediaLoadData.trackFormat.metadata.get(entryIndex) instanceof ) {
-//
-//        }
+    private void detectStreamType() {
+      // This is a hack that may not work so well whit urls that do not end with clear extensions
+      // TODO see if there is a better way to do this
+      MediaItem media = player.get().getCurrentMediaItem();
+      Uri uri = Uri.parse(media.mediaId);
+      @C.ContentType int type = Util.inferContentType(uri, null);
+      streamType = type;
+    }
+  }
+
+  protected void detectStreamType(Format format) {
+    // This is reliable way to detect stream type, but it get called a bit too late,
+    // some media segments are already loaded by the time we detect the stream format
+    if (format != null && format.metadata != null &&
+        format.metadata.length() > 0) {
+      for (int i = 0; i < format.metadata.length(); i++) {
+        if (format.metadata.get(i) instanceof HlsTrackMetadataEntry) {
+          streamType = C.TYPE_HLS;
         }
+        // TODO detect DASH
       }
     }
   }

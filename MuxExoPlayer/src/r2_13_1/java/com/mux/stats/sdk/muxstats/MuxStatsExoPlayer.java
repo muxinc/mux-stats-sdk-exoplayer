@@ -113,6 +113,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onVideoInputFormatChanged(EventTime eventTime, Format format) {
+    detectStreamType(format);
     handleRenditionChange(format);
   }
 
