@@ -745,6 +745,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           NetworkCapabilities nc = connectivityMgr
               .getNetworkCapabilities(connectivityMgr.getActiveNetwork());
+          if (nc == null) {
+            Log.e(TAG, "Failed to obtain NetworkCapabilities manager !!!");
+            return null;
+          }
           if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
             return CONNECTION_TYPE_WIRED;
           } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
@@ -782,6 +786,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   class BandwidthMetric {
 
+    BandwidthMetricData currentSegmentData;
+
     public BandwidthMetricData onLoadError(DataSpec dataSpec, int dataType, IOException e) {
       BandwidthMetricData loadData = new BandwidthMetricData();
       loadData.setRequestError(e.toString());
@@ -818,42 +824,42 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected BandwidthMetricData onLoad(DataSpec dataSpec, int dataType,
         Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs,
         long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = new BandwidthMetricData();
-      loadData.setRequestStart(System.currentTimeMillis());
-      loadData.setRequestMediaStartTime(mediaStartTimeMs);
-      loadData.setRequestVideoWidth(sourceWidth);
-      loadData.setRequestVideoWidth(sourceHeight);
+      currentSegmentData = new BandwidthMetricData();
+      currentSegmentData.setRequestStart(System.currentTimeMillis());
+      currentSegmentData.setRequestMediaStartTime(mediaStartTimeMs);
+      currentSegmentData.setRequestVideoWidth(sourceWidth);
+      currentSegmentData.setRequestVideoHeight(sourceHeight);
 
       if (bytesLoaded > 0) {
-        loadData.setRequestBytesLoaded(bytesLoaded);
+        currentSegmentData.setRequestBytesLoaded(bytesLoaded);
       }
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
-          loadData.setRequestType("manifest");
+          currentSegmentData.setRequestType("manifest");
           break;
         case C.DATA_TYPE_MEDIA:
-          loadData.setRequestType("media");
+          currentSegmentData.setRequestType("media");
           break;
         default:
           return null;
       }
-      loadData.setRequestResponseHeaders(null);
+      currentSegmentData.setRequestResponseHeaders(null);
       if (dataSpec != null && dataSpec.uri != null) {
-        loadData.setRequestHostName(dataSpec.uri.getHost());
+        currentSegmentData.setRequestHostName(dataSpec.uri.getHost());
       }
       if (dataType == C.DATA_TYPE_MEDIA) {
-        loadData.setRequestMediaDuration(mediaEndTimeMs - mediaStartTimeMs);
+        currentSegmentData.setRequestMediaDuration(mediaEndTimeMs - mediaStartTimeMs);
       }
       if (trackFormat != null) {
-        loadData.setRequestCurrentLevel(null);
+        currentSegmentData.setRequestCurrentLevel(null);
         if (dataType == C.DATA_TYPE_MEDIA) {
-          loadData.setRequestMediaStartTime(mediaStartTimeMs);
+          currentSegmentData.setRequestMediaStartTime(mediaStartTimeMs);
         }
-        loadData.setRequestVideoWidth(trackFormat.width);
-        loadData.setRequestVideoHeight(trackFormat.height);
+        currentSegmentData.setRequestVideoWidth(trackFormat.width);
+        currentSegmentData.setRequestVideoHeight(trackFormat.height);
       }
-      loadData.setRequestRenditionLists(renditionList);
-      return loadData;
+      currentSegmentData.setRequestRenditionLists(renditionList);
+      return currentSegmentData;
     }
 
     public BandwidthMetricData onLoadStarted(DataSpec dataSpec, int dataType,
@@ -861,7 +867,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       BandwidthMetricData loadData = onLoad(dataSpec, dataType, trackFormat,
           mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, 0, 0);
       if (loadData != null) {
-        loadData.setRequestResponseStart(elapsedRealtimeMs);
+        loadData.setRequestResponseStart(System.currentTimeMillis());
       }
       return loadData;
     }
@@ -869,17 +875,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
         Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
         long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = onLoad(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
-      if (loadData != null) {
-        loadData.setRequestResponseStart(elapsedRealtimeMs - loadDurationMs);
-        loadData.setRequestResponseEnd(elapsedRealtimeMs);
+      currentSegmentData.setRequestBytesLoaded(bytesLoaded);
+      if (currentSegmentData != null) {
+        currentSegmentData.setRequestResponseEnd(System.currentTimeMillis());
       }
       if (dataSpec != null) {
         // TODO not sure if this is the right value
-       loadData.setRequestMediaDuration(dataSpec.length);
+        currentSegmentData.setRequestMediaDuration(dataSpec.length);
       }
-      return loadData;
+      return currentSegmentData;
     }
   }
 
@@ -907,17 +911,20 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       if (loadData != null) {
         switch (dataType) {
           case C.DATA_TYPE_MANIFEST:
-            loadData.setRequestEventType("hlsManifestLoaded");
+            loadData.setRequestEventType("manifest");
             break;
           case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("hlsFragBuffered");
+            loadData.setRequestEventType("media");
             break;
           default:
+            Log.e(TAG, "FUCK !!!");
             break;
         }
         if (trackFormat != null) {
           loadData.setRequestLabeledBitrate(trackFormat.bitrate);
         }
+      } else {
+        Log.e(TAG, "FUCK !!!");
       }
       return loadData;
     }

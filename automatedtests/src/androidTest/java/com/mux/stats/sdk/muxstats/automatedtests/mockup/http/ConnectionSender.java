@@ -4,12 +4,15 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -38,11 +41,14 @@ public class ConnectionSender extends Thread {
   byte[] transferBuffer;
   int transferBufferSize;
   long networkRequestDelay;
+  ConnectionListener listener;
+  SegmentStatistics segmentStat;
 
 
-  public ConnectionSender(OutputStream httpOut, int bandwidthLimit,
+  public ConnectionSender(ConnectionListener listener, OutputStream httpOut, int bandwidthLimit,
       long networkJammingEndPeriod, int networkJamFactor,
       long seekLatency, long networkRequestDelay) throws IOException {
+    this.listener = listener;
     this.httpOut = httpOut;
     this.bandwidthLimit = bandwidthLimit;
     this.networkJammingEndPeriod = networkJammingEndPeriod;
@@ -54,6 +60,7 @@ public class ConnectionSender extends Thread {
     transferBufferSize = bandwidthLimit / (8 * 100);
     transferBuffer = new byte[transferBufferSize]; // Max number of bytes to send each 10 ms
     isPaused = true;
+    segmentStat = new SegmentStatistics();
     start();
   }
 
@@ -119,6 +126,10 @@ public class ConnectionSender extends Thread {
     openAssetFile(assetName);
     assetInput.reset();
     assetInput.skip(serveDataFromPosition);
+    segmentStat.setSegmentFileName(assetName);
+    segmentStat.setSegmentLengthInBytes(assetInput.available() - serveDataFromPosition);
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+    segmentStat.setSegmentRequestedAt(System.currentTimeMillis());
     Log.i(TAG, "Serving file from position: " + serveDataFromPosition + ", remaining bytes: " +
         assetInput.available() + ", total file size: " + assetFileSize);
     if (serveDataFromPosition < assetFileSize) {
@@ -218,14 +229,36 @@ public class ConnectionSender extends Thread {
                 "Access-Control-Allow-Credentials: true\r\n") : "") +
         "\r\n";
     // Add asset file content
-    byte[] assetContent = new byte[(int) assetFileSize];
-    int bytesRead = assetInput.read(assetContent);
-    String assetContentStr = new String(assetContent, StandardCharsets.UTF_8);
-    response = response + assetContentStr + "\r\n\r\n";
+//    byte[] assetContent = new byte[(int) assetFileSize];
+//    int bytesRead = assetInput.read(assetContent);
+//    String assetContentStr = new String(assetContent, StandardCharsets.UTF_8);
+//    response = response + assetContentStr + "\r\n\r\n";
+//
+//    Log.w(TAG, "Sending response: \n" + response);
+//    writer.write(response);
+//    writer.flush();
 
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+//    BufferedReader reader = new BufferedReader(new InputStreamReader(assetInput));
+    int staticBuffSize = 200000;
+    byte[] staticBuff = new byte[staticBuffSize];
+    while(true) {
+      int bytesRead = assetInput.read(staticBuff);
+      String line = new String(staticBuff, 0, bytesRead, StandardCharsets.UTF_8);
+      Log.w(TAG,  line);
+      writer.write(line);
+      writer.flush();
+      if (bytesRead < staticBuffSize) {
+        break;
+      }
+    }
+    writer.write("/r/n/r/n");
+    writer.flush();
+
+    listener.segmentServed(segmentStat);
+    segmentStat = new SegmentStatistics();
   }
 
   /*
@@ -274,6 +307,9 @@ public class ConnectionSender extends Thread {
       // EOF reached
       Log.e(TAG, "EOF reached !!!");
       isRunning = false;
+      segmentStat.setSegmentServedAt(System.currentTimeMillis());
+      listener.segmentServed(segmentStat);
+      segmentStat = new SegmentStatistics();
       return;
     }
     if (bytesRead > 0) {

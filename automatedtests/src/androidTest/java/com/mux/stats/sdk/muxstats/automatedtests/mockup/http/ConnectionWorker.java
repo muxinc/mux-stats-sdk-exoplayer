@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.Socket;
 
 
-public class ConnectionWorker extends Thread {
+public class ConnectionWorker extends Thread implements ConnectionListener{
 
   Socket clientSocket;
   int bandwidthLimit;
@@ -16,10 +16,12 @@ public class ConnectionWorker extends Thread {
   private boolean constantJam = false;
   private long networkRequestDelay = 0;
   int seekLatency;
+  ConnectionListener listener;
 
-  public ConnectionWorker(Socket clientSocket, int bandwidthLimit,
+  public ConnectionWorker(ConnectionListener listener, Socket clientSocket, int bandwidthLimit,
       long networkJamEndPeriod, int networkJamFactor,
       boolean constantJam, int seekLatency, long networkRequestDelay) {
+    this.listener = listener;
     this.clientSocket = clientSocket;
     this.bandwidthLimit = bandwidthLimit;
     this.constantJam = constantJam;
@@ -46,7 +48,7 @@ public class ConnectionWorker extends Thread {
     try {
       receiver = new ConnectionReceiver(clientSocket.getInputStream());
       receiver.start();
-      sender = new ConnectionSender(clientSocket.getOutputStream(), bandwidthLimit,
+      sender = new ConnectionSender(this, clientSocket.getOutputStream(), bandwidthLimit,
           networkJamEndPeriod, networkJamFactor, seekLatency, networkRequestDelay);
       sender.pause();
     } catch (IOException e) {
@@ -77,5 +79,10 @@ public class ConnectionWorker extends Thread {
     if (receiver != null) {
       receiver.kill();
     }
+  }
+
+  @Override
+  public void segmentServed(SegmentStatistics segmentStat) {
+    listener.segmentServed(segmentStat);
   }
 }

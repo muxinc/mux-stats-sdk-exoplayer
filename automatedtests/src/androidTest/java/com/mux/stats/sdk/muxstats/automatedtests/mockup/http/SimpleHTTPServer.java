@@ -5,12 +5,13 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class SimpleHTTPServer extends Thread {
+public class SimpleHTTPServer extends Thread implements ConnectionListener {
 
   private boolean isRunning;
   private final int port;
@@ -22,7 +23,9 @@ public class SimpleHTTPServer extends Thread {
   private long manifestDelay = 0;
 
   private final ServerSocket server;
-  ArrayList<ConnectionWorker> workers = new ArrayList<>();
+  LinkedBlockingDeque<ConnectionWorker> workers = new LinkedBlockingDeque<>();
+  // TODO sort this according to the stream connections
+  ArrayList<SegmentStatistics> segmentsServed = new ArrayList<>();
 
   Lock serverLock = new ReentrantLock();
   Condition serverDied = serverLock.newCondition();
@@ -43,6 +46,13 @@ public class SimpleHTTPServer extends Thread {
    */
   public void setSeekLatency(int latency) {
     seekLatency = latency;
+  }
+
+  public SegmentStatistics getSegmentStatistics(int segmentIndex) {
+    if (segmentIndex < segmentsServed.size()) {
+      return segmentsServed.get(segmentIndex);
+    }
+    return null;
   }
 
   public void jamNetwork(long jamPeriod, int jamFactor, boolean constantJam) {
@@ -103,7 +113,12 @@ public class SimpleHTTPServer extends Thread {
    */
   private void acceptConnection() throws IOException {
     Socket clientSocket = server.accept();
-    workers.add(new ConnectionWorker(clientSocket, bandwidthLimit,
+    workers.add(new ConnectionWorker(this, clientSocket, bandwidthLimit,
         networkJamEndPeriod, networkJamFactor, constantJam, seekLatency, manifestDelay));
+  }
+
+  @Override
+  public void segmentServed(SegmentStatistics segmentStat) {
+    segmentsServed.add(segmentStat);
   }
 }
