@@ -573,6 +573,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     numberOfPauseEventsSent = 0;
     numberOfPlayEventsSent = 0;
     numberOfEventsSent = 0;
+    // Reset the state to avoid unwanted rebuffering events
+    state = PlayerState.INIT;
   }
 
   static class FrameRenderedListener implements VideoFrameMetadataListener {
