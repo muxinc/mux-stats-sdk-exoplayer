@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.mux.stats.sdk.core.MuxSDKViewOrientation;
+import com.mux.stats.sdk.core.MuxSdkViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -78,7 +78,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
+public class MuxBaseExoPlayer extends EventBus implements IplayerListener {
 
   protected static final String TAG = "MuxStatsListener";
   // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
@@ -122,7 +122,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, boolean sentryEnabled,
-      INetworkRequest networkRequest) {
+      InetworkRequest networkRequest) {
     super();
     this.player = new WeakReference<>(player);
     this.contextRef = new WeakReference<>(ctx);
@@ -277,7 +277,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     muxStats.programChange(customerVideoData);
   }
 
-  public void orientationChange(MuxSDKViewOrientation orientation) {
+  public void orientationChange(MuxSdkViewOrientation orientation) {
     muxStats.orientationChange(orientation);
   }
 
@@ -634,7 +634,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
   }
 
-  static class MuxDevice implements IDevice {
+  static class MuxDevice implements Idevice {
 
     private static final String EXO_SOFTWARE = "ExoPlayer";
 
@@ -666,7 +666,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         appName = pi.packageName;
         appVersion = pi.versionName;
       } catch (PackageManager.NameNotFoundException e) {
-        MuxLogger.d(TAG, "could not get package info");
+        Log.d(TAG, "could not get package info");
       }
     }
 
@@ -676,12 +676,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     @Override
-    public String getOSFamily() {
+    public String getOsFamily() {
       return "Android";
     }
 
     @Override
-    public String getOSVersion() {
+    public String getOsVersion() {
       return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
     }
 
@@ -829,10 +829,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       currentSegmentData.setRequestMediaStartTime(mediaStartTimeMs);
       currentSegmentData.setRequestVideoWidth(sourceWidth);
       currentSegmentData.setRequestVideoHeight(sourceHeight);
-
-      if (bytesLoaded > 0) {
-        currentSegmentData.setRequestBytesLoaded(bytesLoaded);
-      }
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
           currentSegmentData.setRequestType("manifest");
@@ -876,6 +872,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
         long loadDurationMs, long bytesLoaded) {
       currentSegmentData.setRequestBytesLoaded(bytesLoaded);
+      currentSegmentData.setRequestBytesLoaded(loadDurationMs);
       if (currentSegmentData != null) {
         currentSegmentData.setRequestResponseEnd(System.currentTimeMillis());
       }
@@ -909,17 +906,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       BandwidthMetricData loadData = super.onLoadCompleted(dataSpec, dataType, trackFormat,
           mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
       if (loadData != null) {
-        switch (dataType) {
-          case C.DATA_TYPE_MANIFEST:
-            loadData.setRequestEventType("manifest");
-            break;
-          case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("media");
-            break;
-          default:
-            Log.e(TAG, "FUCK !!!");
-            break;
-        }
         if (trackFormat != null) {
           loadData.setRequestLabeledBitrate(trackFormat.bitrate);
         }
@@ -955,6 +941,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void onLoadError(DataSpec dataSpec, int dataType, IOException e) {
+      Log.e(TAG, "onLoadError");
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
@@ -1099,7 +1086,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     // Bail out if we don't have the context
     if (context == null) {
-      MuxLogger.d(TAG, "Error retrieving Context for logical resolution, using physical");
+      Log.d(TAG, "Error retrieving Context for logical resolution, using physical");
       return px;
     }
 

@@ -4,10 +4,13 @@ import static org.junit.Assert.fail;
 
 import android.util.Log;
 import com.mux.stats.sdk.core.events.playback.RequestCompleted;
+import com.mux.stats.sdk.core.events.playback.RequestFailed;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
+import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -60,18 +63,27 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           fail("HLS playback segment did not start in " + waitForPlaybackToStartInMS + " ms !!!");
         }
       }
+      testActivity.runOnUiThread(new Runnable() {
+        public void run() {
+          long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
+          pView.getPlayer().stop();
+        }
+      });
+
       int qualityLevel = getSelectedRenditionIndex();
-      int requestCompletedEventIndex = 0;
       int requestIndex = 0;
-      while ((requestCompletedEventIndex = networkRequest.getIndexForNextEvent(
-          requestCompletedEventIndex + 1, RequestCompleted.TYPE)) != -1) {
+      ArrayList<JSONObject> requestCompletedEvents = networkRequest
+          .getAllEventsOfType(RequestCompleted.TYPE);
+      ArrayList<JSONObject> requestFailedEvents = networkRequest
+          .getAllEventsOfType(RequestFailed.TYPE);
+
+      for (JSONObject requestCompletedJson: requestCompletedEvents) {
         SegmentStatistics segmentStat = httpServer.getSegmentStatistics(requestIndex);
         if (segmentStat == null) {
           fail("Failed to obtain segment statistics for index: " + requestIndex
               + ", this is automated test related error !!!");
         }
-        JSONObject requestCompletedJson = networkRequest
-            .getEventForIndex(requestCompletedEventIndex);
+        int requestCompletedEventIndex = requestCompletedJson.getInt(MockNetworkRequest.EVENT_INDEX);
         // check the request completed data
         if (requestCompletedJson.has(BandwidthMetricData.REQUEST_TYPE)) {
           if (requestCompletedJson.getString(BandwidthMetricData.REQUEST_TYPE)
@@ -83,14 +95,15 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
               .equalsIgnoreCase("manifest")) {
             checkManifestSegment(requestCompletedEventIndex, requestCompletedJson, segmentStat);
           }
+          // TODO support othere event types
         } else {
-          Log.e("MuxStats", "Got requestcompleted event with no request type:\n"
-              + requestCompletedJson.toString());
+          fail("Request complete evennt missing requestType, this field is "
+              + "mandatory, event index: " + requestCompletedEventIndex);
         }
         // TODO check request rendition list
         requestIndex++;
       }
-      if (requestIndex != manifestDelayList.length) {
+      if ((requestCompletedEvents.size() + requestFailedEvents.size()) != manifestDelayList.length) {
         fail("Number of requestCompleted events: " + requestIndex + ", expected nnumber of events: "
             + manifestDelayList.length);
       }
@@ -165,7 +178,8 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       if (Math.abs(diff) > errorMargin) {
         fail("Expected value for field: " + fieldName + ",expected: " + expectedValue
             + ",actual value: " + value + ",diff: " + (value - expectedValue)
-            + ",error margin: " + errorMargin + ",for eventIndex: " + eventIndex);
+            + ",error margin: " + errorMargin + ",for eventIndex: " + eventIndex
+            + ",event:\n" + jo.toString());
       }
     } catch (JSONException e) {
       fail("Missing " + fieldName + " for request object with index: " + eventIndex);

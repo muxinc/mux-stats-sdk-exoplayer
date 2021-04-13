@@ -66,7 +66,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, boolean sentryEnabled,
-      INetworkRequest networkRequests) {
+      InetworkRequest networkRequests) {
     super(ctx, player, playerName, customerPlayerData, customerVideoData,
         customerViewData, sentryEnabled, networkRequests);
 

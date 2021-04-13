@@ -1,6 +1,9 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 
-import com.mux.stats.sdk.muxstats.INetworkRequest;
+import android.util.Log;
+import com.mux.stats.sdk.core.events.playback.RequestCompleted;
+import com.mux.stats.sdk.core.model.BandwidthMetricData;
+import com.mux.stats.sdk.muxstats.InetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import java.net.URL;
@@ -10,12 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MockNetworkRequest implements INetworkRequest {
+public class MockNetworkRequest implements InetworkRequest {
 
-  IMuxNetworkRequestsCompletion callback;
+  public static final String EVENT_INDEX = "event_index";
+
+  ImuxNetworkRequestsCompletion callback;
   ArrayList<JSONObject> receivedEvents = new ArrayList<>();
   MuxNetworkRequests muxNetwork;
-  IMuxNetworkRequestsCompletion muxNetworkCallback = new IMuxNetworkRequestsCompletion() {
+  ImuxNetworkRequestsCompletion muxNetworkCallback = new ImuxNetworkRequestsCompletion() {
 
     @Override
     public void onComplete(boolean b) {
@@ -46,7 +51,7 @@ public class MockNetworkRequest implements INetworkRequest {
   @Override
   public void postWithCompletion(String envKey, String body,
       Hashtable<String, String> headers,
-      IMuxNetworkRequestsCompletion callback) {
+      ImuxNetworkRequestsCompletion callback) {
     try {
       JSONObject bodyJo = new JSONObject(body);
       JSONArray events = bodyJo.getJSONArray("events");
@@ -81,6 +86,18 @@ public class MockNetworkRequest implements INetworkRequest {
       }
     }
     return -1;
+  }
+
+  public ArrayList<JSONObject> getAllEventsOfType(String eventType) throws JSONException {
+    ArrayList<JSONObject> result = new ArrayList<>();
+    for (int i = 0; i < receivedEvents.size(); i ++) {
+      JSONObject event = receivedEvents.get(i);
+      if (getReceivedEventName(i).equalsIgnoreCase(eventType)) {
+        event.put(EVENT_INDEX, i);
+        result.add(event);
+      }
+    }
+    return result;
   }
 
   public int getIndexForNextEvent(int startingIndex, String eventName) throws JSONException {
