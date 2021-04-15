@@ -65,8 +65,8 @@ public class PlaybackTests extends TestBase {
       Thread.sleep(PAUSE_PERIOD_IN_MS);
       int rebufferStartEventIndex = 0;
       int rebufferEndEventIndex;
-      while ( (rebufferStartEventIndex = networkRequest.getIndexForNextEvent(
-          rebufferStartEventIndex, RebufferStartEvent.TYPE)) != -1 ) {
+      while ((rebufferStartEventIndex = networkRequest.getIndexForNextEvent(
+          rebufferStartEventIndex, RebufferStartEvent.TYPE)) != -1) {
         rebufferEndEventIndex = networkRequest.getIndexForNextEvent(rebufferStartEventIndex,
             RebufferEndEvent.TYPE);
         if (rebufferEndEventIndex == -1) {
@@ -75,11 +75,6 @@ public class PlaybackTests extends TestBase {
               + networkRequest.getReceivedEventNames());
         }
       }
-      // TODO check first segmment, check second segment
-      // Check basic playback events on first video
-//      int playEvntIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
-      // Check basic playback events on new video
-//      result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }

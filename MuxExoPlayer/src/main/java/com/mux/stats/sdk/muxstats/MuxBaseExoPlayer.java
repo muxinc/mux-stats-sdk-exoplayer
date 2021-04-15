@@ -575,7 +575,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     numberOfPauseEventsSent = 0;
     numberOfPlayEventsSent = 0;
     numberOfEventsSent = 0;
-
   }
 
   static class FrameRenderedListener implements VideoFrameMetadataListener {
