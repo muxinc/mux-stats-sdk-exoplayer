@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.8
+ - Reset internal state when calling videochange, fixing an issue where rebuffering may be reported incorrectly after calling videochange. (#107)
+
 ## v2.4.7
  - Use playWhenReady and playbackStartPosition in Exoplayer r2.13 test. (#105)
 

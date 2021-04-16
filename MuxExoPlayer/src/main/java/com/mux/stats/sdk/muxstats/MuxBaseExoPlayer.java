@@ -244,6 +244,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   @SuppressWarnings("unused")
   public void videoChange(CustomerVideoData customerVideoData) {
+    // Reset the state to avoid unwanted rebuffering events
+    state = PlayerState.INIT;
     resetInternalStats();
     muxStats.videoChange(customerVideoData);
   }
