@@ -3,7 +3,7 @@ package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 import android.util.Log;
 import com.mux.stats.sdk.core.events.playback.RequestCompleted;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
-import com.mux.stats.sdk.muxstats.InetworkRequest;
+import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import java.net.URL;
@@ -13,14 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class MockNetworkRequest implements InetworkRequest {
+public class MockNetworkRequest implements INetworkRequest {
 
   public static final String EVENT_INDEX = "event_index";
 
-  ImuxNetworkRequestsCompletion callback;
+  IMuxNetworkRequestsCompletion callback;
   ArrayList<JSONObject> receivedEvents = new ArrayList<>();
   MuxNetworkRequests muxNetwork;
-  ImuxNetworkRequestsCompletion muxNetworkCallback = new ImuxNetworkRequestsCompletion() {
+  IMuxNetworkRequestsCompletion muxNetworkCallback = new IMuxNetworkRequestsCompletion() {
 
     @Override
     public void onComplete(boolean b) {
@@ -51,7 +51,7 @@ public class MockNetworkRequest implements InetworkRequest {
   @Override
   public void postWithCompletion(String envKey, String body,
       Hashtable<String, String> headers,
-      ImuxNetworkRequestsCompletion callback) {
+      IMuxNetworkRequestsCompletion callback) {
     try {
       JSONObject bodyJo = new JSONObject(body);
       JSONArray events = bodyJo.getJSONArray("events");

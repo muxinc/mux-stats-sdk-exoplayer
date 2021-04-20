@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 import org.json.JSONObject;
 
-public class MuxNetworkRequests implements InetworkRequest {
+public class MuxNetworkRequests implements INetworkRequest {
 
   private static final String TAG = "MuxNetworkRequests";
 
@@ -113,10 +113,10 @@ public class MuxNetworkRequests implements InetworkRequest {
     private static final int CONNECT_TIMEOUT_MS = 30 * 1000;
     private static final int MAXIMUM_RETRY = 4;
     private static final int BASE_TIME_BETWEEN_BEACONS = 5000;
-    private final ImuxNetworkRequestsCompletion callback;
+    private final IMuxNetworkRequestsCompletion callback;
     private int failureCount = 0;
 
-    public NetworkTaskRunner(ImuxNetworkRequestsCompletion callback) {
+    public NetworkTaskRunner(IMuxNetworkRequestsCompletion callback) {
       this.callback = callback;
     }
 
@@ -137,7 +137,7 @@ public class MuxNetworkRequests implements InetworkRequest {
       Hashtable<String, String> headers = request.getHeaders();
       String body = request.getBody();
 
-      MuxLogger.debug(TAG, "making " + method + " request to: " + url.toString());
+      MuxLogger.d(TAG, "making " + method + " request to: " + url.toString());
       boolean successful = false;
       while (!successful && failureCount < MAXIMUM_RETRY) {
         try {
@@ -182,7 +182,7 @@ public class MuxNetworkRequests implements InetworkRequest {
           conn.setRequestProperty("Content-Type", "application/json");
           byte[] bytes = body.getBytes();
           if (shouldGzip) {
-            MuxLogger.debug(TAG, "gzipping");
+            MuxLogger.d(TAG, "gzipping");
             bytes = gzip(bytes);
           }
 
@@ -193,7 +193,7 @@ public class MuxNetworkRequests implements InetworkRequest {
 
         conn.connect();
         stream = conn.getInputStream();
-        MuxLogger.debug(TAG, "got response: " + conn.getResponseCode());
+        MuxLogger.d(TAG, "got response: " + conn.getResponseCode());
       } catch (Exception e) {
         Log.e(TAG, e.getMessage(), e);
         successful = false;
@@ -255,7 +255,7 @@ public class MuxNetworkRequests implements InetworkRequest {
   @Override
   public void postWithCompletion(String propertyKey, String body,
       Hashtable<String, String> headers,
-      InetworkRequest.ImuxNetworkRequestsCompletion callback) {
+      INetworkRequest.IMuxNetworkRequestsCompletion callback) {
     try {
       if (propertyKey != null) {
         Uri.Builder uriBuilder = new Uri.Builder();

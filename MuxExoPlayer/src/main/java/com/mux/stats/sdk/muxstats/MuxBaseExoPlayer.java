@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.source.hls.HlsTrackMetadataEntry;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
-import com.mux.stats.sdk.core.MuxSdkViewOrientation;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
@@ -78,7 +78,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class MuxBaseExoPlayer extends EventBus implements IplayerListener {
+public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
   // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
@@ -122,7 +122,7 @@ public class MuxBaseExoPlayer extends EventBus implements IplayerListener {
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, boolean sentryEnabled,
-      InetworkRequest networkRequest) {
+      INetworkRequest networkRequest) {
     super();
     this.player = new WeakReference<>(player);
     this.contextRef = new WeakReference<>(ctx);
@@ -277,7 +277,7 @@ public class MuxBaseExoPlayer extends EventBus implements IplayerListener {
     muxStats.programChange(customerVideoData);
   }
 
-  public void orientationChange(MuxSdkViewOrientation orientation) {
+  public void orientationChange(MuxSDKViewOrientation orientation) {
     muxStats.orientationChange(orientation);
   }
 
@@ -634,7 +634,7 @@ public class MuxBaseExoPlayer extends EventBus implements IplayerListener {
     }
   }
 
-  static class MuxDevice implements Idevice {
+  static class MuxDevice implements IDevice {
 
     private static final String EXO_SOFTWARE = "ExoPlayer";
 
@@ -676,12 +676,12 @@ public class MuxBaseExoPlayer extends EventBus implements IplayerListener {
     }
 
     @Override
-    public String getOsFamily() {
+    public String getOSFamily() {
       return "Android";
     }
 
     @Override
-    public String getOsVersion() {
+    public String getOSVersion() {
       return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
     }
 
