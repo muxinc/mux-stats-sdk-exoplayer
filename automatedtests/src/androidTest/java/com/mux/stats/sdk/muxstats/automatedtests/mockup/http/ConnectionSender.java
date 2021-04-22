@@ -22,6 +22,7 @@ public class ConnectionSender extends Thread {
 
   OutputStream httpOut;
   InputStream assetInput;
+  String assetName;
   Context context;
   boolean isPaused;
   boolean isRunning;
@@ -43,11 +44,13 @@ public class ConnectionSender extends Thread {
   long networkRequestDelay;
   ConnectionListener listener;
   SegmentStatistics segmentStat;
+  HashMap<String, String> additionalHeaders = new HashMap<>();
 
 
   public ConnectionSender(ConnectionListener listener, OutputStream httpOut, int bandwidthLimit,
       long networkJammingEndPeriod, int networkJamFactor,
-      long seekLatency, long networkRequestDelay) throws IOException {
+      long seekLatency, long networkRequestDelay,
+      HashMap<String, String> additionalHeaders) throws IOException {
     this.listener = listener;
     this.httpOut = httpOut;
     this.bandwidthLimit = bandwidthLimit;
@@ -55,6 +58,7 @@ public class ConnectionSender extends Thread {
     this.networkJamFactor = networkJamFactor;
     this.seekLatency = seekLatency;
     this.networkRequestDelay = networkRequestDelay;
+    this.additionalHeaders = additionalHeaders;
     previouseDataPositionRequested = -1;
 
     transferBufferSize = bandwidthLimit / (8 * 100);
@@ -101,11 +105,13 @@ public class ConnectionSender extends Thread {
 
   public void startServingFromPosition(String assetName, HashMap<String, String> headers)
       throws IOException, InterruptedException {
+    this.assetName = assetName;
     parseRangeHeader(headers);
     parseOriginHeader(headers);
     boolean sendPartialResponse = true;
     boolean acceptRangeHeader = true;
     String contentType = "video/mp4";
+    segmentStat.setSegmentRequestedAt(System.currentTimeMillis());
     // Delay x seconds serving of request
     Thread.sleep(networkRequestDelay);
     if (assetName.contains(".xml")) {
@@ -129,7 +135,6 @@ public class ConnectionSender extends Thread {
     segmentStat.setSegmentFileName(assetName);
     segmentStat.setSegmentLengthInBytes(assetInput.available() - serveDataFromPosition);
     segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
-    segmentStat.setSegmentRequestedAt(System.currentTimeMillis());
     Log.i(TAG, "Serving file from position: " + serveDataFromPosition + ", remaining bytes: " +
         assetInput.available() + ", total file size: " + assetFileSize);
     if (serveDataFromPosition < assetFileSize) {
@@ -208,6 +213,7 @@ public class ConnectionSender extends Thread {
         "Content-Range: bytes */" + assetFileSize + "\r\n" +
         "Content-Type: text/plain\r\n" +
         "Content-Length: 0\r\n" +
+        getAdditionalHeadersAsString() +
         "Connection: close\r\n" +
         "\r\n";
     Log.i(TAG, "Sending response: \n" + response);
@@ -222,6 +228,8 @@ public class ConnectionSender extends Thread {
         "Server: SimpleHttpServer/1.0\r\n" +
         "Content-Type: " + contentType + "; charset=utf-8" + "\r\n" +
         "Content-Length: " + assetFileSize + "\r\n" +
+        getAdditionalHeadersAsString() +
+        SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
         "Connection: keep-alive" + "\r\n" +
         "Accept-Ranges: bytes" + "\r\n" +
         (originHeaderValue.length() > 0 ?
@@ -276,10 +284,21 @@ public class ConnectionSender extends Thread {
         (acceptRangeHeader ? ("Accept-Ranges: bytes" + "\r\n") : "") +
         // content length should be total length - requested byte position
         "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
+        SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
+        getAdditionalHeadersAsString() +
         "Connection: close\r\n\r\n";
+
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+  }
+
+  private String getAdditionalHeadersAsString() {
+    String additionalHeadersString = "";
+    for (String headerName : additionalHeaders.keySet()) {
+      additionalHeadersString += headerName + ": " + additionalHeaders.get(headerName) + "\r\n";
+    }
+    return additionalHeadersString;
   }
 
   /*

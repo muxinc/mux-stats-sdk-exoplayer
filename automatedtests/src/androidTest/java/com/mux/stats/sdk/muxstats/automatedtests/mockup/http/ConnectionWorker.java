@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats.automatedtests.mockup.http;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.HashMap;
 
 
 public class ConnectionWorker extends Thread implements ConnectionListener{
@@ -17,10 +18,12 @@ public class ConnectionWorker extends Thread implements ConnectionListener{
   private long networkRequestDelay = 0;
   int seekLatency;
   ConnectionListener listener;
+  HashMap<String, String> additionalHeaders = new HashMap<>();
 
   public ConnectionWorker(ConnectionListener listener, Socket clientSocket, int bandwidthLimit,
       long networkJamEndPeriod, int networkJamFactor,
-      boolean constantJam, int seekLatency, long networkRequestDelay) {
+      boolean constantJam, int seekLatency, long networkRequestDelay,
+      HashMap<String, String> additionalHeaders) {
     this.listener = listener;
     this.clientSocket = clientSocket;
     this.bandwidthLimit = bandwidthLimit;
@@ -29,6 +32,7 @@ public class ConnectionWorker extends Thread implements ConnectionListener{
     this.networkJamFactor = networkJamFactor;
     this.seekLatency = seekLatency;
     this.networkRequestDelay = networkRequestDelay;
+    this.additionalHeaders = additionalHeaders;
     start();
   }
 
@@ -49,7 +53,7 @@ public class ConnectionWorker extends Thread implements ConnectionListener{
       receiver = new ConnectionReceiver(clientSocket.getInputStream());
       receiver.start();
       sender = new ConnectionSender(this, clientSocket.getOutputStream(), bandwidthLimit,
-          networkJamEndPeriod, networkJamFactor, seekLatency, networkRequestDelay);
+          networkJamEndPeriod, networkJamFactor, seekLatency, networkRequestDelay, additionalHeaders);
       sender.pause();
     } catch (IOException e) {
       e.printStackTrace();

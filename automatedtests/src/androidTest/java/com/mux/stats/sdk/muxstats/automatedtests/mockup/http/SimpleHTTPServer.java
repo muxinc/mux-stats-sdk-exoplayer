@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
@@ -12,6 +13,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SimpleHTTPServer extends Thread implements ConnectionListener {
+
+  public static String FILE_NAME_RESPONSE_HEADER = "Automated-Test-File-Name";
+  public static String REQUEST_START_RESPONSE_HEADER = "Automated-Test-File-Name";
+  public static String REQUEST_END_RESPONSE_HEADER = "Automated-Test-File-Name";
+  public static String X_CDN_RESPONSE_HEADER = "x-cdn";
+  public static String CONTENT_TYPE_RESPONSE_HEADER = "Content-Type";
 
   private boolean isRunning;
   private final int port;
@@ -21,6 +28,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   private int seekLatency;
   private boolean constantJam = false;
   private long manifestDelay = 0;
+  HashMap<String, String> additionalHeaders = new HashMap<>();
 
   private final ServerSocket server;
   LinkedBlockingDeque<ConnectionWorker> workers = new LinkedBlockingDeque<>();
@@ -71,6 +79,10 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
     }
   }
 
+  public void setAdditionalHeader(String headerName, String headerValue) {
+    additionalHeaders.put(headerName, headerValue);
+  }
+
   public void run() {
     isRunning = true;
     while (isRunning) {
@@ -114,7 +126,8 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   private void acceptConnection() throws IOException {
     Socket clientSocket = server.accept();
     workers.add(new ConnectionWorker(this, clientSocket, bandwidthLimit,
-        networkJamEndPeriod, networkJamFactor, constantJam, seekLatency, manifestDelay));
+        networkJamEndPeriod, networkJamFactor, constantJam, seekLatency, manifestDelay,
+        additionalHeaders));
   }
 
   @Override

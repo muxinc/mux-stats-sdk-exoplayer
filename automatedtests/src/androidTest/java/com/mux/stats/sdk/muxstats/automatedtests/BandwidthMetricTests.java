@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
 import android.util.Log;
@@ -10,7 +11,9 @@ import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
+import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -21,7 +24,9 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   static long[] manifestDelayList = {100, 50, 150, 50, 350, 200, 250, 100, 40, 30, 25, 160, 79,
       120, 160, 180, 190, 320, 480, 760, 920};
-  static long averageSegmentDuration = 4600; // milliseconds
+  // All media segments are simmilar to this duration in ms, determined by using
+  // ffprobe on few media segments in asset dir, if you change hls video asset, update this value.
+  static long averageSegmentDuration = 4006; // milliseconds
   // Our HLS test file have 3 levels of quality
   // Expected video width for each HLS quality level. values obtained by inspecting static assets
   static long[] videoWidthsByLevel = {640, 842, 1280};
@@ -29,6 +34,8 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   static long[] videoHeightsByLevel = {360, 474, 720};
   // Declared video bitrates according to quality level
   static long[] videoBitratesByLevel = {800000, 1400000, 2800000};
+
+  static final String X_CDN_HEADER_VALUE = "automated.test.com";
 
   static final long ERROR_MARGIN_FOR_STARTUP_TIMESTAMP = 500;
   static final long ERROR_MARGIN_FOR_REQUEST_LATENCY = 100;
@@ -46,6 +53,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     bandwidthLimitInBitsPerSecond = 12000000;
     super.init();
     httpServer.setHLSManifestDelay(manifestDelayList[0]);
+    httpServer.setAdditionalHeader(SimpleHTTPServer.X_CDN_RESPONSE_HEADER, X_CDN_HEADER_VALUE);
   }
 
   @Test
@@ -55,7 +63,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       MuxStatsExoPlayer muxStats = testActivity.getMuxStats();
-      int lastRequestEventIndex = 0;
       for (int i = 0; i < manifestDelayList.length; i++) {
         System.out.println("Waiting for segment number: " + i);
         httpServer.setHLSManifestDelay(manifestDelayList[i]);
@@ -65,7 +72,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       }
       testActivity.runOnUiThread(new Runnable() {
         public void run() {
-          long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
           pView.getPlayer().stop();
         }
       });
@@ -78,6 +84,20 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           .getAllEventsOfType(RequestFailed.TYPE);
 
       for (JSONObject requestCompletedJson: requestCompletedEvents) {
+        String headerString = requestCompletedJson
+            .getString(BandwidthMetricData.REQUEST_RESPONSE_HEADERS);
+        JSONObject headersJsonObject = new JSONObject(headerString);
+        String fileNameHeader = headersJsonObject
+            .getString(SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER);
+        boolean expectingManifest = false;
+        int mediaSegmentIndex = 0;
+        if (fileNameHeader.endsWith("m3u8")) {
+          expectingManifest = true;
+        } else {
+          String[] segments = fileNameHeader.split("_");
+          String indexSegment = segments[segments.length - 1];
+          mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
+        }
         SegmentStatistics segmentStat = httpServer.getSegmentStatistics(requestIndex);
         if (segmentStat == null) {
           fail("Failed to obtain segment statistics for index: " + requestIndex
@@ -87,13 +107,21 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         // check the request completed data
         if (requestCompletedJson.has(BandwidthMetricData.REQUEST_TYPE)) {
           if (requestCompletedJson.getString(BandwidthMetricData.REQUEST_TYPE)
-              .equalsIgnoreCase("media")) {
-            checkMediaSegment(requestCompletedEventIndex, requestCompletedJson,
-                requestIndex, qualityLevel);
+              .equalsIgnoreCase("manifest")) {
+            if (!expectingManifest) {
+              fail("Expected requestcompleted event type to be manifest, event: "
+                  + requestCompletedJson.toString());
+            }
+            checkManifestSegment(requestCompletedEventIndex, requestCompletedJson, segmentStat);
           }
           if (requestCompletedJson.getString(BandwidthMetricData.REQUEST_TYPE)
-              .equalsIgnoreCase("manifest")) {
-            checkManifestSegment(requestCompletedEventIndex, requestCompletedJson, segmentStat);
+              .equalsIgnoreCase("media")) {
+            if (expectingManifest) {
+              fail("Expected requestcompleted event type to be media, event: "
+                  + requestCompletedJson.toString());
+            }
+            checkMediaSegment(requestCompletedEventIndex, requestCompletedJson,
+                mediaSegmentIndex, qualityLevel, fileNameHeader);
           }
           // TODO support othere event types
         } else {
@@ -102,10 +130,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         }
         // TODO check request rendition list
         requestIndex++;
-      }
-      if ((requestCompletedEvents.size() + requestFailedEvents.size()) != manifestDelayList.length) {
-        fail("Number of requestCompleted events: " + requestIndex + ", expected nnumber of events: "
-            + manifestDelayList.length);
       }
       // TODO implement request canceled event
       // TODO implement request failed event
@@ -116,14 +140,14 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   private void checkManifestSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
       SegmentStatistics segmentStat) {
-    checkLongValueForEvent(
-        "REQUEST_START", BandwidthMetricData.REQUEST_START,
-        requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentRequestedAt(),
-        ERROR_MARGIN_FOR_STARTUP_TIMESTAMP);
-    checkLongValueForEvent(
-        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
-        requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentRespondedAt(),
-        ERROR_MARGIN_FOR_STARTUP_TIMESTAMP);
+//          checkLongValueForEvent(
+//        "REQUEST_START", BandwidthMetricData.REQUEST_START,
+//        requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentRequestedAt(),
+//        ERROR_MARGIN_FOR_STARTUP_TIMESTAMP);
+//    checkLongValueForEvent(
+//        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
+//        requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentRespondedAt(),
+//        ERROR_MARGIN_FOR_STARTUP_TIMESTAMP);
     checkLongValueForEvent(
         "REQUEST_BYTES_LOADED", BandwidthMetricData.REQUEST_BYTES_LOADED,
         requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentLengthInBytes(),
@@ -131,7 +155,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkMediaSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
-      int requestIndex, int qualityLevel) {
+      int mediaSegmentIndex, int qualityLevel, String segmentUrl) throws Exception {
     checkLongValueForEvent(
         "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
         requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
@@ -139,10 +163,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     checkLongValueForEvent(
         "REQUEST_MEDIA_START_TIME", BandwidthMetricData.REQUEST_MEDIA_START_TIME,
         requestCompletedEventIndex, requestCompletedJson,
-        requestIndex * averageSegmentDuration, ERROR_MARGIN_FOR_STARTUP_TIMESTAMP);
-    // TODO check request_response_headers x-cdn and content-type
-//        String requestHostName = requestCompleted.getString(BandwidthMetricData.REQUEST_HOSTNAME);
-    // See how to implement this, and what it is
+        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_STARTUP_TIMESTAMP);
     checkLongValueForEvent(
         "REQUEST_CURRENT_LEVEL", BandwidthMetricData.REQUEST_CURRENT_LEVEL,
         requestCompletedEventIndex, requestCompletedJson, qualityLevel,
@@ -159,6 +180,60 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         "REQUEST_LABELED_BITRATE", BandwidthMetricData.REQUEST_LABELED_BITRATE,
         requestCompletedEventIndex, requestCompletedJson, videoBitratesByLevel[qualityLevel],
         ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE);
+//    checkLongValueForEvent(
+//        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
+//        requestCompletedEventIndex, requestCompletedJson,
+//        httpServer.getSegmentStatistics(mediaSegmentIndex).getSegmentRequestedAt(),
+//        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+//    checkLongValueForEvent(
+//        "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
+//        requestCompletedEventIndex, requestCompletedJson,
+//        httpServer.getSegmentStatistics(mediaSegmentIndex).getSegmentRespondedAt(),
+//        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
+        requestCompletedEventIndex, requestCompletedJson, segmentUrl);
+    checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
+        requestCompletedEventIndex, requestCompletedJson, "localhost");
+    checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    checkRenditionList(requestCompletedEventIndex, requestCompletedJson);
+  }
+
+  private void checkRenditionList(int requestCompletedEventIndex,
+      JSONObject requestCompletedJson) throws Exception {
+    String renditionLString = requestCompletedJson
+        .getString(BandwidthMetricData.REQUEST_RENDITION_LISTS);
+    JSONArray renditionListJson = new JSONArray(renditionLString);
+//    for (int i = 0; i < renditionListJson.length(); i ++) {
+//      JSONObject renditionJson = renditionListJson.getJSONObject(i);
+//      int renditionWidth = renditionJson.getInt()
+//    }
+  }
+
+  private void checkHeaders(int requestCompletedEventIndex,
+      JSONObject requestCompletedJson, String expectedContentType)
+      throws Exception {
+      String headerString = requestCompletedJson
+          .getString(BandwidthMetricData.REQUEST_RESPONSE_HEADERS);
+      JSONObject headersJsonObject = new JSONObject(headerString);
+      String xCdnHeader = headersJsonObject.getString(SimpleHTTPServer.X_CDN_RESPONSE_HEADER);
+      String contentTypeHeader = headersJsonObject
+          .getString(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER);
+      if (!xCdnHeader.equalsIgnoreCase(X_CDN_HEADER_VALUE)) {
+        failOnHeaderValue(SimpleHTTPServer.X_CDN_RESPONSE_HEADER, xCdnHeader, X_CDN_HEADER_VALUE,
+            requestCompletedEventIndex, requestCompletedJson.toString());
+      }
+      if (!contentTypeHeader.equalsIgnoreCase(expectedContentType)) {
+        failOnHeaderValue(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER, contentTypeHeader,
+            expectedContentType, requestCompletedEventIndex, requestCompletedJson.toString());
+      }
+  }
+
+  private void failOnHeaderValue(String headerName, String headerValue, String expectedValue,
+      int requestIndex, String eventJson) {
+    fail("Wrong value for header: " + headerName
+        + ", we got: " + headerValue + ", we expected: " + expectedValue
+        + ",for eventIndex: " + requestIndex
+        + ",event:\n" + eventJson);
   }
 
   private void checkLongValueForEventIfFieldIsPresent(String fieldName, String jsonKey,
@@ -166,6 +241,20 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       long expectedValue, long errorMargin) {
     if (jo.has(jsonKey)) {
       checkLongValueForEvent(fieldName, jsonKey, eventIndex, jo, expectedValue, errorMargin);
+    }
+  }
+
+  private void checkStringValueForEvent(String fieldName, String jsonKey, int eventIndex,
+      JSONObject jo, String expectedValue) {
+    try {
+      String value = jo.getString(jsonKey);
+      if (!value.contains(expectedValue)) {
+        fail("Expected value for field: " + fieldName + ",expected: " + expectedValue
+            + ",actual value: " + value + ",for eventIndex: " + eventIndex
+            + ",event:\n" + jo.toString());
+      }
+    } catch (JSONException e) {
+      fail("Missing " + fieldName + " for request object with index: " + eventIndex);
     }
   }
 

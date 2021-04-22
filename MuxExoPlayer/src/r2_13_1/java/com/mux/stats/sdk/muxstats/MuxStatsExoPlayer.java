@@ -163,11 +163,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-        loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded,
-        loadEventInfo.responseHeaders);
+    bandwidthDispatcher.onLoadCompleted(loadEventInfo, mediaLoadData);
   }
 
   @Override
@@ -187,9 +183,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       newMediaSegmentStarted.signalAll();
       muxStatsLock.unlock();
     }
-    bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
+    bandwidthDispatcher.onLoadStarted(loadEventInfo, mediaLoadData);
   }
 
   @Override
