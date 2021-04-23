@@ -5,7 +5,6 @@ public class SegmentStatistics {
   String segmentFileName;
   long segmentRequestedAt;
   long segmentRespondedAt;
-  long segmentServedAt;
   long segmentLengthInBytes;
   long segmentVideoWidth;
   long segmentVideoHeight;
@@ -35,14 +34,6 @@ public class SegmentStatistics {
 
   public void setSegmentRespondedAt(long segmentRespondedAt) {
     this.segmentRespondedAt = segmentRespondedAt;
-  }
-
-  public long getSegmentServedAt() {
-    return segmentServedAt;
-  }
-
-  public void setSegmentServedAt(long segmentServedAt) {
-    this.segmentServedAt = segmentServedAt;
   }
 
   public long getSegmentLengthInBytes() {

@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 
 public class ConnectionSender extends Thread {
 
@@ -45,6 +46,7 @@ public class ConnectionSender extends Thread {
   ConnectionListener listener;
   SegmentStatistics segmentStat;
   HashMap<String, String> additionalHeaders = new HashMap<>();
+  String requestUuid;
 
 
   public ConnectionSender(ConnectionListener listener, OutputStream httpOut, int bandwidthLimit,
@@ -134,7 +136,6 @@ public class ConnectionSender extends Thread {
     assetInput.skip(serveDataFromPosition);
     segmentStat.setSegmentFileName(assetName);
     segmentStat.setSegmentLengthInBytes(assetInput.available() - serveDataFromPosition);
-    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
     Log.i(TAG, "Serving file from position: " + serveDataFromPosition + ", remaining bytes: " +
         assetInput.available() + ", total file size: " + assetFileSize);
     if (serveDataFromPosition < assetFileSize) {
@@ -177,6 +178,7 @@ public class ConnectionSender extends Thread {
   }
 
   private void openAssetFile(String assetFile) throws IOException {
+    requestUuid = UUID.randomUUID().toString();
     if (assetInput != null) {
       try {
         assetInput.close();
@@ -213,6 +215,7 @@ public class ConnectionSender extends Thread {
         "Content-Range: bytes */" + assetFileSize + "\r\n" +
         "Content-Type: text/plain\r\n" +
         "Content-Length: 0\r\n" +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
         getAdditionalHeadersAsString() +
         "Connection: close\r\n" +
         "\r\n";
@@ -229,6 +232,7 @@ public class ConnectionSender extends Thread {
         "Content-Type: " + contentType + "; charset=utf-8" + "\r\n" +
         "Content-Length: " + assetFileSize + "\r\n" +
         getAdditionalHeadersAsString() +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
         SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
         "Connection: keep-alive" + "\r\n" +
         "Accept-Ranges: bytes" + "\r\n" +
@@ -236,20 +240,10 @@ public class ConnectionSender extends Thread {
             ("Access-Control-Allow-Origin: " + originHeaderValue + "\r\n" +
                 "Access-Control-Allow-Credentials: true\r\n") : "") +
         "\r\n";
-    // Add asset file content
-//    byte[] assetContent = new byte[(int) assetFileSize];
-//    int bytesRead = assetInput.read(assetContent);
-//    String assetContentStr = new String(assetContent, StandardCharsets.UTF_8);
-//    response = response + assetContentStr + "\r\n\r\n";
-//
-//    Log.w(TAG, "Sending response: \n" + response);
-//    writer.write(response);
-//    writer.flush();
-
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
-//    BufferedReader reader = new BufferedReader(new InputStreamReader(assetInput));
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
     int staticBuffSize = 200000;
     byte[] staticBuff = new byte[staticBuffSize];
     while(true) {
@@ -262,10 +256,10 @@ public class ConnectionSender extends Thread {
         break;
       }
     }
-    writer.write("/r/n/r/n");
+    writer.write("\r\n\r\n");
     writer.flush();
 
-    listener.segmentServed(segmentStat);
+    listener.segmentServed(requestUuid, segmentStat);
     segmentStat = new SegmentStatistics();
   }
 
@@ -285,12 +279,14 @@ public class ConnectionSender extends Thread {
         // content length should be total length - requested byte position
         "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
         SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
+        SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
         getAdditionalHeadersAsString() +
         "Connection: close\r\n\r\n";
 
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
   }
 
   private String getAdditionalHeadersAsString() {
@@ -326,8 +322,8 @@ public class ConnectionSender extends Thread {
       // EOF reached
       Log.e(TAG, "EOF reached !!!");
       isRunning = false;
-      segmentStat.setSegmentServedAt(System.currentTimeMillis());
-      listener.segmentServed(segmentStat);
+      segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+      listener.segmentServed(requestUuid, segmentStat);
       segmentStat = new SegmentStatistics();
       return;
     }

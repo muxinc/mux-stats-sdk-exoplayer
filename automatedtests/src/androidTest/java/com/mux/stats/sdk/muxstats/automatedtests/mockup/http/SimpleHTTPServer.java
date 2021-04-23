@@ -15,8 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class SimpleHTTPServer extends Thread implements ConnectionListener {
 
   public static String FILE_NAME_RESPONSE_HEADER = "Automated-Test-File-Name";
-  public static String REQUEST_START_RESPONSE_HEADER = "Automated-Test-File-Name";
-  public static String REQUEST_END_RESPONSE_HEADER = "Automated-Test-File-Name";
+  public static String REQUEST_UUID_HEADER = "Request-segment-uuid";
   public static String X_CDN_RESPONSE_HEADER = "x-cdn";
   public static String CONTENT_TYPE_RESPONSE_HEADER = "Content-Type";
 
@@ -29,11 +28,10 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   private boolean constantJam = false;
   private long manifestDelay = 0;
   HashMap<String, String> additionalHeaders = new HashMap<>();
+  HashMap<String, SegmentStatistics> segmentsServed = new HashMap<>();
 
   private final ServerSocket server;
   LinkedBlockingDeque<ConnectionWorker> workers = new LinkedBlockingDeque<>();
-  // TODO sort this according to the stream connections
-  ArrayList<SegmentStatistics> segmentsServed = new ArrayList<>();
 
   Lock serverLock = new ReentrantLock();
   Condition serverDied = serverLock.newCondition();
@@ -56,11 +54,8 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
     seekLatency = latency;
   }
 
-  public SegmentStatistics getSegmentStatistics(int segmentIndex) {
-    if (segmentIndex < segmentsServed.size()) {
-      return segmentsServed.get(segmentIndex);
-    }
-    return null;
+  public SegmentStatistics getSegmentStatistics(String segmentUuid) {
+    return segmentsServed.get(segmentUuid);
   }
 
   public void jamNetwork(long jamPeriod, int jamFactor, boolean constantJam) {
@@ -131,7 +126,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   }
 
   @Override
-  public void segmentServed(SegmentStatistics segmentStat) {
-    segmentsServed.add(segmentStat);
+  public void segmentServed(String requestUuid, SegmentStatistics segmentStat) {
+    segmentsServed.put(requestUuid, segmentStat);
   }
 }

@@ -86,7 +86,7 @@ public class ConnectionWorker extends Thread implements ConnectionListener{
   }
 
   @Override
-  public void segmentServed(SegmentStatistics segmentStat) {
-    listener.segmentServed(segmentStat);
+  public void segmentServed(String requestUuid, SegmentStatistics segmentStat) {
+    listener.segmentServed(requestUuid, segmentStat);
   }
 }
