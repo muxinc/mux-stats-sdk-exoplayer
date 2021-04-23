@@ -172,6 +172,7 @@ public class ConnectionSender extends Thread {
       } catch (IOException e) {
         e.printStackTrace();
         Log.e(TAG, "Connection closed by the client !!!");
+        listener.segmentServed(requestUuid, segmentStat);
         isRunning = false;
       }
     }
@@ -222,6 +223,8 @@ public class ConnectionSender extends Thread {
     Log.i(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
+    listener.segmentServed(requestUuid, segmentStat);
   }
 
   public void sendHTTPOKCompleteResponse(String contentType) throws IOException {
@@ -243,7 +246,6 @@ public class ConnectionSender extends Thread {
     Log.w(TAG, "Sending response: \n" + response);
     writer.write(response);
     writer.flush();
-    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
     int staticBuffSize = 200000;
     byte[] staticBuff = new byte[staticBuffSize];
     while(true) {
@@ -258,7 +260,7 @@ public class ConnectionSender extends Thread {
     }
     writer.write("\r\n\r\n");
     writer.flush();
-
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
     listener.segmentServed(requestUuid, segmentStat);
     segmentStat = new SegmentStatistics();
   }
@@ -316,7 +318,7 @@ public class ConnectionSender extends Thread {
       }
       bytesToRead = (int) ((double) bytesToRead / (double) jamFactor);
     }
-
+    segmentStat.setSegmentRespondedAt(System.currentTimeMillis());
     int bytesRead = assetInput.read(transferBuffer, 0, bytesToRead);
     if (bytesRead == -1) {
       // EOF reached

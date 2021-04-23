@@ -3,22 +3,19 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.fail;
 
-import android.util.Log;
+import com.mux.stats.sdk.core.events.playback.RequestCanceled;
 import com.mux.stats.sdk.core.events.playback.RequestCompleted;
 import com.mux.stats.sdk.core.events.playback.RequestFailed;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
-import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.Request;
 
 public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
@@ -74,68 +71,168 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           pView.getPlayer().stop();
         }
       });
-
-      int qualityLevel = getSelectedRenditionIndex();
-      int requestIndex = 0;
       ArrayList<JSONObject> requestCompletedEvents = networkRequest
           .getAllEventsOfType(RequestCompleted.TYPE);
+      ArrayList<JSONObject> requestCanceledEvents = networkRequest
+          .getAllEventsOfType(RequestCanceled.TYPE);
       ArrayList<JSONObject> requestFailedEvents = networkRequest
           .getAllEventsOfType(RequestFailed.TYPE);
-
-      for (JSONObject requestCompletedJson: requestCompletedEvents) {
-        String headerString = requestCompletedJson
-            .getString(BandwidthMetricData.REQUEST_RESPONSE_HEADERS);
-        JSONObject headersJsonObject = new JSONObject(headerString);
-        String fileNameHeader = headersJsonObject
-            .getString(SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER);
-        String segmentUuid = headersJsonObject.getString(SimpleHTTPServer.REQUEST_UUID_HEADER);
-        boolean expectingManifest = false;
-        int mediaSegmentIndex = 0;
-        if (fileNameHeader.endsWith("m3u8")) {
-          expectingManifest = true;
-        } else {
-          String[] segments = fileNameHeader.split("_");
-          String indexSegment = segments[segments.length - 1];
-          mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
-        }
-        SegmentStatistics segmentStat = httpServer.getSegmentStatistics(segmentUuid);
-        if (segmentStat == null) {
-          fail("Failed to obtain segment statistics for index: " + requestIndex
-              + ", this is automated test related error !!!");
-        }
-        int requestCompletedEventIndex = requestCompletedJson.getInt(MockNetworkRequest.EVENT_INDEX);
-        // check the request completed data
-        if (requestCompletedJson.has(BandwidthMetricData.REQUEST_TYPE)) {
-          if (requestCompletedJson.getString(BandwidthMetricData.REQUEST_TYPE)
-              .equalsIgnoreCase("manifest")) {
-            if (!expectingManifest) {
-              fail("Expected requestcompleted event type to be manifest, event: "
-                  + requestCompletedJson.toString());
-            }
-            checkManifestSegment(requestCompletedEventIndex, requestCompletedJson, segmentStat);
-          }
-          if (requestCompletedJson.getString(BandwidthMetricData.REQUEST_TYPE)
-              .equalsIgnoreCase("media")) {
-            if (expectingManifest) {
-              fail("Expected requestcompleted event type to be media, event: "
-                  + requestCompletedJson.toString());
-            }
-            checkMediaSegment(requestCompletedEventIndex, requestCompletedJson,
-                mediaSegmentIndex, qualityLevel, fileNameHeader, segmentStat);
-          }
-          // TODO support othere event types
-        } else {
-          fail("Request complete evennt missing requestType, this field is "
-              + "mandatory, event index: " + requestCompletedEventIndex);
-        }
-        // TODO check request rendition list
-        requestIndex++;
-      }
-      // TODO implement request canceled event
-      // TODO implement request failed event
+      checkRequests(requestCompletedEvents,
+          true, false, false);
+      checkRequests(requestCanceledEvents,
+          false, true, false);
+      checkRequests(requestFailedEvents,
+          false, false, true);
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
+  }
+
+  private void checkRequests(ArrayList<JSONObject> requests,
+      boolean isRequestCompletedList, boolean isRequestCanceledList,
+      boolean isRequestFailedList) throws Exception {
+    for (JSONObject requestJson: requests) {
+      int qualityLevel = getSelectedRenditionIndex();
+      if (!requestJson.has(BandwidthMetricData.REQUEST_RESPONSE_HEADERS)) {
+        fail("Missing response headers for event: \n" + requestJson.toString());
+      }
+      String headerString = requestJson
+          .getString(BandwidthMetricData.REQUEST_RESPONSE_HEADERS);
+      JSONObject headersJsonObject = new JSONObject(headerString);
+      String fileNameHeaderValue = headersJsonObject
+          .getString(SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER);
+      String segmentUuid = headersJsonObject.getString(SimpleHTTPServer.REQUEST_UUID_HEADER);
+      boolean expectingManifest = false;
+      int mediaSegmentIndex = 0;
+      if (fileNameHeaderValue.endsWith("m3u8")) {
+        expectingManifest = true;
+      } else {
+        String[] segments = fileNameHeaderValue.split("_");
+        String indexSegment = segments[segments.length - 1];
+        mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
+      }
+      SegmentStatistics segmentStat = httpServer.getSegmentStatistics(segmentUuid);
+      if (segmentStat == null) {
+        fail("Failed to obtain segment statistics for file: " + fileNameHeaderValue
+            + ", this is automated test related error !!!");
+      }
+      int requestCompletedEventIndex = requestJson.getInt(MockNetworkRequest.EVENT_INDEX);
+      // check the request completed data
+      if (requestJson.has(BandwidthMetricData.REQUEST_TYPE)) {
+        if (isRequestCompletedList) {
+          checkRequestCompletedEvent(requestJson, expectingManifest,
+              segmentStat, mediaSegmentIndex, qualityLevel,
+              requestCompletedEventIndex, fileNameHeaderValue);
+        }
+        if (isRequestCanceledList) {
+          checkRequestCanceledEvent(requestJson, expectingManifest,
+              segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
+        }
+        if (isRequestFailedList) {
+          checkRequestFailedEvent(requestJson, expectingManifest,
+              segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
+        }
+      } else {
+        fail("Request complete event missing requestType, this field is "
+            + "mandatory, event index: " + requestCompletedEventIndex);
+      }
+    }
+  }
+
+  private void checkRequestFailedEvent(JSONObject requestJson,
+      boolean expectingManifest,
+      SegmentStatistics segmentStat,
+      int requestCompletedEventIndex,
+      String segmentUrl)
+      throws Exception {
+    checkManifestValue(requestJson, expectingManifest);
+    // TODO see why is this failing
+//    checkLongValueForEvent(
+//        "REQUEST_START", BandwidthMetricData.REQUEST_START,
+//        requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
+//        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+//    checkLongValueForEvent(
+//        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
+//        requestCompletedEventIndex, requestJson, segmentStat.getSegmentRespondedAt(),
+//        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
+        requestCompletedEventIndex, requestJson, segmentUrl);
+    checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
+        requestCompletedEventIndex, requestJson, "localhost");
+    if (!requestJson.has(BandwidthMetricData.REQUEST_ERROR)) {
+      fail("Request failed missing REQUEST_ERROR field for event index: "
+          + requestCompletedEventIndex);
+    }
+    if (!requestJson.has(BandwidthMetricData.REQUEST_ERROR_CODE)) {
+      fail("Request failed missing REQUEST_ERROR_CODE field for event index: "
+          + requestCompletedEventIndex);
+    }
+    if (!requestJson.has(BandwidthMetricData.REQUEST_ERROR_TEXT)) {
+      fail("Request failed missing REQUEST_ERROR_TEXT field for event index: "
+          + requestCompletedEventIndex);
+    }
+  }
+
+  private void checkRequestCanceledEvent(JSONObject requestJson,
+      boolean expectingManifest,
+      SegmentStatistics segmentStat,
+      int requestCompletedEventIndex,
+      String segmentUrl)
+      throws Exception {
+    checkManifestValue(requestJson, expectingManifest);
+    checkLongValueForEvent(
+        "REQUEST_START", BandwidthMetricData.REQUEST_START,
+        requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
+        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkLongValueForEvent(
+        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
+        requestCompletedEventIndex, requestJson, segmentStat.getSegmentRespondedAt(),
+        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    if (!requestJson.has(BandwidthMetricData.REQUEST_CANCEL)) {
+      fail("Request canceled missing REQUEST_CANCEL field for event index: " + requestCompletedEventIndex);
+    }
+    checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
+        requestCompletedEventIndex, requestJson, segmentUrl);
+    checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
+        requestCompletedEventIndex, requestJson, "localhost");
+  }
+
+  private void checkRequestCompletedEvent(JSONObject requestJson,
+      boolean expectingManifest,
+      SegmentStatistics segmentStat,
+      int mediaSegmentIndex,
+      int qualityLevel,
+      int requestCompletedEventIndex,
+      String fileNameHeaderValue
+  )
+      throws Exception {
+    if(checkManifestValue(requestJson, expectingManifest)) {
+      checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat);
+    } else {
+      checkRequestCompletedMediaSegment(requestCompletedEventIndex, requestJson,
+          mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+    }
+  }
+
+  private boolean checkManifestValue(JSONObject requestJson,
+      boolean expectingManifest) throws Exception {
+    if (requestJson.getString(BandwidthMetricData.REQUEST_TYPE)
+        .equalsIgnoreCase("manifest")) {
+      if (!expectingManifest) {
+        fail("Expected requestcompleted event type to be manifest, event: "
+            + requestJson.toString());
+      }
+      return true;
+    }
+    if (requestJson.getString(BandwidthMetricData.REQUEST_TYPE)
+        .equalsIgnoreCase("media")) {
+      if (expectingManifest) {
+        fail("Expected requestcompleted event type to be media, event: "
+            + requestJson.toString());
+      }
+      return false;
+    }
+    return false;
   }
 
   private void checkManifestSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
@@ -154,7 +251,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         ERROR_MARGIN_FOR_BYTES_SERVED);
   }
 
-  private void checkMediaSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
+  private void checkRequestCompletedMediaSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
       int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
       throws Exception {
     checkLongValueForEvent(

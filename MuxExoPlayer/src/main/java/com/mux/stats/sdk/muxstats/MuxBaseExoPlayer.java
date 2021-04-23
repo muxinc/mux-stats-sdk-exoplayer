@@ -790,38 +790,29 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     TrackGroupArray availableTracks;
     HashMap<String, BandwidthMetricData> loadedSegments = new HashMap<>();
 
-    public BandwidthMetricData onLoadError(DataSpec dataSpec, int dataType, IOException e) {
-      BandwidthMetricData loadData = new BandwidthMetricData();
-      loadData.setRequestError(e.toString());
-      if (dataSpec != null && dataSpec.uri != null) {
-        loadData.setRequestUrl(dataSpec.uri.toString());
-        loadData.setRequestHostName(dataSpec.uri.getHost());
+    public BandwidthMetricData onLoadError(LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData, IOException e) {
+      BandwidthMetricData segmentData = loadedSegments.get(loadEventInfo.uri.getPath());
+      if (segmentData == null) {
+        segmentData = new BandwidthMetricData();
+        Log.e(TAG, "We should see how to put minimal stats here !!!");
       }
-      switch (dataType) {
-        case C.DATA_TYPE_MANIFEST:
-          loadData.setRequestType("manifest");
-          break;
-        case C.DATA_TYPE_MEDIA:
-          loadData.setRequestType("media");
-          break;
-        default:
-          return null;
-      }
-      loadData.setRequestErrorCode(null);
-      loadData.setRequestErrorText(e.getMessage());
-      return loadData;
+      segmentData.setRequestError(e.toString());
+      // TODO see what error codes are
+      segmentData.setRequestErrorCode(-1);
+      segmentData.setRequestErrorText(e.getMessage());
+      return segmentData;
     }
 
-    public BandwidthMetricData onLoadCanceled(DataSpec dataSpec) {
-      BandwidthMetricData loadData = new BandwidthMetricData();
-      loadData.setRequestCancel("genericLoadCanceled");
-      if (dataSpec != null && dataSpec.uri != null) {
-        loadData.setRequestUrl(dataSpec.uri.toString());
-        loadData.setRequestHostName(dataSpec.uri.getHost());
+    public BandwidthMetricData onLoadCanceled(LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData) {
+      BandwidthMetricData segmentData = loadedSegments.get(loadEventInfo.uri.getPath());
+      if (segmentData == null) {
+        segmentData = new BandwidthMetricData();
+        Log.e(TAG, "We should see how to put minimal stats here !!!");
       }
-      loadData.setRequestType("media");
-      loadedSegments.remove(dataSpec.uri.getPath());
-      return loadData;
+      segmentData.setRequestCancel("genericLoadCanceled");
+      return segmentData;
     }
 
     protected BandwidthMetricData onLoad(LoadEventInfo loadEventInfo,
@@ -844,9 +835,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           return null;
       }
       segmentData.setRequestResponseHeaders(null);
-      if (loadEventInfo.dataSpec != null && loadEventInfo.dataSpec.uri != null) {
-        segmentData.setRequestHostName(loadEventInfo.dataSpec.uri.getHost());
-      }
+      segmentData.setRequestHostName(loadEventInfo.dataSpec.uri.getHost());
       if (mediaLoadData.dataType == C.DATA_TYPE_MEDIA) {
         segmentData.setRequestMediaDuration(mediaLoadData.mediaEndTimeMs
             - mediaLoadData.mediaStartTimeMs);
@@ -901,14 +890,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   class BandwidthMetricHls extends BandwidthMetric {
 
     @Override
-    public BandwidthMetricData onLoadError(DataSpec dataSpec, int dataType, IOException e) {
-      BandwidthMetricData loadData = super.onLoadError(dataSpec, C.DATA_TYPE_MEDIA, e);
+    public BandwidthMetricData onLoadError(LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData, IOException e) {
+      BandwidthMetricData loadData = super.onLoadError(loadEventInfo, mediaLoadData, e);
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCanceled(DataSpec dataSpec) {
-      BandwidthMetricData loadData = super.onLoadCanceled(dataSpec);
+    public BandwidthMetricData onLoadCanceled(LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData) {
+      BandwidthMetricData loadData = super.onLoadCanceled(loadEventInfo, mediaLoadData);
       loadData.setRequestCancel("hlsFragLoadEmergencyAborted");
       return loadData;
     }
@@ -949,22 +940,26 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return bandwidthMetricHls;
     }
 
-    public void onLoadError(DataSpec dataSpec, int dataType, IOException e) {
+    public void onLoadError(LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData, IOException e) {
       Log.e(TAG, "onLoadError");
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(dataSpec, dataType, e);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(loadEventInfo, mediaLoadData, e);
       dispatch(loadData, new RequestFailed(null));
     }
 
-    public void onLoadCanceled(DataSpec dataSpec) {
+    public void onLoadCanceled(LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(dataSpec);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(
+          loadEventInfo, mediaLoadData);
+      parseHeaders(loadData, loadEventInfo);
       dispatch(loadData, new RequestCanceled(null));
     }
 
@@ -985,7 +980,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
       BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(loadEventInfo,
           mediaLoadData);
-      // Only append this data if we have some load data going on already
+      parseHeaders(loadData, loadEventInfo);
+      dispatch(loadData, new RequestCompleted(null));
+    }
+
+    private void parseHeaders(BandwidthMetricData loadData, LoadEventInfo loadEventInfo) {
       if (loadData != null && loadEventInfo.responseHeaders != null) {
         Hashtable<String, String> headers = parseHeaders(loadEventInfo.responseHeaders);
 
@@ -993,10 +992,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           loadData.setRequestResponseHeaders(headers);
         }
       } else {
-        Log.i(TAG, "What happend !!!");
+        Log.i(TAG, "No headers found for segment !!!");
       }
-
-      dispatch(loadData, new RequestCompleted(null));
     }
 
     public void onTracksChanged(TrackGroupArray trackGroups) {
