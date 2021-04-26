@@ -38,7 +38,7 @@ import org.junit.rules.TestName;
 
 public abstract class TestBase {
 
-  static final String TAG = "TestBase";
+  static final String TAG = "MuxStats";
 
   @Rule
   public ActivityTestRule<SimplePlayerTestActivity> activityRule =

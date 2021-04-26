@@ -145,7 +145,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   // Note: onLoadingChanged was deprecated and moved to onIsLoadingChanged in 2.12.0
   @Override
   public void onIsLoadingChanged(AnalyticsListener.EventTime eventTime, boolean isLoading) {
-    onIsLoadingChanged(isLoading);
   }
 
   @Override

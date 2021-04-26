@@ -795,12 +795,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       BandwidthMetricData segmentData = loadedSegments.get(loadEventInfo.uri.getPath());
       if (segmentData == null) {
         segmentData = new BandwidthMetricData();
-        Log.e(TAG, "We should see how to put minimal stats here !!!");
+        // TODO We should see how to put minimal stats here !!!
       }
       segmentData.setRequestError(e.toString());
       // TODO see what error codes are
       segmentData.setRequestErrorCode(-1);
       segmentData.setRequestErrorText(e.getMessage());
+      segmentData.setRequestResponseEnd(System.currentTimeMillis());
       return segmentData;
     }
 
@@ -809,9 +810,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       BandwidthMetricData segmentData = loadedSegments.get(loadEventInfo.uri.getPath());
       if (segmentData == null) {
         segmentData = new BandwidthMetricData();
-        Log.e(TAG, "We should see how to put minimal stats here !!!");
+        // TODO We should see how to put minimal stats here !!!
       }
       segmentData.setRequestCancel("genericLoadCanceled");
+      segmentData.setRequestResponseEnd(System.currentTimeMillis());
       return segmentData;
     }
 
@@ -819,7 +821,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MediaLoadData mediaLoadData) {
       BandwidthMetricData segmentData = new BandwidthMetricData();
       segmentData = new BandwidthMetricData();
+      // TODO I have no idea how to get this data
       segmentData.setRequestStart(System.currentTimeMillis());
+      segmentData.setRequestResponseStart(System.currentTimeMillis());
       segmentData.setRequestMediaStartTime(mediaLoadData.mediaStartTimeMs);
       segmentData.setRequestVideoWidth(sourceWidth);
       segmentData.setRequestVideoHeight(sourceHeight);
@@ -866,9 +870,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         MediaLoadData mediaLoadData) {
       BandwidthMetricData segmentData = loadedSegments.get(loadEventInfo.uri.getPath());
       segmentData.setRequestBytesLoaded(loadEventInfo.bytesLoaded);
-      if (segmentData != null) {
-        segmentData.setRequestResponseEnd(System.currentTimeMillis());
-      }
+      segmentData.setRequestResponseEnd(System.currentTimeMillis());
       if (mediaLoadData.trackFormat != null && availableTracks != null) {
         for (int i = 0; i < availableTracks.length; i ++) {
           TrackGroup tracks = availableTracks.get(i);
@@ -942,7 +944,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     public void onLoadError(LoadEventInfo loadEventInfo,
         MediaLoadData mediaLoadData, IOException e) {
-      Log.e(TAG, "onLoadError");
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;

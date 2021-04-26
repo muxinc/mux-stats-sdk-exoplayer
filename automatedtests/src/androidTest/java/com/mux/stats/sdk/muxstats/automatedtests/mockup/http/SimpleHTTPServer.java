@@ -18,6 +18,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   public static String REQUEST_UUID_HEADER = "Request-segment-uuid";
   public static String X_CDN_RESPONSE_HEADER = "x-cdn";
   public static String CONTENT_TYPE_RESPONSE_HEADER = "Content-Type";
+  public static String REQUEST_NETWORK_DELAY_HEADER = "Request-Delay";
 
   private boolean isRunning;
   private final int port;

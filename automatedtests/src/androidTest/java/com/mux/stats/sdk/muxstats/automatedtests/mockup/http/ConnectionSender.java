@@ -114,7 +114,7 @@ public class ConnectionSender extends Thread {
     boolean acceptRangeHeader = true;
     String contentType = "video/mp4";
     segmentStat.setSegmentRequestedAt(System.currentTimeMillis());
-    // Delay x seconds serving of request
+    // Delay x milly seconds serving of request
     Thread.sleep(networkRequestDelay);
     if (assetName.contains(".xml")) {
       contentType = "text/xml";
@@ -217,6 +217,7 @@ public class ConnectionSender extends Thread {
         "Content-Type: text/plain\r\n" +
         "Content-Length: 0\r\n" +
         SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
         getAdditionalHeadersAsString() +
         "Connection: close\r\n" +
         "\r\n";
@@ -237,6 +238,7 @@ public class ConnectionSender extends Thread {
         getAdditionalHeadersAsString() +
         SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
         SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
         "Connection: keep-alive" + "\r\n" +
         "Accept-Ranges: bytes" + "\r\n" +
         (originHeaderValue.length() > 0 ?
@@ -282,6 +284,7 @@ public class ConnectionSender extends Thread {
         "Content-Length: " + (assetFileSize - this.serveDataFromPosition) + "\r\n" +
         SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER + ": " + assetName + "\r\n" +
         SimpleHTTPServer.REQUEST_UUID_HEADER + ": " + requestUuid + "\r\n" +
+        SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER + ": " + networkRequestDelay + "\r\n" +
         getAdditionalHeadersAsString() +
         "Connection: close\r\n\r\n";
 
