@@ -155,14 +155,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCanceled(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCanceled(loadEventInfo, mediaLoadData);
+    bandwidthDispatcher.onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
   }
 
   @Override
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo, mediaLoadData);
+    bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+        mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
   }
 
   @Override
@@ -170,19 +171,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo, mediaLoadData, e);
+    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
   }
 
   @Override
   public void onLoadStarted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    if (mediaLoadData.dataType == C.DATA_TYPE_MANIFEST || mediaLoadData.dataType == C.DATA_TYPE_MEDIA) {
-      muxStatsLock.lock();
-      newMediaSegmentStarted.signalAll();
-      muxStatsLock.unlock();
-    }
-    bandwidthDispatcher.onLoadStarted(loadEventInfo, mediaLoadData);
+    bandwidthDispatcher.onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+        loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
   }
 
   @Override

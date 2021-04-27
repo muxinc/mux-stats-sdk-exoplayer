@@ -52,6 +52,10 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     super.init();
     httpServer.setHLSManifestDelay(manifestDelayList[0]);
     httpServer.setAdditionalHeader(SimpleHTTPServer.X_CDN_RESPONSE_HEADER, X_CDN_HEADER_VALUE);
+    // Allow parsing of these headers, we need it for test
+    testActivity.allowHeaderToBeSentToBackend(SimpleHTTPServer.FILE_NAME_RESPONSE_HEADER);
+    testActivity.allowHeaderToBeSentToBackend(SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER);
+    testActivity.allowHeaderToBeSentToBackend(SimpleHTTPServer.REQUEST_UUID_HEADER);
   }
 
   @Test
@@ -64,7 +68,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       for (int i = 0; i < manifestDelayList.length; i++) {
         System.out.println("Waiting for segment number: " + i);
         httpServer.setHLSManifestDelay(manifestDelayList[i]);
-        if (!muxStats.waitForNextSegmentToLoad(waitForPlaybackToStartInMS * 3)) {
+        if (!httpServer.waitForNextSegmentToLoad(waitForPlaybackToStartInMS * 3)) {
           fail("HLS playback segment did not start in " + waitForPlaybackToStartInMS + " ms !!!");
         }
       }

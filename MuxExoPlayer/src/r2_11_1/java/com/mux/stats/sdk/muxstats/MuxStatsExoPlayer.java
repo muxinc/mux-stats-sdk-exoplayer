@@ -155,27 +155,23 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadStarted(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
+    bandwidthDispatcher.onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+        loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
   }
 
   @Override
   public void onLoadCompleted(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-        loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded,
-        loadEventInfo.responseHeaders);
+    bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+        mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
   }
 
   @Override
   public void onLoadCanceled(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCanceled(loadEventInfo.dataSpec);
+    bandwidthDispatcher.onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
   }
 
   @Override
@@ -183,7 +179,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo.dataSpec, mediaLoadData.dataType, e);
+    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
   }
 
   @Override

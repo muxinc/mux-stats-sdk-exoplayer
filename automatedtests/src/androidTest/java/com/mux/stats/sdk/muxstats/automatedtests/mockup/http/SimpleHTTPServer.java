@@ -36,6 +36,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
 
   Lock serverLock = new ReentrantLock();
   Condition serverDied = serverLock.newCondition();
+  Condition newMediaSegmentStarted = serverLock.newCondition();
 
   /*
    * Run a server on localhost:port
@@ -46,6 +47,19 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
     server = new ServerSocket(port);
     seekLatency = 0;
     start();
+  }
+
+  // Used in automated tests
+  public boolean waitForNextSegmentToLoad(long timeoutInMs) {
+    try {
+      serverLock.lock();
+      return newMediaSegmentStarted.await(timeoutInMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      serverLock.unlock();
+    }
   }
 
   /*
@@ -129,5 +143,8 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
   @Override
   public void segmentServed(String requestUuid, SegmentStatistics segmentStat) {
     segmentsServed.put(requestUuid, segmentStat);
+    serverLock.lock();
+    newMediaSegmentStarted.signalAll();
+    serverLock.unlock();
   }
 }
