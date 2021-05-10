@@ -29,6 +29,9 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://mux.jfrog.io/artifactory/default-maven-local"
+        }
     }
 
     tasks.withType(JavaCompile) {
