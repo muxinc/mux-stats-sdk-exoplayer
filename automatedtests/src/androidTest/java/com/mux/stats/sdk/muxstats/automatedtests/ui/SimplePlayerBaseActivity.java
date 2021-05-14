@@ -44,6 +44,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
+
     PlaybackPreparer, Player.EventListener {
 
   static final String TAG = "SimplePlayerActivity";
@@ -63,11 +64,13 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   MuxStatsExoPlayer muxStats;
   AdsLoader adsLoader;
   Uri loadedAdTagUri;
+  boolean playWhenReady = true;
   MockNetworkRequest mockNetwork;
   AtomicBoolean onResumedCalled = new AtomicBoolean(false);
   PlayerNotificationManager notificationManager;
   MediaSessionCompat mediaSessionCompat;
   MediaSessionConnector mediaSessionConnector;
+  long playbackStartPosition = 0;
 
   Lock activityLock = new ReentrantLock();
   Condition playbackEnded = activityLock.newCondition();
@@ -128,6 +131,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
   public abstract void startPlayback();
 
+  public void setPlayWhenReady(boolean playWhenReady) {
+    this.playWhenReady = playWhenReady;
+  }
+
   public void setVideoTitle(String title) {
     videoTitle = title;
   }
@@ -144,6 +151,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     return trackSelector;
   }
 
+  public void setPlaybackStartPosition(long position) {
+    playbackStartPosition = position;
+  }
 
   public void releaseExoPlayer() {
     player.release();

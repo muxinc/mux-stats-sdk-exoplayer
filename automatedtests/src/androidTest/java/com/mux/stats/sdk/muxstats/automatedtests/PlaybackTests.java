@@ -12,6 +12,8 @@ import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
+import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.R;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,9 +24,61 @@ import org.junit.runner.RunWith;
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
 @RunWith(AndroidJUnit4.class)
-public class PlaybackTests extends SeekingTestBase {
+public class PlaybackTests extends TestBase {
 
   public static final String TAG = "playbackTest";
+  static final String secondVideoToPlayUrl = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+
+  @Test
+  public void testVideoChange() {
+    testVideoChange(false, true);
+  }
+
+  @Test
+  public void testProgramChange() {
+    testVideoChange(true, false);
+  }
+
+  public void testVideoChange(boolean programChange, boolean videoChange) {
+    try {
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+        fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+      }
+      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      // Video started, do video change, we expect to see fake rebufferstart
+      testActivity.runOnUiThread(new Runnable() {
+        public void run() {
+          testActivity.setUrlToPlay(secondVideoToPlayUrl);
+          CustomerVideoData customerVideoData = new CustomerVideoData();
+          customerVideoData.setVideoTitle(BuildConfig.FLAVOR + "-" + currentTestName.getMethodName()
+              + "_title_2");
+          MuxStatsExoPlayer muxStats = testActivity.getMuxStats();
+          if (videoChange) {
+            muxStats.videoChange(customerVideoData);
+          }
+          if (programChange) {
+            muxStats.programChange(customerVideoData);
+          }
+          testActivity.startPlayback();
+        }
+      });
+      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      int rebufferStartEventIndex = 0;
+      int rebufferEndEventIndex;
+      while ((rebufferStartEventIndex = networkRequest.getIndexForNextEvent(
+          rebufferStartEventIndex, RebufferStartEvent.TYPE)) != -1) {
+        rebufferEndEventIndex = networkRequest.getIndexForNextEvent(rebufferStartEventIndex,
+            RebufferEndEvent.TYPE);
+        if (rebufferEndEventIndex == -1) {
+          fail("We have rebuffer start event at position: " + rebufferStartEventIndex
+              + ",without matching rebuffer end event, events: "
+              + networkRequest.getReceivedEventNames());
+        }
+      }
+    } catch (Exception e) {
+      fail(getExceptionFullTraceAndMessage(e));
+    }
+  }
 
   @Test
   public void testEndEvents() {
@@ -60,19 +114,6 @@ public class PlaybackTests extends SeekingTestBase {
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
-  }
-
-  /*
-   * Test Seeking, event order
-   */
-  @Test
-  public void testSeekingWhilePausedVideoAndAudio() {
-    testSeekingWhilePaused();
-  }
-
-  @Test
-  public void testSeekingWhilePlayingVideoAndAudio() {
-    testSeekingWhilePlaying();
   }
 
   /*

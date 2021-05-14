@@ -1,5 +1,19 @@
 # Release notes
 
+## v2.4.9
+ - Updated the Mux Core library, added support for bandwidth metrics.
+
+## v2.4.8
+ - Reset internal state when calling videochange, fixing an issue where rebuffering may be reported incorrectly after calling videochange. (#107)
+
+## v2.4.7
+ - Use playWhenReady and playbackStartPosition in Exoplayer r2.13 test. (#105)
+
+## v2.4.6
+ - Fix for use case when playback starts with the seek. (#99)
+ - Upgrade MuxCore to 6.3.0, which includes:
+   - Reset error-tracking state when loading a new video.
+
 ## v2.4.5
  - Added support for Exoplayer version 2.13.1 (#98)
 

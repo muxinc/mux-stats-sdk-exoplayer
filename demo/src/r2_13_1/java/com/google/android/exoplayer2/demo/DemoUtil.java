@@ -75,12 +75,18 @@ public final class DemoUtil {
 
   private static DataSource.@MonotonicNonNull Factory dataSourceFactory;
   private static HttpDataSource.@MonotonicNonNull Factory httpDataSourceFactory;
-  private static @MonotonicNonNull DatabaseProvider databaseProvider;
-  private static @MonotonicNonNull File downloadDirectory;
-  private static @MonotonicNonNull Cache downloadCache;
-  private static @MonotonicNonNull DownloadManager downloadManager;
-  private static @MonotonicNonNull DownloadTracker downloadTracker;
-  private static @MonotonicNonNull DownloadNotificationHelper downloadNotificationHelper;
+  private static @MonotonicNonNull
+  DatabaseProvider databaseProvider;
+  private static @MonotonicNonNull
+  File downloadDirectory;
+  private static @MonotonicNonNull
+  Cache downloadCache;
+  private static @MonotonicNonNull
+  DownloadManager downloadManager;
+  private static @MonotonicNonNull
+  DownloadTracker downloadTracker;
+  private static @MonotonicNonNull
+  DownloadNotificationHelper downloadNotificationHelper;
 
   /**
    * Returns whether extension renderers should be used.

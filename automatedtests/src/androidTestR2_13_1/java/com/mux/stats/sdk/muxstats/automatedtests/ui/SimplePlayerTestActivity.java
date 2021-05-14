@@ -144,7 +144,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
 
 
   private AdsLoader getAdsLoader(AdsConfiguration adsConfiguration) {
-    if ( adsConfiguration != null && adsConfiguration.adTagUri != null ) {
+    if (adsConfiguration != null && adsConfiguration.adTagUri != null) {
       Uri adTagUri = adsConfiguration.adTagUri;
       if (!adTagUri.equals(loadedAdTagUri)) {
         releaseAdsLoader();
@@ -178,8 +178,9 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
       testMediaSource = createAdsMediaSource(testMediaSource, loadedAdTagUri);
     }
 
-    player.setPlayWhenReady(true);
+    player.setPlayWhenReady(playWhenReady);
     player.setMediaSource(testMediaSource);
+    player.seekTo(playbackStartPosition);
     player.prepare();
   }
 
