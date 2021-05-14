@@ -820,7 +820,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         String segmentUrl, int dataType, String host
     ) {
       BandwidthMetricData segmentData = new BandwidthMetricData();
-      // TODO I have no idea how to get RequestSttart timestamp
+      // TODO RequestStart timestamp is currently not available from ExoPlayer
 //      segmentData.setRequestStart(System.currentTimeMillis());
       segmentData.setRequestResponseStart(System.currentTimeMillis());
       segmentData.setRequestMediaStartTime(mediaStartTimeMs);
