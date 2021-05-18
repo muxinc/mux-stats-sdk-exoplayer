@@ -5,7 +5,7 @@ import java.net.Socket;
 import java.util.HashMap;
 
 
-public class ConnectionWorker extends Thread implements ConnectionListener{
+public class ConnectionWorker extends Thread implements ConnectionListener {
 
   Socket clientSocket;
   int bandwidthLimit;
@@ -53,7 +53,8 @@ public class ConnectionWorker extends Thread implements ConnectionListener{
       receiver = new ConnectionReceiver(clientSocket.getInputStream());
       receiver.start();
       sender = new ConnectionSender(this, clientSocket.getOutputStream(), bandwidthLimit,
-          networkJamEndPeriod, networkJamFactor, seekLatency, networkRequestDelay, additionalHeaders);
+          networkJamEndPeriod, networkJamFactor, seekLatency, networkRequestDelay,
+          additionalHeaders);
       sender.pause();
     } catch (IOException e) {
       e.printStackTrace();

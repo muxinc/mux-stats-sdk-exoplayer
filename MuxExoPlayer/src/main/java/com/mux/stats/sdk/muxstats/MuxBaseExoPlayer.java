@@ -63,7 +63,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class  MuxBaseExoPlayer extends EventBus implements IPlayerListener {
+public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
   // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.

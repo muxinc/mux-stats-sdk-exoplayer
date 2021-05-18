@@ -1,20 +1,14 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
-import static com.google.android.exoplayer2.C.TRACK_TYPE_VIDEO;
 import static org.junit.Assert.fail;
 
 import android.util.Log;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.source.TrackGroup;
-import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
 import com.mux.stats.sdk.core.model.VideoData;
 import java.util.ArrayList;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;

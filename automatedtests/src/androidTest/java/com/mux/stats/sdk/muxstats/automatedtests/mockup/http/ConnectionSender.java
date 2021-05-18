@@ -4,15 +4,12 @@ import android.content.Context;
 import android.content.res.AssetFileDescriptor;
 import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
@@ -250,10 +247,10 @@ public class ConnectionSender extends Thread {
     writer.flush();
     int staticBuffSize = 200000;
     byte[] staticBuff = new byte[staticBuffSize];
-    while(true) {
+    while (true) {
       int bytesRead = assetInput.read(staticBuff);
       String line = new String(staticBuff, 0, bytesRead, StandardCharsets.UTF_8);
-      Log.w(TAG,  line);
+      Log.w(TAG, line);
       writer.write(line);
       writer.flush();
       if (bytesRead < staticBuffSize) {

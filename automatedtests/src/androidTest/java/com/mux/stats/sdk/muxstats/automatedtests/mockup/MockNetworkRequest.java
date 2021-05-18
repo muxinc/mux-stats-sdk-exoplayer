@@ -1,8 +1,5 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 
-import android.util.Log;
-import com.mux.stats.sdk.core.events.playback.RequestCompleted;
-import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
@@ -90,7 +87,7 @@ public class MockNetworkRequest implements INetworkRequest {
 
   public ArrayList<JSONObject> getAllEventsOfType(String eventType) throws JSONException {
     ArrayList<JSONObject> result = new ArrayList<>();
-    for (int i = 0; i < receivedEvents.size(); i ++) {
+    for (int i = 0; i < receivedEvents.size(); i++) {
       JSONObject event = receivedEvents.get(i);
       if (getReceivedEventName(i).equalsIgnoreCase(eventType)) {
         event.put(EVENT_INDEX, i);
