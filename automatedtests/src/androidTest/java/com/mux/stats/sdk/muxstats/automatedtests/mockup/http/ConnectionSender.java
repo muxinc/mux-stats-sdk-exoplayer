@@ -250,10 +250,10 @@ public class ConnectionSender extends Thread {
     writer.flush();
     int staticBuffSize = 200000;
     byte[] staticBuff = new byte[staticBuffSize];
-    while(true) {
+    while (true) {
       int bytesRead = assetInput.read(staticBuff);
       String line = new String(staticBuff, 0, bytesRead, StandardCharsets.UTF_8);
-      Log.w(TAG,  line);
+      Log.w(TAG, line);
       writer.write(line);
       writer.flush();
       if (bytesRead < staticBuffSize) {
