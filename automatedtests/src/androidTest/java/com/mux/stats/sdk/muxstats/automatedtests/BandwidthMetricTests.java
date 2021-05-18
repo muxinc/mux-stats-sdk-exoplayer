@@ -97,7 +97,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   private void checkRequests(ArrayList<JSONObject> requests,
       boolean isRequestCompletedList, boolean isRequestCanceledList,
       boolean isRequestFailedList) throws Exception {
-    for (JSONObject requestJson : requests) {
+    for (JSONObject requestJson: requests) {
       int qualityLevel = getSelectedRenditionIndex();
       if (!requestJson.has(BandwidthMetricData.REQUEST_RESPONSE_HEADERS)) {
         fail("Missing response headers for event: \n" + requestJson.toString());
@@ -195,8 +195,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRespondedAt(),
         ERROR_MARGIN_FOR_REQUEST_LATENCY);
     if (!requestJson.has(BandwidthMetricData.REQUEST_CANCEL)) {
-      fail("Request canceled missing REQUEST_CANCEL field for event index: "
-          + requestCompletedEventIndex);
+      fail("Request canceled missing REQUEST_CANCEL field for event index: " + requestCompletedEventIndex);
     }
     checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
         requestCompletedEventIndex, requestJson, segmentUrl);
@@ -213,7 +212,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       String fileNameHeaderValue,
       long requestNetworkDelay
   ) throws Exception {
-    if (checkManifestValue(requestJson, expectingManifest)) {
+    if(checkManifestValue(requestJson, expectingManifest)) {
       checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat);
     } else {
       checkNetworkDelay(requestJson, requestNetworkDelay, requestCompletedEventIndex);
@@ -222,8 +221,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     }
   }
 
-  private void checkNetworkDelay(JSONObject requestJson, long expectedNetworkDelay,
-      int eventIndex) {
+  private void checkNetworkDelay(JSONObject requestJson, long expectedNetworkDelay, int eventIndex) {
     // I have no way of getting REQUEST_START
   }
 
@@ -264,8 +262,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         ERROR_MARGIN_FOR_BYTES_SERVED);
   }
 
-  private void checkRequestCompletedMediaSegment(int requestCompletedEventIndex,
-      JSONObject requestCompletedJson,
+  private void checkRequestCompletedMediaSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
       int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
       throws Exception {
     checkLongValueForEvent(

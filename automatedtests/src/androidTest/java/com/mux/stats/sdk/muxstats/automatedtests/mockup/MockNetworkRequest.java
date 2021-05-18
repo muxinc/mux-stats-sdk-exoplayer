@@ -90,7 +90,7 @@ public class MockNetworkRequest implements INetworkRequest {
 
   public ArrayList<JSONObject> getAllEventsOfType(String eventType) throws JSONException {
     ArrayList<JSONObject> result = new ArrayList<>();
-    for (int i = 0; i < receivedEvents.size(); i++) {
+    for (int i = 0; i < receivedEvents.size(); i ++) {
       JSONObject event = receivedEvents.get(i);
       if (getReceivedEventName(i).equalsIgnoreCase(eventType)) {
         event.put(EVENT_INDEX, i);

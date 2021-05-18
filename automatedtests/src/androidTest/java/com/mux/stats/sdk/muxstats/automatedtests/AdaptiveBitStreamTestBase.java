@@ -15,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class AdaptiveBitStreamTestBase extends TestBase {
-
   TrackGroupArray getVideoTrackGroupArray() {
     DefaultTrackSelector selector = testActivity.getTrackSelector();
     MappingTrackSelector.MappedTrackInfo mappedTrackInfo = selector.getCurrentMappedTrackInfo();
