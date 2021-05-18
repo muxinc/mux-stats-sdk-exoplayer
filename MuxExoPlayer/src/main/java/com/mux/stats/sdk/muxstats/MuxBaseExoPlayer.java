@@ -63,7 +63,7 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
+public class  MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
   // Error codes start at -1 as ExoPlaybackException codes start at 0 and go up.
@@ -913,7 +913,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   class BandwidthMetricDispatcher {
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
-    //    private final BandwidthMetric bandwidthMetricDash = new BandwidthMetricDash();
     ArrayList<String> allowedHeaders = new ArrayList<>();
 
     public BandwidthMetricDispatcher() {
@@ -922,19 +921,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public BandwidthMetric currentBandwidthMetric() {
-      // TODO see if we need different data for HLS and for DASH
-//      if (streamType == -1) {
-//        detectStreamType();
-//      }
-//      switch (streamType) {
-//        case C.TYPE_HLS:
-//          return bandwidthMetricHls;
-//        case C.TYPE_DASH:
-//          return bandwidthMetricDash;
-//        default:
-//          break;
-//      }
-//      return null;
       return bandwidthMetricHls;
     }
 
@@ -1069,20 +1055,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
       return headers;
     }
-  }
-
-  protected void detectStreamType(Format format) {
-    // This is reliable way to detect stream type, but it get called a bit too late,
-    // some media segments are already loaded by the time we detect the stream format
-//    if (format != null && format.metadata != null &&
-//        format.metadata.length() > 0) {
-//      for (int i = 0; i < format.metadata.length(); i++) {
-//        if (format.metadata.get(i) instanceof HlsTrackMetadataEntry) {
-//          streamType = C.TYPE_HLS;
-//        }
-//        // TODO detect DASH
-//      }
-//    }
   }
 
   private int pxToDp(int px) {

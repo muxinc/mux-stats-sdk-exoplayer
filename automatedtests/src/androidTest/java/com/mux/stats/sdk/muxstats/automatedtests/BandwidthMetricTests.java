@@ -222,20 +222,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkNetworkDelay(JSONObject requestJson, long expectedNetworkDelay, int eventIndex) {
-    // I have no way of getting REQUEST_START, so I need to comment this
-//    try {
-//      long measuredRequestDelay = requestJson.getLong(BandwidthMetricData.REQUEST_RESPONSE_START) -
-//          requestJson.getLong(BandwidthMetricData.REQUEST_START);
-//      long diff = Math.abs(measuredRequestDelay - expectedNetworkDelay);
-//      if (diff > ERROR_MARGIN_FOR_NETWORK_REQUEST_DELAY) {
-//        fail("Network delay for request do not match expected value, expected: "
-//            + expectedNetworkDelay + ", actual value: " + measuredRequestDelay + ", diff: " + diff
-//            + ", error margin: " + ERROR_MARGIN_FOR_NETWORK_REQUEST_DELAY + ", for eventIndex: "
-//            + eventIndex + ", event:\n" + requestJson.toString());
-//      }
-//    } catch (JSONException e) {
-//      fail("JSON exception: " + e.getMessage());
-//    }
+    // I have no way of getting REQUEST_START
   }
 
   private boolean checkManifestValue(JSONObject requestJson,
@@ -322,13 +309,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   private void checkRenditionList(int requestCompletedEventIndex,
       JSONObject requestCompletedJson) throws Exception {
-//    String renditionLString = requestCompletedJson
-//        .getString(BandwidthMetricData.REQUEST_RENDITION_LISTS);
-//    JSONArray renditionListJson = new JSONArray(renditionLString);
-//    for (int i = 0; i < renditionListJson.length(); i ++) {
-//      JSONObject renditionJson = renditionListJson.getJSONObject(i);
-//      int renditionWidth = renditionJson.getInt()
-//    }
   }
 
   private void checkHeaders(int requestCompletedEventIndex,

@@ -43,9 +43,6 @@ public class AdaptiveBitStreamTestBase extends TestBase {
   }
 
   int getSelectedRenditionIndex() throws JSONException {
-//        MuxStatsExoPlayer lMuxStats = testActivity.getMuxStats();
-//        int videoWidth = lMuxStats.getSourceWidth();
-//        int videoHeight = lMuxStats.getSourceHeight();
     int renditionChangeIndex = networkRequest.getIndexForFirstEvent(RenditionChangeEvent.TYPE);
     if (renditionChangeIndex == -1) {
       return -1;
