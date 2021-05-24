@@ -17,7 +17,7 @@ import com.mux.stats.sdk.core.model.ViewData;
 
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
 
-  private MuxBaseExoPlayer exoPlayerListener;
+  private final MuxBaseExoPlayer exoPlayerListener;
   private boolean sendPlayOnStarted = false;
   private boolean missingAdBreakStartEvent = false;
 
@@ -47,7 +47,8 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
 
   @Override
   public void onAdEvent(AdEvent adEvent) {
-    if (exoPlayerListener != null) {
+    if (exoPlayerListener != null && exoPlayerListener.player != null
+        && exoPlayerListener.player.get() != null) {
       PlaybackEvent event = null;
       Ad ad = adEvent.getAd();
       switch (adEvent.getType()) {
@@ -100,11 +101,9 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
           // End the ad break, and then toggle playback state to ensure that
           // we get a play/playing after the ads.
           dispatchAdPlaybackEvent(new AdBreakEndEvent(null), ad);
-          if (exoPlayerListener.player != null && exoPlayerListener.player.get() != null) {
-            exoPlayerListener.player.get().setPlayWhenReady(false);
-            exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.FINISHED_PLAYING_ADS);
-            exoPlayerListener.player.get().setPlayWhenReady(true);
-          }
+          exoPlayerListener.player.get().setPlayWhenReady(false);
+          exoPlayerListener.setState(MuxBaseExoPlayer.PlayerState.FINISHED_PLAYING_ADS);
+          exoPlayerListener.player.get().setPlayWhenReady(true);
           break;
         case PAUSED:
           if (!exoPlayerListener.player.get().getPlayWhenReady() &&
