@@ -181,7 +181,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onMetadata(AnalyticsListener.EventTime eventTime, Metadata metadata) {
-    Log.i("MuxStats", "Got metadata !!!");
   }
 
   @Override
