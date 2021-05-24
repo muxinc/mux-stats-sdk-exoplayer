@@ -27,7 +27,8 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
 
   @Override
   public void onAdError(AdErrorEvent adErrorEvent) {
-    if (exoPlayerListener != null) {
+    if (exoPlayerListener != null && exoPlayerListener.player != null
+        && exoPlayerListener.player.get() != null) {
       PlaybackEvent event = new com.mux.stats.sdk.core.events.playback.AdErrorEvent(null);
       setupAdViewData(event, null);
       exoPlayerListener.dispatch(event);
