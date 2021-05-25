@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -141,7 +142,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   // Note: onLoadingChanged was deprecated and moved to onIsLoadingChanged in 2.12.0
   @Override
   public void onIsLoadingChanged(AnalyticsListener.EventTime eventTime, boolean isLoading) {
-    onIsLoadingChanged(isLoading);
   }
 
   @Override
@@ -152,18 +152,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCanceled(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCanceled(loadEventInfo.dataSpec);
+    bandwidthDispatcher.onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
   }
 
   @Override
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs,
-        loadEventInfo.loadDurationMs, loadEventInfo.bytesLoaded,
-        loadEventInfo.responseHeaders);
+    bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+        mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
   }
 
   @Override
@@ -171,16 +168,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo.dataSpec, mediaLoadData.dataType, e);
+    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
   }
 
   @Override
   public void onLoadStarted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadStarted(loadEventInfo.dataSpec, mediaLoadData.dataType,
-        mediaLoadData.trackFormat, mediaLoadData.mediaStartTimeMs,
-        mediaLoadData.mediaEndTimeMs, loadEventInfo.elapsedRealtimeMs);
+    bandwidthDispatcher.onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+        loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
   }
 
   @Override

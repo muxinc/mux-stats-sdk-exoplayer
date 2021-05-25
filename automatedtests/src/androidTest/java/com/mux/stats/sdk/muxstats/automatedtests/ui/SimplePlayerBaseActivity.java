@@ -36,6 +36,7 @@ import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
@@ -77,6 +78,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   Condition playbackBuffering = activityLock.newCondition();
   Condition activityClosed = activityLock.newCondition();
   Condition activityInitialized = activityLock.newCondition();
+  ArrayList<String> addAllowedHeaders = new ArrayList<>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -97,6 +99,10 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
     // Setup notification and media session.
     initAudioSession();
+  }
+
+  public void allowHeaderToBeSentToBackend(String headerName) {
+    addAllowedHeaders.add(headerName);
   }
 
   @Override
@@ -177,6 +183,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     muxStats.setScreenSize(size.x, size.y);
     muxStats.setPlayerView(playerView);
     muxStats.enableMuxCoreDebug(true, false);
+    for (String headerName : addAllowedHeaders) {
+      muxStats.allowHeaderToBeSentToBackend(headerName);
+    }
   }
 
   public MediaSource getTestMediaSource() {
@@ -194,8 +203,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   public boolean waitForPlaybackToFinish(long timeoutInMs) {
     try {
       activityLock.lock();
-      playbackEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
-      return true;
+      return playbackEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
       return false;
