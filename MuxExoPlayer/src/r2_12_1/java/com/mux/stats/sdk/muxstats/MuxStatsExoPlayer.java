@@ -163,235 +163,246 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
-        mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
-  }
-
-  @Override
-  public void onLoadError(AnalyticsListener.EventTime eventTime,
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData, IOException e,
-      boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
-  }
-
-  @Override
-  public void onLoadStarted(AnalyticsListener.EventTime eventTime,
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
-        loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
-  }
-
-  @Override
-  public void onMetadata(AnalyticsListener.EventTime eventTime, Metadata metadata) {
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(AnalyticsListener.EventTime eventTime,
-      PlaybackParameters playbackParameters) {
-    onPlaybackParametersChanged(playbackParameters);
-  }
-
-  @Override
-  public void onPlaybackStateChanged(EventTime eventTime, @Player.State int state) {
-    onPlaybackStateChanged(state);
-  }
-
-  @Override
-  public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime,
-      int playbackSuppressionReason) {
-  }
-
-  @Override
-  public void onPlayerError(AnalyticsListener.EventTime eventTime, ExoPlaybackException error) {
-    onPlayerError(error);
-  }
-
-  @Override
-  public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
-      int reason) {
-    onPlayWhenReadyChanged(playWhenReady, reason);
-    onPlaybackStateChanged(player.get().getPlaybackState());
-  }
-
-  @Override
-  public void onPositionDiscontinuity(AnalyticsListener.EventTime eventTime, int reason) {
-    onPositionDiscontinuity(reason);
-  }
-
-  @Override
-  public void onRenderedFirstFrame(AnalyticsListener.EventTime eventTime, Surface surface) {
-  }
-
-  @Override
-  public void onRepeatModeChanged(AnalyticsListener.EventTime eventTime, int repeatMode) {
-    onRepeatModeChanged(repeatMode);
-  }
-
-  // Note: onSeekProcessed was deprecated in 2.12.0
-
-  @Override
-  public void onSeekStarted(AnalyticsListener.EventTime eventTime) {
-    seeking();
-  }
-
-  @Override
-  public void onShuffleModeChanged(AnalyticsListener.EventTime eventTime,
-      boolean shuffleModeEnabled) {
-    onShuffleModeEnabledChanged(shuffleModeEnabled);
-  }
-
-  @Override
-  public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width,
-      int height) {
-  }
-
-  @Override
-  public void onTimelineChanged(AnalyticsListener.EventTime eventTime, int reason) {
-    onTimelineChanged(eventTime.timeline, reason);
-  }
-
-  @Override
-  public void onTracksChanged(AnalyticsListener.EventTime eventTime, TrackGroupArray trackGroups,
-      TrackSelectionArray trackSelections) {
-    onTracksChanged(trackGroups, trackSelections);
-  }
-
-  @Override
-  public void onUpstreamDiscarded(EventTime eventTime, MediaLoadData mediaLoadData) {
-  }
-
-  @Override
-  public void onVideoSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height,
-      int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-    sourceWidth = width;
-    sourceHeight = height;
-  }
-
-  @Override
-  public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
-  }
-  // ------END AnalyticsListener callbacks------
-
-  // ------BEGIN Player.EventListener callbacks------
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-  }
-
-  @Override
-  public void onPlaybackStateChanged(int playbackState) {
-    /*
-     * Sometimes onPlaybackStateChanged callback will not be triggered, and it is
-     * prone to bugs to keep same value in two places, so we should always access
-     * playWhenReady via the player object.
-     */
-    boolean playWhenReady = player.get().getPlayWhenReady();
-    PlayerState state = this.getState();
-    if (state == PlayerState.PLAYING_ADS) {
-      // Ignore all normal events while playing ads
-      return;
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+          mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
+    else{
+        MuxLogger.d(TAG,
+            "ERROR: onLoadCompleted called but mediaLoadData argument have no uri parameter.");
+      }
     }
-    switch (playbackState) {
-      case Player.STATE_BUFFERING:
-        // We have entered buffering
-        buffering();
-        // If we are expected to playWhenReady, signal the play event
-        if (playWhenReady) {
-          play();
-        } else if (state != PlayerState.PAUSED) {
-          pause();
-        }
-        break;
-      case Player.STATE_ENDED:
-        ended();
-        break;
-      case Player.STATE_READY:
-        // By the time we get here, it depends on playWhenReady to know if we're playing
-        if (playWhenReady) {
-          playing();
-        } else if (state != PlayerState.PAUSED) {
-          pause();
-        }
-        break;
-      case Player.STATE_IDLE:
-      default:
-        // don't care
-        break;
-    }
-  }
 
-  @Override
-  public void onPlayerError(ExoPlaybackException e) {
-    if (e.type == ExoPlaybackException.TYPE_RENDERER) {
-      Exception cause = e.getRendererException();
-      if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
-        MediaCodecRenderer.DecoderInitializationException die = (MediaCodecRenderer.DecoderInitializationException) cause;
-        if (die.codecInfo == null) {
-          if (die.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
-            internalError(new MuxErrorException(e.type, "Unable to query device decoders"));
-          } else if (die.secureDecoderRequired) {
-            internalError(new MuxErrorException(e.type, "No secure decoder for " + die.mimeType));
+    @Override
+    public void onLoadError (AnalyticsListener.EventTime eventTime,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData, IOException e,
+    boolean wasCanceled){
+      bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
+    }
+
+    @Override
+    public void onLoadStarted (AnalyticsListener.EventTime eventTime,
+        LoadEventInfo loadEventInfo,
+        MediaLoadData mediaLoadData){
+      if (loadEventInfo.uri != null) {
+        bandwidthDispatcher
+            .onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+                loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
+      } else {
+        MuxLogger.d(TAG,
+            "ERROR: onLoadStarted called but mediaLoadData argument have no uri parameter.");
+      }
+    }
+
+    @Override
+    public void onMetadata (AnalyticsListener.EventTime eventTime, Metadata metadata){
+    }
+
+    @Override
+    public void onPlaybackParametersChanged (AnalyticsListener.EventTime eventTime,
+        PlaybackParameters playbackParameters){
+      onPlaybackParametersChanged(playbackParameters);
+    }
+
+    @Override
+    public void onPlaybackStateChanged (EventTime eventTime,@Player.State int state){
+      onPlaybackStateChanged(state);
+    }
+
+    @Override
+    public void onPlaybackSuppressionReasonChanged (AnalyticsListener.EventTime eventTime,
+    int playbackSuppressionReason){
+    }
+
+    @Override
+    public void onPlayerError (AnalyticsListener.EventTime eventTime, ExoPlaybackException error){
+      onPlayerError(error);
+    }
+
+    @Override
+    public void onPlayWhenReadyChanged (AnalyticsListener.EventTime eventTime,boolean playWhenReady,
+    int reason){
+      onPlayWhenReadyChanged(playWhenReady, reason);
+      onPlaybackStateChanged(player.get().getPlaybackState());
+    }
+
+    @Override
+    public void onPositionDiscontinuity (AnalyticsListener.EventTime eventTime,int reason){
+      onPositionDiscontinuity(reason);
+    }
+
+    @Override
+    public void onRenderedFirstFrame (AnalyticsListener.EventTime eventTime, Surface surface){
+    }
+
+    @Override
+    public void onRepeatModeChanged (AnalyticsListener.EventTime eventTime,int repeatMode){
+      onRepeatModeChanged(repeatMode);
+    }
+
+    // Note: onSeekProcessed was deprecated in 2.12.0
+
+    @Override
+    public void onSeekStarted (AnalyticsListener.EventTime eventTime){
+      seeking();
+    }
+
+    @Override
+    public void onShuffleModeChanged (AnalyticsListener.EventTime eventTime,
+    boolean shuffleModeEnabled){
+      onShuffleModeEnabledChanged(shuffleModeEnabled);
+    }
+
+    @Override
+    public void onSurfaceSizeChanged (AnalyticsListener.EventTime eventTime,int width,
+    int height){
+    }
+
+    @Override
+    public void onTimelineChanged (AnalyticsListener.EventTime eventTime,int reason){
+      onTimelineChanged(eventTime.timeline, reason);
+    }
+
+    @Override
+    public void onTracksChanged (AnalyticsListener.EventTime eventTime, TrackGroupArray trackGroups,
+        TrackSelectionArray trackSelections){
+      onTracksChanged(trackGroups, trackSelections);
+    }
+
+    @Override
+    public void onUpstreamDiscarded (EventTime eventTime, MediaLoadData mediaLoadData){
+    }
+
+    @Override
+    public void onVideoSizeChanged (AnalyticsListener.EventTime eventTime,int width, int height,
+    int unappliedRotationDegrees, float pixelWidthHeightRatio){
+      sourceWidth = width;
+      sourceHeight = height;
+    }
+
+    @Override
+    public void onVolumeChanged (AnalyticsListener.EventTime eventTime,float volume){
+    }
+    // ------END AnalyticsListener callbacks------
+
+    // ------BEGIN Player.EventListener callbacks------
+    @Override
+    public void onPlaybackParametersChanged (PlaybackParameters playbackParameters){
+    }
+
+    @Override
+    public void onPlaybackStateChanged ( int playbackState){
+      /*
+       * Sometimes onPlaybackStateChanged callback will not be triggered, and it is
+       * prone to bugs to keep same value in two places, so we should always access
+       * playWhenReady via the player object.
+       */
+      boolean playWhenReady = player.get().getPlayWhenReady();
+      PlayerState state = this.getState();
+      if (state == PlayerState.PLAYING_ADS) {
+        // Ignore all normal events while playing ads
+        return;
+      }
+      switch (playbackState) {
+        case Player.STATE_BUFFERING:
+          // We have entered buffering
+          buffering();
+          // If we are expected to playWhenReady, signal the play event
+          if (playWhenReady) {
+            play();
+          } else if (state != PlayerState.PAUSED) {
+            pause();
+          }
+          break;
+        case Player.STATE_ENDED:
+          ended();
+          break;
+        case Player.STATE_READY:
+          // By the time we get here, it depends on playWhenReady to know if we're playing
+          if (playWhenReady) {
+            playing();
+          } else if (state != PlayerState.PAUSED) {
+            pause();
+          }
+          break;
+        case Player.STATE_IDLE:
+        default:
+          // don't care
+          break;
+      }
+    }
+
+    @Override
+    public void onPlayerError (ExoPlaybackException e){
+      if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+        Exception cause = e.getRendererException();
+        if (cause instanceof MediaCodecRenderer.DecoderInitializationException) {
+          MediaCodecRenderer.DecoderInitializationException die = (MediaCodecRenderer.DecoderInitializationException) cause;
+          if (die.codecInfo == null) {
+            if (die.getCause() instanceof MediaCodecUtil.DecoderQueryException) {
+              internalError(new MuxErrorException(e.type, "Unable to query device decoders"));
+            } else if (die.secureDecoderRequired) {
+              internalError(new MuxErrorException(e.type, "No secure decoder for " + die.mimeType));
+            } else {
+              internalError(new MuxErrorException(e.type, "No decoder for " + die.mimeType));
+            }
           } else {
-            internalError(new MuxErrorException(e.type, "No decoder for " + die.mimeType));
+            internalError(
+                new MuxErrorException(e.type, "Unable to instantiate decoder for " + die.mimeType));
           }
         } else {
-          internalError(
-              new MuxErrorException(e.type, "Unable to instantiate decoder for " + die.mimeType));
+          internalError(new MuxErrorException(e.type,
+              cause.getClass().getCanonicalName() + " - " + cause.getMessage()));
         }
-      } else {
+      } else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
+        Exception error = e.getSourceException();
         internalError(new MuxErrorException(e.type,
-            cause.getClass().getCanonicalName() + " - " + cause.getMessage()));
-      }
-    } else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
-      Exception error = e.getSourceException();
-      internalError(new MuxErrorException(e.type,
-          error.getClass().getCanonicalName() + " - " + error.getMessage()));
-    } else if (e.type == ExoPlaybackException.TYPE_UNEXPECTED) {
-      Exception error = e.getUnexpectedException();
-      internalError(new MuxErrorException(e.type,
-          error.getClass().getCanonicalName() + " - " + error.getMessage()));
-    } else {
-      internalError(e);
-    }
-  }
-
-  @Override
-  public void onPlayWhenReadyChanged(boolean playWhenReady, int reason) {
-    // Nothing to do here
-  }
-
-  @Override
-  public void onPositionDiscontinuity(int reason) {
-    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-      if (state == PlayerState.PAUSED || !playItemHaveVideoTrack) {
-        seeked(false);
+            error.getClass().getCanonicalName() + " - " + error.getMessage()));
+      } else if (e.type == ExoPlaybackException.TYPE_UNEXPECTED) {
+        Exception error = e.getUnexpectedException();
+        internalError(new MuxErrorException(e.type,
+            error.getClass().getCanonicalName() + " - " + error.getMessage()));
+      } else {
+        internalError(e);
       }
     }
-  }
 
-  @Override
-  public void onRepeatModeChanged(int repeatMode) {
-  }
+    @Override
+    public void onPlayWhenReadyChanged ( boolean playWhenReady, int reason){
+      // Nothing to do here
+    }
 
-  // Note, onSeekProcessed was deprecated in 2.12.0
+    @Override
+    public void onPositionDiscontinuity ( int reason){
+      if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+        if (state == PlayerState.PAUSED || !playItemHaveVideoTrack) {
+          seeked(false);
+        }
+      }
+    }
 
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-  }
+    @Override
+    public void onRepeatModeChanged ( int repeatMode){
+    }
 
-  @Override
-  public void onTimelineChanged(Timeline timeline, int reason) {
-    if (timeline != null && timeline.getWindowCount() > 0) {
-      Timeline.Window window = new Timeline.Window();
-      timeline.getWindow(0, window);
-      sourceDuration = window.getDurationMs();
+    // Note, onSeekProcessed was deprecated in 2.12.0
+
+    @Override
+    public void onShuffleModeEnabledChanged ( boolean shuffleModeEnabled){
+    }
+
+    @Override
+    public void onTimelineChanged (Timeline timeline,int reason){
+      if (timeline != null && timeline.getWindowCount() > 0) {
+        Timeline.Window window = new Timeline.Window();
+        timeline.getWindow(0, window);
+        sourceDuration = window.getDurationMs();
+      }
+    }
+
+    @Override
+    public void onTracksChanged (TrackGroupArray trackGroups, TrackSelectionArray trackSelections){
+      bandwidthDispatcher.onTracksChanged(trackGroups);
+      configurePlaybackHeadUpdateInterval();
     }
   }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    bandwidthDispatcher.onTracksChanged(trackGroups);
-    configurePlaybackHeadUpdateInterval();
-  }
-}

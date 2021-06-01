@@ -1,7 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -22,6 +21,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
+import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
@@ -159,8 +159,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
-        mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+          mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
+    } else {
+      MuxLogger.d(TAG,
+          "ERROR: onLoadCompleted called but mediaLoadData argument have no uri parameter.");
+    }
   }
 
   @Override
@@ -175,8 +180,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadStarted(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
-        loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher
+          .onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+              loadEventInfo.uri.getPath(), mediaLoadData.dataType, loadEventInfo.uri.getHost());
+    } else {
+      MuxLogger.d(TAG,
+          "ERROR: onLoadStarted called but mediaLoadData argument have no uri parameter.");
+    }
   }
 
   @Override
