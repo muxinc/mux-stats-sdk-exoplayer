@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+import com.mux.stats.sdk.muxstats.MuxStatsHelper;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
@@ -184,7 +185,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     muxStats.setPlayerView(playerView);
     muxStats.enableMuxCoreDebug(true, false);
     for (String headerName : addAllowedHeaders) {
-      muxStats.allowHeaderToBeSentToBackend(headerName);
+      MuxStatsHelper.allowHeaderToBeSentToBackend(muxStats, headerName);
     }
   }
 
