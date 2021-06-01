@@ -194,7 +194,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
   }
 
-  public void allowHeaderToBeSentToBackend(String headerName) {
+  protected void allowHeaderToBeSentToBackend(String headerName) {
     synchronized (bandwidthDispatcher) {
       bandwidthDispatcher.allowedHeaders.add(headerName);
     }
@@ -668,7 +668,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         appName = pi.packageName;
         appVersion = pi.versionName;
       } catch (PackageManager.NameNotFoundException e) {
-        Log.d(TAG, "could not get package info");
+        MuxLogger.d(TAG, "could not get package info");
       }
     }
 
@@ -1062,7 +1062,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
     // Bail out if we don't have the context
     if (context == null) {
-      Log.d(TAG, "Error retrieving Context for logical resolution, using physical");
+      MuxLogger.d(TAG, "Error retrieving Context for logical resolution, using physical");
       return px;
     }
 

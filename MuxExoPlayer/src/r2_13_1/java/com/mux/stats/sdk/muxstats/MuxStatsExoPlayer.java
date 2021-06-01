@@ -1,7 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -153,7 +152,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCanceled(AnalyticsListener.EventTime eventTime,
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher
+          .onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
+    } else {
+      MuxLogger.d(TAG,
+          "ERROR: onLoadCanceled called but mediaLoadData argument have no uri parameter.");
+    }
   }
 
   @Override
@@ -174,7 +179,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
+    } else {
+      MuxLogger.d(TAG,
+          "ERROR: onLoadError called but mediaLoadData argument have no uri parameter.");
+    }
   }
 
   @Override

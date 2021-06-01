@@ -183,7 +183,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadCanceled(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    bandwidthDispatcher.onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher
+          .onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
+    } else {
+      MuxLogger.d(TAG,
+          "ERROR: onLoadCanceled called but mediaLoadData argument have no uri parameter.");
+    }
   }
 
   @Override
@@ -191,7 +197,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
+    if (loadEventInfo.uri != null) {
+      bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
+    } else {
+      MuxLogger.d(TAG,
+          "ERROR: onLoadError called but mediaLoadData argument have no uri parameter.");
+    }
   }
 
   @Override
@@ -205,7 +216,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   @Override
   public void onUpstreamDiscarded(EventTime eventTime,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-
   }
 
   @Override
