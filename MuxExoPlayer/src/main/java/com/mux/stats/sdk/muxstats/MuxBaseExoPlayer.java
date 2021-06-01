@@ -162,7 +162,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   @SuppressWarnings("unused")
   public void monitorImaAdsLoader(AdsLoader adsLoader) {
     if (adsLoader == null) {
-      Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
+      MuxLogger.d(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
       return;
     }
     try {
@@ -630,7 +630,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           muxStats.seeked(true);
           break;
         default:
-          Log.e(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
+          MuxLogger.d(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
       }
     }
   }
@@ -747,7 +747,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           NetworkCapabilities nc = connectivityMgr
               .getNetworkCapabilities(connectivityMgr.getActiveNetwork());
           if (nc == null) {
-            Log.e(TAG, "Failed to obtain NetworkCapabilities manager !!!");
+            MuxLogger.d(TAG, "ERROR: Failed to obtain NetworkCapabilities manager !!!");
             return null;
           }
           if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
@@ -821,7 +821,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     ) {
       BandwidthMetricData segmentData = new BandwidthMetricData();
       // TODO RequestStart timestamp is currently not available from ExoPlayer
-//      segmentData.setRequestStart(System.currentTimeMillis());
       segmentData.setRequestResponseStart(System.currentTimeMillis());
       segmentData.setRequestMediaStartTime(mediaStartTimeMs);
       segmentData.setRequestVideoWidth(sourceWidth);
@@ -975,7 +974,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           loadData.setRequestResponseHeaders(headers);
         }
       } else {
-        Log.i(TAG, "No headers found for segment !!!");
+        MuxLogger.d(TAG, "ERROR: No headers found for segment !!!");
       }
     }
 
