@@ -6,9 +6,6 @@ import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
-import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
-import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
-import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -12,6 +12,8 @@ import org.json.JSONObject;
 
 public class MockNetworkRequest implements INetworkRequest {
 
+  public static final String EVENT_INDEX = "event_index";
+
   IMuxNetworkRequestsCompletion callback;
   ArrayList<JSONObject> receivedEvents = new ArrayList<>();
   MuxNetworkRequests muxNetwork;
@@ -81,6 +83,18 @@ public class MockNetworkRequest implements INetworkRequest {
       }
     }
     return -1;
+  }
+
+  public ArrayList<JSONObject> getAllEventsOfType(String eventType) throws JSONException {
+    ArrayList<JSONObject> result = new ArrayList<>();
+    for (int i = 0; i < receivedEvents.size(); i++) {
+      JSONObject event = receivedEvents.get(i);
+      if (getReceivedEventName(i).equalsIgnoreCase(eventType)) {
+        event.put(EVENT_INDEX, i);
+        result.add(event);
+      }
+    }
+    return result;
   }
 
   public int getIndexForNextEvent(int startingIndex, String eventName) throws JSONException {
