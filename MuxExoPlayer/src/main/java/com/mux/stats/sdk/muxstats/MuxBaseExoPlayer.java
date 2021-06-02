@@ -974,9 +974,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (headers != null) {
           loadData.setRequestResponseHeaders(headers);
         }
-      } else {
-        MuxLogger.d(TAG, "ERROR: No headers found for segment !!!");
-      }
+      } 
     }
 
     public void onTracksChanged(TrackGroupArray trackGroups) {
