@@ -28,15 +28,11 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
-import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
-import com.mux.stats.sdk.core.events.playback.AdPauseEvent;
-import com.mux.stats.sdk.core.events.playback.AdPlayEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -45,7 +41,9 @@ import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferEndEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.RenditionChangeEvent;
-import com.mux.stats.sdk.core.events.playback.RequestBandwidthEvent;
+import com.mux.stats.sdk.core.events.playback.RequestCanceled;
+import com.mux.stats.sdk.core.events.playback.RequestCompleted;
+import com.mux.stats.sdk.core.events.playback.RequestFailed;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
@@ -57,6 +55,7 @@ import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -89,10 +88,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected WeakReference<View> playerView;
   protected WeakReference<Context> contextRef;
   protected AdsImaSDKListener adsImaSdkListener;
+
   protected int numberOfEventsSent = 0;
   protected int numberOfPlayEventsSent = 0;
   protected int numberOfPauseEventsSent = 0;
-
   protected int streamType = -1;
 
   public enum PlayerState {
@@ -164,7 +163,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   @SuppressWarnings("unused")
   public void monitorImaAdsLoader(AdsLoader adsLoader) {
     if (adsLoader == null) {
-      Log.e(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
+      MuxLogger.d(TAG, "Null AdsLoader provided to monitorImaAdsLoader");
       return;
     }
     try {
@@ -192,6 +191,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       });
     } catch (ClassNotFoundException cnfe) {
       return;
+    }
+  }
+
+  protected void allowHeaderToBeSentToBackend(String headerName) {
+    synchronized (bandwidthDispatcher) {
+      bandwidthDispatcher.allowedHeaders.add(headerName);
     }
   }
 
@@ -626,7 +631,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
           muxStats.seeked(true);
           break;
         default:
-          Log.e(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
+          MuxLogger.d(TAG, "ExoPlayerHandler>> Unhandled message type: " + msg.what);
       }
     }
   }
@@ -742,6 +747,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
           NetworkCapabilities nc = connectivityMgr
               .getNetworkCapabilities(connectivityMgr.getActiveNetwork());
+          if (nc == null) {
+            MuxLogger.d(TAG, "ERROR: Failed to obtain NetworkCapabilities manager !!!");
+            return null;
+          }
           if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
             return CONNECTION_TYPE_WIRED;
           } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
@@ -779,251 +788,197 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   class BandwidthMetric {
 
-    public BandwidthMetricData onLoadError(DataSpec dataSpec, int dataType, IOException e) {
-      BandwidthMetricData loadData = new BandwidthMetricData();
-      loadData.setRequestError(e.toString());
-      if (dataSpec != null && dataSpec.uri != null) {
-        loadData.setRequestUrl(dataSpec.uri.toString());
-        loadData.setRequestHostName(dataSpec.uri.getHost());
+    TrackGroupArray availableTracks;
+    HashMap<String, BandwidthMetricData> loadedSegments = new HashMap<>();
+
+    public BandwidthMetricData onLoadError(String segmentUrl,
+        IOException e) {
+      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      if (segmentData == null) {
+        segmentData = new BandwidthMetricData();
+        // TODO We should see how to put minimal stats here !!!
       }
+      segmentData.setRequestError(e.toString());
+      // TODO see what error codes are
+      segmentData.setRequestErrorCode(-1);
+      segmentData.setRequestErrorText(e.getMessage());
+      segmentData.setRequestResponseEnd(System.currentTimeMillis());
+      return segmentData;
+    }
+
+    public BandwidthMetricData onLoadCanceled(String segmentUrl) {
+      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      if (segmentData == null) {
+        segmentData = new BandwidthMetricData();
+        // TODO We should see how to put minimal stats here !!!
+      }
+      segmentData.setRequestCancel("genericLoadCanceled");
+      segmentData.setRequestResponseEnd(System.currentTimeMillis());
+      return segmentData;
+    }
+
+    protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
+        String segmentUrl, int dataType, String host
+    ) {
+      BandwidthMetricData segmentData = new BandwidthMetricData();
+      // TODO RequestStart timestamp is currently not available from ExoPlayer
+      segmentData.setRequestResponseStart(System.currentTimeMillis());
+      segmentData.setRequestMediaStartTime(mediaStartTimeMs);
+      segmentData.setRequestVideoWidth(sourceWidth);
+      segmentData.setRequestVideoHeight(sourceHeight);
+      segmentData.setRequestUrl(segmentUrl);
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
-          loadData.setRequestType("manifest");
+          segmentData.setRequestType("manifest");
           break;
         case C.DATA_TYPE_MEDIA:
-          loadData.setRequestType("media");
+          segmentData.setRequestType("media");
           break;
         default:
           return null;
       }
-      loadData.setRequestErrorCode(null);
-      loadData.setRequestErrorText(e.getMessage());
-      return loadData;
-    }
-
-    public BandwidthMetricData onLoadCanceled(DataSpec dataSpec) {
-      BandwidthMetricData loadData = new BandwidthMetricData();
-      loadData.setRequestCancel("genericLoadCanceled");
-      if (dataSpec != null && dataSpec.uri != null) {
-        loadData.setRequestUrl(dataSpec.uri.toString());
-        loadData.setRequestHostName(dataSpec.uri.getHost());
-      }
-      loadData.setRequestType("media");
-      return loadData;
-    }
-
-    protected BandwidthMetricData onLoad(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs,
-        long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = new BandwidthMetricData();
-      if (bytesLoaded > 0) {
-        loadData.setRequestBytesLoaded(bytesLoaded);
-      }
-      switch (dataType) {
-        case C.DATA_TYPE_MANIFEST:
-          loadData.setRequestType("manifest");
-          break;
-        case C.DATA_TYPE_MEDIA:
-          loadData.setRequestType("media");
-          break;
-        default:
-          return null;
-      }
-      loadData.setRequestResponseHeaders(null);
-      if (dataSpec != null && dataSpec.uri != null) {
-        loadData.setRequestHostName(dataSpec.uri.getHost());
-      }
+      segmentData.setRequestResponseHeaders(null);
+      segmentData.setRequestHostName(host);
       if (dataType == C.DATA_TYPE_MEDIA) {
-        loadData.setRequestMediaDuration(mediaEndTimeMs - mediaStartTimeMs);
+        segmentData.setRequestMediaDuration(mediaEndTimeMs
+            - mediaStartTimeMs);
       }
-      if (trackFormat != null) {
-        loadData.setRequestCurrentLevel(null);
-        if (dataType == C.DATA_TYPE_MEDIA) {
-          loadData.setRequestMediaStartTime(mediaStartTimeMs);
+      segmentData.setRequestRenditionLists(renditionList);
+      loadedSegments.put(segmentUrl, segmentData);
+      return segmentData;
+    }
+
+    public BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
+        String segmentUrl, int dataType, String host) {
+      BandwidthMetricData loadData = onLoad(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
+          , dataType, host);
+      if (loadData != null) {
+        loadData.setRequestResponseStart(System.currentTimeMillis());
+      }
+      return loadData;
+    }
+
+    public BandwidthMetricData onLoadCompleted(String segmentUrl, long bytesLoaded,
+        Format trackFormat) {
+      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      segmentData.setRequestBytesLoaded(bytesLoaded);
+      segmentData.setRequestResponseEnd(System.currentTimeMillis());
+      if (trackFormat != null && availableTracks != null) {
+        for (int i = 0; i < availableTracks.length; i++) {
+          TrackGroup tracks = availableTracks.get(i);
+          for (int trackGroupIndex = 0; trackGroupIndex < tracks.length; trackGroupIndex++) {
+            Format currentFormat = tracks.getFormat(trackGroupIndex);
+            if (trackFormat.width == currentFormat.width
+                && trackFormat.height == currentFormat.height
+                && trackFormat.bitrate == currentFormat.bitrate) {
+              segmentData.setRequestCurrentLevel(trackGroupIndex);
+            }
+          }
         }
-        loadData.setRequestVideoWidth(trackFormat.width);
-        loadData.setRequestVideoHeight(trackFormat.height);
       }
-      loadData.setRequestRenditionLists(renditionList);
-      return loadData;
-    }
-
-    public BandwidthMetricData onLoadStarted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-      BandwidthMetricData loadData = onLoad(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, 0, 0);
-      if (loadData != null) {
-        loadData.setRequestResponseStart(elapsedRealtimeMs);
-      }
-      return loadData;
-    }
-
-    public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-        long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = onLoad(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
-      if (loadData != null) {
-        loadData.setRequestResponseStart(elapsedRealtimeMs - loadDurationMs);
-        loadData.setRequestResponseEnd(elapsedRealtimeMs);
-      }
-      return loadData;
+      loadedSegments.remove(segmentUrl);
+      return segmentData;
     }
   }
 
   class BandwidthMetricHls extends BandwidthMetric {
 
     @Override
-    public BandwidthMetricData onLoadError(DataSpec dataSpec, int dataType, IOException e) {
-      BandwidthMetricData loadData = super.onLoadError(dataSpec, C.DATA_TYPE_MEDIA, e);
+    public BandwidthMetricData onLoadError(String segmentUrl,
+        IOException e) {
+      BandwidthMetricData loadData = super.onLoadError(segmentUrl, e);
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCanceled(DataSpec dataSpec) {
-      BandwidthMetricData loadData = super.onLoadCanceled(dataSpec);
+    public BandwidthMetricData onLoadCanceled(String segmentUrl) {
+      BandwidthMetricData loadData = super.onLoadCanceled(segmentUrl);
       loadData.setRequestCancel("hlsFragLoadEmergencyAborted");
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-        long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = super.onLoadCompleted(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
-      if (loadData != null) {
-        switch (dataType) {
-          case C.DATA_TYPE_MANIFEST:
-            loadData.setRequestEventType("hlsManifestLoaded");
-            break;
-          case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("hlsFragBuffered");
-            break;
-          default:
-            break;
-        }
-        if (trackFormat != null) {
-          loadData.setRequestLabeledBitrate(trackFormat.bitrate);
-        }
+    public BandwidthMetricData onLoadCompleted(String segmentUrl,
+        long bytesLoaded,
+        Format trackFormat) {
+      BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
+      if (trackFormat != null) {
+        loadData.setRequestLabeledBitrate(trackFormat.bitrate);
       }
       return loadData;
     }
   }
 
-  class BandwidthMetricDash extends BandwidthMetric {
-
-    @Override
-    public BandwidthMetricData onLoadStarted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
-      BandwidthMetricData loadData = super.onLoadStarted(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs);
-      if (loadData != null) {
-        switch (dataType) {
-          case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("initFragmentLoaded");
-            break;
-          default:
-            break;
-        }
-      }
-      return loadData;
-    }
-
-    @Override
-    public BandwidthMetricData onLoadCompleted(DataSpec dataSpec, int dataType,
-        Format trackFormat, long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs,
-        long loadDurationMs, long bytesLoaded) {
-      BandwidthMetricData loadData = super.onLoadCompleted(dataSpec, dataType, trackFormat,
-          mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
-      if (loadData != null) {
-        switch (dataType) {
-          case C.DATA_TYPE_MANIFEST:
-            loadData.setRequestEventType("manifestLoaded");
-            break;
-          case C.DATA_TYPE_MEDIA:
-            loadData.setRequestEventType("mediaFragmentLoaded");
-            break;
-          default:
-            break;
-        }
-      }
-      return loadData;
-    }
-  }
 
   class BandwidthMetricDispatcher {
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
-    private final BandwidthMetric bandwidthMetricDash = new BandwidthMetricDash();
+    ArrayList<String> allowedHeaders = new ArrayList<>();
+
+    public BandwidthMetricDispatcher() {
+      allowedHeaders.add("x-cdn");
+      allowedHeaders.add("content-type");
+    }
 
     public BandwidthMetric currentBandwidthMetric() {
-      switch (streamType) {
-        case C.TYPE_HLS:
-          return bandwidthMetricHls;
-        case C.TYPE_DASH:
-          return bandwidthMetricDash;
-        default:
-          break;
-      }
-      return null;
+      return bandwidthMetricHls;
     }
 
-    public void onLoadError(DataSpec dataSpec, int dataType, IOException e) {
+    public void onLoadError(String segmentUrl, IOException e) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(dataSpec, dataType, e);
-      dispatch(loadData);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(segmentUrl, e);
+      dispatch(loadData, new RequestFailed(null));
     }
 
-    public void onLoadCanceled(DataSpec dataSpec) {
+    public void onLoadCanceled(String segmentUrl, Map<String, List<String>> headers) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(dataSpec);
-      dispatch(loadData);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(segmentUrl);
+      parseHeaders(loadData, headers);
+      dispatch(loadData, new RequestCanceled(null));
     }
 
-    public void onLoadStarted(DataSpec dataSpec, int dataType, Format trackFormat,
-        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs) {
+    public void onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
+        int dataType, String host) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      currentBandwidthMetric().onLoadStarted(dataSpec, dataType,
-          trackFormat, mediaStartTimeMs,
-          mediaEndTimeMs, elapsedRealtimeMs);
+      currentBandwidthMetric().onLoadStarted(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
+          , dataType, host);
     }
 
-    public void onLoadCompleted(DataSpec dataSpec, int dataType, Format trackFormat,
-        long mediaStartTimeMs, long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs,
-        long bytesLoaded, Map<String, List<String>> responseHeaders) {
+    public void onLoadCompleted(
+        String segmentUrl, long bytesLoaded, Format trackFormat,
+        Map<String, List<String>> responseHeaders) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(dataSpec,
-          dataType,
-          trackFormat, mediaStartTimeMs,
-          mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(
+          segmentUrl, bytesLoaded, trackFormat);
+      parseHeaders(loadData, responseHeaders);
+      dispatch(loadData, new RequestCompleted(null));
+    }
 
-      // Only append this data if we have some load data going on already
-      // TODO - this does not work correctly today, fix this and re-enable it.
-//            if (loadData != null && responseHeaders != null) {
-//                Hashtable<String, String> headers = parseHeaders(responseHeaders);
-//
-//                if (headers != null) {
-//                    loadData.setRequestResponseHeaders(headers);
-//                }
-//            }
+    private void parseHeaders(BandwidthMetricData loadData,
+        Map<String, List<String>> responseHeaders) {
+      if (responseHeaders != null) {
+        Hashtable<String, String> headers = parseHeaders(responseHeaders);
 
-      dispatch(loadData);
+        if (headers != null) {
+          loadData.setRequestResponseHeaders(headers);
+        }
+      } 
     }
 
     public void onTracksChanged(TrackGroupArray trackGroups) {
+      currentBandwidthMetric().availableTracks = trackGroups;
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
@@ -1051,13 +1006,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
     }
 
-    private void dispatch(BandwidthMetricData data) {
+    private void dispatch(BandwidthMetricData data, PlaybackEvent event) {
       if (data != null) {
-        RequestBandwidthEvent playback = new RequestBandwidthEvent(null);
-        playback.setBandwidthMetricData(data);
-        MuxBaseExoPlayer.this.dispatch(playback);
+        event.setBandwidthMetricData(data);
+        MuxBaseExoPlayer.this.dispatch(event);
       }
     }
+
 
     private Hashtable<String, String> parseHeaders(Map<String, List<String>> responseHeaders) {
       if (responseHeaders == null || responseHeaders.size() == 0) {
@@ -1066,6 +1021,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
       Hashtable<String, String> headers = new Hashtable<String, String>();
       for (String headerName : responseHeaders.keySet()) {
+        boolean headerAllowed = false;
+        synchronized (this) {
+          for (String allowedHeader : allowedHeaders) {
+            if (allowedHeader.equalsIgnoreCase(headerName)) {
+              headerAllowed = true;
+            }
+          }
+        }
+        if (!headerAllowed) {
+          // Pass this header, we do not need it
+          continue;
+        }
+
         if (headerName == null) {
           continue;
         }

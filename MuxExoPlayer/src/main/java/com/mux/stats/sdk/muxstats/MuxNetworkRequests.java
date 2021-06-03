@@ -2,7 +2,6 @@ package com.mux.stats.sdk.muxstats;
 
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.util.Log;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.compat.AsyncTaskCompat;
 import java.io.ByteArrayOutputStream;
@@ -172,7 +171,8 @@ public class MuxNetworkRequests implements INetworkRequest {
           String key = headerKeys.nextElement();
           String value = headers.get(key);
           conn.setRequestProperty(key, value);
-          if (key.equalsIgnoreCase("Content-Encoding") && value.equalsIgnoreCase("gzip")) {
+          if (key.equalsIgnoreCase("Content-Encoding")
+              && value.equalsIgnoreCase("gzip")) {
             shouldGzip = true;
           }
         }
@@ -195,7 +195,7 @@ public class MuxNetworkRequests implements INetworkRequest {
         stream = conn.getInputStream();
         MuxLogger.d(TAG, "got response: " + conn.getResponseCode());
       } catch (Exception e) {
-        Log.e(TAG, e.getMessage(), e);
+        MuxLogger.d(TAG, e.getMessage());
         successful = false;
         failureCount++;
       } finally {
@@ -203,7 +203,7 @@ public class MuxNetworkRequests implements INetworkRequest {
           try {
             stream.close();
           } catch (IOException ioe) {
-            Log.e(TAG, ioe.getMessage(), ioe);
+            MuxLogger.d(TAG, ioe.getMessage());
             successful = false;
             failureCount++;
           }
@@ -238,7 +238,7 @@ public class MuxNetworkRequests implements INetworkRequest {
     try {
       AsyncTaskCompat.executeParallel(new NetworkTaskRunner(null), new GetRequest(url));
     } catch (Exception e) {
-      Log.e(TAG, e.getMessage(), e);
+      MuxLogger.d(TAG, e.getMessage());
     }
   }
 
@@ -248,7 +248,7 @@ public class MuxNetworkRequests implements INetworkRequest {
       AsyncTaskCompat.executeParallel(new NetworkTaskRunner(null),
           new PostRequest(url, body.toString(), headers));
     } catch (Exception e) {
-      Log.e(TAG, e.getMessage(), e);
+      MuxLogger.d(TAG, e.getMessage());
     }
   }
 
@@ -267,7 +267,7 @@ public class MuxNetworkRequests implements INetworkRequest {
         throw new Exception("propertyKey is null");
       }
     } catch (Exception e) {
-      Log.e(TAG, e.getMessage(), e);
+      MuxLogger.d(TAG, e.getMessage());
       callback.onComplete(true);
     }
   }

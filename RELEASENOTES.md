@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.4.9
+ - Added support for CDN header tracking, including mid-stream CDN switching. (#109)
+ - Fix a null-pointer crash in the ads listener. (#112)
+ - Updated the Mux Core library, added support for bandwidth metrics.
+
 ## v2.4.8
  - Reset internal state when calling videochange, fixing an issue where rebuffering may be reported incorrectly after calling videochange. (#107)
 
