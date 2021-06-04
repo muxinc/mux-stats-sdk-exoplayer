@@ -64,6 +64,14 @@ import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Player statistic collector, detect all relevant playback events, metrics and send it to
+ * MuxCore SDK for processing.
+ *
+ * <h3> Public API </h3>
+ *
+ * <p> Exposes public API to application layer,
+ */
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
