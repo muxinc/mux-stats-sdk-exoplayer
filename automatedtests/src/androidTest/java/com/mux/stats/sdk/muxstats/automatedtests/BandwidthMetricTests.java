@@ -45,7 +45,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   @Before
   public void init() {
-    urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+    if( currentTestName.getMethodName().equalsIgnoreCase("testBandwidthMetricsHls") ) {
+      urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+    } else {
+      urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
+    }
     bandwidthLimitInBitsPerSecond = 12000000;
     super.init();
     httpServer.setHLSManifestDelay(manifestDelayList[0]);
@@ -57,6 +61,15 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   @Test
+  public void testBandwidthMetricsHls() {
+    testBandwidthMetrics();
+  }
+
+  @Test
+  public void testBandwidthMetricsDash() {
+    testBandwidthMetrics();
+  }
+
   public void testBandwidthMetrics() {
     try {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
