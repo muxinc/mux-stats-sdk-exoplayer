@@ -11,6 +11,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -88,6 +89,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           pView.getPlayer().stop();
         }
       });
+      JSONArray eventsJson = networkRequest.getReceivedEventsAsJSON();
       ArrayList<JSONObject> requestCompletedEvents = networkRequest
           .getAllEventsOfType(RequestCompleted.TYPE);
       ArrayList<JSONObject> requestCanceledEvents = networkRequest
@@ -122,7 +124,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       long networkDelay = headersJsonObject.getLong(SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER);
       boolean expectingManifest = false;
       int mediaSegmentIndex = 0;
-      if (fileNameHeaderValue.endsWith("m3u8")) {
+      if (fileNameHeaderValue.endsWith("m3u8") || fileNameHeaderValue.endsWith("mpd")) {
         expectingManifest = true;
       } else {
         String[] segments = fileNameHeaderValue.split("_");
