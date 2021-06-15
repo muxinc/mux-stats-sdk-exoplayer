@@ -829,10 +829,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       segmentData.setRequestUrl(segmentUrl);
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
+        case C.DATA_TYPE_MEDIA_INITIALIZATION:
           segmentData.setRequestType("manifest");
           break;
         case C.DATA_TYPE_MEDIA:
-        case C.DATA_TYPE_MEDIA_INITIALIZATION:
           segmentData.setRequestType("media");
           segmentData.setRequestMediaDuration(mediaEndTimeMs
               - mediaStartTimeMs);

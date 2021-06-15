@@ -26,11 +26,15 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   static long averageSegmentDuration = 4006; // milliseconds
   // Our HLS test file have 3 levels of quality
   // Expected video width for each HLS quality level. values obtained by inspecting static assets
-  static long[] videoWidthsByLevel = {640, 842, 1280};
+  static long[] hlsVideoWidthsByLevel = {640, 842, 1280};
+  static long[] dashVideoWidthsByLevel = {568, 854, 1920};
   // Expected video height for each HLS quality level. values obtained by inspecting static assets
-  static long[] videoHeightsByLevel = {360, 474, 720};
+  static long[] hlsVideoHeightsByLevel = {360, 474, 720};
+  static long[] dashVideoHeightsByLevel = {320, 480, 1080};
   // Declared video bitrates according to quality level
-  static long[] videoBitratesByLevel = {800000, 1400000, 2800000};
+  static long[] hlsVideoBitratesByLevel = {800000, 1400000, 2800000};
+  static long[] dashVideoBitratesByLevel = {234738, 1007646, 3951723};
+  static long dashAudioBitrate = 127283;
 
   static final String X_CDN_HEADER_VALUE = "automated.test.com";
 
@@ -42,6 +46,8 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   static final long ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE = 1000;
   static final long ERROR_MARGIN_FOR_NETWORK_REQUEST_DELAY = 30;
 
+  private boolean parsingDash = false;
+
 //  static long[] manifestDelayList = {100, 50, 150, 50, 350, 200, 250, 100};
 
   @Before
@@ -50,6 +56,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
     } else {
       urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
+      parsingDash = true;
     }
     bandwidthLimitInBitsPerSecond = 12000000;
     super.init();
@@ -124,12 +131,18 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       long networkDelay = headersJsonObject.getLong(SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER);
       boolean expectingManifest = false;
       int mediaSegmentIndex = 0;
-      if (fileNameHeaderValue.endsWith("m3u8") || fileNameHeaderValue.endsWith("mpd")) {
+      if (fileNameHeaderValue.endsWith("m3u8") || fileNameHeaderValue.endsWith("mpd")
+        || (fileNameHeaderValue.contains("segment_") && fileNameHeaderValue.endsWith("mp4"))) {
         expectingManifest = true;
       } else {
         String[] segments = fileNameHeaderValue.split("_");
         String indexSegment = segments[segments.length - 1];
-        mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
+        if (parsingDash) {
+          mediaSegmentIndex = parseMediaIndexForDash(indexSegment);
+        } else {
+          // Parsing HLS
+          mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
+        }
       }
       SegmentStatistics segmentStat = httpServer.getSegmentStatistics(segmentUuid);
       if (segmentStat == null) {
@@ -230,8 +243,13 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat);
     } else {
       checkNetworkDelay(requestJson, requestNetworkDelay, requestCompletedEventIndex);
-      checkRequestCompletedMediaSegment(requestCompletedEventIndex, requestJson,
-          mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+      if (fileNameHeaderValue.contains("English")) {
+        checkRequestCompletedAudioSegment(requestCompletedEventIndex, requestJson,
+            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+      } else {
+        checkRequestCompletedMediaSegment(requestCompletedEventIndex, requestJson,
+            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+      }
     }
   }
 
@@ -277,10 +295,61 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         ERROR_MARGIN_FOR_BYTES_SERVED);
   }
 
+  private void checkRequestCompletedAudioSegment(int requestCompletedEventIndex,
+      JSONObject requestCompletedJson,
+      int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
+      throws Exception {
+    checkLongValueForEvent(
+        "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
+        requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
+        ERROR_MARGIN_FOR_SEGMENT_DURATION);
+    checkLongValueForEvent(
+        "REQUEST_MEDIA_START_TIME", BandwidthMetricData.REQUEST_MEDIA_START_TIME,
+        requestCompletedEventIndex, requestCompletedJson,
+        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkLongValueForEvent(
+        "REQUEST_CURRENT_LEVEL", BandwidthMetricData.REQUEST_CURRENT_LEVEL,
+        requestCompletedEventIndex, requestCompletedJson, qualityLevel,
+        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION);
+    checkLongValueForEvent(
+        "REQUEST_LABELED_BITRATE", BandwidthMetricData.REQUEST_LABELED_BITRATE,
+        requestCompletedEventIndex, requestCompletedJson, dashAudioBitrate,
+        ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE);
+    checkLongValueForEvent(
+        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
+        requestCompletedEventIndex, requestCompletedJson,
+        segmentStats.getSegmentRequestedAt(),
+        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkLongValueForEvent(
+        "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
+        requestCompletedEventIndex, requestCompletedJson,
+        segmentStats.getSegmentRespondedAt(),
+        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
+        requestCompletedEventIndex, requestCompletedJson, segmentUrl);
+    checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
+        requestCompletedEventIndex, requestCompletedJson, "localhost");
+    if (parsingDash) {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp4");
+    } else {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    }
+    checkRenditionList(requestCompletedEventIndex, requestCompletedJson);
+  }
+
   private void checkRequestCompletedMediaSegment(int requestCompletedEventIndex,
       JSONObject requestCompletedJson,
       int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
       throws Exception {
+    long[] videoWidthsByLevel = hlsVideoWidthsByLevel;
+    long[] videoHeightsByLevel = hlsVideoHeightsByLevel;
+    long[] videoBitratesByLevel = hlsVideoBitratesByLevel;
+    if (parsingDash) {
+      videoWidthsByLevel = dashVideoWidthsByLevel;
+      videoHeightsByLevel = dashVideoHeightsByLevel;
+      videoBitratesByLevel = dashVideoBitratesByLevel;
+    }
+
     checkLongValueForEvent(
         "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
         requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
@@ -319,7 +388,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         requestCompletedEventIndex, requestCompletedJson, segmentUrl);
     checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
         requestCompletedEventIndex, requestCompletedJson, "localhost");
-    checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    if (parsingDash) {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp4");
+    } else {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    }
     checkRenditionList(requestCompletedEventIndex, requestCompletedJson);
   }
 
@@ -391,5 +464,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     } catch (JSONException e) {
       fail("Missing " + fieldName + " for request object with index: " + eventIndex);
     }
+  }
+
+  private int parseMediaIndexForDash(String segmentString) {
+    String segmentWithouthExt = segmentString.replace(".m4s", "");
+    // Substract 1 because dash segments start from 1, and HLS start from 0
+    return (Integer.valueOf(segmentWithouthExt.replaceAll("[^0-9]", "")) - 1);
   }
 }
