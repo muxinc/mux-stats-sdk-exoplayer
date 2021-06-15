@@ -153,16 +153,16 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       // check the request completed data
       if (requestJson.has(BandwidthMetricData.REQUEST_TYPE)) {
         if (isRequestCompletedList) {
-          checkRequestCompletedEvent(requestJson, expectingManifest,
+          checkRequestCompletedEvent(requestJson,
               segmentStat, mediaSegmentIndex, qualityLevel,
               requestCompletedEventIndex, fileNameHeaderValue, networkDelay);
         }
         if (isRequestCanceledList) {
-          checkRequestCanceledEvent(requestJson, expectingManifest,
+          checkRequestCanceledEvent(requestJson,
               segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
         }
         if (isRequestFailedList) {
-          checkRequestFailedEvent(requestJson, expectingManifest,
+          checkRequestFailedEvent(requestJson,
               segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
         }
       } else {
@@ -173,12 +173,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkRequestFailedEvent(JSONObject requestJson,
-      boolean expectingManifest,
       SegmentStatistics segmentStat,
       int requestCompletedEventIndex,
       String segmentUrl)
       throws Exception {
-    checkManifestValue(requestJson, expectingManifest);
+    checkManifestValue(requestJson, segmentUrl);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
@@ -206,12 +205,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkRequestCanceledEvent(JSONObject requestJson,
-      boolean expectingManifest,
       SegmentStatistics segmentStat,
       int requestCompletedEventIndex,
       String segmentUrl)
       throws Exception {
-    checkManifestValue(requestJson, expectingManifest);
+    checkManifestValue(requestJson, segmentUrl);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
@@ -231,7 +229,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkRequestCompletedEvent(JSONObject requestJson,
-      boolean expectingManifest,
       SegmentStatistics segmentStat,
       int mediaSegmentIndex,
       int qualityLevel,
@@ -239,7 +236,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       String fileNameHeaderValue,
       long requestNetworkDelay
   ) throws Exception {
-    if (checkManifestValue(requestJson, expectingManifest)) {
+    if (checkManifestValue(requestJson, fileNameHeaderValue)) {
       checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat);
     } else {
       checkNetworkDelay(requestJson, requestNetworkDelay, requestCompletedEventIndex);
@@ -258,25 +255,29 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     // I have no way of getting REQUEST_START
   }
 
-  private boolean checkManifestValue(JSONObject requestJson,
-      boolean expectingManifest) throws Exception {
-    if (requestJson.getString(BandwidthMetricData.REQUEST_TYPE)
-        .equalsIgnoreCase("manifest")) {
-      if (!expectingManifest) {
-        fail("Expected requestcompleted event type to be manifest, event: "
-            + requestJson.toString());
-      }
-      return true;
+  private boolean checkManifestValue(JSONObject requestJson, String segmentUrl) throws Exception {
+    String reportedManifest = requestJson.getString(BandwidthMetricData.REQUEST_TYPE);
+    String expectedResult = "media";
+    boolean isManifest = false;
+    if (segmentUrl.endsWith("m3u8") || segmentUrl.endsWith("mpd")) {
+      expectedResult = "manifest";
+      isManifest = true;
     }
-    if (requestJson.getString(BandwidthMetricData.REQUEST_TYPE)
-        .equalsIgnoreCase("media")) {
-      if (expectingManifest) {
-        fail("Expected requestcompleted event type to be media, event: "
-            + requestJson.toString());
+    else if (parsingDash && segmentUrl.endsWith("mp4")) {
+      if (segmentUrl.contains("English")) {
+        expectedResult = "audio_init";
+      } else {
+        expectedResult = "video_init";
       }
-      return false;
+      isManifest = true;
     }
-    return false;
+    if (!reportedManifest
+        .equalsIgnoreCase(expectedResult)) {
+        fail("Expected requestcompleted event type to be: " + expectedResult
+            + ", reported: " + reportedManifest
+            + " event: " + requestJson.toString());
+    }
+    return isManifest;
   }
 
   private void checkManifestSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,

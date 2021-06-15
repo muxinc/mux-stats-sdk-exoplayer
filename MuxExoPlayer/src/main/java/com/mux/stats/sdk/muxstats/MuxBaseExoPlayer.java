@@ -818,7 +818,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
-        String segmentUrl, int dataType, String host
+        String segmentUrl, int dataType, String host, String segmentMimeType
     ) {
       BandwidthMetricData segmentData = new BandwidthMetricData();
       // TODO RequestStart timestamp is currently not available from ExoPlayer
@@ -830,7 +830,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
         case C.DATA_TYPE_MEDIA_INITIALIZATION:
-          segmentData.setRequestType("manifest");
+          if (segmentMimeType.contains("video")) {
+            segmentData.setRequestType("video_init");
+          } else if (segmentMimeType.contains("audio")) {
+            segmentData.setRequestType("audio_init");
+          } else {
+            segmentData.setRequestType("manifest");
+          }
           break;
         case C.DATA_TYPE_MEDIA:
           segmentData.setRequestType("media");
@@ -847,9 +853,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
-        String segmentUrl, int dataType, String host) {
+        String segmentUrl, int dataType, String host, String segmentMimeType) {
       BandwidthMetricData loadData = onLoad(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
-          , dataType, host);
+          , dataType, host, segmentMimeType);
       if (loadData != null) {
         loadData.setRequestResponseStart(System.currentTimeMillis());
       }
@@ -945,13 +951,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
-        int dataType, String host) {
+        int dataType, String host, String segmentMimeType) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
       currentBandwidthMetric().onLoadStarted(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
-          , dataType, host);
+          , dataType, host, segmentMimeType);
     }
 
     public void onLoadCompleted(
