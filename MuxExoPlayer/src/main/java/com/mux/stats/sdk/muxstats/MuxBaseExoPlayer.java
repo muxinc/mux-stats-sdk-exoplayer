@@ -818,7 +818,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
-        String segmentUrl, int dataType, String host
+        String segmentUrl, int dataType, String host, String segmentMimeType
     ) {
       BandwidthMetricData segmentData = new BandwidthMetricData();
       // TODO RequestStart timestamp is currently not available from ExoPlayer
@@ -829,29 +829,33 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       segmentData.setRequestUrl(segmentUrl);
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
-          segmentData.setRequestType("manifest");
+        case C.DATA_TYPE_MEDIA_INITIALIZATION:
+          if (segmentMimeType.contains("video")) {
+            segmentData.setRequestType("video_init");
+          } else if (segmentMimeType.contains("audio")) {
+            segmentData.setRequestType("audio_init");
+          } else {
+            segmentData.setRequestType("manifest");
+          }
           break;
         case C.DATA_TYPE_MEDIA:
           segmentData.setRequestType("media");
+          segmentData.setRequestMediaDuration(mediaEndTimeMs
+              - mediaStartTimeMs);
           break;
         default:
-          return null;
       }
       segmentData.setRequestResponseHeaders(null);
       segmentData.setRequestHostName(host);
-      if (dataType == C.DATA_TYPE_MEDIA) {
-        segmentData.setRequestMediaDuration(mediaEndTimeMs
-            - mediaStartTimeMs);
-      }
       segmentData.setRequestRenditionLists(renditionList);
       loadedSegments.put(segmentUrl, segmentData);
       return segmentData;
     }
 
     public BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
-        String segmentUrl, int dataType, String host) {
+        String segmentUrl, int dataType, String host, String segmentMimeType) {
       BandwidthMetricData loadData = onLoad(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
-          , dataType, host);
+          , dataType, host, segmentMimeType);
       if (loadData != null) {
         loadData.setRequestResponseStart(System.currentTimeMillis());
       }
@@ -861,6 +865,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public BandwidthMetricData onLoadCompleted(String segmentUrl, long bytesLoaded,
         Format trackFormat) {
       BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      if (segmentData == null) {
+        return null;
+      }
       segmentData.setRequestBytesLoaded(bytesLoaded);
       segmentData.setRequestResponseEnd(System.currentTimeMillis());
       if (trackFormat != null && availableTracks != null) {
@@ -902,7 +909,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         long bytesLoaded,
         Format trackFormat) {
       BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
-      if (trackFormat != null) {
+      if (trackFormat != null && loadData != null) {
         loadData.setRequestLabeledBitrate(trackFormat.bitrate);
       }
       return loadData;
@@ -944,13 +951,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     public void onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
-        int dataType, String host) {
+        int dataType, String host, String segmentMimeType) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
       currentBandwidthMetric().onLoadStarted(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
-          , dataType, host);
+          , dataType, host, segmentMimeType);
     }
 
     public void onLoadCompleted(
@@ -962,8 +969,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
       BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(
           segmentUrl, bytesLoaded, trackFormat);
-      parseHeaders(loadData, responseHeaders);
-      dispatch(loadData, new RequestCompleted(null));
+      if (loadData != null) {
+        parseHeaders(loadData, responseHeaders);
+        dispatch(loadData, new RequestCompleted(null));
+      }
     }
 
     private void parseHeaders(BandwidthMetricData loadData,
@@ -974,7 +983,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (headers != null) {
           loadData.setRequestResponseHeaders(headers);
         }
-      } 
+      }
     }
 
     public void onTracksChanged(TrackGroupArray trackGroups) {

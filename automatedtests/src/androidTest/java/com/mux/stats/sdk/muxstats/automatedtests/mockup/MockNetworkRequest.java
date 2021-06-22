@@ -76,6 +76,14 @@ public class MockNetworkRequest implements INetworkRequest {
     return receivedEvents.get(index).getString("e");
   }
 
+  public JSONArray getReceivedEventsAsJSON() {
+    JSONArray result = new JSONArray();
+    for (JSONObject jo : receivedEvents) {
+      result.put(jo);
+    }
+    return result;
+  }
+
   public int getIndexForFirstEvent(String eventName) throws JSONException {
     for (int i = 0; i < receivedEvents.size(); i++) {
       if (getReceivedEventName(i).equals(eventName)) {

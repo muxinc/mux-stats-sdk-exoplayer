@@ -11,6 +11,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -25,11 +26,15 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   static long averageSegmentDuration = 4006; // milliseconds
   // Our HLS test file have 3 levels of quality
   // Expected video width for each HLS quality level. values obtained by inspecting static assets
-  static long[] videoWidthsByLevel = {640, 842, 1280};
+  static long[] hlsVideoWidthsByLevel = {640, 842, 1280};
+  static long[] dashVideoWidthsByLevel = {568, 854, 1920};
   // Expected video height for each HLS quality level. values obtained by inspecting static assets
-  static long[] videoHeightsByLevel = {360, 474, 720};
+  static long[] hlsVideoHeightsByLevel = {360, 474, 720};
+  static long[] dashVideoHeightsByLevel = {320, 480, 1080};
   // Declared video bitrates according to quality level
-  static long[] videoBitratesByLevel = {800000, 1400000, 2800000};
+  static long[] hlsVideoBitratesByLevel = {800000, 1400000, 2800000};
+  static long[] dashVideoBitratesByLevel = {234738, 1007646, 3951723};
+  static long dashAudioBitrate = 127283;
 
   static final String X_CDN_HEADER_VALUE = "automated.test.com";
 
@@ -41,11 +46,18 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   static final long ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE = 1000;
   static final long ERROR_MARGIN_FOR_NETWORK_REQUEST_DELAY = 30;
 
+  private boolean parsingDash = false;
+
 //  static long[] manifestDelayList = {100, 50, 150, 50, 350, 200, 250, 100};
 
   @Before
   public void init() {
-    urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+    if( currentTestName.getMethodName().equalsIgnoreCase("testBandwidthMetricsHls") ) {
+      urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+    } else {
+      urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
+      parsingDash = true;
+    }
     bandwidthLimitInBitsPerSecond = 12000000;
     super.init();
     httpServer.setHLSManifestDelay(manifestDelayList[0]);
@@ -57,6 +69,15 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   @Test
+  public void testBandwidthMetricsHls() {
+    testBandwidthMetrics();
+  }
+
+  @Test
+  public void testBandwidthMetricsDash() {
+    testBandwidthMetrics();
+  }
+
   public void testBandwidthMetrics() {
     try {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
@@ -75,6 +96,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           pView.getPlayer().stop();
         }
       });
+      JSONArray eventsJson = networkRequest.getReceivedEventsAsJSON();
       ArrayList<JSONObject> requestCompletedEvents = networkRequest
           .getAllEventsOfType(RequestCompleted.TYPE);
       ArrayList<JSONObject> requestCanceledEvents = networkRequest
@@ -109,12 +131,18 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       long networkDelay = headersJsonObject.getLong(SimpleHTTPServer.REQUEST_NETWORK_DELAY_HEADER);
       boolean expectingManifest = false;
       int mediaSegmentIndex = 0;
-      if (fileNameHeaderValue.endsWith("m3u8")) {
+      if (fileNameHeaderValue.endsWith("m3u8") || fileNameHeaderValue.endsWith("mpd")
+        || (fileNameHeaderValue.contains("segment_") && fileNameHeaderValue.endsWith("mp4"))) {
         expectingManifest = true;
       } else {
         String[] segments = fileNameHeaderValue.split("_");
         String indexSegment = segments[segments.length - 1];
-        mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
+        if (parsingDash) {
+          mediaSegmentIndex = parseMediaIndexForDash(indexSegment);
+        } else {
+          // Parsing HLS
+          mediaSegmentIndex = Integer.valueOf(indexSegment.replaceAll("[^0-9]", ""));
+        }
       }
       SegmentStatistics segmentStat = httpServer.getSegmentStatistics(segmentUuid);
       if (segmentStat == null) {
@@ -125,16 +153,16 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       // check the request completed data
       if (requestJson.has(BandwidthMetricData.REQUEST_TYPE)) {
         if (isRequestCompletedList) {
-          checkRequestCompletedEvent(requestJson, expectingManifest,
+          checkRequestCompletedEvent(requestJson,
               segmentStat, mediaSegmentIndex, qualityLevel,
               requestCompletedEventIndex, fileNameHeaderValue, networkDelay);
         }
         if (isRequestCanceledList) {
-          checkRequestCanceledEvent(requestJson, expectingManifest,
+          checkRequestCanceledEvent(requestJson,
               segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
         }
         if (isRequestFailedList) {
-          checkRequestFailedEvent(requestJson, expectingManifest,
+          checkRequestFailedEvent(requestJson,
               segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
         }
       } else {
@@ -145,12 +173,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkRequestFailedEvent(JSONObject requestJson,
-      boolean expectingManifest,
       SegmentStatistics segmentStat,
       int requestCompletedEventIndex,
       String segmentUrl)
       throws Exception {
-    checkManifestValue(requestJson, expectingManifest);
+    checkManifestValue(requestJson, segmentUrl);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
@@ -178,12 +205,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkRequestCanceledEvent(JSONObject requestJson,
-      boolean expectingManifest,
       SegmentStatistics segmentStat,
       int requestCompletedEventIndex,
       String segmentUrl)
       throws Exception {
-    checkManifestValue(requestJson, expectingManifest);
+    checkManifestValue(requestJson, segmentUrl);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
@@ -203,7 +229,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkRequestCompletedEvent(JSONObject requestJson,
-      boolean expectingManifest,
       SegmentStatistics segmentStat,
       int mediaSegmentIndex,
       int qualityLevel,
@@ -211,12 +236,17 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       String fileNameHeaderValue,
       long requestNetworkDelay
   ) throws Exception {
-    if (checkManifestValue(requestJson, expectingManifest)) {
+    if (checkManifestValue(requestJson, fileNameHeaderValue)) {
       checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat);
     } else {
       checkNetworkDelay(requestJson, requestNetworkDelay, requestCompletedEventIndex);
-      checkRequestCompletedMediaSegment(requestCompletedEventIndex, requestJson,
-          mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+      if (fileNameHeaderValue.contains("English")) {
+        checkRequestCompletedAudioSegment(requestCompletedEventIndex, requestJson,
+            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+      } else {
+        checkRequestCompletedMediaSegment(requestCompletedEventIndex, requestJson,
+            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+      }
     }
   }
 
@@ -225,25 +255,29 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     // I have no way of getting REQUEST_START
   }
 
-  private boolean checkManifestValue(JSONObject requestJson,
-      boolean expectingManifest) throws Exception {
-    if (requestJson.getString(BandwidthMetricData.REQUEST_TYPE)
-        .equalsIgnoreCase("manifest")) {
-      if (!expectingManifest) {
-        fail("Expected requestcompleted event type to be manifest, event: "
-            + requestJson.toString());
-      }
-      return true;
+  private boolean checkManifestValue(JSONObject requestJson, String segmentUrl) throws Exception {
+    String reportedManifest = requestJson.getString(BandwidthMetricData.REQUEST_TYPE);
+    String expectedResult = "media";
+    boolean isManifest = false;
+    if (segmentUrl.endsWith("m3u8") || segmentUrl.endsWith("mpd")) {
+      expectedResult = "manifest";
+      isManifest = true;
     }
-    if (requestJson.getString(BandwidthMetricData.REQUEST_TYPE)
-        .equalsIgnoreCase("media")) {
-      if (expectingManifest) {
-        fail("Expected requestcompleted event type to be media, event: "
-            + requestJson.toString());
+    else if (parsingDash && segmentUrl.endsWith("mp4")) {
+      if (segmentUrl.contains("English")) {
+        expectedResult = "audio_init";
+      } else {
+        expectedResult = "video_init";
       }
-      return false;
+      isManifest = true;
     }
-    return false;
+    if (!reportedManifest
+        .equalsIgnoreCase(expectedResult)) {
+        fail("Expected requestcompleted event type to be: " + expectedResult
+            + ", reported: " + reportedManifest
+            + " event: " + requestJson.toString());
+    }
+    return isManifest;
   }
 
   private void checkManifestSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
@@ -262,10 +296,61 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         ERROR_MARGIN_FOR_BYTES_SERVED);
   }
 
+  private void checkRequestCompletedAudioSegment(int requestCompletedEventIndex,
+      JSONObject requestCompletedJson,
+      int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
+      throws Exception {
+    checkLongValueForEvent(
+        "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
+        requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
+        ERROR_MARGIN_FOR_SEGMENT_DURATION);
+    checkLongValueForEvent(
+        "REQUEST_MEDIA_START_TIME", BandwidthMetricData.REQUEST_MEDIA_START_TIME,
+        requestCompletedEventIndex, requestCompletedJson,
+        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkLongValueForEvent(
+        "REQUEST_CURRENT_LEVEL", BandwidthMetricData.REQUEST_CURRENT_LEVEL,
+        requestCompletedEventIndex, requestCompletedJson, qualityLevel,
+        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION);
+    checkLongValueForEvent(
+        "REQUEST_LABELED_BITRATE", BandwidthMetricData.REQUEST_LABELED_BITRATE,
+        requestCompletedEventIndex, requestCompletedJson, dashAudioBitrate,
+        ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE);
+    checkLongValueForEvent(
+        "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
+        requestCompletedEventIndex, requestCompletedJson,
+        segmentStats.getSegmentRequestedAt(),
+        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkLongValueForEvent(
+        "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
+        requestCompletedEventIndex, requestCompletedJson,
+        segmentStats.getSegmentRespondedAt(),
+        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+    checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
+        requestCompletedEventIndex, requestCompletedJson, segmentUrl);
+    checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
+        requestCompletedEventIndex, requestCompletedJson, "localhost");
+    if (parsingDash) {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp4");
+    } else {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    }
+    checkRenditionList(requestCompletedEventIndex, requestCompletedJson);
+  }
+
   private void checkRequestCompletedMediaSegment(int requestCompletedEventIndex,
       JSONObject requestCompletedJson,
       int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
       throws Exception {
+    long[] videoWidthsByLevel = hlsVideoWidthsByLevel;
+    long[] videoHeightsByLevel = hlsVideoHeightsByLevel;
+    long[] videoBitratesByLevel = hlsVideoBitratesByLevel;
+    if (parsingDash) {
+      videoWidthsByLevel = dashVideoWidthsByLevel;
+      videoHeightsByLevel = dashVideoHeightsByLevel;
+      videoBitratesByLevel = dashVideoBitratesByLevel;
+    }
+
     checkLongValueForEvent(
         "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
         requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
@@ -304,7 +389,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         requestCompletedEventIndex, requestCompletedJson, segmentUrl);
     checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
         requestCompletedEventIndex, requestCompletedJson, "localhost");
-    checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    if (parsingDash) {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp4");
+    } else {
+      checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp2t");
+    }
     checkRenditionList(requestCompletedEventIndex, requestCompletedJson);
   }
 
@@ -376,5 +465,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     } catch (JSONException e) {
       fail("Missing " + fieldName + " for request object with index: " + eventIndex);
     }
+  }
+
+  private int parseMediaIndexForDash(String segmentString) {
+    String segmentWithouthExt = segmentString.replace(".m4s", "");
+    // Substract 1 because dash segments start from 1, and HLS start from 0
+    return (Integer.valueOf(segmentWithouthExt.replaceAll("[^0-9]", "")) - 1);
   }
 }
