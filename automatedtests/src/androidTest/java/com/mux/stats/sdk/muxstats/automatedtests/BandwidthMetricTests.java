@@ -476,7 +476,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   private void checkMimeType() throws JSONException {
     String mimeType = "unknown";
-    String expectedMimeType = "application/x-mpegURL";
+    String expectedMimeType = "application/x-mpegurl";
     for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++) {
       JSONObject event = networkRequest.getEventForIndex(i);
       if (event.has(VideoData.VIDEO_SOURCE_MIME_TYPE)) {

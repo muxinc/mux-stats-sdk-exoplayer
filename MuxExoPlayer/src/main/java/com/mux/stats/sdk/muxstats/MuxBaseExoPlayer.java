@@ -834,7 +834,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         case C.DATA_TYPE_MANIFEST:
           playingProgressiveDownload = true;
           if (segmentUrl.endsWith("m3u8")) {
-            mimeType = "application/x-mpegURL";
+            mimeType = "application/x-mpegurl";
           }
           if (segmentUrl.endsWith("mpd")) {
             mimeType = "application/dash+xml";
