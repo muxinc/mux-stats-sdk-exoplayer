@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.4.10
+ - Fix a crash introduced when computing bandwidth metrics (#114)
+ - Upgrade MuxCore to 6.5.0 (#115) which includes:
+   - Fix the propagation of bandwidth metrics by including them even when unchanged
+
 ## v2.4.9
  - Added support for CDN header tracking, including mid-stream CDN switching. (#109)
  - Fix a null-pointer crash in the ads listener. (#112)
