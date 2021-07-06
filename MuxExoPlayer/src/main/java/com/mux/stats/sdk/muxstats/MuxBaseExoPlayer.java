@@ -89,6 +89,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected WeakReference<Context> contextRef;
   protected AdsImaSDKListener adsImaSdkListener;
 
+  protected boolean playingProgressiveDownload = false;
   protected int numberOfEventsSent = 0;
   protected int numberOfPlayEventsSent = 0;
   protected int numberOfPauseEventsSent = 0;
@@ -111,6 +112,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       CustomerViewData customerViewData, boolean sentryEnabled,
       INetworkRequest networkRequest) {
     super();
+    playingProgressiveDownload = false;
     this.player = new WeakReference<>(player);
     this.contextRef = new WeakReference<>(ctx);
     state = PlayerState.INIT;
@@ -577,6 +579,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   private void resetInternalStats() {
+    playingProgressiveDownload = false;
     numberOfPauseEventsSent = 0;
     numberOfPlayEventsSent = 0;
     numberOfEventsSent = 0;
@@ -829,6 +832,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       segmentData.setRequestUrl(segmentUrl);
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
+          playingProgressiveDownload = true;
+          if (segmentUrl.endsWith("m3u8")) {
+            mimeType = "application/x-mpegurl";
+          }
+          if (segmentUrl.endsWith("mpd")) {
+            mimeType = "application/dash+xml";
+          }
         case C.DATA_TYPE_MEDIA_INITIALIZATION:
           if (segmentMimeType.contains("video")) {
             segmentData.setRequestType("video_init");
