@@ -919,7 +919,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         long bytesLoaded,
         Format trackFormat) {
       BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
-      if (trackFormat != null && loadData  != null) {
+      if (trackFormat != null && loadData != null) {
         loadData.setRequestLabeledBitrate(trackFormat.bitrate);
       }
       return loadData;
@@ -993,7 +993,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         if (headers != null) {
           loadData.setRequestResponseHeaders(headers);
         }
-      } 
+      }
     }
 
     public void onTracksChanged(TrackGroupArray trackGroups) {

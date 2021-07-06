@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.10
+ - Fix an issue where the application may crash while using DASH playback sources
+
 ## v2.4.9
  - Added support for CDN header tracking, including mid-stream CDN switching. (#109)
  - Fix a null-pointer crash in the ads listener. (#112)
