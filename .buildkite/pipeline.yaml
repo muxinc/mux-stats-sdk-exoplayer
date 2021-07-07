@@ -12,7 +12,7 @@ steps:
           - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
 - wait
 - agents: [ dind=true,queue=beta ]
-  command: docker run --rm -v $(pwd):/data -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_9_6/debug/automatedtests-r2_9_6-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_9_6/debug/automatedtests-r2_9_6-debug.apk -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY nbirkenshawmux/saucectrl-runner
+  command: docker run --rm -v $(pwd):/data -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_9_6/debug/automatedtests-r2_9_6-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_9_6/debug/automatedtests-r2_9_6-debug.apk -e SAUCE_USERNAME=$SAUCE_USERNAME -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectrl-runner
   label: Test Exoplayer r2_9_6 on Pixel device
   retry:
     automatic:
