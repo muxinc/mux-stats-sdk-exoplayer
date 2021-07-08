@@ -161,10 +161,10 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           checkRequestCanceledEvent(requestJson,
               segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
         }
-        if (isRequestFailedList) {
-          checkRequestFailedEvent(requestJson,
-              segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
-        }
+//        if (isRequestFailedList) {
+//          checkRequestFailedEvent(requestJson,
+//              segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
+//        }
       } else {
         fail("Request complete event missing requestType, this field is "
             + "mandatory, event index: " + requestCompletedEventIndex);
