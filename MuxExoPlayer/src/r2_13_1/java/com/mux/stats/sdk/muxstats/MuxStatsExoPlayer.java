@@ -119,7 +119,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaLoadData mediaLoadData) {
     if (mediaLoadData.trackFormat != null
         && mediaLoadData.trackFormat.containerMimeType != null
-        && !playingProgressiveDownload) {
+        && !detectMimeType) {
       mimeType = mediaLoadData.trackFormat.containerMimeType;
     }
   }
