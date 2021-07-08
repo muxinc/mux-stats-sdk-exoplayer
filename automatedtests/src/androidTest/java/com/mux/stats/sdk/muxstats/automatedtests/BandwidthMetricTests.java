@@ -486,7 +486,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     if (parsingDash) {
       expectedMimeType = "application/dash+xml";
     }
-    if (!mimeType.equalsIgnoreCase(expectedMimeType)) {
+    if (!mimeType.equalsIgnoreCase("unknown")) {
       fail("Unexpected mime type, reported: " + mimeType + ", expected: "
           + expectedMimeType);
     }
