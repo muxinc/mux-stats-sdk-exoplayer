@@ -1,4 +1,20 @@
 apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
+
+checkstyle {
+    toolVersion '8.42'
+}
+
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    // empty classpath
+    classpath = files()
+    showViolations = true
+    ignoreFailures = false
+}
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
