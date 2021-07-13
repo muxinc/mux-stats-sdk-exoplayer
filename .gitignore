@@ -19,7 +19,6 @@ gen-external-apklibs
 .project
 .classpath
 .settings
-.checkstyle
 .cproject
 
 # Gradle
