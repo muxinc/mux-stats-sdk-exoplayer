@@ -6,6 +6,7 @@ import com.mux.stats.sdk.core.events.playback.RequestCanceled;
 import com.mux.stats.sdk.core.events.playback.RequestCompleted;
 import com.mux.stats.sdk.core.events.playback.RequestFailed;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
+import com.mux.stats.sdk.core.model.VideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
@@ -96,7 +97,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           pView.getPlayer().stop();
         }
       });
-      JSONArray eventsJson = networkRequest.getReceivedEventsAsJSON();
+      checkMimeType();
       ArrayList<JSONObject> requestCompletedEvents = networkRequest
           .getAllEventsOfType(RequestCompleted.TYPE);
       ArrayList<JSONObject> requestCanceledEvents = networkRequest
@@ -471,5 +472,23 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     String segmentWithouthExt = segmentString.replace(".m4s", "");
     // Substract 1 because dash segments start from 1, and HLS start from 0
     return (Integer.valueOf(segmentWithouthExt.replaceAll("[^0-9]", "")) - 1);
+  }
+
+  private void checkMimeType() throws JSONException {
+    String mimeType = "unknown";
+    String expectedMimeType = "application/x-mpegurl";
+    for (int i = 0; i < networkRequest.getNumberOfReceivedEvents(); i++) {
+      JSONObject event = networkRequest.getEventForIndex(i);
+      if (event.has(VideoData.VIDEO_SOURCE_MIME_TYPE)) {
+        mimeType = event.getString(VideoData.VIDEO_SOURCE_MIME_TYPE);
+      }
+    }
+    if (parsingDash) {
+      expectedMimeType = "application/dash+xml";
+    }
+    if (!mimeType.equalsIgnoreCase("unknown")) {
+      fail("Unexpected mime type, reported: " + mimeType + ", expected: "
+          + expectedMimeType);
+    }
   }
 }
