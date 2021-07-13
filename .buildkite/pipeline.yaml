@@ -8,6 +8,7 @@ steps:
           - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
           - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
           - "MuxExoPlayer/buildout/outputs/version-*"
+          - "MuxExoPlayer/buildout/reports/*/*.*"
           - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"
           - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
 - wait
