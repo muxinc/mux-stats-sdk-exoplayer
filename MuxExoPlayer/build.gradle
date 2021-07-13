@@ -14,7 +14,14 @@ task checkstyle(type: Checkstyle) {
     classpath = files()
     showViolations = true
     ignoreFailures = false
+
+    maxErrors(0)
+    maxWarnings(0)
 }
+
+preBuild.dependsOn('checkstyle')
+assemble.dependsOn('lint')
+check.dependsOn('checkstyle')
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
