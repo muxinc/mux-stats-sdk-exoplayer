@@ -7,6 +7,8 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 import static org.junit.Assert.fail;
 
 import android.app.Activity;
+import android.os.Build;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import androidx.test.espresso.UiController;
@@ -93,6 +95,7 @@ public abstract class TestBase {
 
   @Before
   public void init() {
+    Log.v(TAG, "automatedtests commit "+BuildConfig.CI_GIT_COMMIT);
     try {
       httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
 //            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
