@@ -108,8 +108,6 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
           true, false, false);
       checkRequests(requestCanceledEvents,
           false, true, false);
-//      checkRequests(requestFailedEvents,
-//          false, false, true);
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
