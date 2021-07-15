@@ -1,8 +1,9 @@
 env:
   SAUCECTL_LABEL: "$BUILDKITE_BUILD_NUMBER $BUILDKITE_PIPELINE_SLUG $BUILDKITE_BRANCH $BUILDKITE_COMMIT"
+  BUILD_CI_ID: "$BUILDKITE_PIPELINE_SLUG : $BUILDKITE_COMMIT"
 steps:
 - agents: [dind=true,queue=beta]
-  command: docker run -it --rm -v $(pwd):/data -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:build assemble automatedtests:assembleAndroidTest"
+  command: docker run -it --rm -v $(pwd):/data -e BUILD_CI_ID="$BUILD_CI_ID" -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:build assemble automatedtests:assembleAndroidTest"
   label: Build AARs and APKs
   plugins:
     - artifacts#v1.3.0:

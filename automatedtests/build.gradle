@@ -16,7 +16,7 @@ android {
         buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
         buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR_ENV_KEY_HERE\"")
 
-        def gitCommitHash = System.getenv("BUILDKITE_COMMIT")
+        def gitCommitHash = System.getenv("BUILD_CI_ID")
         buildConfigField("String", "CI_GIT_COMMIT",
             "\""+(gitCommitHash == null ? "Not a CI build" : gitCommitHash)+"\"")
     }

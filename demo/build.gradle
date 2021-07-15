@@ -23,7 +23,7 @@ android {
 
         buildConfigField "boolean", "USE_DECODER_EXTENSIONS", "true"
 
-        def gitCommitHash = System.getenv("BUILDKITE_COMMIT")
+        def gitCommitHash = System.getenv("BUILD_CI_ID")
         buildConfigField("String", "CI_GIT_COMMIT",
                 "\""+(gitCommitHash == null ? "Not a CI build" : gitCommitHash)+"\"")
     }
