@@ -537,7 +537,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
 
   /**
-   * State Transitions, return the internal playback state defined here: {@link PlayerState}, this
+   * State transitions, return the internal playback state defined here: {@link PlayerState}, this
    * can be sometimes different then {@link ExoPlayer} internal state.
    */
   public PlayerState getState() {
@@ -571,6 +571,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     setPlaybackHeadUpdateInterval();
   }
 
+  /**
+   * Start a periodic timer which will update the playback position on every 15 seconds. We only use
+   * this method in case media item have no video component, in case it does the
+   * {@link #frameRenderedListener} will be updating the playback position.
+   */
   protected void setPlaybackHeadUpdateInterval() {
     if (updatePlayheadPositionTimer != null) {
       updatePlayheadPositionTimer.cancel();
@@ -991,7 +996,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     /**
      * Basic constructor.
      *
-     * @param ctx activity context.
+     * @param ctx activity context, we use this to access different system services, like
+     *           {@link ConnectivityManager}, or {@link PackageInfo}.
      */
     MuxDevice(Context ctx) {
       SharedPreferences sharedPreferences = ctx
@@ -1140,13 +1146,28 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Used to callculate Bandwidth metrics of HLS or DASH segment.
+   * Used to calculate Bandwidth metrics of HLS or DASH segment. {@link ExoPlayer} will trigger
+   * these events in {@link MuxStatsExoPlayer} and will be propagated here for processing, at this
+   * point both HLS and DASH segments are processed in same way so all metrics are collected here.
    */
   class BandwidthMetric {
 
+    /** Available qualities. */
     TrackGroupArray availableTracks;
+    /**
+     * Each segment that started loading is stored here until the segment ended the loading, we use
+     * segment url to identify the segment, it is the key value of the map.
+     */
     HashMap<String, BandwidthMetricData> loadedSegments = new HashMap<>();
 
+    /**
+     * When segment failed to load this function will report error to the backend. This will also
+     * remove the segment that failed to load from the {@link #loadedSegments} hash map.
+     *
+     * @param segmentUrl, url of the segment that failed to load.
+     * @param e, error that occured.
+     * @return segment that failed to load.
+     */
     public BandwidthMetricData onLoadError(String segmentUrl,
         IOException e) {
       BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
@@ -1162,6 +1183,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return segmentData;
     }
 
+    /**
+     * In case the segment is no longer needed this function will be triggered, this can happen if
+     * player stopped the playback and want to stop all network loading, in that case we will remove
+     * the appropriate segment from {@link #loadedSegments} table.
+     *
+     * @param segmentUrl, url of the segment that want to be loaded.
+     * @return Canceled segment.
+     */
     public BandwidthMetricData onLoadCanceled(String segmentUrl) {
       BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
       if (segmentData == null) {
@@ -1173,7 +1202,26 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return segmentData;
     }
 
-    protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
+    /**
+     * Called when segment starts loading. Set appropriate metrics and stored the segment in the
+     * {@link #loadedSegments} hash table, segment will be then sent to the backend once
+     * {@link #onLoadCompleted(String, long, Format)} is called for the same segment or if
+     * {@link #onLoadError(String, IOException)} or {@link #onLoadCanceled(String)} is called
+     * for this segment.
+     *
+     * @param mediaStartTimeMs, {@link ExoPlayer} reported segment playback start time, this refer
+     *                                           to playback position of segment inside the media
+     *                                           presentation (DASH or HLS stream).
+     * @param mediaEndTimeMs, {@link ExoPlayer} reported playback end time, this refer to playback
+     *                                         position of segment inside the media presentation
+     *                                         (DASH or HLS stream).
+     * @param segmentUrl, url of the segment that is being loaded, used as a unique id for segment
+     *                    storage in {@link #loadedSegments} table.
+     * @param dataType, type of the segment (manifest, media etc ...)
+     * @param host, host associated with this segment.
+     * @return new segment.
+     */
+    protected BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host
     ) {
       BandwidthMetricData segmentData = new BandwidthMetricData();
@@ -1183,6 +1231,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       segmentData.setRequestVideoWidth(sourceWidth);
       segmentData.setRequestVideoHeight(sourceHeight);
       segmentData.setRequestUrl(segmentUrl);
+      segmentData.setRequestResponseStart(System.currentTimeMillis());
       switch (dataType) {
         case C.DATA_TYPE_MANIFEST:
           segmentData.setRequestType("manifest");
@@ -1204,16 +1253,15 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return segmentData;
     }
 
-    public BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
-        String segmentUrl, int dataType, String host) {
-      BandwidthMetricData loadData = onLoad(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
-          , dataType, host);
-      if (loadData != null) {
-        loadData.setRequestResponseStart(System.currentTimeMillis());
-      }
-      return loadData;
-    }
-
+    /**
+     * Called when segment is loaded, this function will retrieve the statistics for this segment
+     * from {@link #loadedSegments} table and fill out remaining metrics.
+     *
+     * @param segmentUrl url related to the segment.
+     * @param bytesLoaded number of bytes needed to load the segment.
+     * @param trackFormat Media details related to the segment.
+     * @return loaded segment.
+     */
     public BandwidthMetricData onLoadCompleted(String segmentUrl, long bytesLoaded,
         Format trackFormat) {
       BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
@@ -1265,7 +1313,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
   }
 
-
+  /**
+   * This class determine which stream is being poarsed (HLS or DASH) and then uses appropriate
+   * {@link BandwidthMetric} object to parse the stream, issue with this is that it is not possible
+   * to reliably detect the stream type currently being played so this part is not functional.
+   * Luckily logic for HLS parsing is same as logic for DASH parsing so for both streams we use
+   * {@link BandwidthMetricHls} for both types of stream.
+   */
   class BandwidthMetricDispatcher {
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
@@ -1411,6 +1465,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
   }
 
+  /**
+   * Convert physical pixels to densety pixels.
+   *
+   * @param px physical pixels to be converted.
+   * @return number of density pixels calculated.
+   */
   private int pxToDp(int px) {
     Context context = contextRef.get();
 
@@ -1424,6 +1484,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     return (int) Math.ceil(px / displayMetrics.density);
   }
 
+  /** HLS and DASH segment metric parser. */
   protected BandwidthMetricDispatcher bandwidthDispatcher = new BandwidthMetricDispatcher();
+  /** List of available qualities in DASH or HLS stream, currently not used. */
   protected List<BandwidthMetricData.Rendition> renditionList;
 }
