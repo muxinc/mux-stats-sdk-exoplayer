@@ -1,4 +1,26 @@
 apply plugin: 'com.android.library'
+apply plugin: 'checkstyle'
+
+checkstyle {
+    configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
+    configDirectory = file("${rootDir}/.checkstyle")
+    toolVersion '8.42'
+}
+
+task checkstyle(type: Checkstyle) {
+    source 'src'
+    include '**/*.java'
+    exclude '**/gen/**'
+
+    // empty classpath
+    classpath = files()
+    showViolations = true
+    ignoreFailures = false
+}
+
+preBuild.dependsOn('checkstyle')
+assemble.dependsOn('lint')
+check.dependsOn('checkstyle')
 
 android {
     compileSdkVersion project.ext.compileSdkVersion
