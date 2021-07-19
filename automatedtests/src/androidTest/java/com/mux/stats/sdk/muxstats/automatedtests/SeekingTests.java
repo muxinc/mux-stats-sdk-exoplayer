@@ -71,7 +71,7 @@ public class SeekingTests extends SeekingTestBase {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      Thread.sleep(WAIT_FOR_NETWORK_PERIOD_IN_MS);
       int playIndex = networkRequest.getIndexForFirstEvent(PlayEvent.TYPE);
       int playingIndex = networkRequest.getIndexForFirstEvent(PlayingEvent.TYPE);
       if (playIndex == -1 || playingIndex == -1) {

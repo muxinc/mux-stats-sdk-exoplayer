@@ -1,5 +1,15 @@
 # Release notes
 
+## v2.4.11
+ - Run automated tests on real devices (#121)
+ - Fix MIME-type detection for HLS & DASH stream by allowing the server to make that determination. (#122)
+ - Upgrade MuxCore to 6.6.0, which includes:
+   - Add support for custom dimensions in view metadata
+   - Fix propagation of bandwidth metrics data by sending even when unchanged
+
+## v2.4.10
+ - Fix an issue where the application may crash while using DASH playback sources
+
 ## v2.4.9
  - Added support for CDN header tracking, including mid-stream CDN switching. (#109)
  - Fix a null-pointer crash in the ads listener. (#112)
