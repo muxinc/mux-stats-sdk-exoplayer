@@ -95,7 +95,7 @@ public abstract class TestBase {
 
   @Before
   public void init() {
-    Log.v(TAG, "automatedtests commit "+BuildConfig.CI_GIT_COMMIT);
+    Log.v(TAG, "automatedtests flavor "+BuildConfig.FLAVOR+" commit "+BuildConfig.CI_GIT_COMMIT);
     try {
       httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
 //            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
