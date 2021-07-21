@@ -8,7 +8,7 @@ steps:
       - artifacts#v1.3.0:
           upload:
             - "fixedname.txt"
-            - "$BUILDKITE_BUILD_NUMBER_output.txt"
+            - "*_output.txt"
 - wait
 - agents: [dind=true,queue=beta]
   command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
@@ -21,7 +21,7 @@ steps:
     - artifacts#v1.3.0:
         download:
           - "fixedname.txt"
-          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+          - "*_output.txt"
 - wait
 - agents: [ dind=true,queue=beta ]
   command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
@@ -34,7 +34,7 @@ steps:
     - artifacts#v1.3.0:
         download:
           - "fixedname.txt"
-          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+          - "*_output.txt"
 - wait
 - agents: [ dind=true,queue=beta ]
   command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
@@ -47,7 +47,7 @@ steps:
     - artifacts#v1.3.0:
         download:
           - "fixedname.txt"
-          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+          - "*_output.txt"
 - wait
 - agents: [dind=true,queue=beta]
   command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
@@ -60,7 +60,7 @@ steps:
     - artifacts#v1.3.0:
         download:
           - "fixedname.txt"
-          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+          - "*_output.txt"
 - wait
 - agents: [ dind=true,queue=beta ]
   command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
@@ -73,4 +73,4 @@ steps:
     - artifacts#v1.3.0:
         download:
           - "fixedname.txt"
-          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+          - "*_output.txt"
