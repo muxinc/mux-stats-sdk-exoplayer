@@ -1,4 +1,6 @@
 env:
+  BUILDKITE_PLUGIN_ARTIFACTS_DEBUG: 1
+  BUILDKITE_PLUGIN_ARTIFACTS_BUILD: "${BUILDKITE_BUILD_ID}"
   SAUCECTL_LABEL: "$BUILDKITE_BUILD_NUMBER $BUILDKITE_PIPELINE_SLUG $BUILDKITE_BRANCH $BUILDKITE_COMMIT"
 steps:
 - agents: [dind=true,queue=beta]
@@ -19,7 +21,6 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -33,7 +34,6 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -47,7 +47,6 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -61,7 +60,6 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -75,7 +73,6 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
