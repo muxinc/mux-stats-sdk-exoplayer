@@ -3,7 +3,7 @@ env:
   BUILD_CI_ID: "$BUILDKITE_BUILD_NUMBER : $BUILDKITE_BRANCH : $BUILDKITE_COMMIT"
 steps:
   - agents: [dind=true,queue=beta]
-    command: docker run -it --rm -v $(pwd):/data -e BUILD_CI_ID="$BUILD_CI_ID" -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info clean MuxExoPlayer:build assemble automatedtests:assembleAndroidTest"; echo "Test out" > MuxExoPlayer/buildout/outputs/$BUILDKITE_BUILD_NUMBER.txt
+    command: docker run -it --rm -v $(pwd):/data -e BUILD_CI_ID="$BUILD_CI_ID" -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info clean MuxExoPlayer:build assemble automatedtests:assembleAndroidTest"; echo "Test out" > MuxExoPlayer/buildout/outputs/$BUILDKITE_BUILD_NUMBER.txt; ls -al MuxExoPlayer/buildout/outputs
     label: Build AARs and APKs
     plugins:
       - artifacts#v1.3.0:
@@ -13,44 +13,3 @@ steps:
             - "MuxExoPlayer/buildout/outputs/version-*"
             - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"
             - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
-  - wait
-  - agents: [dind=true,queue=beta]
-    command: git branch; sleep 2m; ls -al MuxExoPlayer/buildout/outputs
-    label: Test the unbelievable and wait
-    retry:
-      automatic:
-        - exit_status: 1
-          limit: 2
-  - wait
-  - agents: [dind=true,queue=beta]
-    command: git branch; sleep 2m; ls -al MuxExoPlayer/buildout/outputs
-    label: Test the unbelievable and wait
-    retry:
-      automatic:
-        - exit_status: 1
-          limit: 2
-  - wait
-  - agents: [dind=true,queue=beta]
-    command: git branch; sleep 2m; ls -al MuxExoPlayer/buildout/outputs
-    label: Test the unbelievable and wait
-    retry:
-      automatic:
-        - exit_status: 1
-          limit: 2
-  - wait
-  - agents: [ dind=true,queue=beta ]
-    command: git branch; sleep 2m; ls -al MuxExoPlayer/buildout/outputs
-    label: Test the unbelievable and wait
-    retry:
-      automatic:
-        - exit_status: 1
-          limit: 2
-  - wait
-  - agents: [ dind=true,queue=beta ]
-    command: git branch; sleep 2m; ls -al MuxExoPlayer/buildout/outputs
-    label: Test the unbelievable and wait
-    retry:
-      automatic:
-        - exit_status: 1
-          limit: 2
-  - wait
