@@ -19,7 +19,7 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: $BUILDKITE_BUILD_ID
+        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -33,7 +33,7 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: $BUILDKITE_BUILD_ID
+        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -47,7 +47,7 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: $BUILDKITE_BUILD_ID
+        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -61,7 +61,7 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: $BUILDKITE_BUILD_ID
+        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
@@ -75,7 +75,7 @@ steps:
         limit: 2
   plugins:
     - artifacts#v1.3.0:
-        build: $BUILDKITE_BUILD_ID
+        build: "$BUILDKITE_BUILD_ID"
         download:
           - "fixedname.txt"
           - "*_output.txt"
