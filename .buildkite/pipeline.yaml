@@ -1,15 +1,76 @@
 env:
   SAUCECTL_LABEL: "$BUILDKITE_BUILD_NUMBER $BUILDKITE_PIPELINE_SLUG $BUILDKITE_BRANCH $BUILDKITE_COMMIT"
-  BUILD_CI_ID: "$BUILDKITE_BUILD_NUMBER : $BUILDKITE_BRANCH : $BUILDKITE_COMMIT"
 steps:
   - agents: [dind=true,queue=beta]
-    command: docker run -it --rm -v $(pwd):/data -e BUILD_CI_ID="$BUILD_CI_ID" -w="/data" muxinc/mux-exoplayer:20201215 bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:build assemble automatedtests:assembleAndroidTest"; echo "Test out" > automatedtests/buildout/outputs/$BUILDKITE_BUILD_NUMBER.txt; ls -al automatedtests/buildout/outputs
-    label: Build AARs and APKs
+    command: echo "Hello I am from $BUILDKITE_BUILD_NUMBER" > fixedname.txt; echo "I am unique made by $BUILDKITE_BUILD_NUMBER" > $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+    label: Final test
     plugins:
       - artifacts#v1.3.0:
           upload:
-            - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
-            - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
-            - "MuxExoPlayer/buildout/outputs/version-*"
-            - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"
-            - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
+            - "fixedname.txt"
+            - "$BUILDKITE_BUILD_NUMBER_output.txt"
+- wait
+- agents: [dind=true,queue=beta]
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  label: Testing artifacts
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "fixedname.txt"
+          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+- wait
+- agents: [ dind=true,queue=beta ]
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  label: Testing artifacts
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "fixedname.txt"
+          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+- wait
+- agents: [ dind=true,queue=beta ]
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  label: Testing artifacts
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "fixedname.txt"
+          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+- wait
+- agents: [dind=true,queue=beta]
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  label: Testing artifacts
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "fixedname.txt"
+          - "$BUILDKITE_BUILD_NUMBER_output.txt"
+- wait
+- agents: [ dind=true,queue=beta ]
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  label: Testing artifacts
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+          - "fixedname.txt"
+          - "$BUILDKITE_BUILD_NUMBER_output.txt"
