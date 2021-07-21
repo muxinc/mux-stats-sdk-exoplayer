@@ -2,7 +2,7 @@ env:
   SAUCECTL_LABEL: "$BUILDKITE_BUILD_NUMBER $BUILDKITE_PIPELINE_SLUG $BUILDKITE_BRANCH $BUILDKITE_COMMIT"
 steps:
 - agents: [dind=true,queue=beta]
-  command: echo "Hello I am from $BUILDKITE_BUILD_NUMBER" > fixedname.txt; echo "I am unique made by $BUILDKITE_BUILD_NUMBER" > "$BUILDKITE_BUILD_NUMBER_output.txt"; ls -al; sleep 2m
+  command: echo "Hello I am from $BUILDKITE_BUILD_NUMBER" > fixedname.txt; echo "I am unique made by $BUILDKITE_BUILD_NUMBER" > ${BUILDKITE_BUILD_NUMBER}_output.txt; ls -al; sleep 2m
   label: Final test
   plugins:
     - artifacts#v1.3.0:
@@ -11,7 +11,7 @@ steps:
           - "*_output.txt"
 - wait
 - agents: [dind=true,queue=beta]
-  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat ${BUILDKITE_BUILD_NUMBER}_output.txt; sleep 2m
   label: Testing artifacts
   retry:
     automatic:
@@ -24,7 +24,7 @@ steps:
           - "*_output.txt"
 - wait
 - agents: [ dind=true,queue=beta ]
-  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat ${BUILDKITE_BUILD_NUMBER}_output.txt; sleep 2m
   label: Testing artifacts
   retry:
     automatic:
@@ -37,7 +37,7 @@ steps:
           - "*_output.txt"
 - wait
 - agents: [ dind=true,queue=beta ]
-  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat ${BUILDKITE_BUILD_NUMBER}_output.txt; sleep 2m
   label: Testing artifacts
   retry:
     automatic:
@@ -50,7 +50,7 @@ steps:
           - "*_output.txt"
 - wait
 - agents: [dind=true,queue=beta]
-  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat ${BUILDKITE_BUILD_NUMBER}_output.txt; sleep 2m
   label: Testing artifacts
   retry:
     automatic:
@@ -63,7 +63,7 @@ steps:
           - "*_output.txt"
 - wait
 - agents: [ dind=true,queue=beta ]
-  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat $BUILDKITE_BUILD_NUMBER_output.txt; sleep 2m
+  command: echo This is $BUILDKITE_BUILD_NUMBER; ls -al; cat fixedname.txt; cat ${BUILDKITE_BUILD_NUMBER}_output.txt; sleep 2m
   label: Testing artifacts
   retry:
     automatic:
