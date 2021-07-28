@@ -48,6 +48,7 @@ import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -107,9 +108,18 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   boolean playItemHaveVideoTrack;
 
 
+  @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, boolean sentryEnabled,
+      INetworkRequest networkRequest) {
+    this(ctx, player, playerName,
+        new CustomerData(customerPlayerData, customerVideoData, customerViewData),
+        sentryEnabled, networkRequest);
+  }
+
+  MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerData data, boolean sentryEnabled,
       INetworkRequest networkRequest) {
     super();
     detectMimeType = true;
@@ -118,8 +128,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     state = PlayerState.INIT;
     MuxStats.setHostDevice(new MuxDevice(ctx));
     MuxStats.setHostNetworkApi(networkRequest);
-    muxStats = new MuxStats(this, playerName, customerPlayerData, customerVideoData,
-        customerViewData, sentryEnabled);
+    muxStats = new MuxStats(this, playerName, data, sentryEnabled);
     addListener(muxStats);
     playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), this);
     frameRenderedListener = new FrameRenderedListener(playerHandler);
@@ -218,11 +227,23 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   @SuppressWarnings("unused")
+  public void updateCustomerData(CustomerData data) {
+    muxStats.setCustomerData(data);
+  }
+
+  @SuppressWarnings("unused")
+  public CustomerData getCustomerData() {
+    return muxStats.getCustomerData();
+  }
+
+  @Deprecated
+  @SuppressWarnings("unused")
   public void updateCustomerData(CustomerPlayerData customPlayerData,
       CustomerVideoData customVideoData) {
     muxStats.updateCustomerData(customPlayerData, customVideoData);
   }
 
+  @Deprecated
   @SuppressWarnings("unused")
   public void updateCustomerData(CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
@@ -230,16 +251,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     muxStats.updateCustomerData(customerPlayerData, customerVideoData, customerViewData);
   }
 
+  @Deprecated
   @SuppressWarnings("unused")
   public CustomerVideoData getCustomerVideoData() {
     return muxStats.getCustomerVideoData();
   }
 
+  @Deprecated
   @SuppressWarnings("unused")
   public CustomerPlayerData getCustomerPlayerData() {
     return muxStats.getCustomerPlayerData();
   }
 
+  @Deprecated
   @SuppressWarnings("unused")
   public CustomerViewData getCustomerViewData() {
     return muxStats.getCustomerViewData();

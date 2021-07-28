@@ -30,6 +30,7 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -176,9 +177,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     CustomerVideoData customerVideoData = new CustomerVideoData();
     customerVideoData.setVideoTitle(videoTitle);
     mockNetwork = new MockNetworkRequest();
+    CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
     muxStats = new MuxStatsExoPlayer(
-        this, player, "demo-player", customerPlayerData, customerVideoData,
-        null, true, mockNetwork);
+        this, player, "demo-player", customerData, true, mockNetwork);
     Point size = new Point();
     getWindowManager().getDefaultDisplay().getSize(size);
     muxStats.setScreenSize(size.x, size.y);
