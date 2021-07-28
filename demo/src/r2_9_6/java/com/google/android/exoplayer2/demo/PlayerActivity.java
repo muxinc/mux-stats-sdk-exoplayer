@@ -456,12 +456,17 @@ public class PlayerActivity extends Activity
           ExoPlayerFactory.newSimpleInstance(
               /* context= */ this, renderersFactory, trackSelector, drmSessionManager);
       player.addListener(new PlayerEventListener());
+
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData,
-          customerVideoData, false);
+      CustomData customData = new CustomData();
+      customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+      CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+      customerData.setCustomData(customData);
+      muxStats = new MuxStatsExoPlayer(
+          this, player, "demo-player", customerData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);

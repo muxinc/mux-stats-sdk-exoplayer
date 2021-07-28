@@ -336,8 +336,12 @@ public class PlayerActivity extends AppCompatActivity
       customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
+      CustomData customData = new CustomData();
+      customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+      CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+      customerData.setCustomData(customData);
       muxStats = new MuxStatsExoPlayer(
-          this, player, "demo-player", customerPlayerData, customerVideoData);
+          this, player, "demo-player", customerData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
