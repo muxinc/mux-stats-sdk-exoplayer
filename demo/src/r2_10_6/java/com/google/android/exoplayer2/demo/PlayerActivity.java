@@ -75,6 +75,8 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
+import com.mux.stats.sdk.core.model.CustomData;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
