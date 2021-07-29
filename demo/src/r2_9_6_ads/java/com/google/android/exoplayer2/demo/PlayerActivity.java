@@ -81,6 +81,8 @@ import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
+import com.mux.stats.sdk.core.model.CustomData;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -458,12 +460,17 @@ public class PlayerActivity extends Activity
               .newSimpleInstance(this, renderersFactory, trackSelector, drmSessionManager);
       player.setPlayWhenReady(startAutoPlay);
       player.addListener(new PlayerEventListener());
+
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY");
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
-      muxStats = new MuxStatsExoPlayer(this, player, "demo-player", customerPlayerData,
-          customerVideoData);
+      CustomData customData = new CustomData();
+      customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+      CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+      customerData.setCustomData(customData);
+      muxStats = new MuxStatsExoPlayer(
+          this, player, "demo-player", customerData);
       Point size = new Point();
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);

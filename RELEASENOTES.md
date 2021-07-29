@@ -1,5 +1,10 @@
 # Release notes
 
+## v2.4.12
+ - Add checkstyle task to gradle (#123)
+ - Replaced FrameRendererListener with VideoListener. (#127)
+ - Custom data update: deprecate MuxExoPlayer constructors that take a CustomerData arg separately, add custom-dimensions example to demo app (#128)
+
 ## v2.4.11
  - Run automated tests on real devices (#121)
  - Fix MIME-type detection for HLS & DASH stream by allowing the server to make that determination. (#122)
