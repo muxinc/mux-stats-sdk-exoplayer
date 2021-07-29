@@ -18,6 +18,8 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.model.CustomData;
+import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
@@ -29,6 +31,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   static final String TAG = "MuxStatsEventQueue";
 
+  @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData) {
@@ -36,6 +39,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerVideoData, null, true);
   }
 
+  @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
@@ -44,6 +48,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData, true);
   }
 
+  @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
@@ -52,21 +57,34 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         null, sentryEnabled);
   }
 
+  @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, boolean sentryEnabled) {
-    this(ctx, player, playerName, customerPlayerData, customerVideoData,
-        customerViewData, sentryEnabled, new MuxNetworkRequests());
+    this(ctx, player, playerName, new CustomerData(customerPlayerData, customerVideoData,
+        customerViewData), sentryEnabled, new MuxNetworkRequests());
   }
 
+  @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData, boolean sentryEnabled,
+      CustomerViewData customerViewData, boolean sentryEnabled, INetworkRequest networkRequests) {
+    this(ctx, player, playerName, new CustomerData(customerPlayerData, customerVideoData,
+        customerViewData), sentryEnabled, networkRequests);
+  }
+
+  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerData data) {
+    this(ctx, player, playerName, data, true, new MuxNetworkRequests());
+  }
+
+  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerData data,
+      boolean sentryEnabled,
       INetworkRequest networkRequests) {
-    super(ctx, player, playerName, customerPlayerData, customerVideoData,
-        customerViewData, sentryEnabled, networkRequests);
+    super(ctx, player, playerName, data, sentryEnabled, networkRequests);
 
     if (player instanceof SimpleExoPlayer) {
       ((SimpleExoPlayer) player).addAnalyticsListener(this);
