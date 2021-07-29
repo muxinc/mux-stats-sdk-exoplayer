@@ -63,6 +63,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData), sentryEnabled, new MuxNetworkRequests());
   }
 
+  @Deprecated
+  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerPlayerData customerPlayerData,
+      CustomerVideoData customerVideoData,
+      CustomerViewData customerViewData, boolean sentryEnabled, INetworkRequest networkRequests) {
+    this(ctx, player, playerName, new CustomerData(customerPlayerData, customerVideoData,
+        customerViewData), sentryEnabled, networkRequests);
+  }
+
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data) {
     this(ctx, player, playerName, data, true, new MuxNetworkRequests());
