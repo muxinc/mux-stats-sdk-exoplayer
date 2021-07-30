@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.13
+ - Add CustomerData class to Proguard (#131)
+
 ## v2.4.12
  - Add checkstyle task to gradle (#123)
  - Replaced FrameRendererListener with VideoListener. (#127)
