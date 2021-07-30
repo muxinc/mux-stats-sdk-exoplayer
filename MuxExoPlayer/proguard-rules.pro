@@ -24,6 +24,7 @@
 -keep public class com.mux.stats.sdk.core.model.CustomerPlayerData { public protected *; }
 -keep public class com.mux.stats.sdk.core.model.CustomerVideoData { public protected *; }
 -keep public class com.mux.stats.sdk.core.model.CustomerViewData { public protected *; }
+-keep public class com.mux.stats.sdk.core.model.CustomerData { public protected *; }
 -keep public class com.mux.stats.sdk.core.MuxSDKViewOrientation { public protected *; }
 
 -repackageclasses com.mux.stats.sdk
