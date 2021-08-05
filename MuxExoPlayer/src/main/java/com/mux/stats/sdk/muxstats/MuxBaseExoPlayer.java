@@ -410,7 +410,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       updatePlayheadPositionTimer.cancel();
     }
     if (playItemHaveVideoTrack) {
-      Player.VideoComponent videoComponent = player.get().getVideoComponent();
+      ExoPlayer.VideoComponent videoComponent = player.get().getVideoComponent();
       videoComponent.addVideoListener(videoListener);
     }
     // Schedule timer to execute, this is for audio only content.

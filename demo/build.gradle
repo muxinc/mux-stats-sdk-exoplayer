@@ -84,6 +84,26 @@ android {
             res.srcDirs = ['./src/r2_12_1_ads/res']
             assets.srcDirs = ['./src/r2_12_1_ads/assets']
         }
+        r2_13_1 {
+            java.srcDirs = ['./src/r2_13_1/java']
+            res.srcDirs = ['./src/r2_13_1/res']
+            assets.srcDirs = ['./src/r2_13_1/assets']
+        }
+        r2_13_1_ads {
+            java.srcDirs = ['./src/r2_13_1_ads/java']
+            res.srcDirs = ['./src/r2_13_1_ads/res']
+            assets.srcDirs = ['./src/r2_13_1_ads/assets']
+        }
+        r2_14_1 {
+            java.srcDirs = ['./src/r2_14_1/java']
+            res.srcDirs = ['./src/r2_14_1/res']
+            assets.srcDirs = ['./src/r2_14_1/assets']
+        }
+        r2_14_1_ads {
+            java.srcDirs = ['./src/r2_14_1_ads/java']
+            res.srcDirs = ['./src/r2_14_1_ads/res']
+            assets.srcDirs = ['./src/r2_14_1_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -119,6 +139,12 @@ android {
         r2_13_1_ads {
             dimension 'api'
         }
+        r2_14_1 {
+            dimension 'api'
+        }
+        r2_14_1_ads {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -146,9 +172,13 @@ dependencies {
     r2_12_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
     r2_12_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
-
     r2_13_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
     r2_13_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
     r2_13_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_13_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
+
+    r2_14_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    r2_14_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+    r2_14_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+    r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
 }

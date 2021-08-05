@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.4.14
+ - Support Exoplayer 2.14 (#134)
+
 ## v2.4.13
  - Add CustomerData class to Proguard (#131)
 
