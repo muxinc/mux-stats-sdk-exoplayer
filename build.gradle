@@ -67,7 +67,7 @@ project('MuxExoPlayer') {
             def versionName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
             println "=== Publishing >>>>> ${fileDetails.name}, version: ${versionName}"
             publications {
-                app(MavenPublication) {
+                mavenJava(MavenPublication) {
                     groupId = "com.mux.stats.sdk.muxstats"
                     artifactId = project.getName() + "-" + versionName
                     version = versionName + getGitHash()
@@ -76,10 +76,6 @@ project('MuxExoPlayer') {
                 }
             }
         }
-    }
-
-    artifactoryPublish {
-        publications(publishing.publications.app)
     }
 }
 
@@ -91,6 +87,9 @@ artifactory {
             username = "${artifactory_user}"
             password = "${artifactory_password}"
             maven = true
+        }
+        defaults {
+            publications ('mavenJava')
         }
     }
     resolve {
