@@ -64,6 +64,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
@@ -418,10 +419,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     updatePlayheadPositionTimer.schedule(new TimerTask() {
       @Override
       public void run() {
-        playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
-            .sendToTarget();
+        if (state == PlayerState.PLAYING
+            || state == PlayerState.PLAYING_ADS
+            || state == PlayerState.SEEKING ) {
+          playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+        }
       }
-    }, 0, 15);
+    }, 0, 150);
   }
 
   /*
