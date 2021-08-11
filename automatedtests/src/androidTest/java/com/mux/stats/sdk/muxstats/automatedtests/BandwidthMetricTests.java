@@ -131,7 +131,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       boolean expectingManifest = false;
       int mediaSegmentIndex = 0;
       if (fileNameHeaderValue.endsWith("m3u8") || fileNameHeaderValue.endsWith("mpd")
-        || (fileNameHeaderValue.contains("segment_") && fileNameHeaderValue.endsWith("mp4"))) {
+          || (fileNameHeaderValue.contains("segment_") && fileNameHeaderValue.endsWith("mp4"))) {
         expectingManifest = true;
       } else {
         String[] segments = fileNameHeaderValue.split("_");
@@ -154,11 +154,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         if (isRequestCompletedList) {
           checkRequestCompletedEvent(requestJson,
               segmentStat, mediaSegmentIndex, qualityLevel,
-              requestCompletedEventIndex, fileNameHeaderValue, networkDelay);
+              requestCompletedEventIndex, fileNameHeaderValue, networkDelay, requests);
         }
         if (isRequestCanceledList) {
           checkRequestCanceledEvent(requestJson,
-              segmentStat, requestCompletedEventIndex, fileNameHeaderValue);
+              segmentStat, requestCompletedEventIndex, fileNameHeaderValue, requests);
         }
 //        if (isRequestFailedList) {
 //          checkRequestFailedEvent(requestJson,
@@ -174,21 +174,22 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   private void checkRequestFailedEvent(JSONObject requestJson,
       SegmentStatistics segmentStat,
       int requestCompletedEventIndex,
-      String segmentUrl)
+      String segmentUrl,
+      ArrayList<JSONObject> requests)
       throws Exception {
     checkManifestValue(requestJson, segmentUrl);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRespondedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
-        requestCompletedEventIndex, requestJson, segmentUrl);
+        requestCompletedEventIndex, requestJson, segmentUrl, requests);
     checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
-        requestCompletedEventIndex, requestJson, "localhost");
+        requestCompletedEventIndex, requestJson, "localhost", requests);
     if (!requestJson.has(BandwidthMetricData.REQUEST_ERROR)) {
       fail("Request failed missing REQUEST_ERROR field for event index: "
           + requestCompletedEventIndex);
@@ -206,25 +207,26 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   private void checkRequestCanceledEvent(JSONObject requestJson,
       SegmentStatistics segmentStat,
       int requestCompletedEventIndex,
-      String segmentUrl)
+      String segmentUrl,
+      ArrayList<JSONObject> requests)
       throws Exception {
     checkManifestValue(requestJson, segmentUrl);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRequestedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
         requestCompletedEventIndex, requestJson, segmentStat.getSegmentRespondedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     if (!requestJson.has(BandwidthMetricData.REQUEST_CANCEL)) {
       fail("Request canceled missing REQUEST_CANCEL field for event index: "
           + requestCompletedEventIndex);
     }
     checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
-        requestCompletedEventIndex, requestJson, segmentUrl);
+        requestCompletedEventIndex, requestJson, segmentUrl, requests);
     checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
-        requestCompletedEventIndex, requestJson, "localhost");
+        requestCompletedEventIndex, requestJson, "localhost", requests);
   }
 
   private void checkRequestCompletedEvent(JSONObject requestJson,
@@ -233,18 +235,19 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
       int qualityLevel,
       int requestCompletedEventIndex,
       String fileNameHeaderValue,
-      long requestNetworkDelay
+      long requestNetworkDelay,
+      ArrayList<JSONObject> requests
   ) throws Exception {
     if (checkManifestValue(requestJson, fileNameHeaderValue)) {
-      checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat);
+      checkManifestSegment(requestCompletedEventIndex, requestJson, segmentStat, requests);
     } else {
       checkNetworkDelay(requestJson, requestNetworkDelay, requestCompletedEventIndex);
       if (fileNameHeaderValue.contains("English")) {
         checkRequestCompletedAudioSegment(requestCompletedEventIndex, requestJson,
-            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat, requests);
       } else {
         checkRequestCompletedMediaSegment(requestCompletedEventIndex, requestJson,
-            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat);
+            mediaSegmentIndex, qualityLevel, fileNameHeaderValue, segmentStat, requests);
       }
     }
   }
@@ -272,63 +275,65 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     }
     if (!reportedManifest
         .equalsIgnoreCase(expectedResult)) {
-        fail("Expected requestcompleted event type to be: " + expectedResult
-            + ", reported: " + reportedManifest
-            + " event: " + requestJson.toString());
+      fail("Expected requestcompleted event type to be: " + expectedResult
+          + ", reported: " + reportedManifest
+          + " event: " + requestJson.toString());
     }
     return isManifest;
   }
 
   private void checkManifestSegment(int requestCompletedEventIndex, JSONObject requestCompletedJson,
-      SegmentStatistics segmentStat) {
+      SegmentStatistics segmentStat, ArrayList<JSONObject> requests) {
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentRequestedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
         requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentRespondedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkLongValueForEvent(
         "REQUEST_BYTES_LOADED", BandwidthMetricData.REQUEST_BYTES_LOADED,
         requestCompletedEventIndex, requestCompletedJson, segmentStat.getSegmentLengthInBytes(),
-        ERROR_MARGIN_FOR_BYTES_SERVED);
+        ERROR_MARGIN_FOR_BYTES_SERVED, requests);
   }
 
   private void checkRequestCompletedAudioSegment(int requestCompletedEventIndex,
       JSONObject requestCompletedJson,
-      int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
+      int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats,
+      ArrayList<JSONObject> requests)
       throws Exception {
     checkLongValueForEvent(
         "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
         requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
-        ERROR_MARGIN_FOR_SEGMENT_DURATION);
+        ERROR_MARGIN_FOR_SEGMENT_DURATION, requests);
     checkLongValueForEvent(
         "REQUEST_MEDIA_START_TIME", BandwidthMetricData.REQUEST_MEDIA_START_TIME,
         requestCompletedEventIndex, requestCompletedJson,
-        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_REQUEST_LATENCY,
+        requests);
     checkLongValueForEvent(
         "REQUEST_CURRENT_LEVEL", BandwidthMetricData.REQUEST_CURRENT_LEVEL,
         requestCompletedEventIndex, requestCompletedJson, qualityLevel,
-        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION);
+        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION, requests);
     checkLongValueForEvent(
         "REQUEST_LABELED_BITRATE", BandwidthMetricData.REQUEST_LABELED_BITRATE,
         requestCompletedEventIndex, requestCompletedJson, dashAudioBitrate,
-        ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE);
+        ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestCompletedJson,
         segmentStats.getSegmentRequestedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
         requestCompletedEventIndex, requestCompletedJson,
         segmentStats.getSegmentRespondedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
-        requestCompletedEventIndex, requestCompletedJson, segmentUrl);
+        requestCompletedEventIndex, requestCompletedJson, segmentUrl, requests);
     checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
-        requestCompletedEventIndex, requestCompletedJson, "localhost");
+        requestCompletedEventIndex, requestCompletedJson, "localhost", requests);
     if (parsingDash) {
       checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp4");
     } else {
@@ -339,7 +344,8 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   private void checkRequestCompletedMediaSegment(int requestCompletedEventIndex,
       JSONObject requestCompletedJson,
-      int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats)
+      int mediaSegmentIndex, int qualityLevel, String segmentUrl, SegmentStatistics segmentStats,
+      ArrayList<JSONObject> requests)
       throws Exception {
     long[] videoWidthsByLevel = hlsVideoWidthsByLevel;
     long[] videoHeightsByLevel = hlsVideoHeightsByLevel;
@@ -353,41 +359,42 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     checkLongValueForEvent(
         "REQUEST_MEDIA_DURATION", BandwidthMetricData.REQUEST_MEDIA_DURATION,
         requestCompletedEventIndex, requestCompletedJson, averageSegmentDuration,
-        ERROR_MARGIN_FOR_SEGMENT_DURATION);
+        ERROR_MARGIN_FOR_SEGMENT_DURATION, requests);
     checkLongValueForEvent(
         "REQUEST_MEDIA_START_TIME", BandwidthMetricData.REQUEST_MEDIA_START_TIME,
         requestCompletedEventIndex, requestCompletedJson,
-        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        mediaSegmentIndex * averageSegmentDuration, ERROR_MARGIN_FOR_REQUEST_LATENCY,
+        requests);
     checkLongValueForEvent(
         "REQUEST_CURRENT_LEVEL", BandwidthMetricData.REQUEST_CURRENT_LEVEL,
         requestCompletedEventIndex, requestCompletedJson, qualityLevel,
-        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION);
+        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION, requests);
     checkLongValueForEventIfFieldIsPresent(
         "REQUEST_VIDEO_WIDTH", BandwidthMetricData.REQUEST_VIDEO_WIDTH,
         requestCompletedEventIndex, requestCompletedJson, videoWidthsByLevel[qualityLevel],
-        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION);
+        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION, requests);
     checkLongValueForEventIfFieldIsPresent(
         "REQUEST_VIDEO_HEIGHT", BandwidthMetricData.REQUEST_VIDEO_HEIGHT,
         requestCompletedEventIndex, requestCompletedJson, videoHeightsByLevel[qualityLevel],
-        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION);
+        ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION, requests);
     checkLongValueForEvent(
         "REQUEST_LABELED_BITRATE", BandwidthMetricData.REQUEST_LABELED_BITRATE,
         requestCompletedEventIndex, requestCompletedJson, videoBitratesByLevel[qualityLevel],
-        ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE);
+        ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_START", BandwidthMetricData.REQUEST_RESPONSE_START,
         requestCompletedEventIndex, requestCompletedJson,
         segmentStats.getSegmentRequestedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkLongValueForEvent(
         "REQUEST_RESPONSE_END", BandwidthMetricData.REQUEST_RESPONSE_END,
         requestCompletedEventIndex, requestCompletedJson,
         segmentStats.getSegmentRespondedAt(),
-        ERROR_MARGIN_FOR_REQUEST_LATENCY);
+        ERROR_MARGIN_FOR_REQUEST_LATENCY, requests);
     checkStringValueForEvent("REQUEST_URL", BandwidthMetricData.REQUEST_URL,
-        requestCompletedEventIndex, requestCompletedJson, segmentUrl);
+        requestCompletedEventIndex, requestCompletedJson, segmentUrl, requests);
     checkStringValueForEvent("REQUEST_HOSTNAME", BandwidthMetricData.REQUEST_HOSTNAME,
-        requestCompletedEventIndex, requestCompletedJson, "localhost");
+        requestCompletedEventIndex, requestCompletedJson, "localhost", requests);
     if (parsingDash) {
       checkHeaders(requestCompletedEventIndex, requestCompletedJson, "video/mp4");
     } else {
@@ -429,20 +436,22 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   private void checkLongValueForEventIfFieldIsPresent(String fieldName, String jsonKey,
       int eventIndex, JSONObject jo,
-      long expectedValue, long errorMargin) {
+      long expectedValue, long errorMargin, ArrayList<JSONObject> requests) {
     if (jo.has(jsonKey)) {
-      checkLongValueForEvent(fieldName, jsonKey, eventIndex, jo, expectedValue, errorMargin);
+      checkLongValueForEvent(fieldName, jsonKey, eventIndex, jo, expectedValue, errorMargin,
+          requests);
     }
   }
 
   private void checkStringValueForEvent(String fieldName, String jsonKey, int eventIndex,
-      JSONObject jo, String expectedValue) {
+      JSONObject jo, String expectedValue, ArrayList<JSONObject> requests) {
     try {
       String value = jo.getString(jsonKey);
       if (!value.contains(expectedValue)) {
         fail("Value for field: " + fieldName + " do not match, expected: " + expectedValue
             + ",actual value: " + value + ",for eventIndex: " + eventIndex
-            + ",event:\n" + jo.toString());
+            + ",event:\n" + jo.toString()
+            + ",receivedEvents: \n" + requests.toString());
       }
     } catch (JSONException e) {
       fail("Missing " + fieldName + " for request object with index: " + eventIndex);
@@ -451,7 +460,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   private void checkLongValueForEvent(String fieldName, String jsonKey, int eventIndex,
       JSONObject jo,
-      long expectedValue, long errorMargin) {
+      long expectedValue, long errorMargin, ArrayList<JSONObject> requests) {
     try {
       long value = jo.getLong(jsonKey);
       long diff = value - expectedValue;
@@ -459,7 +468,8 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         fail("Value for field: " + fieldName + " do not match expected value, expected: "
             + expectedValue + ",actual value: " + value + ",diff: " + (value - expectedValue)
             + ",error margin: " + errorMargin + ",for eventIndex: " + eventIndex
-            + ",event:\n" + jo.toString());
+            + ",event:\n" + jo.toString()
+            + ",receivedEvents: \n" + requests.toString());
       }
     } catch (JSONException e) {
       fail("Missing " + fieldName + " for request object with index: " + eventIndex);

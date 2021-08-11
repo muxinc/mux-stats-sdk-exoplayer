@@ -939,7 +939,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public BandwidthMetricData onLoadCanceled(String segmentUrl) {
       BandwidthMetricData loadData = super.onLoadCanceled(segmentUrl);
-      loadData.setRequestCancel("hlsFragLoadEmergencyAborted");
+      loadData.setRequestCancel("FragLoadEmergencyAborted");
       return loadData;
     }
 
@@ -949,6 +949,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         Format trackFormat) {
       BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
       if (trackFormat != null && loadData != null) {
+        MuxLogger.d(TAG, "\n\nWe got new rendition quality: " + trackFormat.bitrate + "\n\n");
         loadData.setRequestLabeledBitrate(trackFormat.bitrate);
       }
       return loadData;
