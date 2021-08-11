@@ -27,8 +27,8 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 24
-        versionName "2.4.13"
+        versionCode 25
+        versionName "2.4.14"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -79,6 +79,12 @@ android {
         r2_13_1_ads {
             java.srcDirs = ['./src/r2_13_1/java']
         }
+        r2_14_1 {
+            java.srcDirs = ['./src/r2_14_1/java']
+        }
+        r2_14_1_ads {
+            java.srcDirs = ['./src/r2_14_1/java']
+        }
     }
 
     flavorDimensions 'api'
@@ -112,6 +118,12 @@ android {
             dimension 'api'
         }
         r2_13_1_ads {
+            dimension 'api'
+        }
+        r2_14_1 {
+            dimension 'api'
+        }
+        r2_14_1_ads {
             dimension 'api'
         }
     }
@@ -168,6 +180,12 @@ dependencies {
     r2_13_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
     r2_13_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
+    r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+    r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
+    r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
+    r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
