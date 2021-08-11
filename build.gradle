@@ -59,20 +59,24 @@ def getGitHash = { ->
     return stdout.toString().trim()
 }
 
-project('MuxExoPlayer') {
-//    artifactoryPublish.dependsOn('build')
-    publishing {
-        def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
-        outDirTree.visit { fileDetails ->
-            def versionName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
-            println "=== Publishing >>>>> ${fileDetails.name}, version: ${versionName}"
+afterEvaluate {
+    project('MuxExoPlayer') {
+//        artifactoryPublish.dependsOn('build')
+        publishing {
             publications {
                 mavenJava(MavenPublication) {
                     groupId = "com.mux.stats.sdk.muxstats"
-                    artifactId = project.getName() + "-" + versionName
-                    version = versionName + getGitHash()
 
-                    artifact("${buildDir}/outputs/artifacts/${fileDetails.name}")
+                    def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
+                    outDirTree.visit { fileDetails ->
+                        def versionName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
+                        println "=== Publishing >>>>> ${fileDetails.name}, version: ${versionName}"
+
+                        artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
+                            classifier versionName
+                            version = getGitHash()
+                        }
+                    }
                 }
             }
         }
