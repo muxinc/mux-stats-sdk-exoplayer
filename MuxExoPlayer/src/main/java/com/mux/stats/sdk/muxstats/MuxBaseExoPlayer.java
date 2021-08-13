@@ -26,6 +26,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.video.VideoListener;
+import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
@@ -116,8 +117,16 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         sentryEnabled, networkRequest);
   }
 
+  @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data, boolean sentryEnabled,
+      INetworkRequest networkRequest) {
+    this(ctx, player, playerName, data, new CustomOptions().setSentryEnabled(sentryEnabled)
+        , networkRequest);
+  }
+
+  MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerData data, CustomOptions options,
       INetworkRequest networkRequest) {
     super();
     detectMimeType = true;
@@ -126,7 +135,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     state = PlayerState.INIT;
     MuxStats.setHostDevice(new MuxDevice(ctx));
     MuxStats.setHostNetworkApi(networkRequest);
-    muxStats = new MuxStats(this, playerName, data, sentryEnabled);
+    muxStats = new MuxStats(this, playerName, data, options);
     addListener(muxStats);
     playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), this);
     videoListener = new MuxVideoListener(this);

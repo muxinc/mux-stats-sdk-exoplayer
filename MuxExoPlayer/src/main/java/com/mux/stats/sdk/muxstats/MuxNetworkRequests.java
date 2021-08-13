@@ -20,6 +20,7 @@ public class MuxNetworkRequests implements INetworkRequest {
 
   private static final String TAG = "MuxNetworkRequests";
 
+
   private interface NetworkRequest {
 
     URL getUrl();
@@ -225,11 +226,15 @@ public class MuxNetworkRequests implements INetworkRequest {
     }
   }
 
-  private String getAuthority(String propertykey) {
+  private String getAuthority(String propertykey, String domain) {
     if (Pattern.matches("^[a-z0-9]+$", propertykey)) {
-      return propertykey + ".litix.io";
+      if (domain.startsWith(".")) {
+        return propertykey + domain;
+      } else {
+        return propertykey + "." + domain;
+      }
     }
-    return "img.litix.io";
+    return "img" + domain;
   }
 
 
@@ -253,13 +258,13 @@ public class MuxNetworkRequests implements INetworkRequest {
   }
 
   @Override
-  public void postWithCompletion(String propertyKey, String body,
+  public void postWithCompletion(String domain, String propertyKey, String body,
       Hashtable<String, String> headers,
       INetworkRequest.IMuxNetworkRequestsCompletion callback) {
     try {
       if (propertyKey != null) {
         Uri.Builder uriBuilder = new Uri.Builder();
-        uriBuilder.scheme("https").authority(this.getAuthority(propertyKey)).path(
+        uriBuilder.scheme("https").authority(this.getAuthority(propertyKey, domain)).path(
             "android");
         AsyncTaskCompat.executeParallel(new NetworkTaskRunner(callback),
             new PostRequest(new URL(uriBuilder.build().toString()), body, headers));
