@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.media.MediaFormat;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -17,7 +16,6 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import androidx.annotation.Nullable;
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -25,10 +23,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.video.VideoFrameMetadataListener;
 import com.google.android.exoplayer2.video.VideoListener;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -418,10 +414,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     updatePlayheadPositionTimer.schedule(new TimerTask() {
       @Override
       public void run() {
-        playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION)
-            .sendToTarget();
+        if (state == PlayerState.PLAYING
+            || state == PlayerState.PLAYING_ADS
+            || state == PlayerState.SEEKING ) {
+          playerHandler.obtainMessage(ExoPlayerHandler.UPDATE_PLAYER_CURRENT_POSITION).sendToTarget();
+        }
       }
-    }, 0, 15);
+    }, 0, 150);
   }
 
   /*
@@ -939,7 +938,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     @Override
     public BandwidthMetricData onLoadCanceled(String segmentUrl) {
       BandwidthMetricData loadData = super.onLoadCanceled(segmentUrl);
-      loadData.setRequestCancel("hlsFragLoadEmergencyAborted");
+      loadData.setRequestCancel("FragLoadEmergencyAborted");
       return loadData;
     }
 
@@ -949,6 +948,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
         Format trackFormat) {
       BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
       if (trackFormat != null && loadData != null) {
+        MuxLogger.d(TAG, "\n\nWe got new rendition quality: " + trackFormat.bitrate + "\n\n");
         loadData.setRequestLabeledBitrate(trackFormat.bitrate);
       }
       return loadData;
