@@ -1,5 +1,9 @@
 # Release notes
 
+## v2.4.15
+ - Reduced the amount of messages sent each second to main thread. (#136)
+ - Additional logging for bandwidth metrics tests. (#133)
+
 ## v2.4.14
  - Support Exoplayer 2.14 (#134)
 
