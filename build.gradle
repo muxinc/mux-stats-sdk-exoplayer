@@ -39,6 +39,7 @@ allprojects {
     }
 
     project.ext {
+        versionName = "2.4.11"
         minSdkVersion=16
         compileSdkVersion=30
         targetSdkVersion=30
@@ -74,7 +75,7 @@ afterEvaluate {
 
                         artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
                             classifier versionName
-                            version = getGitHash()
+                            version = project.ext.versionName
                         }
                     }
                 }
@@ -103,5 +104,23 @@ artifactory {
             password = "${artifactory_password}"
             maven = true
         }
+    }
+}
+
+task muxReleaseDeploy {
+    doLast {
+//        if(isAReleaseBuild) {
+            println("Deploying from local maven to release maven")
+
+            def stdout = new ByteArrayOutputStream()
+            exec {
+                commandLine 'curl', '-u', artifactoryUsername + ":" + artifactoryPassword, '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/mux-stats-sdk-gradle-dev-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + project.ext.versionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + project.ext.versionName
+                standardOutput = stdout
+            }
+            def msg = stdout.toString()
+            println(msg)
+
+            println("Release deployment complete")
+//        }
     }
 }
