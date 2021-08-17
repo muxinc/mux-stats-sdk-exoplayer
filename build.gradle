@@ -129,11 +129,11 @@ afterEvaluate {
 
                     def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
                     outDirTree.visit { fileDetails ->
-                        def versionName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
-                        println "=== Publishing >>>>> ${fileDetails.name}, version: ${versionName}"
+                        def flavorName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
+                        println "=== Publishing >>>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
 
                         artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
-                            classifier versionName
+                            classifier flavorName
                             version = packageVersionName
                         }
                     }
