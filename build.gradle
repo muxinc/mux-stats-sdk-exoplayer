@@ -60,6 +60,8 @@ def getGitHash = { ->
     return stdout.toString().trim()
 }
 
+def gitHashVersion = getGitHash()
+
 afterEvaluate {
     project('MuxExoPlayer') {
 //        artifactoryPublish.dependsOn('build')
@@ -75,7 +77,7 @@ afterEvaluate {
 
                         artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
                             classifier versionName
-                            version = project.ext.versionName
+                            version = gitHashVersion
                         }
                     }
                 }
@@ -114,7 +116,7 @@ task muxReleaseDeploy {
 
             def stdout = new ByteArrayOutputStream()
             exec {
-                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/mux-stats-sdk-gradle-dev-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + project.ext.versionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + project.ext.versionName
+                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + gitHashVersion + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + gitHashVersion
                 standardOutput = stdout
             }
             def msg = stdout.toString()
