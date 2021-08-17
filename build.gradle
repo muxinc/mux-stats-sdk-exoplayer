@@ -168,7 +168,7 @@ artifactory {
 
 task muxReleaseDeploy {
     doLast {
-//        if(isAReleaseBuild) {
+        if(isAReleaseBuild) {
             println("Deploying from local maven to release maven")
 
             def stdout = new ByteArrayOutputStream()
@@ -180,6 +180,8 @@ task muxReleaseDeploy {
             println(msg)
 
             println("Release deployment complete")
-//        }
+        } else {
+            println("Not a release so no deployment")
+        }
     }
 }
