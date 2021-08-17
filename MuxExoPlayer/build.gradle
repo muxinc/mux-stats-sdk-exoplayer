@@ -1,5 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
 
 checkstyle {
     configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
@@ -28,7 +30,7 @@ android {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
         versionCode 26
-        versionName "2.4.15"
+        versionName project.ext.versionName
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
