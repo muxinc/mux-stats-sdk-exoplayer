@@ -144,7 +144,7 @@ afterEvaluate {
 }
 
 artifactory {
-    contextUrl = "${artifactory_contextUrl}"   //The base Artifactory URL if not overridden by the publisher/resolver
+    contextUrl = "https://muxinc.jfrog.io/artifactory/"
     publish {
         repository {
             repoKey = 'default-maven-local'
