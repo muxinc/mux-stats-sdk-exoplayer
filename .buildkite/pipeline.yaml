@@ -78,5 +78,5 @@ steps:
 #          - "automatedtests/buildout/outputs/apk/r2_13_1/debug/automatedtests-r2_13_1-debug.apk"
 #          - "automatedtests/buildout/outputs/apk/androidTest/r2_13_1/debug/automatedtests-r2_13_1-debug-androidTest.apk"
 - agents: [ dind=true,queue=beta ]
-  command: ./.buildkite/muxdeploy.sh
+  command: ./.buildkite/deploy.sh
   label: Deploy artifacts to release maven if it all worked
