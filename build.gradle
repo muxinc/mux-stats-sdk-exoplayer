@@ -64,7 +64,7 @@ def gitHashVersion = getGitHash()
 
 afterEvaluate {
     project('MuxExoPlayer') {
-//        artifactoryPublish.dependsOn('build')
+        artifactoryPublish.dependsOn('publish')
         publishing {
             publications {
                 mavenJava(MavenPublication) {
