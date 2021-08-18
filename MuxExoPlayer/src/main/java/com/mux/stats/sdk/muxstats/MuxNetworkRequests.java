@@ -365,7 +365,7 @@ public class MuxNetworkRequests implements INetworkRequest {
       MuxLogger.d(TAG, e.getMessage());
     }
   }
-  
+
   /**
    * Send HTTP request to the backend and execute given callback if completed successfully.
    *

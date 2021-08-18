@@ -20,13 +20,13 @@ import com.mux.stats.sdk.core.model.ViewData;
  */
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
 
-  /** Associated ExoPlayer wrapper that generate the ad events. */
+  /** Associated ExoPlayer wrapper that generates the ad events. */
   private final MuxBaseExoPlayer exoPlayerListener;
-  /** This value is used to detect if the user pressed pause button when ad was playing */
+  /** This value is used to detect if the user pressed the pause button when an ad was playing */
   private boolean sendPlayOnStarted = false;
   /**
-   * This value is used in special case when pre roll ads are playing. This value will be set to
-   * true when pre roll is detected, and will be reverted back to false after dispatching the
+   * This value is used in the special case of pre roll ads playing. This value will be set to
+   * true when a pre roll is detected, and will be reverted back to false after dispatching the
    * AdBreakStart event.
    */
   private boolean missingAdBreakStartEvent = false;
@@ -74,8 +74,8 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
 
   /**
    * This is the main boilerplate, all processing logic is contained here. Depending on the phase
-   * the ad is in to, single ad can have multiple phases from loading to the ending, each off them
-   * is handled here and appropriate AdPlayback event is dispatched to backend.
+   * the ad is in (a single ad can have multiple phases from loading to the ending) each of them
+   * is handled here and an appropriate AdPlayback event is dispatched to the backend.
    *
    * @param adEvent
    */
@@ -170,7 +170,7 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
   }
 
   /**
-   * Prepare and dispatch a given playback event to the backend using @link exoPlayerListener.
+   * Prepare and dispatch the given playback event to the backend using @link exoPlayerListener.
    *
    * @param event, to be dispatched.
    * @param ad, ad being processed.

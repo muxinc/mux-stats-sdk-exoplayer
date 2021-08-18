@@ -66,52 +66,52 @@ import java.util.concurrent.atomic.AtomicLong;
  * This class connects the {@link ExoPlayer}, {@link MuxStats} and
  * {@link com.google.ads.interactivemedia.v3.api}.
  *
- * Actual hook to data statistic for {@link ExoPlayer} is implemented here
- * {@link MuxStatsExoPlayer}, this class is a basic logic for event processing that is independent
+ * The actual hook to data statistics for {@link ExoPlayer} is implemented here
+ * {@link MuxStatsExoPlayer}, this class is base logic for event processing that is independent
  * of {@link ExoPlayer} version and make sure that all events are passed to {@link MuxStats} in
- * correct order and with appropriate statistics.
+ * the correct order and with appropriate statistics.
  */
 public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
 
-  /** Error codes start at -1 as ExoPlaybackException codes start at 0 and go up. */
+  /** Error codes start at -1 and go down as ExoPlaybackException codes start at 0 and go up. */
   protected static final int ERROR_UNKNOWN = -1;
   protected static final int ERROR_DRM = -2;
   protected static final int ERROR_IO = -3;
 
   /**
    * This is the time to wait in ms that needs to pass after the player has seeked in
-   * order for us to conclude that playback has actually started, we use this value in a workaround
-   * to detect playing event when {@link SeekedEvent} event is some times reported by
-   * {@link ExoPlayer} few milliseconds after after {@link PlayingEvent} which is not what is
+   * order for us to conclude that playback has actually started. We use this value in a workaround
+   * to detect the playing event when {@link SeekedEvent} event is some times reported by
+   * {@link ExoPlayer} a few milliseconds after the {@link PlayingEvent} which is not what is
    * expected.
    * */
   protected static final long TIME_TO_WAIT_AFTER_FIRST_FRAME_RENDERED = 50; // in ms
 
   /**
-   * This variable store the mime type of current playback container, in case of dash and HLS the
-   * playback container is not possible to detect because {@link ExoPlayer} report mime type of
-   * segment container, in this case we do not set this value and the video mime type is calculated
+   * This variable stores the mime type of the current playback container. It is not possible to
+   * detect for dash and HLS playback containers because {@link ExoPlayer} reports the mime type of
+   * segment container. In this case we do not set this value and the video mime type is calculated
    * on the backend based on the url.
    */
   protected String mimeType;
-  /** This is the width of current playback video resolution. */
+  /** This is the width of the current playback video resolution. */
   protected Integer sourceWidth;
-  /** This is the height of current playback video resolution. */
+  /** This is the height of the current playback video resolution. */
   protected Integer sourceHeight;
   /**
-   * This is the bitrate declared in playback container, this can be different from the actual
+   * This is the bitrate declared in the playback container. This can be different from the actual
    * calculated bitrate.
    */
   protected Integer sourceAdvertisedBitrate;
   /**
-   * This is the framerate declared in video container, it can be different from the actual
+   * This is the framerate declared in video container. It can be different from the actual
    * framerate
    */
   protected Float sourceAdvertisedFramerate;
   /**
-   * This is the duration of current media segment in milliseconds, this value is extracted from the
+   * This is the duration of current media segment in milliseconds. This value is extracted from the
    * Media container and can also be different from actual Media duration.
    */
   protected Long sourceDuration;
@@ -122,14 +122,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   /** Here we store the {@link ExoPlayer} instance. */
   protected WeakReference<ExoPlayer> player;
-  /** This is the UI object that contain the render surface. */
+  /** This is the UI object that contains the rendering surface. */
   protected WeakReference<View> playerView;
   /** Activity context. */
   protected WeakReference<Context> contextRef;
   /** Ad monitoring and processing logic. */
   protected AdsImaSDKListener adsImaSdkListener;
 
-  /** Event counter, this is useful to know when the view have started. */
+  /** Event counter. This is useful to know when the view have started. */
   protected boolean detectMimeType;
   protected boolean firstFrameReceived = false;
   protected int numberOfEventsSent = 0;
@@ -138,9 +138,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   /** Number of {@link PauseEvent} sent since the View started. */
   protected int numberOfPauseEventsSent = 0;
   /**
-   * This was used to determine if we are playing HLS or DASH, it is not possible to automatically
-   * detect this so we exopesed the {@link #setStreamType(int)} method and we expect an application
+   * This was used to determine if we are playing HLS or DASH. It is not possible to automatically
+   * detect this so we exposed the {@link #setStreamType(int)} method and we expect the application
    * layer to set this value properly.
+   *
    * At this point we make no difference in data collection between HLS and DASH so this value is
    * not needed.
    */
@@ -149,8 +150,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected long firstFrameRenderedAt = -1;
 
   /**
-   * These are the different playback states that are monitored internally, {@link ExoPlayer} keep
-   * it's own internal state which sometimes can be different then one described here.
+   * These are the different playback states that are monitored internally. {@link ExoPlayer} keeps
+   * its own internal state which sometimes can be different then one described here.
    */
   public enum PlayerState {
     BUFFERING, REBUFFERING, SEEKING, SEEKED, ERROR, PAUSED, PLAY, PLAYING, PLAYING_ADS,
@@ -162,27 +163,28 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   /** Underlying MuxCore interface. */
   protected MuxStats muxStats;
   /**
-   * Set to true if the player is currently seeking, this also include all necessary network
+   * Set to true if the player is currently seeking. This also include all necessary network
    * buffering to start the playback from new position.
    */
   boolean seekingInProgress;
-  /** This value is set to true if {@link com.google.android.exoplayer2.MediaItem} have video. */
+  /** This value is set to true if {@link com.google.android.exoplayer2.MediaItem} has video. */
   boolean playItemHaveVideoTrack;
 
   /**
    * Basic constructor.
    *
    * @param ctx Activity context.
-   * @param player ExoPlayer to monitor, must be unique per {@link MuxBaseExoPlayer} instance, two
-   *               different instances can not monitor same player at same time, as soon as second
-   *               instance is created the first instance will stop receiving events from the player
-   * @param playerName this is unique player id, it is static field, each instance must have unique
-   *                   player name in same process.
+   * @param player ExoPlayer to monitor, must be unique per {@link MuxBaseExoPlayer} instance. Two
+   *               different instances can not monitor the same player at the same time. As soon as
+   *               a second instance is created the first instance will stop receiving events from
+   *               the player
+   * @param playerName This is the unique player id and it is a static field. Each instance must
+   *                   have a unique player name in the same process.
    * @param customerPlayerData basic playback data set by the Application.
    * @param customerVideoData basic Video data set by the Application.
    * @param customerViewData basic View data set by the application.
    * @param sentryEnabled if set to true the underlying {@link MuxStats} will report internal errors
-   *                      to backend.
+   *                      to the backend.
    * @param networkRequest internet interface implementation.
    */
   @Deprecated
@@ -283,7 +285,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Allow HTTP header with a given name to be passed to the backend, by default we ignore all HTTP
+   * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
    * headers that are not in the {@link BandwidthMetricDispatcher#allowedHeaders} list.
    * This is used in automated tests and is not intended to be used from the application layer.
    *
@@ -372,7 +374,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * If set to true the underlying {@link MuxStats} logs will be printend in the logcat.
+   * If set to true the underlying {@link MuxStats} logs will be output in the logcat.
    *
    * @param enable if set to true the log will be  printed in logcat.
    * @param verbose if set to true each event will be printed with all stats, this output can be
@@ -397,8 +399,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * This is called by the application layer when different content have been played on same URL
-   * which can be live stream for example. This method will close existing view and start a new one.
+   * This is called by the application layer when different content has been played on the same URL,
+   * for example during a live stream. This method will close the existing view and start a new one.
    *
    * @param customerVideoData new video data for new video view.
    */
@@ -409,7 +411,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Called when device orientation is changed, called by the Application layer.
+   * Called when the device orientation is changed, called by the Application layer.
    *
    * @param orientation new device orientation.
    */
@@ -448,7 +450,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Report exception to the backend.
+   * Report an exception to the backend.
    *
    * @param e exception to be reported.
    */
@@ -462,7 +464,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Release the underlying SDK. This will generate some additional events like
+   * Release the underlying SDK. This will generate some additional events such as
    * {@link com.mux.stats.sdk.core.events.playback.ViewEndEvent}.
    */
   public void release() {
@@ -472,8 +474,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * This was used to tell us if we are playing HLS or DASH, because this can not be determined
-   * Automatically.
+   * This was used to tell us if we are playing HLS or DASH because this can not be determined
+   * automatically.
    *
    * @param type stream type.
    */
@@ -484,7 +486,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Dispatch new event and increment appropriate counters.
+   * Dispatch the new event and increment appropriate counters.
    *
    * @param event
    */
@@ -546,7 +548,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * State transitions, return the internal playback state defined here: {@link PlayerState}, this
+   * Return the internal playback state defined here: {@link PlayerState}, this
    * can be sometimes different then {@link ExoPlayer} internal state.
    */
   // State Transitions
@@ -555,7 +557,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * This method will detect if the current media item being played contains video track, if it does
+   * Detect if the current media item being played contains a video track. If it does
    * it will initialize the {@link #frameRenderedListener} or if it does not then it will initialize
    * {@link #updatePlayheadPositionTimer}.
    */
@@ -583,7 +585,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   /**
    * Start a periodic timer which will update the playback position on every 150 ms. We only use
-   * this method in case media item have no video component, in case it does the
+   * this method in case the media item has no video component, in case it does the
    * {@link #frameRenderedListener} will be updating the playback position.
    */
   protected void setPlaybackHeadUpdateInterval() {
@@ -654,7 +656,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Determine if current player state is paused.
+   * Determine if the current player state is paused.
    *
    * @return true if playback is paused.
    */
@@ -665,9 +667,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Whenever {@link ExoPlayer} report that player is buffering this function will be called.
-   * Function will check the player internal playback state {@link PlayerState} and determine
-   * if new {@link TimeUpdateEvent} should be dispatched and internal {@link #state} be set to
+   * Called whenever {@link ExoPlayer} reports that the player is buffering.
+   * Checks the player internal playback state {@link PlayerState} and determines
+   * if a new {@link TimeUpdateEvent} should be dispatched and the internal {@link #state} set to
    * {@link PlayerState#BUFFERING}.
    */
   protected void buffering() {
@@ -687,11 +689,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Whenever {@link ExoPlayer} report that player is paused this function will be called.
-   * Function will check the player internal playback state {@link #state} and determine
-   * if {@link #rebufferingEnded()} should be called in case that rebuffering is in process.
-   * or if {@link #seeked(boolean)} should be called in case that seeking is in process,
-   * or if this is just an clean pause event.
+   * Called when {@link ExoPlayer} reports that the player is paused.
+   * Checks the player internal playback state {@link #state} and determines
+   * if {@link #rebufferingEnded()} should be called when rebuffering is in progress,
+   * or {@link #seeked(boolean)} should be called when seeking is in process,
+   * or this is just a clean pause event.
    */
   protected void pause() {
     if (state == PlayerState.SEEKED && numberOfPauseEventsSent > 0) {
@@ -710,8 +712,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Whenever {@link ExoPlayer} report play started this function will be called. Function will
-   * check if {@link PlayEvent} should be sent or ignored depending on the current player state.
+   * Called when {@link ExoPlayer} reports playback started.
+   * Checks if {@link PlayEvent} should be sent or ignored depending on the current player state.
    */
   protected void play() {
     // If this is the first play event it may be very important not to be skipped
@@ -730,16 +732,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Called when {@link ExoPlayer} trigger playing event, this function will decide if there is
-   * missing {@link PauseEvent} event that suppose to precede current {@link PlayingEvent} and if it
-   * is not present then {@link PauseEvent} will be dispatched first and then {@link PlayingEvent}.
+   * Called when {@link ExoPlayer} triggers a playing event, this function will decide if there is
+   * a missing {@link PauseEvent} event that was supposed to precede the current
+   * {@link PlayingEvent} and if it is not present then the {@link PauseEvent} will be dispatched
+   * first followed by the {@link PlayingEvent}.
    *
-   * If player is in rebuffering state and rebuffer end event was not received then
+   * If the player is in the rebuffering state and the rebuffer end event was not received then the
    * {@link #rebufferingEnded()} function will be called first.
    *
    * All events of this type are ignored if {@link #seekingInProgress} is set to true.
    *
-   * As a final step the function will dispatch {@link PlayingEvent} and set {@link #state} to
+   * As a final step the function will dispatch the {@link PlayingEvent} and set {@link #state} to
    * {@link PlayerState#PLAYING}
    */
   protected void playing() {
@@ -759,9 +762,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Called when rebuffering is triggered, rebuffering is an buffer event triggered while
-   * {@link #state} is equal to {@link PlayerState#PLAYING}, on any other value this would be
-   * considered Buffering and {@link #buffering()} function would have been called.
+   * Called when rebuffering is triggered. Rebuffering is a buffer event triggered while
+   * {@link #state} is equal to {@link PlayerState#PLAYING}. Any other value would be
+   * considered Buffering and the {@link #buffering()} function would have been called.
    */
   protected void rebufferingStarted() {
     state = PlayerState.REBUFFERING;
@@ -769,7 +772,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * This method is called when {@link ExoPlayer} report playing state after
+   * Called when {@link ExoPlayer} reports a playing state after
    * {@link #rebufferingStarted()} was called.
    */
   protected void rebufferingEnded() {
@@ -777,9 +780,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Called when {@link ExoPlayer} report playback discontinuity or report seek start event.
+   * Called when {@link ExoPlayer} reports a playback discontinuity or seek start event.
    * If called while {@link #state} is equal to {@link PlayerState#PLAYING} then {@link PauseEvent}
-   * will be dispatched to precede following {@link SeekingEvent}.
+   * will be dispatched to precede the following {@link SeekingEvent}.
    *
    * This method will set {@link #seekingInProgress} to true.
    */
@@ -794,25 +797,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     firstFrameReceived = false;
   }
 
-  /**
-   * Seeked event will be fired by the player immediately after seeking event
-   * This is not accurate, instead report the seeked event on first few frames rendered.
-   * This function is called each time a new frame is about to be rendered.
-   *
-   * This function is called after {@link #NUMBER_OF_FRAMES_THAT_ARE_CONSIDERED_PLAYBACK} are
-   * registered in {@link #frameRenderedListener} which is considered to be playback, in that case
-   * we conclude that playback have been resumed and we can officially say that seeking process have
-   * been terminated. We use this approach because {@link ExoPlayer} can sometimes report fake
-   * buffering or rebuffering events that are not representing the reality, so in this way we are
-   * trying to ignore those false events. For audio only
-   * {@link com.google.android.exoplayer2.MediaItem} we do not have this fake rebuffering events.
-   *
-   * @param newFrameRendered is set to true when current playing
-   * {@link com.google.android.exoplayer2.MediaItem} contains Video track, it will be false
-   *                         otherwise. Value of this argument determine if we conclude that seek
-   *                         have ended based on the number of frames rendered since seek started,
-   *                         or we just call seek ended when {@link ExoPlayer} report seek ended.
-   */
   protected void seeked(boolean timeUpdateEvent) {
     if (seekingInProgress) {
       if (timeUpdateEvent) {
@@ -835,7 +819,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Called when end of playback have been reached.
+   * Called when the end of playback has been reached.
    */
   protected void ended() {
     dispatch(new PauseEvent(null));
@@ -859,9 +843,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * This function will be executed when adaptive bitstream quality have been changed either due
-   * to the changes in internet connection or on explicit request of the Application. This only
-   * apply to the DASH and HLS streams.
+   * Called when adaptive bitstream quality has been changed either due to changes in
+   * the internet connection or as the result of an explicit request by the Application. This only
+   * applies to the DASH and HLS streams.
    *
    * @param format new bitstream quality format.
    */
@@ -891,7 +875,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * MuxVideoListener listener, this class is used to capture each new frame that is about to be rendered.
+   * MuxVideoListener listener. This class is used to capture each new frame that is about to be rendered.
    */
   static class MuxVideoListener implements VideoListener {
     MuxBaseExoPlayer muxStats;
@@ -920,13 +904,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Communication handler, receive messages from other threads and execute on main thread.
+   * Communication handler. Receive messages from other threads and execute on the main thread.
    */
   static class ExoPlayerHandler extends Handler {
 
     static final int UPDATE_PLAYER_CURRENT_POSITION = 1;
 
-    /** Used to internally track current playback position. */
+    /** Used to internally track the current playback position. */
     AtomicLong playerCurrentPosition = new AtomicLong(0);
     /** Reference to overlaying SDK interface. */
     MuxBaseExoPlayer muxStats;
@@ -976,8 +960,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Implement basic device details such as OS version, vendor name and etc. Instance of this class
-   * is used in underlying {@link MuxStats} interface to obtain basic hardware details.
+   * Basic device details such as OS version, vendor name and etc. Instances of this class
+   * are used by {@link MuxStats} to interface with the device.
    */
   static class MuxDevice implements IDevice {
 
@@ -1135,7 +1119,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     /**
-     * Used to print underlying {@link MuxStats} SDK messages on the logcat. This will only be
+     * Print underlying {@link MuxStats} SDK messages on the logcat. This will only be
      * called if {@link #enableMuxCoreDebug(boolean, boolean)} is called with first argument as true
      *
      * @param tag tag to be used.
@@ -1148,7 +1132,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Used to calculate Bandwidth metrics of HLS or DASH segment. {@link ExoPlayer} will trigger
+   * Calculate Bandwidth metrics of an HLS or DASH segment. {@link ExoPlayer} will trigger
    * these events in {@link MuxStatsExoPlayer} and will be propagated here for processing, at this
    * point both HLS and DASH segments are processed in same way so all metrics are collected here.
    */
@@ -1156,14 +1140,14 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     /** Available qualities. */
     TrackGroupArray availableTracks;
     /**
-     * Each segment that started loading is stored here until the segment ended the loading, we use
-     * segment url to identify the segment, it is the key value of the map.
+     * Each segment that started loading is stored here until the segment ceases loading.
+     * The segment url is the key value of the map.
      */
     HashMap<String, BandwidthMetricData> loadedSegments = new HashMap<>();
 
     /**
-     * When segment failed to load this function will report error to the backend. This will also
-     * remove the segment that failed to load from the {@link #loadedSegments} hash map.
+     * When the segment failed to load an error will be reported to the backend. This also
+     * removes the segment that failed to load from the {@link #loadedSegments} hash map.
      *
      * @param segmentUrl, url of the segment that failed to load.
      * @param e, error that occured.
@@ -1185,11 +1169,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     /**
-     * In case the segment is no longer needed this function will be triggered, this can happen if
-     * player stopped the playback and want to stop all network loading, in that case we will remove
-     * the appropriate segment from {@link #loadedSegments} table.
+     * If the segment is no longer needed this function will be triggered. This can happen if
+     * the player stopped the playback and wants to stop all network loading. In that case we will
+     * remove the appropriate segment from {@link #loadedSegments}.
      *
-     * @param segmentUrl, url of the segment that want to be loaded.
+     * @param segmentUrl, url of the segment that wants to be loaded.
      * @return Canceled segment.
      */
     public BandwidthMetricData onLoadCanceled(String segmentUrl) {
@@ -1240,11 +1224,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     /**
-     * Called when segment starts loading. Set appropriate metrics and stored the segment in the
-     * {@link #loadedSegments} hash table, segment will be then sent to the backend once
-     * {@link #onLoadCompleted(String, long, Format)} is called for the same segment or if
-     * {@link #onLoadError(String, IOException)} or {@link #onLoadCanceled(String)} is called
-     * for this segment.
+     * Called when a segment starts loading. Set appropriate metrics and store the segment in
+     * {@link #loadedSegments}. It will be then sent to the backend once the appropriate one of
+     * {@link #onLoadCompleted(String, long, Format)} ,{@link #onLoadError(String, IOException)} or
+     * {@link #onLoadCanceled(String)} is called for this segment.
      *
      * @param mediaStartTimeMs, {@link ExoPlayer} reported segment playback start time, this refer
      *                                           to playback position of segment inside the media
@@ -1269,8 +1252,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     }
 
     /**
-     * Called when segment is loaded, this function will retrieve the statistics for this segment
-     * from {@link #loadedSegments} table and fill out remaining metrics.
+     * Called when segment is loaded. This function will retrieve the statistics for this segment
+     * from {@link #loadedSegments} and fill out the remaining metrics.
      *
      * @param segmentUrl url related to the segment.
      * @param bytesLoaded number of bytes needed to load the segment.
@@ -1333,11 +1316,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * This class determine which stream is being parsed (HLS or DASH) and then uses appropriate
-   * {@link BandwidthMetric} object to parse the stream, issue with this is that it is not possible
+   * Determine which stream is being parsed (HLS or DASH) and then use an appropriate
+   * {@link BandwidthMetric} to parse the stream. The problem with this is that it is not possible
    * to reliably detect the stream type currently being played so this part is not functional.
    * Luckily logic for HLS parsing is same as logic for DASH parsing so for both streams we use
-   * {@link BandwidthMetricHls} for both types of stream.
+   * {@link BandwidthMetricHls}.
    */
   class BandwidthMetricDispatcher {
 
@@ -1487,7 +1470,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Convert physical pixels to densety pixels.
+   * Convert physical pixels to device density independent pixels.
    *
    * @param px physical pixels to be converted.
    * @return number of density pixels calculated.
