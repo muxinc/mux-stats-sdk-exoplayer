@@ -310,6 +310,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   public void release() {
+    if (updatePlayheadPositionTimer != null) {
+      updatePlayheadPositionTimer.cancel();
+    }
     muxStats.release();
     muxStats = null;
     player = null;
