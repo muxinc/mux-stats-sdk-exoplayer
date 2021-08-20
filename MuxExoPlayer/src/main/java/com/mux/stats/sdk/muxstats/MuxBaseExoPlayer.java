@@ -80,7 +80,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected Long sourceDuration;
   protected ExoPlayerHandler playerHandler;
   protected Timer updatePlayheadPositionTimer;
-  protected MuxVideoListener videoListener;
 
   protected WeakReference<ExoPlayer> player;
   protected WeakReference<View> playerView;
@@ -129,7 +128,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     muxStats = new MuxStats(this, playerName, data, sentryEnabled);
     addListener(muxStats);
     playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), this);
-    videoListener = new MuxVideoListener(this);
     playItemHaveVideoTrack = false;
     setPlaybackHeadUpdateInterval();
     try {
@@ -405,10 +403,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     if (updatePlayheadPositionTimer != null) {
       updatePlayheadPositionTimer.cancel();
     }
-    if (playItemHaveVideoTrack) {
-      ExoPlayer.VideoComponent videoComponent = player.get().getVideoComponent();
-      videoComponent.addVideoListener(videoListener);
-    }
     // Schedule timer to execute, this is for audio only content.
     updatePlayheadPositionTimer = new Timer();
     updatePlayheadPositionTimer.schedule(new TimerTask() {
@@ -610,32 +604,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     numberOfEventsSent = 0;
     firstFrameReceived = false;
     firstFrameRenderedAt = -1;
-  }
-
-  static class MuxVideoListener implements VideoListener {
-    MuxBaseExoPlayer muxStats;
-
-    public MuxVideoListener(MuxBaseExoPlayer muxStats) {
-      this.muxStats = muxStats;
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-        float pixelWidthHeightRatio) {
-      // Do nothing
-    }
-
-    @Override
-    public void onSurfaceSizeChanged(int width, int height) {
-      // Do nothing
-    }
-
-    @Override
-    public void onRenderedFirstFrame() {
-      // TODO save this timestamp
-      muxStats.firstFrameRenderedAt = System.currentTimeMillis();
-      muxStats.firstFrameReceived = true;
-    }
   }
 
   static class ExoPlayerHandler extends Handler {
