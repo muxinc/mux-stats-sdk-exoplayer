@@ -22,6 +22,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -349,6 +350,11 @@ public class PlayerActivity extends AppCompatActivity
       muxStats = new MuxStatsExoPlayer(
           this, player, "demo-player", customerData);
       Point size = new Point();
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        getWindowManager().getDefaultDisplay().getSize(size);
+      } else {
+        getApplication().getApplicationContext().getDisplay().getSize(size);
+      }
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
