@@ -20,7 +20,6 @@ public class MuxNetworkRequests implements INetworkRequest {
 
   private static final String TAG = "MuxNetworkRequests";
 
-
   private interface NetworkRequest {
 
     URL getUrl();
