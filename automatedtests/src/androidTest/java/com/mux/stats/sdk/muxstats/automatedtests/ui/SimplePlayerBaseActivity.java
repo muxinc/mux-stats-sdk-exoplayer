@@ -7,9 +7,12 @@ import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build.VERSION;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
@@ -85,6 +88,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    // Enter fullscreen
+    hideSystemUI();
     setContentView(R.layout.activity_simple_player_test);
     disableUserActions();
 
@@ -160,6 +165,35 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   public void releaseExoPlayer() {
     player.release();
     player = null;
+  }
+
+  public void hideSystemUI() {
+    // Enables regular immersive mode.
+    // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+    // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+    if (VERSION.SDK_INT >= VERSION_CODES.KITKAT) {
+      View decorView = getWindow().getDecorView();
+      decorView.setSystemUiVisibility(
+          View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+              // Set the content to appear under the system bars so that the
+              // content doesn't resize when the system bars hide and show.
+              | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+              | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+              | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+              // Hide the nav bar and status bar
+              | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+              | View.SYSTEM_UI_FLAG_FULLSCREEN);
+    }
+  }
+
+  // Shows the system bars by removing all the flags
+  // except for the ones that make the content appear under the system bars.
+  public void showSystemUI() {
+    View decorView = getWindow().getDecorView();
+    decorView.setSystemUiVisibility(
+        View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+            | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+            | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
   }
 
   public MuxStatsExoPlayer getMuxStats() {
