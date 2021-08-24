@@ -118,7 +118,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   /** This is used to update the current playback position in real time. */
   protected ExoPlayerHandler playerHandler;
   protected Timer updatePlayheadPositionTimer;
-  protected MuxVideoListener videoListener;
 
   /** Here we store the {@link ExoPlayer} instance. */
   protected WeakReference<ExoPlayer> player;
@@ -210,7 +209,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     muxStats = new MuxStats(this, playerName, data, sentryEnabled);
     addListener(muxStats);
     playerHandler = new ExoPlayerHandler(player.getApplicationLooper(), this);
-    videoListener = new MuxVideoListener(this);
     playItemHaveVideoTrack = false;
     setPlaybackHeadUpdateInterval();
     try {
@@ -468,6 +466,9 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    * {@link com.mux.stats.sdk.core.events.playback.ViewEndEvent}.
    */
   public void release() {
+    if (updatePlayheadPositionTimer != null) {
+      updatePlayheadPositionTimer.cancel();
+    }
     muxStats.release();
     muxStats = null;
     player = null;
@@ -591,10 +592,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   protected void setPlaybackHeadUpdateInterval() {
     if (updatePlayheadPositionTimer != null) {
       updatePlayheadPositionTimer.cancel();
-    }
-    if (playItemHaveVideoTrack) {
-      ExoPlayer.VideoComponent videoComponent = player.get().getVideoComponent();
-      videoComponent.addVideoListener(videoListener);
     }
     // Schedule timer to execute, this is for audio only content.
     updatePlayheadPositionTimer = new Timer();
@@ -872,35 +869,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     numberOfEventsSent = 0;
     firstFrameReceived = false;
     firstFrameRenderedAt = -1;
-  }
-
-  /**
-   * MuxVideoListener listener. This class is used to capture each new frame that is about to be rendered.
-   */
-  static class MuxVideoListener implements VideoListener {
-    MuxBaseExoPlayer muxStats;
-
-    public MuxVideoListener(MuxBaseExoPlayer muxStats) {
-      this.muxStats = muxStats;
-    }
-
-    @Override
-    public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
-        float pixelWidthHeightRatio) {
-      // Do nothing
-    }
-
-    @Override
-    public void onSurfaceSizeChanged(int width, int height) {
-      // Do nothing
-    }
-
-    @Override
-    public void onRenderedFirstFrame() {
-      // TODO save this timestamp
-      muxStats.firstFrameRenderedAt = System.currentTimeMillis();
-      muxStats.firstFrameReceived = true;
-    }
   }
 
   /**
