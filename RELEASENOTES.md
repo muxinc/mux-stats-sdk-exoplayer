@@ -9,7 +9,7 @@
  - For API version 30+ use context.getDisplay instead of WindowManager. (#145)
 
 ### Fixes
- - Removed VideoComponent listener and now capturing firstFrameRendered … (#144)
+ - Removed VideoComponent listener and now capturing firstFrameRendered. (#144)
  - Added conversion from physical px to dpx on setScreen size. (#146)
 
 ## v2.4.15
