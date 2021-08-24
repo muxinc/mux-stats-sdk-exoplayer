@@ -189,5 +189,5 @@ dependencies {
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
-    api files('libs/MuxCore.jar')
+    api 'com.mux:stats.muxcore:7.0.0'
 }
