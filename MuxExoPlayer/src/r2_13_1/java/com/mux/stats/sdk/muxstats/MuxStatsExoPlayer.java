@@ -275,6 +275,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onRenderedFirstFrame(AnalyticsListener.EventTime eventTime, Surface surface) {
+    firstFrameRenderedAt = System.currentTimeMillis();
+    firstFrameReceived = true;
   }
 
   @Override

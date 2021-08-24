@@ -19,6 +19,7 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.CustomOptions;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -312,10 +313,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Override
-  public void onVideoSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height,
-      int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-    sourceWidth = width;
-    sourceHeight = height;
+  public void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {
+    sourceWidth = videoSize.width;
+    sourceHeight = videoSize.height;
+  }
+
+  @Override
+  public void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {
+    firstFrameRenderedAt = System.currentTimeMillis();
+    firstFrameReceived = true;
   }
 
   @Override
