@@ -440,13 +440,13 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Set screen size in physical pixels.
+   * Convert the actual number of pixels to density pixels and set in the Core SDK.
    *
-   * @param width in physical pixels.
-   * @param height in physical pixels.
+   * @param width screen width in pixels.
+   * @param height screen height in pixels.
    */
   public void setScreenSize(int width, int height) {
-    muxStats.setScreenSize(width, height);
+    muxStats.setScreenSize(pxToDp(width), pxToDp(height));
   }
 
   /**
