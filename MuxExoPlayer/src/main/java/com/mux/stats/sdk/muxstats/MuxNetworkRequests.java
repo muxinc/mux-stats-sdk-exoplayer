@@ -331,11 +331,7 @@ public class MuxNetworkRequests implements INetworkRequest {
    */
   private String getAuthority(String propertykey, String domain) {
     if (Pattern.matches("^[a-z0-9]+$", propertykey)) {
-      if (domain.startsWith(".")) {
         return propertykey + domain;
-      } else {
-        return propertykey + "." + domain;
-      }
     }
     return "img" + domain;
   }
