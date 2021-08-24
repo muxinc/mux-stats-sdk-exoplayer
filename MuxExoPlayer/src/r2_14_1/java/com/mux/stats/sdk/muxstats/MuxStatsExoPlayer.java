@@ -18,6 +18,8 @@ import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.mux.stats.sdk.core.CustomOptions;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
@@ -75,16 +77,25 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData), sentryEnabled, networkRequests);
   }
 
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data) {
-    this(ctx, player, playerName, data, true, new MuxNetworkRequests());
-  }
-
+  @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data,
       boolean sentryEnabled,
       INetworkRequest networkRequests) {
-    super(ctx, player, playerName, data, sentryEnabled, networkRequests);
+    this(ctx, player, playerName, data, new CustomOptions().setSentryEnabled(sentryEnabled)
+        , networkRequests);
+  }
+
+  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerData data) {
+    this(ctx, player, playerName, data, new CustomOptions(), new MuxNetworkRequests());
+  }
+
+  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+      CustomerData data,
+      CustomOptions options,
+      INetworkRequest networkRequests) {
+    super(ctx, player, playerName, data, options, networkRequests);
 
     if (player instanceof SimpleExoPlayer) {
       ((SimpleExoPlayer) player).addAnalyticsListener(this);
@@ -302,10 +313,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Override
-  public void onVideoSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height,
-      int unappliedRotationDegrees, float pixelWidthHeightRatio) {
-    sourceWidth = width;
-    sourceHeight = height;
+  public void onVideoSizeChanged(EventTime eventTime, VideoSize videoSize) {
+    sourceWidth = videoSize.width;
+    sourceHeight = videoSize.height;
+  }
+
+  @Override
+  public void onRenderedFirstFrame(EventTime eventTime, Object output, long renderTimeMs) {
+    firstFrameRenderedAt = System.currentTimeMillis();
+    firstFrameReceived = true;
   }
 
   @Override

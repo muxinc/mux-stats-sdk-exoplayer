@@ -22,13 +22,87 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:4.1.1'
         classpath 'com.novoda:bintray-release:0.9.1'
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
 
+// Version name
+// This gets modified based on if we're a release or branch build
+def packageVersionName = 'dev'
+
+def signingKeyId = System.getenv('SIGNING_KEY_ID')
+def signingPassword = System.getenv('SIGNING_PASSWORD')
+def signingKey = System.getenv('SIGNING_KEY')
+
+def getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+def getGitBranch = { ->
+    def branch = System.getenv('BUILDKITE_BRANCH')
+
+    if(branch == null || branch == "") {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'branch', '--show-current'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } else {
+        return branch
+    }
+}
+
+/*
+We look for git commit messages starting with patterns like v5.3.5
+Then we assume all commits like that on master are PRs that should result in releases of that version
+*/
+def getGitCommitMessageVersion = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'log', '-1', '--pretty=%B'
+        standardOutput = stdout
+    }
+    def msg = stdout.toString().trim()
+
+    def matcher = msg=~ /v(\d+\.\d+\.\d+).*/
+    if(matcher.find()) {
+        def strippedVersion = matcher.group(1)
+        return strippedVersion
+    }
+    return null
+}
+
+def gitHash = getGitHash()
+def gitBranch = getGitBranch()
+def gitCommitMessageVersion = getGitCommitMessageVersion()
+
+def isAReleaseBuild = gitBranch == "master" && gitCommitMessageVersion != null
+
+if(isAReleaseBuild) {
+    packageVersionName = gitCommitMessageVersion
+} else {
+    packageVersionName = packageVersionName + "-" + gitBranch + "-" + gitHash
+}
+
+println("Evaluated building for version"+packageVersionName)
+
 allprojects {
+    apply plugin: "com.jfrog.artifactory"
+    apply plugin: 'maven-publish'
+
     repositories {
         google()
         jcenter()
+
+        maven {
+            url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
+        }
     }
 
     tasks.withType(JavaCompile) {
@@ -36,6 +110,8 @@ allprojects {
     }
 
     project.ext {
+        versionName = packageVersionName
+
         minSdkVersion=16
         compileSdkVersion=30
         targetSdkVersion=30
@@ -44,5 +120,72 @@ allprojects {
         releaseGroupId = 'com.google.android.exoplayer'
         releaseVersion = 'r2.1.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
+    }
+}
+
+afterEvaluate {
+    project('MuxExoPlayer') {
+//        artifactoryPublish.dependsOn('publish')
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    groupId = "com.mux.stats.sdk.muxstats"
+
+                    def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
+                    outDirTree.visit { fileDetails ->
+                        def flavorName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
+                        println "=== Publishing >>>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
+
+                        artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
+                            classifier flavorName
+                            version = packageVersionName
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+artifactory {
+    contextUrl = "https://muxinc.jfrog.io/artifactory/"
+    publish {
+        repository {
+            repoKey = 'default-maven-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+        defaults {
+            publications ('mavenJava')
+        }
+    }
+    resolve {
+        repository {
+            repoKey = 'default-maven-local'
+            username = "${artifactory_user}"
+            password = "${artifactory_password}"
+            maven = true
+        }
+    }
+}
+
+task muxReleaseDeploy {
+    doLast {
+        if(isAReleaseBuild) {
+            println("Deploying from local maven to release maven")
+
+            def stdout = new ByteArrayOutputStream()
+            exec {
+                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + packageVersionName
+                standardOutput = stdout
+            }
+            def msg = stdout.toString()
+            println(msg)
+
+            println("Release deployment complete")
+        } else {
+            println("Not a release so no deployment")
+        }
     }
 }

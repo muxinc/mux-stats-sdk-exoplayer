@@ -46,7 +46,7 @@ public class MockNetworkRequest implements INetworkRequest {
   }
 
   @Override
-  public void postWithCompletion(String envKey, String body,
+  public void postWithCompletion(String domain, String envKey, String body,
       Hashtable<String, String> headers,
       IMuxNetworkRequestsCompletion callback) {
     try {
@@ -65,7 +65,7 @@ public class MockNetworkRequest implements INetworkRequest {
     }
     if (BuildConfig.SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER) {
       // Send events to actual server
-      muxNetwork.postWithCompletion(envKey, body, headers, muxNetworkCallback);
+      muxNetwork.postWithCompletion(domain, envKey, body, headers, muxNetworkCallback);
     }
   }
 

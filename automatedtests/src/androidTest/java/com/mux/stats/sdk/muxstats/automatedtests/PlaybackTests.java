@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.automatedtests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.util.Log;
@@ -13,8 +14,12 @@ import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.PlayerData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.R;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -195,7 +200,7 @@ public class PlaybackTests extends TestBase {
       // Exit the player with back button
 //            testScenario.close();
       Log.w(TAG, "See what event should be dispatched on view closed !!!");
-      // TODO check player end event
+      checkFullScreenValue();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -288,5 +293,18 @@ public class PlaybackTests extends TestBase {
       pauseButton = controlView.findViewById(R.id.exo_pause);
       playButton = controlView.findViewById(R.id.exo_play);
     }
+  }
+
+  void checkFullScreenValue() throws JSONException {
+    JSONArray events = networkRequest.getReceivedEventsAsJSON();
+    for (int i = 0; i < events.length(); i++) {
+      JSONObject event = events.getJSONObject(i);
+      if (event.has(PlayerData.PLAYER_IS_FULLSCREEN)) {
+        assertEquals("Expected player to be in full screen !!!",
+            true, event.getBoolean(PlayerData.PLAYER_IS_FULLSCREEN));
+        return;
+      }
+    }
+    fail("PlayerData.PLAYER_IS_FULLSCREEN field not present, this is an error !!!");
   }
 }

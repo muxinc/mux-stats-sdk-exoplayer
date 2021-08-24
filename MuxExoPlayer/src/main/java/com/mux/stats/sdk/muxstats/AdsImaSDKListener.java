@@ -15,16 +15,36 @@ import com.mux.stats.sdk.core.events.playback.AdThirdQuartileEvent;
 import com.mux.stats.sdk.core.events.playback.PlaybackEvent;
 import com.mux.stats.sdk.core.model.ViewData;
 
+/**
+ * Ima SDK wrapper, listen to ad events and dispatch the appropriate AdPlayback events accordingly.
+ */
 public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
 
+  /** Associated ExoPlayer wrapper that generates the ad events. */
   private final MuxBaseExoPlayer exoPlayerListener;
+  /** This value is used to detect if the user pressed the pause button when an ad was playing */
   private boolean sendPlayOnStarted = false;
+  /**
+   * This value is used in the special case of pre roll ads playing. This value will be set to
+   * true when a pre roll is detected, and will be reverted back to false after dispatching the
+   * AdBreakStart event.
+   */
   private boolean missingAdBreakStartEvent = false;
 
+  /**
+   * Simple constructor, no special logic.
+   *
+   * @param listener, associated ExoPlayer wrapper that generate the ad events.
+   */
   public AdsImaSDKListener(MuxBaseExoPlayer listener) {
     exoPlayerListener = listener;
   }
 
+  /**
+   * Handles the Ad error.
+   *
+   * @param adErrorEvent, Error to be handled.
+   */
   @Override
   public void onAdError(AdErrorEvent adErrorEvent) {
     if (exoPlayerListener != null && exoPlayerListener.player != null
@@ -35,6 +55,12 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     }
   }
 
+  /**
+   * Update the adId and creativeAdId on given playback event.
+   *
+   * @param event, event to be updated.
+   * @param ad, current ad event that is being processed.
+   */
   private void setupAdViewData(PlaybackEvent event, Ad ad) {
     ViewData viewData = new ViewData();
     if (exoPlayerListener.getCurrentPosition() == 0) {
@@ -46,6 +72,13 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     event.setViewData(viewData);
   }
 
+  /**
+   * This is the main boilerplate, all processing logic is contained here. Depending on the phase
+   * the ad is in (a single ad can have multiple phases from loading to the ending) each of them
+   * is handled here and an appropriate AdPlayback event is dispatched to the backend.
+   *
+   * @param adEvent
+   */
   @Override
   public void onAdEvent(AdEvent adEvent) {
     if (exoPlayerListener != null && exoPlayerListener.player != null
@@ -136,6 +169,12 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
     }
   }
 
+  /**
+   * Prepare and dispatch the given playback event to the backend using @link exoPlayerListener.
+   *
+   * @param event, to be dispatched.
+   * @param ad, ad being processed.
+   */
   private void dispatchAdPlaybackEvent(PlaybackEvent event, Ad ad) {
     setupAdViewData(event, ad);
     exoPlayerListener.dispatch(event);
