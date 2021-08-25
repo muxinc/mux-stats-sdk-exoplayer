@@ -30,3 +30,5 @@
 -keepattributes Exceptions,Deprecated,*Annotation*,Signature,InnerClasses,EnclosingMethod
 
 -keeppackagenames com.mux.**
+
+-dontoptimize
