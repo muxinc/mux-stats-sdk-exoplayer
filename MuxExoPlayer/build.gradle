@@ -194,8 +194,7 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 }
 
-//def muxCoreImport = 'com.mux:stats.muxcore:7.0.0'
-def muxCoreImport = 'com.mux:stats.muxcore:dev-nb-fix-enum-obfuscation-56053f4'
+def muxCoreImport = 'com.mux:stats.muxcore:7.0.1'
 
 if(project.ext.inLocalDevMode) {
     dependencies {

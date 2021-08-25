@@ -161,7 +161,7 @@ if(project.ext.inLocalDevMode) {
 } else {
     dependencies {
         // Example for how to import from maven instead for the 2.13.1 configuration
-        implementation 'com.mux.stats.sdk.muxstats:MuxExoPlayer:dev-nb-mux-core-problem-ddd8246:r2.13.1@aar'
+        implementation 'com.mux.stats.sdk.muxstats:MuxExoPlayer:dev-nb-mux-core-problem-e972947:r2.13.1@aar'
 //        implementation 'com.mux.stats.sdk.muxstats:MuxExoPlayer:dev-nb-mux-core-problem-b636906:r2.13.1@aar'
 
         api 'com.google.android.exoplayer:exoplayer:2.13.1'
