@@ -162,12 +162,13 @@ dependencies {
     implementation 'com.android.support:multidex:1.0.3'
 
     // Import library from project
-    implementation project(':MuxExoPlayer')
+//    implementation project(':MuxExoPlayer')
 
     // Example for how to import from maven instead for the 2.13.1 configuration
-//    implementation 'com.mux.stats.sdk.muxstats:MuxExoPlayer:2.5.0:r2.13.1@aar'
-//    api 'com.google.android.exoplayer:exoplayer:2.13.1'
-//    api 'org.checkerframework:checker-qual:2.5.2'
+//    implementation 'com.mux.stats.sdk.muxstats:MuxExoPlayer:dev-nb-jfrog-93fc9c3:r2.13.1@aar'
+    implementation 'com.mux.stats.sdk.muxstats:MuxExoPlayer:dev-v2.5.0-309288d:r2.13.1@aar'
+    api 'com.google.android.exoplayer:exoplayer:2.13.1'
+    api 'org.checkerframework:checker-qual:2.5.2'
     // Example ended
 
     // Include the below to test ads for each product flavor that supports them
