@@ -39,6 +39,10 @@ android {
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
     }
     buildTypes {
+        debug {
+            minifyEnabled false
+        }
+
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
