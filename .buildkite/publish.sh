@@ -12,7 +12,7 @@ docker run -it -v --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
     muxinc/mux-exoplayer:20201215 \
-    bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:build assemble"
+    bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:build"
 
 docker run -it -v --rm  \
     -v $(pwd):/data \
@@ -24,7 +24,7 @@ docker run -it -v --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
     muxinc/mux-exoplayer:20201215 \
-    bash -c "./gradlew --info publish artifactoryPublish"
+    bash -c "./gradlew --info MuxExoPlayer:publish MuxExoPlayer:artifactoryPublish"
 
 docker run -it -v --rm  \
     -v $(pwd):/data \
@@ -36,4 +36,4 @@ docker run -it -v --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
     muxinc/mux-exoplayer:20201215 \
-    bash -c "./gradlew --info automatedtests:assembleAndroidTest"
+    bash -c "./gradlew --info assemble automatedtests:assembleAndroidTest"

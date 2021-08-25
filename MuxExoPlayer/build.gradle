@@ -192,16 +192,13 @@ dependencies {
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
-}
 
-def muxCoreImport = 'com.mux:stats.muxcore:7.0.1'
-
-if(project.ext.inLocalDevMode) {
-    dependencies {
+    // This is due to the problem with fat aar bundling
+    // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
+    def muxCoreImport = 'com.mux:stats.muxcore:7.0.1'
+    if(project.ext.inLocalDevMode) {
         api muxCoreImport
-    }
-} else {
-    dependencies {
+    } else {
         embed muxCoreImport
     }
 }
