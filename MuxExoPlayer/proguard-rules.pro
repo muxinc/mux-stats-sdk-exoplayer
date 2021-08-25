@@ -21,7 +21,9 @@
 
 -keep public class com.mux.stats.sdk.muxstats.MuxStatsExoPlayer { public protected *; }
 -keep public class com.mux.stats.sdk.muxstats.MuxErrorException { public protected *; }
--keep public class com.mux.stats.sdk.core.* { public protected *; }
--keep public class com.mux.stats.sdk.muxstats.* { public protected *; }
+-keep public class com.mux.stats.sdk.core.** { public protected *; }
+-keep public class com.mux.stats.sdk.muxstats.** { public protected *; }
 
 -repackageclasses com.mux.stats.sdk
+
+-keeppackagenames com.mux.**
