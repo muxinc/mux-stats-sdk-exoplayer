@@ -106,6 +106,7 @@ dependencies {
     androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
     androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
+    api 'org.checkerframework:checker-qual:2.5.2'
     if(project.ext.inLocalDevMode) {
         implementation project(':MuxExoPlayer')
     } else {

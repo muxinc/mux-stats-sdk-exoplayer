@@ -182,6 +182,7 @@ dependencies {
     r2_14_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
 
+    api 'org.checkerframework:checker-qual:2.5.2'
     if(project.ext.inLocalDevMode) {
         implementation project(':MuxExoPlayer')
     } else {
