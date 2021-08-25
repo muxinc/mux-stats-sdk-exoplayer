@@ -27,6 +27,11 @@ buildscript {
         classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
     }
 }
+
+// Local dev mode causes the modules to refer to MuxExoPlayer directly
+// When it's NOT set they will download aars from artifactory and use those
+def inLocalDevModeFlag = false
+
 // Version name
 // This gets modified based on if we're a release or branch build
 def packageVersionName = 'dev'
@@ -112,8 +117,13 @@ allprojects {
         google()
         jcenter()
 
+        // Both our release and dev repos are imported
         maven {
-            url = 'https://muxinc.jfrog.io/artifactory/default-maven-local'
+            url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
+        }
+
+        maven {
+            url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
         }
     }
 
@@ -133,9 +143,7 @@ allprojects {
         releaseVersion = 'r2.1.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
 
-        // Defines if we're building the aar or in "dev mode" and needing demo to depend on the project
-        // THIS IS A TRULY HORRIBLE HACK AND NEEDS TO BE KILLED
-        inLocalDevMode = false
+        inLocalDevMode = inLocalDevModeFlag
     }
 }
 

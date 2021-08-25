@@ -106,7 +106,17 @@ dependencies {
     androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
     androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
-    implementation project(':MuxExoPlayer')
+    if(project.ext.inLocalDevMode) {
+        implementation project(':MuxExoPlayer')
+    } else {
+        r2_9_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.9.6@aar'
+        r2_10_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.10.6@aar'
+        r2_11_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.11.1@aar'
+        r2_12_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.12.1@aar'
+        r2_13_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.13.1@aar'
+        r2_14_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.14.1@aar'
+    }
+
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
     r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
