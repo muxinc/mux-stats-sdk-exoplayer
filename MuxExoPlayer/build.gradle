@@ -191,5 +191,5 @@ dependencies {
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
-    api 'com.mux:stats.muxcore:7.0.0'
+    api 'com.mux:stats.muxcore:dev-nb-fix-enum-obfuscation-56053f4'
 }
