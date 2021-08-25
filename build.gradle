@@ -133,11 +133,9 @@ allprojects {
         releaseVersion = 'r2.1.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
 
-
         // Defines if we're building the aar or in "dev mode" and needing demo to depend on the project
         // THIS IS A TRULY HORRIBLE HACK AND NEEDS TO BE KILLED
-        // only edit the second part as a dreadful "sanity" check
-        inLocalDevMode = isAReleaseBuild || false
+        inLocalDevMode = false
     }
 }
 
