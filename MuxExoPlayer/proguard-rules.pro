@@ -19,12 +19,16 @@
 #   public *;
 #}
 
--keep public class com.mux.stats.sdk.muxstats.MuxStatsExoPlayer { public protected *; }
--keep public class com.mux.stats.sdk.muxstats.MuxErrorException { public protected *; }
--keep public class com.mux.stats.sdk.core.model.CustomerPlayerData { public protected *; }
--keep public class com.mux.stats.sdk.core.model.CustomerVideoData { public protected *; }
--keep public class com.mux.stats.sdk.core.model.CustomerViewData { public protected *; }
--keep public class com.mux.stats.sdk.core.model.CustomerData { public protected *; }
--keep public class com.mux.stats.sdk.core.MuxSDKViewOrientation { public protected *; }
+-keep public class com.mux.** {
+  public * ;
+  protected * ;
+  interface * ;
+}
 
 -repackageclasses com.mux.stats.sdk
+
+-keepattributes Exceptions,Deprecated,*Annotation*,Signature,InnerClasses,EnclosingMethod
+
+-keeppackagenames com.mux.**
+
+-dontoptimize
