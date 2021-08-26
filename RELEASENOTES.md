@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.1
+ - Fix packaging of Exoplayer SDK AAR with MuxCore (broken in v2.5.0) (#148)
+
 ## v2.5.0
 ### Improvements
  - Releasing process involving artifactory (#141)
