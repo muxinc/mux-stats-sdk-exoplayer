@@ -114,13 +114,6 @@ dependencies {
     if(project.ext.inLocalDevMode) {
         implementation project(':MuxExoPlayer')
     } else {
-        r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
-        r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-        r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-        r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-        r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-        r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
-
         r2_9_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.9.6@aar'
         r2_10_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.10.6@aar'
         r2_11_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer:'+project.ext.versionName+':r2.11.1@aar'

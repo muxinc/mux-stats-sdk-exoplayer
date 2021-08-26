@@ -182,10 +182,23 @@ dependencies {
     r2_14_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
 
-    api 'org.checkerframework:checker-qual:2.5.2'
     if(project.ext.inLocalDevMode) {
+        api 'org.checkerframework:checker-qual:2.5.2'
         implementation project(':MuxExoPlayer')
     } else {
+        r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
+        r2_9_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
+        r2_10_6Api 'org.checkerframework:checker-qual:2.5.0'
+        r2_10_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
+        r2_11_1Api 'org.checkerframework:checker-qual:2.5.2'
+        r2_11_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_12_1Api 'org.checkerframework:checker-qual:2.5.2'
+        r2_12_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_13_1Api 'org.checkerframework:checker-qual:2.5.2'
+        r2_13_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
+        r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
         r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
