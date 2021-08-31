@@ -1,5 +1,8 @@
 # Release notes
 
+## v2.5.2
+ - Updating to MuxCore 7.0.2 to fix obfuscation (#150)
+
 ## v2.5.1
  - Fix packaging of Exoplayer SDK AAR with MuxCore (broken in v2.5.0) (#148)
 
