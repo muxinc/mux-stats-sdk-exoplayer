@@ -172,9 +172,17 @@ public class PlaybackTests extends TestBase {
           pView.getPlayer().seekTo(seekToInFuture);
         }
       });
+      testActivity.waitForSeekEnd(PLAY_PERIOD_IN_MS);
+      Thread.sleep(PLAY_PERIOD_IN_MS);
+//      testActivity.waitForSeekEnd(PLAY_PERIOD_IN_MS);
+      testActivity.runOnUiThread(new Runnable() {
+        public void run() {
+          pView.getPlayer().stop();
+        }
+      });
 
       // Play another x seconds, stage 7
-      Thread.sleep(PLAY_PERIOD_IN_MS * 2);
+      Thread.sleep(PLAY_PERIOD_IN_MS);
 
       CheckupResult result;
 
@@ -196,9 +204,10 @@ public class PlaybackTests extends TestBase {
 
       // check seeking, stage 6
       result = checkSeekAtIndex(result.eventIndex);
-
-      // Exit the player with back button
-//            testScenario.close();
+      int pauseEventIndex = networkRequest.getIndexForNextEvent(result.eventIndex, PauseEvent.TYPE);
+      if (pauseEventIndex == -1) {
+        fail("Missing pause event");
+      }
       Log.w(TAG, "See what event should be dispatched on view closed !!!");
       checkFullScreenValue();
     } catch (Exception e) {

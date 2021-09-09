@@ -19,10 +19,13 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
+import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Player.DiscontinuityReason;
+import com.google.android.exoplayer2.Player.PositionInfo;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
@@ -50,7 +53,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
 
-    PlaybackPreparer, Player.EventListener {
+    Player.Listener {
 
   static final String TAG = "SimplePlayerActivity";
 
@@ -79,6 +82,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 
   Lock activityLock = new ReentrantLock();
   Condition playbackEnded = activityLock.newCondition();
+  Condition playbackStopped = activityLock.newCondition();
+  Condition seekEnded = activityLock.newCondition();
   Condition playbackStarted = activityLock.newCondition();
   Condition playbackBuffering = activityLock.newCondition();
   Condition activityClosed = activityLock.newCondition();
@@ -94,7 +99,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     disableUserActions();
 
     playerView = findViewById(R.id.player_view);
-    playerView.setPlaybackPreparer(this);
 
     initExoPlayer();
     player.addListener(this);
@@ -236,6 +240,30 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     return mockNetwork;
   }
 
+  public boolean waitForPlaybackToStop(long timeoutInMs) {
+    try {
+      activityLock.lock();
+      return playbackStopped.await(timeoutInMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      activityLock.unlock();
+    }
+  }
+
+  public boolean waitForSeekEnd(long timeoutInMs) {
+    try {
+      activityLock.lock();
+      return seekEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      activityLock.unlock();
+    }
+  }
+
   public boolean waitForPlaybackToFinish(long timeoutInMs) {
     try {
       activityLock.lock();
@@ -302,6 +330,18 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     activityLock.unlock();
   }
 
+  public void signalPlaybackStopped() {
+    activityLock.lock();
+    playbackStopped.signalAll();
+    activityLock.unlock();
+  }
+
+  public void signalSeekEnded() {
+    activityLock.lock();
+    seekEnded.signalAll();
+    activityLock.unlock();
+  }
+
   public void signalPlaybackBuffering() {
     activityLock.lock();
     playbackBuffering.signalAll();
@@ -329,20 +369,15 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
   }
 
-  ///////////////////////////////////////////////////////////////////////
-  ///////// PlaybackPreparer ////////////////////////////////////////////
-
-  @Override
-  public void preparePlayback() {
-//        player.retry();
-  }
-
   //////////////////////////////////////////////////////////////////////
   ////// Player.EventListener //////////////////////////////////////////
 
   @Override
-  public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-
+  public void onPositionDiscontinuity(
+      PositionInfo oldPosition, PositionInfo newPosition, int reason) {
+    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+      signalSeekEnded();
+    }
   }
 
   @Override
@@ -372,6 +407,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
           // TODO implement this
 //                    signalPlaybackPaused();
         }
+      case Player.STATE_IDLE:
+        signalPlaybackStopped();
         break;
     }
   }
