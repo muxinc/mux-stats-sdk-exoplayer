@@ -1,7 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
-import android.view.Surface;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
@@ -20,7 +19,6 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.google.android.exoplayer2.video.VideoSize;
-import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
@@ -370,6 +368,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
         break;
       case Player.STATE_IDLE:
+        if (state == PlayerState.PLAY || state == PlayerState.PLAYING) {
+          // Player stop called !!!
+          pause();
+        }
       default:
         // don't care
         break;

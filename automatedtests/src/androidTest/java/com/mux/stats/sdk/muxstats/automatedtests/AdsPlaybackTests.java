@@ -20,6 +20,10 @@ import java.io.IOException;
 import org.junit.Before;
 import org.junit.Test;
 
+/**
+ * We need internet connection in order to test ads, all ad content is played from local server but,
+ * some xml schems are pulled over internet.
+ */
 public class AdsPlaybackTests extends TestBase {
 
   static final int PREROLL_AD_PERIOD = 10000;

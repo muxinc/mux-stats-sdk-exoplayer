@@ -374,6 +374,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
         break;
       case Player.STATE_IDLE:
+        if (state == PlayerState.PLAY || state == PlayerState.PLAYING) {
+          // Player stop called !!!
+          pause();
+        }
       default:
         // don't care
         break;

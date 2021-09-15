@@ -18,7 +18,7 @@
      <CompanionAds>
       <Companion id="86648174416" width="300" height="250">
        <StaticResource creativeType="image/png"><![CDATA[http://localhost:5000/companion_ad_image.png]]></StaticResource>
-       <TrackingEvents>
+      </Companion>>
      </CompanionAds>
     </Creative>
    </Creatives>
