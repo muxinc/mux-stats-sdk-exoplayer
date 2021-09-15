@@ -19,15 +19,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import com.google.android.exoplayer2.ControlDispatcher;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
-import com.google.android.exoplayer2.PlaybackPreparer;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.DiscontinuityReason;
-import com.google.android.exoplayer2.Player.PositionInfo;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
@@ -52,8 +47,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
-
-    Player.Listener {
+  Player.EventListener  {
 
   static final String TAG = "SimplePlayerActivity";
 
@@ -252,17 +246,17 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     }
   }
 
-  public boolean waitForSeekEnd(long timeoutInMs) {
-    try {
-      activityLock.lock();
-      return seekEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-      return false;
-    } finally {
-      activityLock.unlock();
-    }
-  }
+//  public boolean waitForSeekEnd(long timeoutInMs) {
+//    try {
+//      activityLock.lock();
+//      return seekEnded.await(timeoutInMs, TimeUnit.MILLISECONDS);
+//    } catch (InterruptedException e) {
+//      e.printStackTrace();
+//      return false;
+//    } finally {
+//      activityLock.unlock();
+//    }
+//  }
 
   public boolean waitForPlaybackToFinish(long timeoutInMs) {
     try {
@@ -372,13 +366,13 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   //////////////////////////////////////////////////////////////////////
   ////// Player.EventListener //////////////////////////////////////////
 
-  @Override
-  public void onPositionDiscontinuity(
-      PositionInfo oldPosition, PositionInfo newPosition, int reason) {
-    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-      signalSeekEnded();
-    }
-  }
+//  @Override
+//  public void onPositionDiscontinuity(
+//      PositionInfo oldPosition, PositionInfo newPosition, int reason) {
+//    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
+//      signalSeekEnded();
+//    }
+//  }
 
   @Override
   public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {

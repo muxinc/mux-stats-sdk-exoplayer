@@ -172,9 +172,7 @@ public class PlaybackTests extends TestBase {
           pView.getPlayer().seekTo(seekToInFuture);
         }
       });
-      testActivity.waitForSeekEnd(PLAY_PERIOD_IN_MS);
       Thread.sleep(PLAY_PERIOD_IN_MS);
-//      testActivity.waitForSeekEnd(PLAY_PERIOD_IN_MS);
       testActivity.runOnUiThread(new Runnable() {
         public void run() {
           pView.getPlayer().stop();
