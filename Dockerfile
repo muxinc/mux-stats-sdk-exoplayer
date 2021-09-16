@@ -1,6 +1,6 @@
 # Based on https://github.com/ainoya/docker-android-project
 # then also from https://github.com/bitrise-io/android/blob/master/Dockerfile
-FROM openjdk:14.0.1
+FROM openjdk:8u302
 
 ENV DEBIAN_FRONTEND noninteractive
 
