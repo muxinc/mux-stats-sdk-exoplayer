@@ -1,5 +1,14 @@
 # Release notes
 
+## v2.5.3
+### Improvements
+ - Upgrade Docker base image used for builds to JDK 8u302 (#155)
+ - Audio test improvements (#156)
+
+### Fixes
+ - Retain code obfuscation and mapping files (#153)
+ - Added pause event to be dispatched when player-stop is called (#154)
+
 ## v2.5.2
  - Updating to MuxCore 7.0.2 to fix obfuscation (#150)
 
