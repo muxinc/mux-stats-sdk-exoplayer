@@ -74,6 +74,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   MediaSessionConnector mediaSessionConnector;
   long playbackStartPosition = 0;
 
+  AtomicBoolean playbackRunning = new AtomicBoolean(false);
   Lock activityLock = new ReentrantLock();
   Condition playbackEnded = activityLock.newCondition();
   Condition playbackStopped = activityLock.newCondition();
@@ -283,6 +284,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   }
 
   public boolean waitForPlaybackToStart(long timeoutInMs) {
+    if (playbackRunning.get()) {
+      return true;
+    }
     try {
       activityLock.lock();
       return playbackStarted.await(timeoutInMs, TimeUnit.MILLISECONDS);
@@ -319,6 +323,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   }
 
   public void signalPlaybackStarted() {
+    playbackRunning.set(true);
     activityLock.lock();
     playbackStarted.signalAll();
     activityLock.unlock();
