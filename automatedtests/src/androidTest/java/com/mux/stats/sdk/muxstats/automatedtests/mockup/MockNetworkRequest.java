@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 
-import com.mux.stats.sdk.core.model.ViewData;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
@@ -147,6 +146,6 @@ public class MockNetworkRequest implements INetworkRequest {
     if (index > receivedEvents.size() || index < 0) {
       return -1;
     }
-    return receivedEvents.get(index).getLong(ViewData.VIEWER_TIME);
+    return receivedEvents.get(index).getLong("uti");
   }
 }
