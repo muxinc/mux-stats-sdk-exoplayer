@@ -59,7 +59,7 @@ public abstract class TestBase {
   public TestName currentTestName = new TestName();
 
   @Rule
-  public RetryTest retryTestRule = new RetryTest(1);
+  public RetryTest retryTestRule = new RetryTest(3);
 
   static final int PLAY_PERIOD_IN_MS = 10000;
   static final int PAUSE_PERIOD_IN_MS = 3000;
