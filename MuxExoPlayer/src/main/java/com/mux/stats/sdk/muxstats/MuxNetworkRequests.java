@@ -158,7 +158,7 @@ public class MuxNetworkRequests implements INetworkRequest {
    *   <li>Get request: @link {@link NetworkRequest#get(URL)}</li>
    *   <li>Post request: @link {@link NetworkRequest#post(URL, JSONObject, Hashtable)}</li>
    *   <li>Post request with callback to be called on completion: @link {@link
-   *   NetworkRequest#postWithCompletion(String, String, Hashtable, IMuxNetworkRequestsCompletion)}
+   *   NetworkRequest#postWithCompletion(String, String, String, Hashtable, IMuxNetworkRequestsCompletion)}
    *   </li>
    * </ul>
    */

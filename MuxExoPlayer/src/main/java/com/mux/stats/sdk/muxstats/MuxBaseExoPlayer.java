@@ -567,9 +567,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Detect if the current media item being played contains a video track. If it does
-   * it will initialize the {@link #frameRenderedListener} or if it does not then it will initialize
-   * {@link #updatePlayheadPositionTimer}.
+   * Detect if the current media item being played contains a video track.
    */
   protected void configurePlaybackHeadUpdateInterval() {
     if (player == null || player.get() == null) {
@@ -594,9 +592,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Start a periodic timer which will update the playback position on every 150 ms. We only use
-   * this method in case the media item has no video component, in case it does the
-   * {@link #frameRenderedListener} will be updating the playback position.
+   * Start a periodic timer which will update the playback position on every 150 ms.
    */
   protected void setPlaybackHeadUpdateInterval() {
     if (updatePlayheadPositionTimer != null) {

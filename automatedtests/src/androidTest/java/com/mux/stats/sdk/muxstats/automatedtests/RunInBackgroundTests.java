@@ -6,6 +6,7 @@ import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 
 public class RunInBackgroundTests extends TestBase {
