@@ -752,7 +752,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    * {@link PlayerState#PLAYING}
    */
   protected void playing() {
-    if (seekingInProgress || state == PlayerState.PLAYING) {
+    if (seekingInProgress) {
       // We will dispatch playing event after seeked event
       return;
     }
