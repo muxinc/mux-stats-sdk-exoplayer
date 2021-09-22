@@ -4,11 +4,9 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.app.Activity;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import androidx.test.espresso.UiController;
@@ -26,16 +24,13 @@ import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.SeekedEvent;
 import com.mux.stats.sdk.core.events.playback.SeekingEvent;
-import com.mux.stats.sdk.core.model.PlayerData;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 import java.io.IOException;
 import java.util.Collection;
 import org.hamcrest.Matcher;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -138,112 +133,6 @@ public abstract class TestBase {
 //        testScenario.close();
   }
 
-  /*
-   * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
-   * We are implementing vod playback scenario.
-   */
-  protected void testVodPlayback(boolean runInBackground, long firstSeekTo, long secondSeekTo) {
-    try {
-      if (runInBackground) {
-        testActivity.waitForActivityToInitialize();
-        backgroundActivity();
-      }
-      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
-        fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
-      }
-
-      // Init player controlls
-      controlView = pView.findViewById(com.mux.stats.sdk.muxstats.R.id.exo_controller);
-      if (controlView != null) {
-        pauseButton = controlView.findViewById(com.mux.stats.sdk.muxstats.R.id.exo_pause);
-        playButton = controlView.findViewById(com.mux.stats.sdk.muxstats.R.id.exo_play);
-      }
-      initPlayerControls();
-
-      // play x seconds, stage 1
-      Thread.sleep(PLAY_PERIOD_IN_MS);
-      pausePlayer();
-      // Pause x seconds, stage 2
-      Thread.sleep(PAUSE_PERIOD_IN_MS);
-      // Resume video, stage 3
-      resumePlayer();
-      // Play another x seconds
-      Thread.sleep(PLAY_PERIOD_IN_MS);
-
-      // Seek backward, stage 4
-      testActivity.runOnUiThread(new Runnable() {
-        public void run() {
-          pView.getPlayer().seekTo(firstSeekTo);
-        }
-      });
-
-      // Play another x seconds, stage 5
-      Thread.sleep(PLAY_PERIOD_IN_MS);
-
-      // seek forward in the video, stage 6
-      testActivity.runOnUiThread(new Runnable() {
-        public void run() {
-          pView.getPlayer().seekTo(secondSeekTo);
-        }
-      });
-
-      // Play another x seconds, stage 5
-      Thread.sleep(PLAY_PERIOD_IN_MS);
-
-      // seek forward in the video, stage 6
-      testActivity.runOnUiThread(new Runnable() {
-        public void run() {
-          long currentPlaybackPosition = pView.getPlayer()
-              .getCurrentPosition();
-          long videoDuration = pView.getPlayer().getDuration();
-          long seekToInFuture =
-              currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
-          pView.getPlayer().seekTo(seekToInFuture);
-        }
-      });
-      Thread.sleep(PLAY_PERIOD_IN_MS);
-      testActivity.runOnUiThread(new Runnable() {
-        public void run() {
-          pView.getPlayer().stop();
-        }
-      });
-
-      // Play another x seconds, stage 7
-      Thread.sleep(PLAY_PERIOD_IN_MS);
-
-      CheckupResult result;
-
-      // Check first playback period, stage 1
-      result = checkPlaybackPeriodAtIndex(0, PLAY_PERIOD_IN_MS);
-
-      // Check pause period, stage 2
-      result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
-
-      // Check playback period, stage 3
-      result = checkPlaybackPeriodAtIndex(result.eventIndex - 1, PLAY_PERIOD_IN_MS);
-
-      // Check SeekEvents, stage 4
-      result = checkSeekAtIndex(result.eventIndex);
-
-      // check playback period stage 5
-      result = checkPlaybackPeriodAtIndex(result.eventIndex,
-          PLAY_PERIOD_IN_MS - result.seekPeriod);
-
-      // check seeking, stage 6
-      result = checkSeekAtIndex(result.eventIndex);
-
-      int pauseEventIndex = networkRequest.getIndexForNextEvent(result.eventIndex, PauseEvent.TYPE);
-      if (pauseEventIndex == -1) {
-        fail("Missing pause event");
-      }
-      Log.w(TAG, "See what event should be dispatched on view closed !!!");
-      checkFullScreenValue();
-    } catch (Exception e) {
-      fail(getExceptionFullTraceAndMessage(e));
-    }
-    Log.e(TAG, "All done !!!");
-  }
-
 //    public abstract Bundle getActivityOptions();
 
   public void jamNetwork() {
@@ -263,16 +152,9 @@ public abstract class TestBase {
   public CheckupResult checkPlaybackPeriodAtIndex(int index, long expectedPlayPeriod)
       throws JSONException {
     CheckupResult result = new CheckupResult();
-    int seekedIndex = networkRequest.getIndexForNextEvent(index, SeekedEvent.TYPE);
     int playIndex = networkRequest.getIndexForNextEvent(index, PlayEvent.TYPE);
     int playingIndex = networkRequest.getIndexForNextEvent(index, PlayingEvent.TYPE);
     int pauseIndex = networkRequest.getIndexForNextEvent(index, PauseEvent.TYPE);
-    int periodStartIndex = playingIndex;
-    // If we have precceding seeked event use that as period start time, but make sure that seeked
-    // event is not the one that sometimes come before viewStart event.
-    if (seekedIndex != -1 && seekedIndex < playingIndex -1 && seekedIndex > 6) {
-      periodStartIndex = seekedIndex;
-    }
     // Play index not necessary
     if (pauseIndex == -1 || playingIndex == -1) {
       fail("Missing basic playback events, playIndex: "
@@ -287,8 +169,8 @@ public abstract class TestBase {
           ", availableEvents: " + networkRequest.getReceivedEventNames());
     }
     long playbackPeriod = networkRequest.getCreationTimeForEvent(pauseIndex) -
-        networkRequest.getCreationTimeForEvent(periodStartIndex);
-    if (Math.abs(playbackPeriod - expectedPlayPeriod) > 800) {
+        networkRequest.getCreationTimeForEvent(playingIndex);
+    if (Math.abs(playbackPeriod - expectedPlayPeriod) > 500) {
       fail("Reported play period: " + playbackPeriod + " do not match expected play period: "
           + expectedPlayPeriod + ", playingIndex: " + playingIndex +
           ", pauseIndex: " + pauseIndex + ", starting at event index: " + index +
@@ -439,27 +321,6 @@ public abstract class TestBase {
         MotionEvents.sendUp(uiController, down, coordinates);
       }
     };
-  }
-
-  void initPlayerControls() {
-    controlView = pView.findViewById(com.mux.stats.sdk.muxstats.R.id.exo_controller);
-    if (controlView != null) {
-      pauseButton = controlView.findViewById(com.mux.stats.sdk.muxstats.R.id.exo_pause);
-      playButton = controlView.findViewById(com.mux.stats.sdk.muxstats.R.id.exo_play);
-    }
-  }
-
-  void checkFullScreenValue() throws JSONException {
-    JSONArray events = networkRequest.getReceivedEventsAsJSON();
-    for (int i = 0; i < events.length(); i++) {
-      JSONObject event = events.getJSONObject(i);
-      if (event.has(PlayerData.PLAYER_IS_FULLSCREEN)) {
-        assertEquals("Expected player to be in full screen !!!",
-            true, event.getBoolean(PlayerData.PLAYER_IS_FULLSCREEN));
-        return;
-      }
-    }
-    fail("PlayerData.PLAYER_IS_FULLSCREEN field not present, this is an error !!!");
   }
 
   class CheckupResult {

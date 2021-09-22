@@ -121,6 +121,99 @@ public class PlaybackTests extends TestBase {
     }
   }
 
+  /*
+   * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
+   * We are implementing vod playback scenario.
+   */
+  @Test
+  public void testVodPlayback() {
+    try {
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+        fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+      }
+
+      // Init player controlls
+      controlView = pView.findViewById(R.id.exo_controller);
+      if (controlView != null) {
+        pauseButton = controlView.findViewById(R.id.exo_pause);
+        playButton = controlView.findViewById(R.id.exo_play);
+      }
+      initPlayerControls();
+
+      // play x seconds, stage 1
+      Thread.sleep(PLAY_PERIOD_IN_MS);
+      pausePlayer();
+      // Pause x seconds, stage 2
+      Thread.sleep(PAUSE_PERIOD_IN_MS);
+      // Resume video, stage 3
+      resumePlayer();
+      // Play another x seconds
+      Thread.sleep(PLAY_PERIOD_IN_MS);
+
+      // Seek backward, stage 4
+      testActivity.runOnUiThread(new Runnable() {
+        public void run() {
+          long currentPlaybackPosition = pView.getPlayer().getCurrentPosition();
+          pView.getPlayer().seekTo(currentPlaybackPosition / 2);
+        }
+      });
+
+      // Play another x seconds, stage 5
+      Thread.sleep(PLAY_PERIOD_IN_MS);
+
+      // seek forward in the video, stage 6
+      testActivity.runOnUiThread(new Runnable() {
+        public void run() {
+          long currentPlaybackPosition = pView.getPlayer()
+              .getCurrentPosition();
+          long videoDuration = pView.getPlayer().getDuration();
+          long seekToInFuture =
+              currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
+          pView.getPlayer().seekTo(seekToInFuture);
+        }
+      });
+      Thread.sleep(PLAY_PERIOD_IN_MS);
+      testActivity.runOnUiThread(new Runnable() {
+        public void run() {
+          pView.getPlayer().stop();
+        }
+      });
+
+      // Play another x seconds, stage 7
+      Thread.sleep(PLAY_PERIOD_IN_MS);
+
+      CheckupResult result;
+
+      // Check first playback period, stage 1
+      result = checkPlaybackPeriodAtIndex(0, PLAY_PERIOD_IN_MS);
+
+      // Check pause period, stage 2
+      result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
+
+      // Check playback period, stage 3
+      result = checkPlaybackPeriodAtIndex(result.eventIndex - 1, PLAY_PERIOD_IN_MS);
+
+      // Check SeekEvents, stage 4
+      result = checkSeekAtIndex(result.eventIndex);
+
+      // check playback period stage 5
+      result = checkPlaybackPeriodAtIndex(result.eventIndex,
+          PLAY_PERIOD_IN_MS - result.seekPeriod);
+
+      // check seeking, stage 6
+      result = checkSeekAtIndex(result.eventIndex);
+      int pauseEventIndex = networkRequest.getIndexForNextEvent(result.eventIndex, PauseEvent.TYPE);
+      if (pauseEventIndex == -1) {
+        fail("Missing pause event");
+      }
+      Log.w(TAG, "See what event should be dispatched on view closed !!!");
+      checkFullScreenValue();
+    } catch (Exception e) {
+      fail(getExceptionFullTraceAndMessage(e));
+    }
+    Log.e(TAG, "All done !!!");
+  }
+
   @Test
   public void testRebufferingAndStartupTime() {
     try {
@@ -199,5 +292,26 @@ public class PlaybackTests extends TestBase {
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
+  }
+
+  void initPlayerControls() {
+    controlView = pView.findViewById(R.id.exo_controller);
+    if (controlView != null) {
+      pauseButton = controlView.findViewById(R.id.exo_pause);
+      playButton = controlView.findViewById(R.id.exo_play);
+    }
+  }
+
+  void checkFullScreenValue() throws JSONException {
+    JSONArray events = networkRequest.getReceivedEventsAsJSON();
+    for (int i = 0; i < events.length(); i++) {
+      JSONObject event = events.getJSONObject(i);
+      if (event.has(PlayerData.PLAYER_IS_FULLSCREEN)) {
+        assertEquals("Expected player to be in full screen !!!",
+            true, event.getBoolean(PlayerData.PLAYER_IS_FULLSCREEN));
+        return;
+      }
+    }
+    fail("PlayerData.PLAYER_IS_FULLSCREEN field not present, this is an error !!!");
   }
 }

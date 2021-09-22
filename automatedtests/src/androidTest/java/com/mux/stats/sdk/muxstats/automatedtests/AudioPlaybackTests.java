@@ -7,8 +7,7 @@ public class AudioPlaybackTests extends SeekingTestBase {
 
   @Before
   public void init() {
-    bandwidthLimitInBitsPerSecond = 150000;
-    urlToPlay = "http://localhost:5000/audio.mp4";
+    urlToPlay = "http://localhost:5000/audio.aac";
     super.init();
   }
 
