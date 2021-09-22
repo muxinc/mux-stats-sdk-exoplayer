@@ -26,7 +26,7 @@ public class RetryTest implements TestRule {
         Throwable caughtThrowable = null;
 
         // implement retry logic here
-        for (int i = 0; i < retryCount; i++) {
+        for (int i = 0; i <= retryCount; i++) {
           try {
             base.evaluate();
             return;

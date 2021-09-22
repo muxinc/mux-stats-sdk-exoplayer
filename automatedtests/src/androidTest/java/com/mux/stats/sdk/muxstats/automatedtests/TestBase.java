@@ -145,7 +145,8 @@ public abstract class TestBase {
    * According to the self validation guid: https://docs.google.com/document/d/1FU_09N3Cg9xfh784edBJpgg3YVhzBA6-bd5XHLK7IK4/edit#
    * We are implementing vod playback scenario.
    */
-  protected void testVodPlayback(boolean runInBackground, long firstSeekTo, long secondSeekTo) {
+  protected void testVodPlayback(boolean runInBackground, long firstSeekTo, long secondSeekTo,
+      long errorThreshold) {
     try {
       if (runInBackground) {
         testActivity.waitForActivityToInitialize();
@@ -217,20 +218,21 @@ public abstract class TestBase {
       CheckupResult result;
 
       // Check first playback period, stage 1
-      result = checkPlaybackPeriodAtIndex(0, PLAY_PERIOD_IN_MS);
+      result = checkPlaybackPeriodAtIndex(0, PLAY_PERIOD_IN_MS, errorThreshold);
 
       // Check pause period, stage 2
       result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
 
       // Check playback period, stage 3
-      result = checkPlaybackPeriodAtIndex(result.eventIndex - 1, PLAY_PERIOD_IN_MS);
+      result = checkPlaybackPeriodAtIndex(result.eventIndex - 1, PLAY_PERIOD_IN_MS,
+          errorThreshold);
 
       // Check SeekEvents, stage 4
       result = checkSeekAtIndex(result.eventIndex);
 
       // check playback period stage 5
       result = checkPlaybackPeriodAtIndex(result.eventIndex,
-          PLAY_PERIOD_IN_MS - result.seekPeriod);
+          PLAY_PERIOD_IN_MS - result.seekPeriod, errorThreshold);
 
       // check seeking, stage 6
       result = checkSeekAtIndex(result.eventIndex);
@@ -263,7 +265,8 @@ public abstract class TestBase {
     testActivity.runOnUiThread(() -> testActivity.finish());
   }
 
-  public CheckupResult checkPlaybackPeriodAtIndex(int index, long expectedPlayPeriod)
+  public CheckupResult checkPlaybackPeriodAtIndex(int index, long expectedPlayPeriod,
+      long errorThreshold)
       throws JSONException {
     CheckupResult result = new CheckupResult();
     int seekedIndex = networkRequest.getIndexForNextEvent(index, SeekedEvent.TYPE);
@@ -291,9 +294,10 @@ public abstract class TestBase {
     }
     long playbackPeriod = networkRequest.getCreationTimeForEvent(pauseIndex) -
         networkRequest.getCreationTimeForEvent(periodStartIndex);
-    if (Math.abs(playbackPeriod - expectedPlayPeriod) > 800) {
-      fail("Reported play period: " + playbackPeriod + " do not match expected play period: "
-          + expectedPlayPeriod + ", playingIndex: " + playingIndex +
+    if (Math.abs(playbackPeriod - expectedPlayPeriod) > errorThreshold) {
+      fail("Reported play period: " + playbackPeriod + " do not match expected play period: " +
+          expectedPlayPeriod + ", allowed threshold: " + errorThreshold +
+          ", playingIndex: " + playingIndex +
           ", pauseIndex: " + pauseIndex + ", starting at event index: " + index +
           ", availableEvents: " + networkRequest.getReceivedEventNames());
     }

@@ -12,6 +12,7 @@ android {
         versionName "1.0"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArguments clearPackageData: 'true'
 
         buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
         buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR_ENV_KEY_HERE\"")
@@ -45,6 +46,7 @@ android {
         // in the path_to_your_project/module_name/build/outputs/test-results/ directory.
         // '$rootDir' sets the path relative to the root directory of the current project.
         resultsDir "./automated_test_results/results"
+        execution 'ANDROIDX_TEST_ORCHESTRATOR'
     }
 
     flavorDimensions 'api'
@@ -90,7 +92,8 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.3'
     implementation 'androidx.navigation:navigation-fragment:2.3.1'
     implementation 'androidx.navigation:navigation-ui:2.3.1'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestUtil 'androidx.test:orchestrator:1.4.0'
 
     androidTestImplementation 'androidx.test:rules:1.3.0'
     // Optional -- Hamcrest library

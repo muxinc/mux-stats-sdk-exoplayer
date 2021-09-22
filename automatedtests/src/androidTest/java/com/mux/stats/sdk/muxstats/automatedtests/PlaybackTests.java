@@ -44,6 +44,11 @@ public class PlaybackTests extends TestBase {
     testVideoChange(true, false);
   }
 
+  @Test
+  public void testVideoVideoVodPlayback() {
+    testVodPlayback(false,10000, 72000, 500);
+  }
+
   public void testVideoChange(boolean programChange, boolean videoChange) {
     try {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {

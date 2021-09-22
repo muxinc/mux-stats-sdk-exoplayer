@@ -19,6 +19,6 @@ public class RunInBackgroundTests extends TestBase {
 
   @Test
   public void testAudioVodPlaybackInBackground() {
-    testVodPlayback(true,10000, 72000);
+    testVodPlayback(true,10000, 72000, 1500);
   }
 }
