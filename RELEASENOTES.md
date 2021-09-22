@@ -1,5 +1,9 @@
 # Release notes
 
+## v2.5.4
+### Fixes
+ - Reverts audio test improvements introduced in v2.5.3. (#158)
+
 ## v2.5.3
 ### Improvements
  - Upgrade Docker base image used for builds to JDK 8u302 (#155)
