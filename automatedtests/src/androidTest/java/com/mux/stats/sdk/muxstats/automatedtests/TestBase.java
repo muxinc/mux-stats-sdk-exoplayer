@@ -193,19 +193,6 @@ public abstract class TestBase {
 
       // Play another x seconds, stage 5
       Thread.sleep(PLAY_PERIOD_IN_MS);
-
-      // seek forward in the video, stage 6
-      testActivity.runOnUiThread(new Runnable() {
-        public void run() {
-          long currentPlaybackPosition = pView.getPlayer()
-              .getCurrentPosition();
-          long videoDuration = pView.getPlayer().getDuration();
-          long seekToInFuture =
-              currentPlaybackPosition + ((videoDuration - currentPlaybackPosition) / 2);
-          pView.getPlayer().seekTo(seekToInFuture);
-        }
-      });
-      Thread.sleep(PLAY_PERIOD_IN_MS);
       testActivity.runOnUiThread(new Runnable() {
         public void run() {
           pView.getPlayer().stop();

@@ -55,7 +55,7 @@ public class SeekingTests extends SeekingTestBase {
       }
       if (seekingIndex == -1 || seekedIndex == -1) {
         fail("Seeking events missing: seekingIndex: "
-            + seekedIndex + ", seekingIndex: " + seekingIndex);
+            + seekingIndex + ", seekedIndex: " + seekedIndex);
       }
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));

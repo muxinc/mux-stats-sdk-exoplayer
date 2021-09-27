@@ -45,7 +45,7 @@ public class PlaybackTests extends TestBase {
   }
 
   @Test
-  public void testVideoVideoVodPlayback() {
+  public void testVideoVodPlayback() {
     testVodPlayback(false,10000, 72000, 500);
   }
 
@@ -106,19 +106,20 @@ public class PlaybackTests extends TestBase {
       if (!testActivity.waitForPlaybackToFinish(waitForPlaybackToStartInMS)) {
         fail("Playback did not finish in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      testActivity.finishAffinity();
+//      testActivity.finishAffinity();
+      testActivity.finishActivity(0);
       Thread.sleep(PAUSE_PERIOD_IN_MS);
       int pauseIndex = networkRequest.getIndexForFirstEvent(PauseEvent.TYPE);
       int endedIndex = networkRequest.getIndexForFirstEvent(EndedEvent.TYPE);
       int viewEndEventIndex = networkRequest.getIndexForFirstEvent(ViewEndEvent.TYPE);
       if (viewEndEventIndex == -1 || endedIndex == -1 || pauseIndex == -1) {
         fail("Missing end events: viewEndEventIndex = " + viewEndEventIndex
-            + ", viewEndEventIndex: " + viewEndEventIndex
+            + ", endedEventIndex: " + endedIndex
             + ", pauseEventIndex: " + pauseIndex);
       }
       if (!(pauseIndex < endedIndex && endedIndex < viewEndEventIndex)) {
         fail("End events not ordered correctly: viewEndEventIndex = " + viewEndEventIndex
-            + ", viewEndEventIndex: " + viewEndEventIndex
+            + ", endedEventIndex: " + endedIndex
             + ", pauseEventIndex: " + pauseIndex);
       }
     } catch (Exception e) {
