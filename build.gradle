@@ -156,19 +156,19 @@ afterEvaluate {
         publishing {
             publications {
                 mavenJava(MavenPublication) {
-                    groupId = "com.mux.stats.sdk.muxstats"
-
                     def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
                     outDirTree.visit { fileDetails ->
                         def flavorName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
                         println "=== Publishing >>>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
 
                         artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
-                            classifier flavorName
                             version = packageVersionName
                         }
+
+                        groupId = "com.mux.stats.sdk.muxstats"
+                        artifactId = "exoplayer-"+flavorName
                     }
-                    
+
                     //generate pom nodes for dependencies
                     pom.withXml {
                         def dependenciesNode = asNode().appendNode('dependencies')
