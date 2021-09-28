@@ -326,6 +326,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Override
+  public void onVideoSizeChanged(AnalyticsListener.EventTime eventTime, int width, int height,
+      int unappliedRotationDegrees, float pixelWidthHeightRatio) {
+    sourceWidth = width;
+    sourceHeight = height;
+  }
+
+  @Override
   public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
   }
   // ------END AnalyticsListener callbacks------
@@ -454,4 +461,128 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     bandwidthDispatcher.onTracksChanged(trackGroups);
     configurePlaybackHeadUpdateInterval();
   }
+
+  // Empty implementations of default methods from our interfaces
+  // This is to workaround https://github.com/google/ExoPlayer/issues/6801
+
+  @Override
+  @Deprecated
+  public void onPlayerStateChanged(
+      EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
+
+  @Override
+  public void onMediaItemTransition(
+      EventTime eventTime,
+      @Nullable MediaItem mediaItem,
+      @Player.MediaItemTransitionReason int reason) {}
+
+  @Override
+  @Deprecated
+  public void onSeekProcessed(EventTime eventTime) {}
+
+  @Override
+  @Deprecated
+  public void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
+
+  @Override
+  public void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
+
+  @Override
+  public void onBandwidthEstimate(
+      EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
+
+  @Override
+  @Deprecated
+  public void onDecoderEnabled(
+      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
+
+  @Override
+  @Deprecated
+  public void onDecoderInitialized(
+      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
+
+  @Override
+  @Deprecated
+  public void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
+
+  @Override
+  @Deprecated
+  public void onDecoderDisabled(
+      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
+
+  @Override
+  public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {}
+
+  @Override
+  @Deprecated
+  public void onAudioDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  @Override
+  @Deprecated
+  public void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+
+  @Override
+  public void onAudioInputFormatChanged(
+      EventTime eventTime,
+      Format format,
+      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
+
+  @Override
+  public void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {}
+
+  @Override
+  public void onAudioDecoderReleased(EventTime eventTime, String decoderName) {}
+
+  @Override
+  public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
+
+  @Override
+  public void onAudioSessionIdChanged(EventTime eventTime, int audioSessionId) {}
+
+  @Override
+  public void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  @Override
+  public void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
+
+  @Override
+  public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {}
+
+  @Override
+  @Deprecated
+  public void onVideoDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  @Override
+  public void onVideoInputFormatChanged(
+      EventTime eventTime,
+      Format format,
+      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
+
+  @Override
+  public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
+
+  @Override
+  public void onVideoDecoderReleased(EventTime eventTime, String decoderName) {}
+
+  @Override
+  public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {}
+
+  @Override
+  public void onVideoFrameProcessingOffset(
+      EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
+
+  @Override
+  @Deprecated
+  public void onDrmSessionAcquired(EventTime eventTime) {}
+
+  @Override
+  public void onDrmSessionReleased(EventTime eventTime) {}
+
+  @Override
+  public void onPlayerReleased(EventTime eventTime) {}
+
+  @Override
+  public void onEvents(Player player, Events events) {}
 }
