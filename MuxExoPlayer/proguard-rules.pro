@@ -25,6 +25,12 @@
   interface * ;
 }
 
+-keep public interface com.google.** {
+  public * ;
+  protected * ;
+  interface * ;
+}
+
 -repackageclasses com.mux.stats.sdk
 
 -keepattributes Exceptions,Deprecated,*Annotation*,Signature,InnerClasses,EnclosingMethod
