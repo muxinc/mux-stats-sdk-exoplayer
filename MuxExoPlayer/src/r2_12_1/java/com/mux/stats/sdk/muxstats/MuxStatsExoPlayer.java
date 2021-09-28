@@ -457,4 +457,68 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     bandwidthDispatcher.onTracksChanged(trackGroups);
     configurePlaybackHeadUpdateInterval();
   }
+
+  // Empty implementations of default methods from our interfaces
+  // This is to workaround https://github.com/google/ExoPlayer/issues/6801
+
+  @Override
+  @Deprecated
+  public void onPlayerStateChanged(
+      EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
+
+  @Override
+  @Deprecated
+  public void onSeekProcessed(EventTime eventTime) {}
+
+  @Override
+  @Deprecated
+  public void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
+
+  @Override
+  public void onBandwidthEstimate(
+      EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
+
+  @Override
+  @Deprecated
+  public void onDecoderInitialized(
+      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
+
+  @Override
+  @Deprecated
+  public void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
+
+  @Override
+  @Deprecated
+  public void onAudioDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  @Override
+  @Deprecated
+  public void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
+
+  @Override
+  public void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {}
+
+  @Override
+  public void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
+
+  @Override
+  @Deprecated
+  public void onVideoDecoderInitialized(
+      EventTime eventTime, String decoderName, long initializationDurationMs) {}
+
+  @Override
+  public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
+
+  @Override
+  public void onVideoFrameProcessingOffset(
+      EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
+
+  @Override
+  @Deprecated
+  public void onDrmSessionAcquired(EventTime eventTime) {}
+
+  @Override
+  public void onDrmSessionReleased(EventTime eventTime) {}
+
 }

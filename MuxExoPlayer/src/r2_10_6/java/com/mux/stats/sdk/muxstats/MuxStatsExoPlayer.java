@@ -508,4 +508,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onVolumeChanged(AnalyticsListener.EventTime eventTime, float volume) {
 
   }
+
+  // Empty implementations of default methods from our interfaces
+  // This is to workaround https://github.com/google/ExoPlayer/issues/6801
+
+  @Override
+  @Deprecated
+  public void onDrmSessionAcquired(EventTime eventTime) {}
+
+  @Override
+  public void onDrmSessionReleased(EventTime eventTime) {}
 }

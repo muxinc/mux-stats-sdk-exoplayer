@@ -480,4 +480,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   @Override
   public void onSeekProcessed() {
   }
+
+  // Empty implementations of default methods from our interfaces
+  // This is to workaround https://github.com/google/ExoPlayer/issues/6801
+
+  @Override
+  @Deprecated
+  public void onDrmSessionAcquired(EventTime eventTime) {}
+
+  @Override
+  public void onDrmSessionReleased(EventTime eventTime) {}
 }
