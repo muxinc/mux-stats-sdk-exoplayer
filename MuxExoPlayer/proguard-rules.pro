@@ -20,15 +20,7 @@
 #}
 
 -keep public class com.mux.** {
-  public * ;
-  protected * ;
-  interface * ;
-}
-
--keep public interface com.google.** {
-  public * ;
-  protected * ;
-  interface * ;
+  !private * ;
 }
 
 -repackageclasses com.mux.stats.sdk
