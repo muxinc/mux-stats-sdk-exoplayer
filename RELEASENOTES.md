@@ -1,5 +1,9 @@
 # Release notes
 
+## v2.5.5
+### Fixes
+ - Problem with Exoplayer default implementation of methods on interfaces (#162)
+
 ## v2.5.4
 ### Fixes
  - Reverts audio test improvements introduced in v2.5.3. (#158)
