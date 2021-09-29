@@ -212,7 +212,7 @@ afterEvaluate {
     publishing {
         publications {
             // Note each publication needs to be mentioned in the _project_ build.gradle too
-            // Would be nice to not copy/paste all this
+            // Would be nice to not copy/paste all this - possible approach https://stackoverflow.com/a/66349023
             r2_9_6Release(MavenPublication) {
                 from components.r2_9_6Release
                 groupId = "com.mux.stats.sdk.muxstats"

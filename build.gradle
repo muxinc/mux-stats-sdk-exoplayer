@@ -161,6 +161,8 @@ artifactory {
         }
         defaults {
             publications ('mavenJava')
+
+            // Need to list all the different variants here and in the deploy section below
             publications ('r2_9_6Release')
             publications ('r2_10_6Release')
             publications ('r2_11_1Release')
@@ -179,11 +181,10 @@ artifactory {
     }
 }
 
-// TODO fix this by LOOKING AT THE ACTUAL PATHS IN JFROG!?!??!
 def deployVariant(variant) {
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/MuxExoplayer_" +variant+"-" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/MuxExoplayer_" +variant+"-" + packageVersionName
+        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + packageVersionName
         standardOutput = stdout
     }
     def msg = stdout.toString()
