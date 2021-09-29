@@ -2,7 +2,7 @@
 
 ## v2.5.5
 ### Fixes
- - Problem with Exoplayer default implementation of methods on interfaces (#162)
+ - Fix AbstractMethodExceptions with Exoplayer SDK (#164)
 
 ## v2.5.4
 ### Fixes
