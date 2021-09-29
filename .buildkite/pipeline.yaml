@@ -7,8 +7,8 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         upload:
-          - "MuxExoPlayer/buildout/outputs/artifacts/*.aar"
-          - "MuxExoPlayer/buildout/outputs/artifacts/*.txt"
+          - "MuxExoPlayer/buildout/outputs/aar/*.aar"
+          - "MuxExoPlayer/buildout/outputs/mapping/*/*.txt"
           - "MuxExoPlayer/buildout/outputs/version-*"
           - "MuxExoPlayer/buildout/reports/*/*.*"
           - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"

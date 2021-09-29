@@ -179,18 +179,27 @@ artifactory {
     }
 }
 
+def deployVariant(variant) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/MuxExoplayer_" +variant+"-" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/MuxExoplayer_" +variant+"-" + packageVersionName
+        standardOutput = stdout
+    }
+    def msg = stdout.toString()
+    println(msg)
+}
+
 task muxReleaseDeploy {
     doLast {
         if(isAReleaseBuild) {
             println("Deploying from local maven to release maven")
 
-            def stdout = new ByteArrayOutputStream()
-            exec {
-                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + packageVersionName
-                standardOutput = stdout
-            }
-            def msg = stdout.toString()
-            println(msg)
+            deployVariant("r2_9_6")
+            deployVariant("r2_10_6")
+            deployVariant("r2_11_1")
+            deployVariant("r2_12_1")
+            deployVariant("r2_13_1")
+            deployVariant("r2_14_1")
 
             println("Release deployment complete")
         } else {
