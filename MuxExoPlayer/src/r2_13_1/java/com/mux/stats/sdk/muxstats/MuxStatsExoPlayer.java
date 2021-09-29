@@ -2,22 +2,15 @@ package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
 import android.view.Surface;
-import androidx.annotation.Nullable;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.MediaItem;
-import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.Player.DiscontinuityReason;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.decoder.DecoderReuseEvaluation;
-import com.google.android.exoplayer2.drm.DrmSession;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
@@ -33,7 +26,6 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
-import java.util.List;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
     Player.EventListener {
@@ -461,128 +453,4 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     bandwidthDispatcher.onTracksChanged(trackGroups);
     configurePlaybackHeadUpdateInterval();
   }
-
-  // Empty implementations of default methods from our interfaces
-  // This is to workaround https://github.com/google/ExoPlayer/issues/6801
-
-  @Override
-  @Deprecated
-  public void onPlayerStateChanged(
-      EventTime eventTime, boolean playWhenReady, @Player.State int playbackState) {}
-
-  @Override
-  public void onMediaItemTransition(
-      EventTime eventTime,
-      @Nullable MediaItem mediaItem,
-      @Player.MediaItemTransitionReason int reason) {}
-
-  @Override
-  @Deprecated
-  public void onSeekProcessed(EventTime eventTime) {}
-
-  @Override
-  @Deprecated
-  public void onLoadingChanged(EventTime eventTime, boolean isLoading) {}
-
-  @Override
-  public void onStaticMetadataChanged(EventTime eventTime, List<Metadata> metadataList) {}
-
-  @Override
-  public void onBandwidthEstimate(
-      EventTime eventTime, int totalLoadTimeMs, long totalBytesLoaded, long bitrateEstimate) {}
-
-  @Override
-  @Deprecated
-  public void onDecoderEnabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
-
-  @Override
-  @Deprecated
-  public void onDecoderInitialized(
-      EventTime eventTime, int trackType, String decoderName, long initializationDurationMs) {}
-
-  @Override
-  @Deprecated
-  public void onDecoderInputFormatChanged(EventTime eventTime, int trackType, Format format) {}
-
-  @Override
-  @Deprecated
-  public void onDecoderDisabled(
-      EventTime eventTime, int trackType, DecoderCounters decoderCounters) {}
-
-  @Override
-  public void onAudioEnabled(EventTime eventTime, DecoderCounters counters) {}
-
-  @Override
-  @Deprecated
-  public void onAudioDecoderInitialized(
-      EventTime eventTime, String decoderName, long initializationDurationMs) {}
-
-  @Override
-  @Deprecated
-  public void onAudioInputFormatChanged(EventTime eventTime, Format format) {}
-
-  @Override
-  public void onAudioInputFormatChanged(
-      EventTime eventTime,
-      Format format,
-      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
-
-  @Override
-  public void onAudioPositionAdvancing(EventTime eventTime, long playoutStartSystemTimeMs) {}
-
-  @Override
-  public void onAudioDecoderReleased(EventTime eventTime, String decoderName) {}
-
-  @Override
-  public void onAudioDisabled(EventTime eventTime, DecoderCounters counters) {}
-
-  @Override
-  public void onAudioSessionIdChanged(EventTime eventTime, int audioSessionId) {}
-
-  @Override
-  public void onSkipSilenceEnabledChanged(EventTime eventTime, boolean skipSilenceEnabled) {}
-
-  @Override
-  public void onAudioSinkError(EventTime eventTime, Exception audioSinkError) {}
-
-  @Override
-  public void onVideoEnabled(EventTime eventTime, DecoderCounters counters) {}
-
-  @Override
-  @Deprecated
-  public void onVideoDecoderInitialized(
-      EventTime eventTime, String decoderName, long initializationDurationMs) {}
-
-  @Override
-  public void onVideoInputFormatChanged(
-      EventTime eventTime,
-      Format format,
-      @Nullable DecoderReuseEvaluation decoderReuseEvaluation) {}
-
-  @Override
-  public void onDroppedVideoFrames(EventTime eventTime, int droppedFrames, long elapsedMs) {}
-
-  @Override
-  public void onVideoDecoderReleased(EventTime eventTime, String decoderName) {}
-
-  @Override
-  public void onVideoDisabled(EventTime eventTime, DecoderCounters counters) {}
-
-  @Override
-  public void onVideoFrameProcessingOffset(
-      EventTime eventTime, long totalProcessingOffsetUs, int frameCount) {}
-
-  @Override
-  @Deprecated
-  public void onDrmSessionAcquired(EventTime eventTime) {}
-
-  @Override
-  public void onDrmSessionReleased(EventTime eventTime) {}
-
-  @Override
-  public void onPlayerReleased(EventTime eventTime) {}
-
-  @Override
-  public void onEvents(Player player, Events events) {}
 }
