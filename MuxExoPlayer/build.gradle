@@ -207,3 +207,53 @@ dependencies {
         embed muxCoreImport
     }
 }
+
+afterEvaluate {
+    publishing {
+        publications {
+            // Note each publication needs to be mentioned in the _project_ build.gradle too
+            // Would be nice to not copy/paste all this
+            r2_9_6Release(MavenPublication) {
+                from components.r2_9_6Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_9_6"
+                version = project.ext.versionName
+            }
+
+            r2_10_6Release(MavenPublication) {
+                from components.r2_10_6Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_10_6"
+                version = project.ext.versionName
+            }
+
+            r2_11_1Release(MavenPublication) {
+                from components.r2_11_1Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_11_1"
+                version = project.ext.versionName
+            }
+
+            r2_12_1Release(MavenPublication) {
+                from components.r2_12_1Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_12_1"
+                version = project.ext.versionName
+            }
+
+            r2_13_1Release(MavenPublication) {
+                from components.r2_13_1Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_13_1"
+                version = project.ext.versionName
+            }
+
+            r2_14_1Release(MavenPublication) {
+                from components.r2_14_1Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_14_1"
+                version = project.ext.versionName
+            }
+        }
+    }
+}

@@ -150,43 +150,6 @@ allprojects {
     }
 }
 
-task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
-    archiveClassifier.set('javadoc')
-    from androidJavadocs.destinationDir
-}
-
-task androidSourcesJar(type: Jar) {
-    archiveClassifier.set('sources')
-    from android.sourceSets.main.java.srcDirs
-}
-
-afterEvaluate {
-    project('MuxExoPlayer') {
-        publishing {
-            publications {
-                // Applies the component for the release build variant.
-                from components.release
-
-                // Adds javadocs and sources as separate jars.
-                artifact androidJavadocsJar
-                artifact androidSourcesJar
-
-                artifact(sourceJar)
-                artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
-                    classifier ${variant.getFlavorName()}
-                    version = packageVersionName
-                }
-
-                mavenJava(MavenPublication) {
-                    groupId = "com.mux.stats.sdk.muxstats"
-                    artifactId = "exoplayer"+${variant.getFlavorName()}
-                    version = packageVersionName
-                }
-            }
-        }
-    }
-}
-
 artifactory {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
     publish {
@@ -198,6 +161,12 @@ artifactory {
         }
         defaults {
             publications ('mavenJava')
+            publications ('r2_9_6Release')
+            publications ('r2_10_6Release')
+            publications ('r2_11_1Release')
+            publications ('r2_12_1Release')
+            publications ('r2_13_1Release')
+            publications ('r2_14_1Release')
         }
     }
     resolve {
