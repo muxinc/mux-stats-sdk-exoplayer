@@ -179,6 +179,7 @@ artifactory {
     }
 }
 
+// TODO fix this by LOOKING AT THE ACTUAL PATHS IN JFROG!?!??!
 def deployVariant(variant) {
     def stdout = new ByteArrayOutputStream()
     exec {
