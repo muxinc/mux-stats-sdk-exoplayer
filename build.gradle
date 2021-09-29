@@ -150,24 +150,37 @@ allprojects {
     }
 }
 
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    archiveClassifier.set('javadoc')
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
 afterEvaluate {
     project('MuxExoPlayer') {
-//        artifactoryPublish.dependsOn('publish')
         publishing {
             publications {
+                // Applies the component for the release build variant.
+                from components.release
+
+                // Adds javadocs and sources as separate jars.
+                artifact androidJavadocsJar
+                artifact androidSourcesJar
+
+                artifact(sourceJar)
+                artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
+                    classifier ${variant.getFlavorName()}
+                    version = packageVersionName
+                }
+
                 mavenJava(MavenPublication) {
                     groupId = "com.mux.stats.sdk.muxstats"
-
-                    def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
-                    outDirTree.visit { fileDetails ->
-                        def flavorName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
-                        println "=== Publishing >>>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
-
-                        artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
-                            classifier flavorName
-                            version = packageVersionName
-                        }
-                    }
+                    artifactId = "exoplayer"+${variant.getFlavorName()}
+                    version = packageVersionName
                 }
             }
         }
