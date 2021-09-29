@@ -150,30 +150,6 @@ allprojects {
     }
 }
 
-afterEvaluate {
-    project('MuxExoPlayer') {
-//        artifactoryPublish.dependsOn('publish')
-        publishing {
-            publications {
-                mavenJava(MavenPublication) {
-                    groupId = "com.mux.stats.sdk.muxstats"
-
-                    def outDirTree = fileTree(dir: "${buildDir}/outputs/artifacts/", exclude: ['**/*.txt'])
-                    outDirTree.visit { fileDetails ->
-                        def flavorName = fileDetails.name.replaceAll("mux-", "").replaceAll(".aar", "")
-                        println "=== Publishing >>>>> ${fileDetails.name}, flavor: ${flavorName}, version: ${packageVersionName}"
-
-                        artifact("${buildDir}/outputs/artifacts/${fileDetails.name}") {
-                            classifier flavorName
-                            version = packageVersionName
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 artifactory {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
     publish {
@@ -185,6 +161,14 @@ artifactory {
         }
         defaults {
             publications ('mavenJava')
+
+            // Need to list all the different variants here and in the deploy section below
+            publications ('r2_9_6Release')
+            publications ('r2_10_6Release')
+            publications ('r2_11_1Release')
+            publications ('r2_12_1Release')
+            publications ('r2_13_1Release')
+            publications ('r2_14_1Release')
         }
     }
     resolve {
@@ -197,18 +181,27 @@ artifactory {
     }
 }
 
+def deployVariant(variant) {
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + packageVersionName
+        standardOutput = stdout
+    }
+    def msg = stdout.toString()
+    println(msg)
+}
+
 task muxReleaseDeploy {
     doLast {
         if(isAReleaseBuild) {
             println("Deploying from local maven to release maven")
 
-            def stdout = new ByteArrayOutputStream()
-            exec {
-                commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer/" + packageVersionName
-                standardOutput = stdout
-            }
-            def msg = stdout.toString()
-            println(msg)
+            deployVariant("r2_9_6")
+            deployVariant("r2_10_6")
+            deployVariant("r2_11_1")
+            deployVariant("r2_12_1")
+            deployVariant("r2_13_1")
+            deployVariant("r2_14_1")
 
             println("Release deployment complete")
         } else {
