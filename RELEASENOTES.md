@@ -1,5 +1,9 @@
 # Release notes
 
+## v2.5.6
+### Fixes
+ - Fix reference to packageVersionName in Gradle deployVariant task. (#165)
+
 ## v2.5.5
 ### Fixes
  - Fix AbstractMethodExceptions with Exoplayer SDK (#164)
