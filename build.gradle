@@ -184,7 +184,7 @@ artifactory {
 def deployVariant(variant) {
     def stdout = new ByteArrayOutputStream()
     exec {
-        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + packageVersionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + packageVersionName
+        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + project.ext.versionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/MuxExoPlayer_" +variant+"/" + project.ext.versionName
         standardOutput = stdout
     }
     def msg = stdout.toString()
