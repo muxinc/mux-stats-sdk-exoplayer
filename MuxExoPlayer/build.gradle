@@ -92,6 +92,12 @@ android {
         r2_14_1_ads {
             java.srcDirs = ['./src/r2_14_1/java']
         }
+        r2_15_1 {
+            java.srcDirs = ['./src/r2_15_1/java']
+        }
+        r2_15_1_ads {
+            java.srcDirs = ['./src/r2_15_1/java']
+        }
     }
 
     flavorDimensions 'api'
@@ -133,6 +139,12 @@ android {
         r2_14_1_ads {
             dimension 'api'
         }
+        r2_15_1 {
+            dimension 'api'
+        }
+        r2_15_1_ads {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -172,18 +184,22 @@ dependencies {
     r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
+    
     r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
     r2_10_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_10_6_adsApi 'com.google.android.exoplayer:exoplayer:2.10.6'
     r2_10_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
+    
     r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
     r2_11_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
     r2_11_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+    
     r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
     r2_12_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'
     r2_12_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+    
     r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
     r2_13_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
@@ -193,6 +209,11 @@ dependencies {
     r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
     r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
+    r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+    r2_15_1Api 'org.checkerframework:checker-qual:2.5.2'
+    r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer:2.15.1'
+    r2_15_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
 
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
@@ -252,6 +273,13 @@ afterEvaluate {
                 from components.r2_14_1Release
                 groupId = "com.mux.stats.sdk.muxstats"
                 artifactId = "MuxExoPlayer_r2_14_1"
+                version = project.ext.versionName
+            }
+
+            r2_15_1Release(MavenPublication) {
+                from components.r2_14_1Release
+                groupId = "com.mux.stats.sdk.muxstats"
+                artifactId = "MuxExoPlayer_r2_15_1"
                 version = project.ext.versionName
             }
         }

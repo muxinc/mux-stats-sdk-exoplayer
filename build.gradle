@@ -33,7 +33,7 @@ buildscript {
 //
 // It must be false for fat aar generation of MuxExoPlayer to work
 // This is a bug/problem with the fat aar mechanism
-def inLocalDevModeFlag = false
+def inLocalDevModeFlag = true//false
 
 // Version name
 // This gets modified based on if we're a release or branch build
@@ -169,6 +169,7 @@ artifactory {
             publications ('r2_12_1Release')
             publications ('r2_13_1Release')
             publications ('r2_14_1Release')
+            publications ('r2_15_1Release')
         }
     }
     resolve {
@@ -202,6 +203,7 @@ task muxReleaseDeploy {
             deployVariant("r2_12_1")
             deployVariant("r2_13_1")
             deployVariant("r2_14_1")
+            deployVariant("r2_15_1")
 
             println("Release deployment complete")
         } else {

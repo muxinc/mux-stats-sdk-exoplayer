@@ -104,6 +104,16 @@ android {
             res.srcDirs = ['./src/r2_14_1_ads/res']
             assets.srcDirs = ['./src/r2_14_1_ads/assets']
         }
+        r2_15_1 {
+            java.srcDirs = ['./src/r2_15_1/java']
+            res.srcDirs = ['./src/r2_15_1/res']
+            assets.srcDirs = ['./src/r2_15_1/assets']
+        }
+        r2_15_1_ads {
+            java.srcDirs = ['./src/r2_15_1_ads/java']
+            res.srcDirs = ['./src/r2_15_1_ads/res']
+            assets.srcDirs = ['./src/r2_15_1_ads/assets']
+        }
     }
 
     flavorDimensions 'api'
@@ -145,6 +155,12 @@ android {
         r2_14_1_ads {
             dimension 'api'
         }
+        r2_15_1 {
+            dimension 'api'
+        }
+        r2_15_1_ads {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -182,6 +198,11 @@ dependencies {
     r2_14_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
 
+    r2_15_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+    r2_15_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+    r2_15_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+    r2_15_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
+
     if(project.ext.inLocalDevMode) {
         api 'org.checkerframework:checker-qual:2.5.2'
         implementation project(':MuxExoPlayer')
@@ -198,6 +219,8 @@ dependencies {
         r2_13_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
         r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
         r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_15_1Api 'org.checkerframework:checker-qual:2.5.2'
+        r2_15_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
 
         r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
@@ -211,6 +234,8 @@ dependencies {
         r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
         r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
         r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
+        r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+        r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer:2.15.1'
 
         r2_9_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
         r2_9_6_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
@@ -224,5 +249,7 @@ dependencies {
         r2_13_1_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
         r2_14_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
         r2_14_1_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
+        r2_14_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_14_1_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
     }
 }
