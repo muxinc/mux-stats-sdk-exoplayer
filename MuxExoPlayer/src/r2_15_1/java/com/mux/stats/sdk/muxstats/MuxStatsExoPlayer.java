@@ -414,15 +414,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         case PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION: //fall-through
         case PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR: //fall-through
         case PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED: //fall-through
-        case PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED: //fall-through
+        case PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED:
           errorCode = ExoPlaybackException.TYPE_SOURCE;
           break;
-        case PlaybackException.ERROR_CODE_DECODER_INIT_FAILED:
-        case PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED:
-        case PlaybackException.ERROR_CODE_DECODING_FAILED:
-        case PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED:
-        case PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES:
-        case PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED:
+        case PlaybackException.ERROR_CODE_DECODER_INIT_FAILED:  //fall-through
+        case PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED: //fall-through
+        case PlaybackException.ERROR_CODE_DECODING_FAILED: //fall-through
+        case PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED: //fall-through
+        case PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES: //fall-through
+        case PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED: //fall-through
         case PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED:
           errorCode = ExoPlaybackException.TYPE_RENDERER;
         default:
