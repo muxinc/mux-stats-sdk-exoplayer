@@ -20,11 +20,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.MediaMetadata;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
+import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
@@ -41,14 +45,14 @@ import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
-  Player.EventListener  {
+public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
 
   static final String TAG = "SimplePlayerActivity";
 
@@ -96,7 +100,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     playerView = findViewById(R.id.player_view);
 
     initExoPlayer();
-    player.addListener(this);
+    player.addListener(createEventListener());
     playerView.setPlayer(player);
 
     // Do not hide controlls
@@ -375,72 +379,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
 //    }
 //  }
 
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-  }
-
-  @Override
-  public void onLoadingChanged(boolean isLoading) {
-
-  }
-
-  @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    switch (playbackState) {
-      case Player.STATE_BUFFERING:
-        signalPlaybackBuffering();
-        break;
-      case Player.STATE_ENDED:
-        signalPlaybackEnded();
-        break;
-      case Player.STATE_READY:
-        // By the time we get here, it depends on playWhenReady to know if we're playing
-        if (playWhenReady) {
-          signalPlaybackStarted();
-        } else {
-          // TODO implement this
-//                    signalPlaybackPaused();
-        }
-      case Player.STATE_IDLE:
-        signalPlaybackStopped();
-        break;
-    }
-  }
-
-  @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    activityLock.lock();
-    activityInitialized.signalAll();
-    activityLock.unlock();
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-  }
-
-  @Override
-  public void onPlayerError(PlaybackException error) {
-    Log.e(TAG, error.getMessage());
-    error.printStackTrace();
-  }
-
-  @Override
-  public void onPositionDiscontinuity(int reason) {
-
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-  }
-
-  @Override
-  public void onSeekProcessed() {
-
-  }
-
   class MDAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
 
     @Override
@@ -485,5 +423,79 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
       drawable.draw(cnvs);
       return bmp;
     }
+  }
+
+  /**
+   * Create a new EventListener for a version variant. The default implementation works until
+   * @return
+   */
+  protected Player.EventListener createEventListener() {
+    return new Player.EventListener() {
+      @Override
+      public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+      }
+
+      @Override
+      public void onLoadingChanged(boolean isLoading) {
+
+      }
+
+      @Override
+      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        switch (playbackState) {
+          case Player.STATE_BUFFERING:
+            signalPlaybackBuffering();
+            break;
+          case Player.STATE_ENDED:
+            signalPlaybackEnded();
+            break;
+          case Player.STATE_READY:
+            // By the time we get here, it depends on playWhenReady to know if we're playing
+            if (playWhenReady) {
+              signalPlaybackStarted();
+            } else {
+              // TODO implement this
+//                    signalPlaybackPaused();
+            }
+          case Player.STATE_IDLE:
+            signalPlaybackStopped();
+            break;
+        }
+      }
+
+      @Override
+      public void onRepeatModeChanged(int repeatMode) {
+        activityLock.lock();
+        activityInitialized.signalAll();
+        activityLock.unlock();
+      }
+
+      @Override
+      public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+      }
+
+      @Override
+      public void onPlayerError(ExoPlaybackException error) {
+        Log.e(TAG, error.getMessage());
+        error.printStackTrace();
+      }
+
+      @Override
+      public void onPositionDiscontinuity(int reason) {
+
+      }
+
+      @Override
+      public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+      }
+
+      @Override
+      public void onSeekProcessed() {
+
+      }
+    };
   }
 }

@@ -10,6 +10,9 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaItem.AdsConfiguration;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
@@ -18,6 +21,7 @@ import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
@@ -26,6 +30,7 @@ import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.ExoTrackSelection;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -181,6 +186,81 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     player.setMediaSource(testMediaSource);
     player.seekTo(playbackStartPosition);
     player.prepare();
+  }
+
+  /**
+   * Create a new EventListener for a version variant. The default implementation works until
+   * @return
+   */
+  @Override
+  protected Player.EventListener createEventListener() {
+    return new Player.EventListener() {
+      @Override
+      public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+      }
+
+      @Override
+      public void onLoadingChanged(boolean isLoading) {
+
+      }
+
+      @Override
+      public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        switch (playbackState) {
+          case Player.STATE_BUFFERING:
+            signalPlaybackBuffering();
+            break;
+          case Player.STATE_ENDED:
+            signalPlaybackEnded();
+            break;
+          case Player.STATE_READY:
+            // By the time we get here, it depends on playWhenReady to know if we're playing
+            if (playWhenReady) {
+              signalPlaybackStarted();
+            } else {
+              // TODO implement this
+//                    signalPlaybackPaused();
+            }
+          case Player.STATE_IDLE:
+            signalPlaybackStopped();
+            break;
+        }
+      }
+
+      @Override
+      public void onRepeatModeChanged(int repeatMode) {
+        activityLock.lock();
+        activityInitialized.signalAll();
+        activityLock.unlock();
+      }
+
+      @Override
+      public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+      }
+
+      @Override
+      public void onPlayerError(PlaybackException error) {
+        Log.e(TAG, error.getMessage());
+        error.printStackTrace();
+      }
+
+      @Override
+      public void onPositionDiscontinuity(int reason) {
+
+      }
+
+      @Override
+      public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+      }
+
+      @Override
+      public void onSeekProcessed() {
+
+      }
+    };
   }
 
   class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {
