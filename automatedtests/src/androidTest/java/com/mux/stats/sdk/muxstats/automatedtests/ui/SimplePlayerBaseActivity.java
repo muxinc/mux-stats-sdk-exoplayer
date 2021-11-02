@@ -129,6 +129,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     if (muxStats != null) {
       muxStats.release();
     }
+    releaseExoPlayer();
   }
 
   public abstract void initExoPlayer();
