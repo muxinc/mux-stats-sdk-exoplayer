@@ -441,6 +441,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onTimelineChanged(Timeline timeline, int reason) {
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
+//      window.liveConfiguration.targetOffsetMs
       timeline.getWindow(0, window);
       sourceDuration = window.getDurationMs();
     }
