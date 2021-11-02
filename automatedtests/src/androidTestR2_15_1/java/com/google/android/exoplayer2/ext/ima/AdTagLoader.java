@@ -53,6 +53,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
@@ -514,7 +515,7 @@ import java.util.Map;
   }
 
   @Override
-  public void onPlayerError(ExoPlaybackException error) {
+  public void onPlayerError(PlaybackException error) {
     if (imaAdState != IMA_AD_STATE_NONE) {
       AdMediaInfo adMediaInfo = checkNotNull(imaAdMediaInfo);
       for (int i = 0; i < adCallbacks.size(); i++) {
@@ -602,7 +603,7 @@ import java.util.Map;
     }
 
     // Skip ads based on the start position as required.
-    long[] adGroupTimesUs = adPlaybackState.adGroupTimesUs;
+    long[] adGroupTimesUs = getGroupTimesUs(adPlaybackState);
     int adGroupForPositionIndex =
         adPlaybackState.getAdGroupIndexForPositionUs(
             C.msToUs(contentPositionMs), C.msToUs(contentDurationMs));
@@ -642,6 +643,16 @@ import java.util.Map;
       }
     }
     return adsRenderingSettings;
+  }
+
+  private long[] getGroupTimesUs(AdPlaybackState adPlaybackState) {
+    long[] groupTimes = new long[adPlaybackState.adGroupCount];
+
+    for(int i = 0; i < adPlaybackState.adGroupCount; i++) {
+      groupTimes[i] = adPlaybackState.getAdGroup(i).timeUs;
+    }
+
+    return groupTimes;
   }
 
   private VideoProgressUpdate getContentVideoProgressUpdate() {
@@ -786,14 +797,14 @@ import java.util.Map;
     if (adGroupIndex == C.INDEX_UNSET) {
       return false;
     }
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     if (adGroup.count != C.LENGTH_UNSET
         && adGroup.count != 0
         && adGroup.states[0] != AdPlaybackState.AD_STATE_UNAVAILABLE) {
       // An ad is available already.
       return false;
     }
-    long adGroupTimeMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+    long adGroupTimeMs = C.usToMs(adGroup.timeUs);
     long contentPositionMs = getContentPeriodPositionMs(player, timeline, period);
     long timeUntilAdMs = adGroupTimeMs - contentPositionMs;
     return timeUntilAdMs < configuration.adPreloadTimeoutMs;
@@ -878,12 +889,12 @@ import java.util.Map;
     }
     if (!sentContentComplete && !wasPlayingAd && playingAd && imaAdState == IMA_AD_STATE_NONE) {
       int adGroupIndex = player.getCurrentAdGroupIndex();
-      if (adPlaybackState.adGroupTimesUs[adGroupIndex] == C.TIME_END_OF_SOURCE) {
+      if (adPlaybackState.getAdGroup(adGroupIndex).timeUs == C.TIME_END_OF_SOURCE) {
         sendContentComplete();
       } else {
         // IMA hasn't called playAd yet, so fake the content position.
         fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+        fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.getAdGroup(adGroupIndex).timeUs);
         if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
           fakeContentProgressOffsetMs = contentDurationMs;
         }
@@ -919,11 +930,11 @@ import java.util.Map;
     // The ad count may increase on successive loads of ads in the same ad pod, for example, due to
     // separate requests for ad tags with multiple ads within the ad pod completing after an earlier
     // ad has loaded. See also https://github.com/google/ExoPlayer/issues/7477.
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adInfo.adGroupIndex);
     adPlaybackState =
         adPlaybackState.withAdCount(
             adInfo.adGroupIndex, max(adPodInfo.getTotalAds(), adGroup.states.length));
-    adGroup = adPlaybackState.adGroups[adInfo.adGroupIndex];
+    adGroup = adPlaybackState.getAdGroup(adInfo.adGroupIndex);
     for (int i = 0; i < adIndexInAdGroup; i++) {
       // Any preceding ads that haven't loaded are not going to load.
       if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
@@ -1062,10 +1073,10 @@ import java.util.Map;
 
   private void markAdGroupInErrorStateAndClearPendingContentPosition(int adGroupIndex) {
     // Update the ad playback state so all ads in the ad group are in the error state.
-    AdPlaybackState.AdGroup adGroup = adPlaybackState.adGroups[adGroupIndex];
+    AdPlaybackState.AdGroup adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     if (adGroup.count == C.LENGTH_UNSET) {
       adPlaybackState = adPlaybackState.withAdCount(adGroupIndex, max(1, adGroup.states.length));
-      adGroup = adPlaybackState.adGroups[adGroupIndex];
+      adGroup = adPlaybackState.getAdGroup(adGroupIndex);
     }
     for (int i = 0; i < adGroup.count; i++) {
       if (adGroup.states[i] == AdPlaybackState.AD_STATE_UNAVAILABLE) {
@@ -1094,7 +1105,7 @@ import java.util.Map;
       // Send IMA a content position at the ad group so that it will try to play it, at which point
       // we can notify that it failed to load.
       fakeContentProgressElapsedRealtimeMs = SystemClock.elapsedRealtime();
-      fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.adGroupTimesUs[adGroupIndex]);
+      fakeContentProgressOffsetMs = C.usToMs(adPlaybackState.getAdGroup(adGroupIndex).timeUs);
       if (fakeContentProgressOffsetMs == C.TIME_END_OF_SOURCE) {
         fakeContentProgressOffsetMs = contentDurationMs;
       }
@@ -1109,7 +1120,7 @@ import java.util.Map;
           adCallbacks.get(i).onEnded(adMediaInfo);
         }
       }
-      playingAdIndexInAdGroup = adPlaybackState.adGroups[adGroupIndex].getFirstAdIndexToPlay();
+      playingAdIndexInAdGroup = adPlaybackState.getAdGroup(adGroupIndex).getFirstAdIndexToPlay();
       for (int i = 0; i < adCallbacks.size(); i++) {
         adCallbacks.get(i).onError(checkNotNull(adMediaInfo));
       }
@@ -1138,7 +1149,7 @@ import java.util.Map;
       Log.d(TAG, "adsLoader.contentComplete");
     }
     for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
-      if (adPlaybackState.adGroupTimesUs[i] != C.TIME_END_OF_SOURCE) {
+      if (adPlaybackState.getAdGroup(i).timeUs != C.TIME_END_OF_SOURCE) {
         adPlaybackState = adPlaybackState.withSkippedAdGroup(/* adGroupIndex= */ i);
       }
     }
@@ -1213,7 +1224,7 @@ import java.util.Map;
     float cuePointTimeSecondsFloat = (float) cuePointTimeSeconds;
     long adPodTimeUs = Math.round((double) cuePointTimeSecondsFloat * C.MICROS_PER_SECOND);
     for (int adGroupIndex = 0; adGroupIndex < adPlaybackState.adGroupCount; adGroupIndex++) {
-      long adGroupTimeUs = adPlaybackState.adGroupTimesUs[adGroupIndex];
+      long adGroupTimeUs = adPlaybackState.getAdGroup(adGroupIndex).timeUs;
       if (adGroupTimeUs != C.TIME_END_OF_SOURCE
           && Math.abs(adGroupTimeUs - adPodTimeUs) < THRESHOLD_AD_MATCH_US) {
         return adGroupIndex;

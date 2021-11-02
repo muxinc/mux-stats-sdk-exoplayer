@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -420,7 +421,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   }
 
   @Override
-  public void onPlayerError(ExoPlaybackException error) {
+  public void onPlayerError(PlaybackException error) {
     Log.e(TAG, error.getMessage());
     error.printStackTrace();
   }
