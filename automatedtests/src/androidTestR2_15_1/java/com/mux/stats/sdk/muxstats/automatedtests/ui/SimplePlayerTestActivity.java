@@ -65,7 +65,6 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             .setTrackSelector(trackSelector)
             .build();
     playerView.setPlayer(player);
-    player.prepare();
   }
 
   // This is for background playback, set appropriate notification and etc
