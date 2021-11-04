@@ -277,7 +277,7 @@ afterEvaluate {
             }
 
             r2_15_1Release(MavenPublication) {
-                from components.r2_14_1Release
+                from components.r2_15_1Release
                 groupId = "com.mux.stats.sdk.muxstats"
                 artifactId = "MuxExoPlayer_r2_15_1"
                 version = project.ext.versionName
