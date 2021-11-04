@@ -30,7 +30,7 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 33
+        versionCode 34
         versionName project.ext.versionName
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -221,7 +221,7 @@ dependencies {
 
     // This is due to the problem with fat aar bundling
     // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
-    def muxCoreImport = 'com.mux:stats.muxcore:7.0.2'
+    def muxCoreImport = 'com.mux:stats.muxcore:7.0.4'
     if(project.ext.inLocalDevMode) {
         api muxCoreImport
     } else {
