@@ -19,6 +19,9 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -57,6 +60,13 @@ import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
+import com.mux.stats.sdk.core.model.CustomData;
+import com.mux.stats.sdk.core.model.CustomerData;
+import com.mux.stats.sdk.core.model.CustomerPlayerData;
+import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,6 +82,8 @@ public class PlayerActivity extends AppCompatActivity
   private static final String KEY_WINDOW = "window";
   private static final String KEY_POSITION = "position";
   private static final String KEY_AUTO_PLAY = "auto_play";
+
+  private static final String VIDEO_TITLE_EXTRA = "video_title";
 
   protected StyledPlayerView playerView;
   protected LinearLayout debugRootView;
@@ -93,6 +105,9 @@ public class PlayerActivity extends AppCompatActivity
   // For ad playback only.
 
   private AdsLoader adsLoader;
+
+  // Mux SDK integration
+  private MuxStatsExoPlayer muxStats;
 
   // Activity lifecycle.
 
@@ -212,6 +227,21 @@ public class PlayerActivity extends AppCompatActivity
     outState.putLong(KEY_POSITION, startPosition);
   }
 
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+
+    if (muxStats == null) {
+      return;
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      muxStats.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+      muxStats.orientationChange(MuxSDKViewOrientation.PORTRAIT);
+    }
+  }
+
   // Activity input
 
   @Override
@@ -283,6 +313,27 @@ public class PlayerActivity extends AppCompatActivity
       playerView.setPlayer(player);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
+
+      CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
+      CustomerVideoData customerVideoData = new CustomerVideoData();
+      customerVideoData.setVideoTitle(intent.getStringExtra(VIDEO_TITLE_EXTRA));
+      CustomData customData = new CustomData();
+      customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+      CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+      customerData.setCustomData(customData);
+      muxStats = new MuxStatsExoPlayer(
+              this, player, "demo-player", customerData);
+      Point size = new Point();
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        getWindowManager().getDefaultDisplay().getSize(size);
+      } else {
+        getApplication().getApplicationContext().getDisplay().getSize(size);
+      }
+      getWindowManager().getDefaultDisplay().getSize(size);
+      muxStats.setScreenSize(size.x, size.y);
+      muxStats.setPlayerView(playerView);
+      muxStats.enableMuxCoreDebug(true, false);
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
