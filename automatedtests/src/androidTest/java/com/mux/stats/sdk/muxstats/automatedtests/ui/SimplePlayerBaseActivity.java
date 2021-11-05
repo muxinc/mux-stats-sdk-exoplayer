@@ -11,15 +11,15 @@ import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaSessionCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
-import com.google.android.exoplayer2.ExoPlaybackException;
+
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -39,6 +39,7 @@ import com.mux.stats.sdk.muxstats.MuxStatsHelper;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
+
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -128,6 +129,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     if (muxStats != null) {
       muxStats.release();
     }
+    releaseExoPlayer();
   }
 
   public abstract void initExoPlayer();
@@ -417,12 +419,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   @Override
   public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
 
-  }
-
-  @Override
-  public void onPlayerError(ExoPlaybackException error) {
-    Log.e(TAG, error.getMessage());
-    error.printStackTrace();
   }
 
   @Override
