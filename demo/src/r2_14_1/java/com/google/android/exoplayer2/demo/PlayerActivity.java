@@ -318,7 +318,7 @@ public class PlayerActivity extends AppCompatActivity
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         getWindowManager().getDefaultDisplay().getSize(size);
       } else {
-        getApplication().getApplicationContext().getDisplay().getSize(size);
+        getDisplay().getSize(size);
       }
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
