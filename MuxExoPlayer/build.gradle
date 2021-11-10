@@ -197,6 +197,8 @@ dependencies {
     }
 }
 
+// Create a publication declaration for each flavor
+// Each published flavor still needs to be listed in the _project_ build.gradle
 afterEvaluate {
     android.libraryVariants.each { variant ->
         def matcher = variant.name =~ /(r\d+_\d+_\d+)Release.*/
