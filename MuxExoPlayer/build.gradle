@@ -55,50 +55,6 @@ android {
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
     }
-    sourceSets {
-        r2_9_6 {
-            java.srcDirs = ['./src/r2_9_6/java']
-        }
-        r2_9_6_ads {
-            java.srcDirs = ['./src/r2_9_6/java']
-        }
-        r2_10_6 {
-            java.srcDirs = ['./src/r2_10_6/java']
-        }
-        r2_10_6_ads {
-            java.srcDirs = ['./src/r2_10_6/java']
-        }
-        r2_11_1 {
-            java.srcDirs = ['./src/r2_11_1/java']
-        }
-        r2_11_1_ads {
-            java.srcDirs = ['./src/r2_11_1/java']
-        }
-        r2_12_1 {
-            java.srcDirs = ['./src/r2_12_1/java']
-        }
-        r2_12_1_ads {
-            java.srcDirs = ['./src/r2_12_1/java']
-        }
-        r2_13_1 {
-            java.srcDirs = ['./src/r2_13_1/java']
-        }
-        r2_13_1_ads {
-            java.srcDirs = ['./src/r2_13_1/java']
-        }
-        r2_14_1 {
-            java.srcDirs = ['./src/r2_14_1/java']
-        }
-        r2_14_1_ads {
-            java.srcDirs = ['./src/r2_14_1/java']
-        }
-        r2_15_1 {
-            java.srcDirs = ['./src/r2_15_1/java']
-        }
-        r2_15_1_ads {
-            java.srcDirs = ['./src/r2_15_1/java']
-        }
-    }
 
     flavorDimensions 'api'
 
@@ -144,6 +100,18 @@ android {
         }
         r2_15_1_ads {
             dimension 'api'
+        }
+    }
+
+    // Attach the java src directory relevant for each flavor created
+    afterEvaluate {
+        android.libraryVariants.each { variant ->
+            def matcher = variant.name =~ /(r\d+_\d+_\d+).*/
+            if(matcher.find()) {
+                def strippedExoPlayerVersion = matcher.group(1)
+                def sourceSet = sourceSets.findByName(variant.name)
+                sourceSet.java.srcDirs = ['./src/' + strippedExoPlayerVersion + '/java']
+            }
         }
     }
 
@@ -229,58 +197,19 @@ dependencies {
     }
 }
 
+// Create a publication declaration for each flavor
+// Each published flavor still needs to be listed in the _project_ build.gradle
 afterEvaluate {
-    publishing {
-        publications {
-            // Note each publication needs to be mentioned in the _project_ build.gradle too
-            // Would be nice to not copy/paste all this - possible approach https://stackoverflow.com/a/66349023
-            r2_9_6Release(MavenPublication) {
-                from components.r2_9_6Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_9_6"
-                version = project.ext.versionName
-            }
+    android.libraryVariants.each { variant ->
+        def matcher = variant.name =~ /(r\d+_\d+_\d+)Release.*/
+        if(matcher.find()) {
+            def strippedExoPlayerVersion = matcher.group(1)
 
-            r2_10_6Release(MavenPublication) {
-                from components.r2_10_6Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_10_6"
-                version = project.ext.versionName
-            }
-
-            r2_11_1Release(MavenPublication) {
-                from components.r2_11_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_11_1"
-                version = project.ext.versionName
-            }
-
-            r2_12_1Release(MavenPublication) {
-                from components.r2_12_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_12_1"
-                version = project.ext.versionName
-            }
-
-            r2_13_1Release(MavenPublication) {
-                from components.r2_13_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_13_1"
-                version = project.ext.versionName
-            }
-
-            r2_14_1Release(MavenPublication) {
-                from components.r2_14_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_14_1"
-                version = project.ext.versionName
-            }
-
-            r2_15_1Release(MavenPublication) {
-                from components.r2_15_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_15_1"
-                version = project.ext.versionName
+            publishing.publications.create(variant.name, MavenPublication) {
+                from components.findByName(variant.name)
+                groupId "com.mux.stats.sdk.muxstats"
+                artifactId "MuxExoPlayer_" + strippedExoPlayerVersion
+                version project.ext.versionName
             }
         }
     }
