@@ -1,0 +1,142 @@
+// Version name
+// This gets modified based on if we're a release or branch build
+def packageVersionName = 'dev'
+
+def artifactoryUsername = System.getenv('ORG_GRADLE_PROJECT_artifactory_user')
+def artifactoryPassword = System.getenv('ORG_GRADLE_PROJECT_artifactory_password')
+
+def signingKeyId = System.getenv('SIGNING_KEY_ID')
+def signingPassword = System.getenv('SIGNING_PASSWORD')
+def signingKey = System.getenv('SIGNING_KEY')
+
+Properties properties = new Properties()
+def propertiesFile = project.rootProject.file('local.properties')
+if (propertiesFile.exists()) {
+    properties.load(propertiesFile.newDataInputStream())
+    artifactoryUsername = properties.getProperty('artifactory_user')
+    artifactoryPassword = properties.getProperty('artifactory_password')
+}
+
+apply from: 'MuxAndroidSDKPublishing/git_utils.gradle', to: ext
+
+def gitHash = getGitHash()
+def gitBranch = getGitBranch()
+def gitCommitMessageVersion = getGitCommitMessageVersion()
+
+def isAReleaseBuild = gitBranch == "master" && gitCommitMessageVersion != null
+
+if(isAReleaseBuild) {
+    packageVersionName = gitCommitMessageVersion
+} else {
+    packageVersionName = packageVersionName + "-" + gitBranch + "-" + gitHash
+}
+
+println("Evaluated building for version "+packageVersionName)
+
+allprojects {
+    apply plugin: "com.jfrog.artifactory"
+    apply plugin: 'maven-publish'
+
+    repositories {
+        google()
+        jcenter()
+
+        // Both our release and dev repos are imported
+        maven {
+            url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
+        }
+
+        maven {
+            url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
+
+    project.ext {
+        versionName = packageVersionName
+    }
+}
+
+artifactory {
+    contextUrl = "https://muxinc.jfrog.io/artifactory/"
+    publish {
+        repository {
+            repoKey = 'default-maven-local'
+            username = artifactoryUsername
+            password = artifactoryPassword
+            maven = true
+        }
+
+        defaults {
+            publications ('mavenJava')
+        }
+    }
+
+    resolve {
+        repository {
+            repoKey = 'default-maven-local'
+            username = artifactoryUsername
+            password = artifactoryPassword
+            maven = true
+        }
+    }
+}
+
+project.ext.publishedVariants = []
+
+// Callback for the projects (in declare_publication.gradle)
+project.ext.addPublication = { variant ->
+    println("-- Adding publication "+variant.name)
+    artifactory {
+        publish {
+            defaults {
+                publications (variant.name)
+            }
+        }
+    }
+
+    project.ext.publishedVariants.add(variant)
+}
+
+def deployVariant(String moduleName, String versionName) {
+    println("Deploying "+moduleName+" version:"+versionName)
+    def stdout = new ByteArrayOutputStream()
+    println("https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/"+moduleName+"/" + versionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/"+moduleName+"/" + versionName)
+    exec {
+        commandLine 'curl', '-u', "${artifactory_user}:${artifactory_password}", '-X', "POST", "https://muxinc.jfrog.io/artifactory/api/copy/default-maven-local/com/mux/stats/sdk/muxstats/"+moduleName+"/" + versionName + "?to=/default-maven-release-local/com/mux/stats/sdk/muxstats/"+moduleName+"/" + versionName
+        standardOutput = stdout
+    }
+    def msg = stdout.toString()
+    println(msg)
+}
+
+task muxReleaseDeploy {
+    doLast {
+        if(isAReleaseBuild) {
+            println("Deploying from local maven to release maven")
+
+            project.ext.publishedVariants.each { variant ->
+                // Module name generation duplicated from declare_publication
+                String moduleName = null
+
+                variant.outputs.all {
+                    moduleName = outputFileName;
+                }
+
+                // Remove the parts of the artifact name which are non specific
+                moduleName = moduleName.replaceAll("-release", "").replaceAll("-isFatAar", "").replaceAll("\\.aar", "")
+
+                String versionName = project.ext.versionName
+
+                deployVariant(moduleName, versionName)
+            }
+
+            println("Release deployment complete")
+        } else {
+            println("Not a release so no deployment")
+        }
+    }
+}
