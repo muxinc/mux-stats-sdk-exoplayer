@@ -11,7 +11,7 @@ afterEvaluate {
             }
 
             // Remove the parts of the artifact name which are non specific
-            moduleName = moduleName.replaceAll("-release", "").replaceAll("-isFatAar", "").replaceAll("\\.aar", "")
+            moduleName = moduleName.replaceAll("-release", "").replaceAll("-isFatAar", "").replaceAll("\\-", "_").replaceAll("\\.aar", "")
             println("    artifactId "+moduleName)
 
             publishing.publications.create(variant.name, MavenPublication) {
