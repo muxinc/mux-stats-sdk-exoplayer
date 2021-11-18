@@ -21,7 +21,11 @@ afterEvaluate {
                 version project.ext.versionName
             }
 
+            println("Publishing publications size "+publishing.publications.size())
+
             project.rootProject.addPublication(variant)
         }
+
+        project.rootProject.createPublications()
     }
 }

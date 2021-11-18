@@ -90,15 +90,23 @@ project.ext.publishedVariants = []
 // Callback for the projects (in declare_publication.gradle)
 project.ext.addPublication = { variant ->
     println("-- Adding publication "+variant.name)
+
+    project.ext.publishedVariants.add(variant)
+}
+
+project.ext.createPublications = {
+    def closedVars = project.ext.publishedVariants
+
     artifactory {
         publish {
             defaults {
-                publications (variant.name)
+                closedVars.each { variant ->
+                    println("-- Creating publication of "+variant.name)
+                    publications (variant.name)
+                }
             }
         }
     }
-
-    project.ext.publishedVariants.add(variant)
 }
 
 def deployVariant(String moduleName, String versionName) {
