@@ -56,7 +56,7 @@ android {
         lintConfig file("../checker-framework-lint.xml")
     }
 
-    flavorDimensions 'api'
+    flavorDimensions('api')
 
     productFlavors {
         r2_9_6 {
@@ -146,6 +146,8 @@ android {
     }
 }
 
+apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
+
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
@@ -187,30 +189,9 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    // This is due to the problem with fat aar bundling
-    // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
-    def muxCoreImport = 'com.mux:stats.muxcore:7.0.4'
-    if(project.ext.inLocalDevMode) {
-        api muxCoreImport
-    } else {
-        embed muxCoreImport
-    }
+    def muxCoreImport = 'com.mux:stats.muxcore:7.0.2'
+    isFatAarEmbed muxCoreImport
+    notFatAarApi muxCoreImport
 }
 
-// Create a publication declaration for each flavor
-// Each published flavor still needs to be listed in the _project_ build.gradle
-afterEvaluate {
-    android.libraryVariants.each { variant ->
-        def matcher = variant.name =~ /(r\d+_\d+_\d+)Release.*/
-        if(matcher.find()) {
-            def strippedExoPlayerVersion = matcher.group(1)
-
-            publishing.publications.create(variant.name, MavenPublication) {
-                from components.findByName(variant.name)
-                groupId "com.mux.stats.sdk.muxstats"
-                artifactId "MuxExoPlayer_" + strippedExoPlayerVersion
-                version project.ext.versionName
-            }
-        }
-    }
-}
+apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
