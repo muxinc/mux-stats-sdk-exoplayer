@@ -135,16 +135,7 @@ dependencies {
     r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
 }
 
-// We have to create the multi dimension configurations ourselves before attaching dependencies
 afterEvaluate {
-    android.applicationVariants.each { variant ->
-        if(variant.name.toLowerCase().contains("isfataar")) {
-            android.buildTypes.add(android.buildTypes.create(variant.name) {
-                minifyEnabled false
-            })
-        }
-    }
-
     dependencies {
         r2_9_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
         r2_10_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_10_6:'+project.ext.versionName

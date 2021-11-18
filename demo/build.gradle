@@ -213,16 +213,7 @@ dependencies {
     notFatAarImplementation project(':MuxExoPlayer')
 }
 
-// We have to create the multi dimension configurations ourselves before attaching dependencies
 afterEvaluate {
-    android.applicationVariants.each { variant ->
-        if(variant.name.toLowerCase().contains("isfataar")) {
-            android.buildTypes.add(android.buildTypes.create(variant.name) {
-                minifyEnabled false
-            })
-        }
-    }
-
     dependencies {
         r2_9_6IsFatAarApi 'org.checkerframework:checker-qual:2.5.0'
         r2_9_6_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.0'
