@@ -31,6 +31,8 @@ if(isAReleaseBuild) {
     packageVersionName = packageVersionName + "-" + gitBranch + "-" + gitHash
 }
 
+isAReleaseBuild = true
+
 println("Evaluated building for version "+packageVersionName)
 
 allprojects {
