@@ -38,12 +38,21 @@ android {
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
     }
+
+
     buildTypes {
+        // Due to fun with fat-aar we must switch on build type
+        // This is because fat-aar is confused by multiple flavor dimensions
+        // For consuming libraries this is not a problem and they can support
+        // independent debug/release switching
+
         debug {
+            // Note this is NOT a fat aar
             minifyEnabled false
         }
 
         release {
+            // Note this is a fat aar (see dependencies for MuxCore inclusion)
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -141,12 +150,11 @@ android {
                         }
                     }
             }
-            dependencies {}
         }
     }
 }
 
-apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
+apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
@@ -190,8 +198,7 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
     def muxCoreImport = 'com.mux:stats.muxcore:7.0.2'
-    isFatAarEmbed muxCoreImport
-    notFatAarApi muxCoreImport
-}
 
-apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
+    debugApi muxCoreImport
+    releaseEmbed muxCoreImport
+}

@@ -9,12 +9,15 @@
 // Only the fat aar flavors are published
 flavorDimensions.add("fatAarLibrary")
 
-productFlavors.add(productFlavors.create("notFatAar") {
-    dimension "fatAarLibrary"
-})
-productFlavors.add(productFlavors.create("isFatAar") {
-    dimension "fatAarLibrary"
-})
+productFlavors {
+    notFatAar {
+        dimension "fatAarLibrary"
+    }
+
+    isFatAar {
+        dimension "fatAarLibrary"
+    }
+}
 
 if(System.getenv("BUILDKITE").equals("true")) {
     // Ignore non fat aar builds on buildkite

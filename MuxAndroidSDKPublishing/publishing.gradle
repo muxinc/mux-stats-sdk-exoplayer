@@ -103,7 +103,6 @@ project.ext.createPublications = {
     artifactory {
         publish {
             defaults {
-                println("Looping here again but why?")
                 publications ('mavenJava')
                 closedVars.each { variant ->
                     println("-- Creating publication of "+variant.name)
