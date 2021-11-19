@@ -197,7 +197,7 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    def muxCoreImport = 'com.mux:stats.muxcore:7.0.2'
+    def muxCoreImport = 'com.mux:stats.muxcore:7.0.4'
 
     debugApi muxCoreImport
     releaseEmbed muxCoreImport
