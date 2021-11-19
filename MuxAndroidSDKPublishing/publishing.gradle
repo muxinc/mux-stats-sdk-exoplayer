@@ -95,11 +95,16 @@ project.ext.addPublication = { variant ->
 }
 
 project.ext.createPublications = {
+    println("-- Creating batch of publications")
     def closedVars = project.ext.publishedVariants
+
+    println("   Publications size: "+closedVars.size())
 
     artifactory {
         publish {
             defaults {
+                println("Looping here again but why?")
+                publications ('mavenJava')
                 closedVars.each { variant ->
                     println("-- Creating publication of "+variant.name)
                     publications (variant.name)
