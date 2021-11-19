@@ -3,7 +3,9 @@ afterEvaluate {
         String vName = variant.name.toLowerCase()
         String moduleName = null
 
-        if (vName.contains("release") && vName.contains("isfataar") && !vName.contains("_ads")) {
+        // Multi flavour builds (like isFatAar + exoplayer version) break fat aar
+        // As a result those do not have a variant for isFatAar
+        if (vName.contains("release") && !vName.contains("_ads")) {
             println("--- Publishing variant "+variant.name+" version "+project.ext.versionName)
 
             variant.outputs.all {
