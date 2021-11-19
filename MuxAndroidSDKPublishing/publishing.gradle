@@ -141,7 +141,7 @@ task muxReleaseDeploy {
                 }
 
                 // Remove the parts of the artifact name which are non specific
-                moduleName = moduleName.replaceAll("-release", "").replaceAll("-isFatAar", "").replaceAll("\\.aar", "")
+                moduleName = moduleName.replaceAll("-release", "").replaceAll("-isFatAar", "").replaceAll("\\-", "_").replaceAll("\\.aar", "")
 
                 String versionName = project.ext.versionName
 
