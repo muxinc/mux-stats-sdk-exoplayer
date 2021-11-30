@@ -183,26 +183,24 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    * @param customerPlayerData basic playback data set by the Application.
    * @param customerVideoData basic Video data set by the Application.
    * @param customerViewData basic View data set by the application.
-   * @param sentryEnabled if set to true the underlying {@link MuxStats} will report internal errors
-   *                      to the backend.
    * @param networkRequest internet interface implementation.
    */
   @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData, boolean sentryEnabled,
+      CustomerViewData customerViewData,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName,
-        new CustomerData(customerPlayerData, customerVideoData, customerViewData),
-        sentryEnabled, networkRequest);
+        new CustomerData(customerPlayerData, customerVideoData, customerViewData), networkRequest);
+    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
   @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data, boolean sentryEnabled,
+      CustomerData data,
       INetworkRequest networkRequest) {
-    this(ctx, player, playerName, data, new CustomOptions().setSentryEnabled(sentryEnabled)
-        , networkRequest);
+    this(ctx, player, playerName, data, new CustomOptions(), networkRequest);
+    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
