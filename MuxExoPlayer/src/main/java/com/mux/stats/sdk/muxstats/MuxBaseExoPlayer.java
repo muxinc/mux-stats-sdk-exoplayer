@@ -184,26 +184,61 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    * @param customerPlayerData basic playback data set by the Application.
    * @param customerVideoData basic Video data set by the Application.
    * @param customerViewData basic View data set by the application.
+   * @param unused Unused parameter. Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
    * @param networkRequest internet interface implementation.
+   *
+   * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
    */
   @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData,
+      CustomerViewData customerViewData, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName,
         new CustomerData(customerPlayerData, customerVideoData, customerViewData), networkRequest);
     // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
+    /**
+     * Basic constructor.
+     *
+     * @param ctx Activity context.
+     * @param player ExoPlayer to monitor, must be unique per {@link MuxBaseExoPlayer} instance. Two
+     *               different instances can not monitor the same player at the same time. As soon as
+     *               a second instance is created the first instance will stop receiving events from
+     *               the player
+     * @param playerName This is the unique player id and it is a static field. Each instance must
+     *                   have a unique player name in the same process.
+     * @param data Customer, View, and Video data set by the user
+     * @param unused Unused parameter. Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
+     * @param networkRequest internet interface implementation.
+     *
+     * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
+     */
   @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data,
+      CustomerData data, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName, data, new CustomOptions(), networkRequest);
     // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
+    /**
+     * Basic constructor.
+     *
+     * @param ctx Activity context.
+     * @param player ExoPlayer to monitor, must be unique per {@link MuxBaseExoPlayer} instance. Two
+     *               different instances can not monitor the same player at the same time. As soon as
+     *               a second instance is created the first instance will stop receiving events from
+     *               the player
+     * @param playerName This is the unique player id and it is a static field. Each instance must
+     *                   have a unique player name in the same process.
+     * @param data Customer, View, and Video data set by the user
+     * @param options Custom Options for configuring the SDK
+     * @param networkRequest internet interface implementation.
+     *
+     * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
+     */
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data, CustomOptions options,
       INetworkRequest networkRequest) {
