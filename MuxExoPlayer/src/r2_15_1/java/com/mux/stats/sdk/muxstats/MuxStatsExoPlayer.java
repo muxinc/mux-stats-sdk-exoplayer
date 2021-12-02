@@ -82,9 +82,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data,
-      boolean sentryEnabled,
+      @Deprecated boolean unused,
       INetworkRequest networkRequests) {
-    this(ctx, player, playerName, data, new CustomOptions().setSentryEnabled(sentryEnabled)
+    this(ctx, player, playerName, data, new CustomOptions()
         , networkRequests);
   }
 

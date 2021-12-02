@@ -195,7 +195,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       CustomerViewData customerViewData, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName,
-        new CustomerData(customerPlayerData, customerVideoData, customerViewData), networkRequest);
+        new CustomerData(customerPlayerData, customerVideoData, customerViewData),
+            false, networkRequest);
     // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
@@ -1143,7 +1144,29 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return elapsedRealtime();
     }
 
-    /**
+      @Override
+      public void outputLog(LogPriority logPriority, String tag, String msg) {
+          switch (logPriority) {
+              case ERROR:
+                  Log.e(tag, msg);
+                  break;
+              case WARN:
+                  Log.w(tag, msg);
+                  break;
+              case INFO:
+                  Log.i(tag, msg);
+                  break;
+              case DEBUG:
+                  Log.d(tag, msg);
+                  break;
+              case VERBOSE:
+              default: // fall-through
+                  Log.v(tag, msg);
+                  break;
+          }
+      }
+
+      /**
      * Print underlying {@link MuxStats} SDK messages on the logcat. This will only be
      * called if {@link #enableMuxCoreDebug(boolean, boolean)} is called with first argument as true
      *
