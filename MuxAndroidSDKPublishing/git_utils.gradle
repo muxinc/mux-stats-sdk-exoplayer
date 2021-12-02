@@ -1,0 +1,43 @@
+getGitHash = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'rev-parse', '--short', 'HEAD'
+        standardOutput = stdout
+    }
+    return stdout.toString().trim()
+}
+
+getGitBranch = { ->
+    def branch = System.getenv('BUILDKITE_BRANCH')
+
+    if(branch == null || branch == "") {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'branch', '--show-current'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } else {
+        return branch
+    }
+}
+
+/*
+We look for git commit messages starting with patterns like v5.3.5
+Then we assume all commits like that on master are PRs that should result in releases of that version
+*/
+getGitCommitMessageVersion = { ->
+    def stdout = new ByteArrayOutputStream()
+    exec {
+        commandLine 'git', 'log', '-1', '--pretty=%B'
+        standardOutput = stdout
+    }
+    def msg = stdout.toString().trim()
+
+    def matcher = msg=~ /v(\d+\.\d+\.\d+).*/
+    if(matcher.find()) {
+        def strippedVersion = matcher.group(1)
+        return strippedVersion
+    }
+    return null
+}
