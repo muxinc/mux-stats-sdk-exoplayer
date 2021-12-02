@@ -16,6 +16,7 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -25,7 +26,6 @@ import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -51,6 +51,7 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -422,6 +423,20 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    */
   public void orientationChange(MuxSDKViewOrientation orientation) {
     muxStats.orientationChange(orientation);
+  }
+
+  /**
+   * Called when the video changes from being presented fullscreen or normal.
+   *
+   * If this is not called, the SDK will attempt to guess the presentation by comparing the size of
+   * the player view to the size of the screen. This works in many use cases, but if your fullscreen
+   * player view's dimensions may not match the dimensions of the {@link android.view.Display},
+   * consider manually setting the presentation to detect fullscreen playback events.
+   *
+   * @param presentation new presentation, or null for auto-detection (see above)
+   */
+  public void presentationChange(MuxSDKViewPresentation presentation) {
+    muxStats.presentationChange(presentation);
   }
 
   /**
