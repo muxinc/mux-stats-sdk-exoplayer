@@ -38,12 +38,21 @@ android {
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
     }
+
+
     buildTypes {
+        // Due to fun with fat-aar we must switch on build type
+        // This is because fat-aar is confused by multiple flavor dimensions
+        // For consuming libraries this is not a problem and they can support
+        // independent debug/release switching
+
         debug {
+            // Note this is NOT a fat aar
             minifyEnabled false
         }
 
         release {
+            // Note this is a fat aar (see dependencies for MuxCore inclusion)
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -56,7 +65,7 @@ android {
         lintConfig file("../checker-framework-lint.xml")
     }
 
-    flavorDimensions 'api'
+    flavorDimensions('api')
 
     productFlavors {
         r2_9_6 {
@@ -141,10 +150,11 @@ android {
                         }
                     }
             }
-            dependencies {}
         }
     }
 }
+
+apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
 
 dependencies {
     implementation 'com.android.support:multidex:1.0.3'
@@ -187,30 +197,8 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    // This is due to the problem with fat aar bundling
-    // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
     def muxCoreImport = 'com.mux:stats.muxcore:7.0.5'
-    if(project.ext.inLocalDevMode) {
-        api muxCoreImport
-    } else {
-        embed muxCoreImport
-    }
-}
 
-// Create a publication declaration for each flavor
-// Each published flavor still needs to be listed in the _project_ build.gradle
-afterEvaluate {
-    android.libraryVariants.each { variant ->
-        def matcher = variant.name =~ /(r\d+_\d+_\d+)Release.*/
-        if(matcher.find()) {
-            def strippedExoPlayerVersion = matcher.group(1)
-
-            publishing.publications.create(variant.name, MavenPublication) {
-                from components.findByName(variant.name)
-                groupId "com.mux.stats.sdk.muxstats"
-                artifactId "MuxExoPlayer_" + strippedExoPlayerVersion
-                version project.ext.versionName
-            }
-        }
-    }
+    debugApi muxCoreImport
+    releaseEmbed muxCoreImport
 }
