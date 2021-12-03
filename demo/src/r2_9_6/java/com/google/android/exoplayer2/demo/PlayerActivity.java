@@ -23,6 +23,7 @@ import android.content.res.Configuration;
 import android.graphics.Point;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
@@ -167,6 +168,8 @@ public class PlayerActivity extends Activity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
+    Log.d("RAAAA", "initExoPlayer(): For version 2.9.6");
+
     // TODO see what is this ?
     String sphericalStereoMode = getIntent().getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
 //    if (sphericalStereoMode != null) {
