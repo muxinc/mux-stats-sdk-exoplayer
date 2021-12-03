@@ -117,8 +117,8 @@ dependencies {
     androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
     api 'org.checkerframework:checker-qual:2.5.2'
-    notFatAarImplementation project(':MuxExoPlayer')
-    fatAarImplementation 'com.mux:stats.muxcore:7.0.5'
+    implementation project(':MuxExoPlayer')
+    //IsFatAarImplementation 'com.mux:stats.muxcore:7.0.5'
 
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
