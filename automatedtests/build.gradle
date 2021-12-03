@@ -97,8 +97,6 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui:2.3.1'
     androidTestImplementation 'androidx.test:runner:1.3.0'
 
-    implementation 'com.mux:stats.muxcore:7.0.5'
-
     androidTestImplementation 'androidx.test:rules:1.3.0'
     // Optional -- Hamcrest library
     androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
@@ -120,6 +118,7 @@ dependencies {
 
     api 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
+    fatAarImplementation 'com.mux:stats.muxcore:7.0.5'
 
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
