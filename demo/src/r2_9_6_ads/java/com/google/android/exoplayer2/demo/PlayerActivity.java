@@ -170,8 +170,6 @@ public class PlayerActivity extends Activity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    Log.d("RAAAA", "initExoPlayer(): For version 2.9.6ads");
-
     String sphericalStereoMode = getIntent().getStringExtra(SPHERICAL_STEREO_MODE_EXTRA);
     if (sphericalStereoMode != null) {
       setTheme(R.style.PlayerTheme_Spherical);

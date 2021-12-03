@@ -99,8 +99,6 @@ public class PlayerActivity extends AppCompatActivity
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
-    Log.d("RAAAA", "initExoPlayer(): For version 2.15.1ads");
-
     super.onCreate(savedInstanceState);
     dataSourceFactory = DemoUtil.getDataSourceFactory(/* context= */ this);
 
