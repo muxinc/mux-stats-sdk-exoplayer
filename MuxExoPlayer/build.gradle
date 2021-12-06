@@ -157,7 +157,6 @@ android {
 apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
 
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
