@@ -86,7 +86,7 @@ android {
     }
 }
 
-//apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
+apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
