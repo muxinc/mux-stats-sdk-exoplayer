@@ -199,6 +199,6 @@ dependencies {
 
     def muxCoreImport = 'com.mux:stats.muxcore:7.0.5'
 
-    debugEmbed muxCoreImport
+    debugApi muxCoreImport
     releaseEmbed muxCoreImport
 }

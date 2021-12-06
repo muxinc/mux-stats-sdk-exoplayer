@@ -169,7 +169,7 @@ android {
     }
 }
 
-//apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
+apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
 
 dependencies {
     implementation 'androidx.annotation:annotation:1.1.0'
@@ -212,40 +212,55 @@ dependencies {
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
 
-    api 'org.checkerframework:checker-qual:2.5.2'
-    implementation project(':MuxExoPlayer')
+    notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+    notFatAarImplementation project(':MuxExoPlayer')
 }
 
 afterEvaluate {
     dependencies {
-        r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
-        r2_9_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
-        r2_10_6Api 'org.checkerframework:checker-qual:2.5.0'
-        r2_10_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
-        r2_11_1Api 'org.checkerframework:checker-qual:2.5.2'
-        r2_11_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-        r2_12_1Api 'org.checkerframework:checker-qual:2.5.2'
-        r2_12_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-        r2_13_1Api 'org.checkerframework:checker-qual:2.5.2'
-        r2_13_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-        r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
-        r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-        r2_15_1Api 'org.checkerframework:checker-qual:2.5.2'
-        r2_15_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_9_6IsFatAarApi 'org.checkerframework:checker-qual:2.5.0'
+        r2_9_6_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.0'
+        r2_10_6IsFatAarApi 'org.checkerframework:checker-qual:2.5.0'
+        r2_10_6_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.0'
+        r2_11_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_11_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_12_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_12_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_13_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_13_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_14_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_14_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_15_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
+        r2_15_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
 
-        r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
-        r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
-        r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-        r2_10_6_adsApi 'com.google.android.exoplayer:exoplayer:2.10.6'
-        r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-        r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
-        r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-        r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'
-        r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-        r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
-        r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
-        r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
-        r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
-        r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer:2.15.1'
+        r2_9_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
+        r2_9_6_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
+        r2_10_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.10.6'
+        r2_10_6_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.10.6'
+        r2_11_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.11.1'
+        r2_11_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.11.1'
+        r2_12_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.12.1'
+        r2_12_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.12.1'
+        r2_13_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.13.1'
+        r2_13_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.13.1'
+        r2_14_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.14.1'
+        r2_14_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.14.1'
+        r2_15_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.15.1'
+        r2_15_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.15.1'
+
+        r2_9_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
+        r2_9_6_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
+        r2_10_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_10_6:'+project.ext.versionName
+        r2_10_6_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_10_6:'+project.ext.versionName
+        r2_11_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_11_1:'+project.ext.versionName
+        r2_11_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_11_1:'+project.ext.versionName
+        r2_12_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_12_1:'+project.ext.versionName
+        r2_12_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_12_1:'+project.ext.versionName
+        r2_13_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
+        r2_13_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
+        r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
+        r2_14_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
+        r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_14_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
     }
 }
