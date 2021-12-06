@@ -48,7 +48,7 @@ android {
 
         debug {
             // Note this is NOT a fat aar
-            minifyEnabled false
+            minifyEnabled true
         }
 
         release {
