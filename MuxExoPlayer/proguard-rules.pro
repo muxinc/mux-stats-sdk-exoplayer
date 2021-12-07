@@ -11,6 +11,8 @@
 -printmapping mapping.txt
 
 -dontwarn com.google.ads.**
+-dontwarn javax.annotation.Nullable
+-dontwarn com.google.common.annotations.VisibleForTesting
 
 # If your project uses WebView with JS, uncomment the following
 # and specify the fully qualified class name to the JavaScript interface
