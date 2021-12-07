@@ -1,5 +1,12 @@
 # Release notes
 
+## v2.5.7
+### Improvements
+ - Add support for Exoplayer r2.15 (#168)
+
+### Fixes
+ - Updating to MuxCore 7.0.4 to fix ConcurrentModificationException when calling updateCustomerData. (#152)
+
 ## v2.5.6
 ### Fixes
  - Fix reference to packageVersionName in Gradle deployVariant task. (#165)
