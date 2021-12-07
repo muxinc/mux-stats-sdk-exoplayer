@@ -2,7 +2,7 @@ package com.mux.stats.sdk.muxstats;
 
 import static android.os.SystemClock.elapsedRealtime;
 
-import android.content.Context;
+//import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
