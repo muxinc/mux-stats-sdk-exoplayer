@@ -10,6 +10,7 @@
 # Add any project specific keep options here:
 -printmapping mapping.txt
 
+-dontwarn com.google.android.exoplayer2.**
 -dontwarn com.google.ads.**
 
 # If your project uses WebView with JS, uncomment the following
