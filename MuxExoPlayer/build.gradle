@@ -219,14 +219,16 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
+    implementation files('src/main/libs/MuxCore.jar')
+
     // This is due to the problem with fat aar bundling
     // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
-    def muxCoreImport = 'com.mux:stats.muxcore:7.0.4'
-    if(project.ext.inLocalDevMode) {
-        api muxCoreImport
-    } else {
-        embed muxCoreImport
-    }
+//    def muxCoreImport = 'com.mux:stats.muxcore:7.0.4'
+//    if(project.ext.inLocalDevMode) {
+//        api muxCoreImport
+//    } else {
+//        embed muxCoreImport
+//    }
 }
 
 afterEvaluate {
