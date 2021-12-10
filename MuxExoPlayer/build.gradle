@@ -30,7 +30,7 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 34
+        versionCode 35
         versionName project.ext.versionName
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -38,12 +38,21 @@ android {
         buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
         buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
     }
+
+
     buildTypes {
+        // Due to fun with fat-aar we must switch on build type
+        // This is because fat-aar is confused by multiple flavor dimensions
+        // For consuming libraries this is not a problem and they can support
+        // independent debug/release switching
+
         debug {
+            // Note this is NOT a fat aar
             minifyEnabled false
         }
 
         release {
+            // Note this is a fat aar (see dependencies for MuxCore inclusion)
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -55,52 +64,8 @@ android {
         // https://github.com/google/ExoPlayer/issues/4234
         lintConfig file("../checker-framework-lint.xml")
     }
-    sourceSets {
-        r2_9_6 {
-            java.srcDirs = ['./src/r2_9_6/java']
-        }
-        r2_9_6_ads {
-            java.srcDirs = ['./src/r2_9_6/java']
-        }
-        r2_10_6 {
-            java.srcDirs = ['./src/r2_10_6/java']
-        }
-        r2_10_6_ads {
-            java.srcDirs = ['./src/r2_10_6/java']
-        }
-        r2_11_1 {
-            java.srcDirs = ['./src/r2_11_1/java']
-        }
-        r2_11_1_ads {
-            java.srcDirs = ['./src/r2_11_1/java']
-        }
-        r2_12_1 {
-            java.srcDirs = ['./src/r2_12_1/java']
-        }
-        r2_12_1_ads {
-            java.srcDirs = ['./src/r2_12_1/java']
-        }
-        r2_13_1 {
-            java.srcDirs = ['./src/r2_13_1/java']
-        }
-        r2_13_1_ads {
-            java.srcDirs = ['./src/r2_13_1/java']
-        }
-        r2_14_1 {
-            java.srcDirs = ['./src/r2_14_1/java']
-        }
-        r2_14_1_ads {
-            java.srcDirs = ['./src/r2_14_1/java']
-        }
-        r2_15_1 {
-            java.srcDirs = ['./src/r2_15_1/java']
-        }
-        r2_15_1_ads {
-            java.srcDirs = ['./src/r2_15_1/java']
-        }
-    }
 
-    flavorDimensions 'api'
+    flavorDimensions('api')
 
     productFlavors {
         r2_9_6 {
@@ -147,6 +112,18 @@ android {
         }
     }
 
+    // Attach the java src directory relevant for each flavor created
+    afterEvaluate {
+        android.libraryVariants.each { variant ->
+            def matcher = variant.name =~ /(r\d+_\d+_\d+).*/
+            if(matcher.find()) {
+                def strippedExoPlayerVersion = matcher.group(1)
+                def sourceSet = sourceSets.findByName(variant.name)
+                sourceSet.java.srcDirs = ['./src/' + strippedExoPlayerVersion + '/java']
+            }
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -173,13 +150,13 @@ android {
                         }
                     }
             }
-            dependencies {}
         }
     }
 }
 
+apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
+
 dependencies {
-    implementation 'com.android.support:multidex:1.0.3'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
     r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
@@ -219,69 +196,8 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    // This is due to the problem with fat aar bundling
-    // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
-    def muxCoreImport = 'com.mux:stats.muxcore:7.0.4'
-    if(project.ext.inLocalDevMode) {
-        api muxCoreImport
-    } else {
-        embed muxCoreImport
-    }
-}
+    def muxCoreImport = 'com.mux:stats.muxcore:7.0.5'
 
-afterEvaluate {
-    publishing {
-        publications {
-            // Note each publication needs to be mentioned in the _project_ build.gradle too
-            // Would be nice to not copy/paste all this - possible approach https://stackoverflow.com/a/66349023
-            r2_9_6Release(MavenPublication) {
-                from components.r2_9_6Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_9_6"
-                version = project.ext.versionName
-            }
-
-            r2_10_6Release(MavenPublication) {
-                from components.r2_10_6Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_10_6"
-                version = project.ext.versionName
-            }
-
-            r2_11_1Release(MavenPublication) {
-                from components.r2_11_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_11_1"
-                version = project.ext.versionName
-            }
-
-            r2_12_1Release(MavenPublication) {
-                from components.r2_12_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_12_1"
-                version = project.ext.versionName
-            }
-
-            r2_13_1Release(MavenPublication) {
-                from components.r2_13_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_13_1"
-                version = project.ext.versionName
-            }
-
-            r2_14_1Release(MavenPublication) {
-                from components.r2_14_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_14_1"
-                version = project.ext.versionName
-            }
-
-            r2_15_1Release(MavenPublication) {
-                from components.r2_15_1Release
-                groupId = "com.mux.stats.sdk.muxstats"
-                artifactId = "MuxExoPlayer_r2_15_1"
-                version = project.ext.versionName
-            }
-        }
-    }
+    debugApi muxCoreImport
+    releaseEmbed muxCoreImport
 }

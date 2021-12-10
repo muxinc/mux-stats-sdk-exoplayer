@@ -17,16 +17,19 @@ package com.google.android.exoplayer2.demo;
 
 import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -65,6 +68,7 @@ import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
 import java.util.ArrayList;
@@ -126,6 +130,14 @@ public class PlayerActivity extends AppCompatActivity
     playerView.setControllerVisibilityListener(this);
     playerView.setErrorMessageProvider(new PlayerErrorMessageProvider());
     playerView.requestFocus();
+    playerView.setControllerOnFullScreenModeChangedListener(isFullScreen -> {
+      if(isFullScreen) {
+        muxStats.presentationChange(MuxSDKViewPresentation.FULLSCREEN);
+      } else {
+        muxStats.presentationChange(MuxSDKViewPresentation.NORMAL);
+      }
+      setFullscreen(isFullScreen);
+    });
 
     if (savedInstanceState != null) {
       trackSelectorParameters = savedInstanceState.getParcelable(KEY_TRACK_SELECTOR_PARAMETERS);
@@ -343,6 +355,16 @@ public class PlayerActivity extends AppCompatActivity
     player.prepare();
     updateButtonVisibility();
     return true;
+  }
+
+  private void setFullscreen(boolean fullscreen) {
+    ViewGroup.LayoutParams params = playerView.getLayoutParams();
+    if(fullscreen) {
+      params.height = ViewGroup.LayoutParams.MATCH_PARENT;
+    } else {
+      params.height = (int) getResources().getDimension(R.dimen.player_height_normal);
+    }
+    playerView.setLayoutParams(params);
   }
 
   private List<MediaItem> createMediaItems(Intent intent) {
