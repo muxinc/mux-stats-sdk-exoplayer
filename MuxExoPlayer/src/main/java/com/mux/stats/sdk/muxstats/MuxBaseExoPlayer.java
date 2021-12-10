@@ -116,6 +116,35 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    * Media container and can also be different from actual Media duration.
    */
   protected Long sourceDuration;
+  /**
+   * This is the time of the current playback position as extrapolated from the PDT tags in
+   * the stream.
+   */
+  protected Long playerProgramTime;
+  /**
+   *  This is the time of the furthest position in the manifest as extrapolated from the PDT tags in
+   *  the stream.
+   */
+  protected Long playerManifestNewestProgramTime;
+  /**
+   *  The configured holdback value for a live stream (ms). Analagous to the HOLD-BACK manifest tag.
+   */
+  protected Long videoHoldback;
+  /**
+   * The configured holdback value for parts in a low latency live stream (ms). Analagous to the
+   * PART-HOLD-BACK manfiest tag.
+   */
+  protected Long videoPartHoldback;
+  /**
+   * The configured target duration for parts in a low-latency live stream (ms). Analogous to the
+   * PART-TARGET attribute within the EXT-X-PART-INF manifest tag
+   */
+  protected Long videoPartTargetDuration;
+  /**
+   * The configured target duration for segments in a live stream (ms). Analogous to the
+   * EXT-X-TARGETDURATION manifest tag.
+   */
+  protected Long videoTargetDuration;
   /** This is used to update the current playback position in real time. */
   protected ExoPlayerHandler playerHandler;
   protected Timer updatePlayheadPositionTimer;
@@ -567,9 +596,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Detect if the current media item being played contains a video track. If it does
-   * it will initialize the {@link #frameRenderedListener} or if it does not then it will initialize
-   * {@link #updatePlayheadPositionTimer}.
+   * Detect if the current media item being played contains a video track.
    */
   protected void configurePlaybackHeadUpdateInterval() {
     if (player == null || player.get() == null) {
@@ -594,9 +621,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Start a periodic timer which will update the playback position on every 150 ms. We only use
-   * this method in case the media item has no video component, in case it does the
-   * {@link #frameRenderedListener} will be updating the playback position.
+   * Start a periodic timer which will update the playback position on every 150 ms.
    */
   protected void setPlaybackHeadUpdateInterval() {
     if (updatePlayheadPositionTimer != null) {
@@ -659,6 +684,72 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
     }
     return 0;
+  }
+
+  /**
+   * This is the time of the current playback position as extrapolated from the PDT tags in the
+   * stream. Only available for DASH and HLS.
+   *
+   * @return time.
+   */
+  @Override
+  public Long getPlayerProgramTime() {
+    return playerProgramTime;
+  }
+
+  /**
+   * This is the time of the furthest position in the manifest as extrapolated from the PDT tags in
+   * the stream. Only available for DASH and HLS.
+   *
+   * @return time.
+   */
+  @Override
+  public Long getPlayerManifestNewestTime() {
+    return playerManifestNewestProgramTime;
+  }
+
+  /**
+   * The configured holdback value for a live stream (ms). Analagous to the HOLD-BACK manifest tag.
+   * Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoHoldback() {
+    return videoHoldback;
+  }
+
+  /**
+   * The configured holdback value for parts in a low latency live stream (ms). Analagous to the
+   * PART-HOLD-BACK manfiest tag. Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoPartHoldback() {
+    return videoPartHoldback;
+  }
+
+  /**
+   * The configured target duration for parts in a low-latency live stream (ms). Analogous to the
+   * PART-TARGET attribute within the EXT-X-PART-INF manifest tag. Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoPartTargetDuration() {
+    return videoPartTargetDuration;
+  }
+
+  /**
+   *  The configured target duration for segments in a live stream (ms). Analogous to the
+   *  EXT-X-TARGETDURATION manifest tag. Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoTargetDuration() {
+    return videoTargetDuration;
   }
 
   /**
@@ -878,6 +969,19 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     numberOfEventsSent = 0;
     firstFrameReceived = false;
     firstFrameRenderedAt = -1;
+    resetLatencyMetrics();
+  }
+
+  /**
+   * Set default values to all latency metrics/
+   */
+  private void resetLatencyMetrics() {
+    playerProgramTime = -1L;
+    playerManifestNewestProgramTime = -1L;
+    videoHoldback = -1L;
+    videoPartHoldback = -1L;
+    videoPartTargetDuration = -1L;
+    videoTargetDuration = -1L;
   }
 
   /**
@@ -1167,6 +1271,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host, String segmentMimeType
     ) {
+      
       BandwidthMetricData segmentData = new BandwidthMetricData();
       // TODO RequestStart timestamp is currently not available from ExoPlayer
       segmentData.setRequestResponseStart(System.currentTimeMillis());
@@ -1269,6 +1374,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public BandwidthMetricData onLoadError(String segmentUrl,
         IOException e) {
       BandwidthMetricData loadData = super.onLoadError(segmentUrl, e);
+      resetLatencyMetrics();
       return loadData;
     }
 
@@ -1276,6 +1382,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     public BandwidthMetricData onLoadCanceled(String segmentUrl) {
       BandwidthMetricData loadData = super.onLoadCanceled(segmentUrl);
       loadData.setRequestCancel("FragLoadEmergencyAborted");
+      resetLatencyMetrics();
       return loadData;
     }
 
