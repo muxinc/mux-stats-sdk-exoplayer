@@ -10,6 +10,7 @@
 # Add any project specific keep options here:
 -printmapping mapping.txt
 
+-dontwarn com.google.android.exoplayer2.**
 -dontwarn com.google.ads.**
 -dontwarn javax.annotation.Nullable
 -dontwarn com.google.common.annotations.VisibleForTesting
