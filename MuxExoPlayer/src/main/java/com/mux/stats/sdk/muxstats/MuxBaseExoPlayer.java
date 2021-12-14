@@ -1229,6 +1229,11 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return elapsedRealtime();
     }
 
+    @Override
+    public void outputLog(LogPriority logPriority, String s, String s1) {
+
+    }
+
     /**
      * Print underlying {@link MuxStats} SDK messages on the logcat. This will only be
      * called if {@link #enableMuxCoreDebug(boolean, boolean)} is called with first argument as true

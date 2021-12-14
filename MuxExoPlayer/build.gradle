@@ -221,7 +221,8 @@ dependencies {
 
     // This is due to the problem with fat aar bundling
     // See item #1 https://github.com/kezong/fat-aar-android#known-defects-or-issues
-    def muxCoreImport = 'com.mux:stats.muxcore:dev-latencyt_metrics2-fceed6e'
+    def muxCoreImport = 'com.mux:stats.muxcore:dev-latencyt_metrics2-3170521'
+//    def muxCoreImport = 'com.mux:stats.muxcore:7.0.6'
     if(project.ext.inLocalDevMode) {
         api muxCoreImport
     } else {
