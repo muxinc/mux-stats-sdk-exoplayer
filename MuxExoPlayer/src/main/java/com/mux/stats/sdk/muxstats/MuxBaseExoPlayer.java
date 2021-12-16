@@ -29,9 +29,6 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
-import com.google.android.exoplayer2.source.hls.HlsManifest;
-import com.google.android.exoplayer2.video.VideoListener;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -59,18 +56,11 @@ import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -85,7 +75,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * of {@link ExoPlayer} version and make sure that all events are passed to {@link MuxStats} in
  * the correct order and with appropriate statistics.
  */
-public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
+public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
 
@@ -305,6 +295,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return;
     }
   }
+
+  protected abstract boolean isLivePlayback();
+
+  protected abstract String parseHlsManifestTag(String tagName);
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
@@ -695,7 +689,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   @RequiresApi(api = VERSION_CODES.O)
   @Override
   public Long getPlayerManifestNewestTime() {
-    if (currentTimelineWindow != null && currentTimelineWindow.isLive()) {
+    if (currentTimelineWindow != null && isLivePlayback()) {
       return currentTimelineWindow.windowStartTimeMs;
     }
     return -1L;
@@ -963,39 +957,6 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     firstFrameReceived = false;
     firstFrameRenderedAt = -1;
     currentTimelineWindow = new Window();
-  }
-
-  /**
-   * Extracts the tag value from live HLS segment, returns -1 if it is not an HLS stream, not a live
-   * playback.
-   *
-   * @param tagName name of the tag to extract from the HLS manifest.
-   * @return tag value if tag is found and we are playing HLS live stream, -1 string otherwise.
-   */
-  private String parseHlsManifestTag(String tagName) {
-    synchronized (currentTimelineWindow) {
-      if (currentTimelineWindow != null && currentTimelineWindow.manifest != null
-          && currentTimelineWindow.isLive() && tagName != null && tagName.length() > 0) {
-        if (currentTimelineWindow.manifest instanceof HlsManifest) {
-          HlsManifest manifest = (HlsManifest) currentTimelineWindow.manifest;
-          if (manifest.mediaPlaylist.tags != null) {
-            for (String tag : manifest.mediaPlaylist.tags) {
-              if (tag.contains(tagName)) {
-                String value = tag.split(tagName)[1];
-                if (value.contains(",")) {
-                  value = value.split(",")[0];
-                }
-                if (value.startsWith("=") || value.startsWith(":")) {
-                  value = value.substring(1, value.length());
-                }
-                return value;
-              }
-            }
-          }
-        }
-      }
-    }
-    return "-1";
   }
 
   /**
@@ -1309,8 +1270,12 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       // Populate segment time details.
       if (player != null && player.get() != null) {
         synchronized (currentTimelineWindow) {
-          player.get().getCurrentTimeline()
-              .getWindow(player.get().getCurrentWindowIndex(), currentTimelineWindow);
+          try {
+            player.get().getCurrentTimeline()
+                .getWindow(player.get().getCurrentWindowIndex(), currentTimelineWindow);
+          } catch (Exception e) {
+            // Failed to obtrain data, ignore, we will get it on next call
+          }
         }
       }
       BandwidthMetricData segmentData = new BandwidthMetricData();

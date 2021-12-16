@@ -110,6 +110,25 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     }
   }
 
+  /**
+   * Extracts the tag value from live HLS segment, returns -1 if it is not an HLS stream, not a live
+   * playback.
+   *
+   * NOT SUPPORTED FOR THIS VERSION OF ExoPlayer
+   *
+   * @param tagName name of the tag to extract from the HLS manifest.
+   * @return tag value if tag is found and we are playing HLS live stream, -1 string otherwise.
+   */
+  @Override
+  protected String parseHlsManifestTag(String tagName) {
+    return "-1";
+  }
+
+  @Override
+  protected boolean isLivePlayback() {
+    return false;
+  }
+
   @Override
   public void release() {
     if (player != null && this.player.get() != null) {

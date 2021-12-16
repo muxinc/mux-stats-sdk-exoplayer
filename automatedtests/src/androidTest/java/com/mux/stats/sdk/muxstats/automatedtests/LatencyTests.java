@@ -63,6 +63,11 @@ public class LatencyTests extends TestBase {
   @Test
   public void testLiveStreamMetrics() {
     try {
+      // Test not supported for this flavor
+      if (BuildConfig.FLAVOR.contains("r2_10_6")
+        || BuildConfig.FLAVOR.contains("r2_9_6")) {
+        return;
+      }
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
@@ -85,6 +90,11 @@ public class LatencyTests extends TestBase {
   @Test
   public void testVodStreamMetrics() {
     try {
+      // Test not supported for this flavor
+      if (BuildConfig.FLAVOR.contains("r2_10_6")
+          || BuildConfig.FLAVOR.contains("r2_9_6")) {
+        return;
+      }
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
