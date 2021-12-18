@@ -2,6 +2,8 @@
 #
 # Accessing the secret containing env vars in here prevents buildkite from capturing them
 
+set -e
+
 docker run -it -v --rm  \
     -v $(pwd):/data \
     -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \

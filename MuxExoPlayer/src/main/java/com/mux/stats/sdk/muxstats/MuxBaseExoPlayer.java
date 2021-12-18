@@ -188,28 +188,62 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    * @param customerPlayerData basic playback data set by the Application.
    * @param customerVideoData basic Video data set by the Application.
    * @param customerViewData basic View data set by the application.
-   * @param sentryEnabled if set to true the underlying {@link MuxStats} will report internal errors
-   *                      to the backend.
+   * @param unused Unused parameter. Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
    * @param networkRequest internet interface implementation.
+   *
+   * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
    */
   @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData, CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData, boolean sentryEnabled,
+      CustomerViewData customerViewData, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName,
         new CustomerData(customerPlayerData, customerVideoData, customerViewData),
-        sentryEnabled, networkRequest);
+            false, networkRequest);
+    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
+    /**
+     * Basic constructor.
+     *
+     * @param ctx Activity context.
+     * @param player ExoPlayer to monitor, must be unique per {@link MuxBaseExoPlayer} instance. Two
+     *               different instances can not monitor the same player at the same time. As soon as
+     *               a second instance is created the first instance will stop receiving events from
+     *               the player
+     * @param playerName This is the unique player id and it is a static field. Each instance must
+     *                   have a unique player name in the same process.
+     * @param data Customer, View, and Video data set by the user
+     * @param unused Unused parameter. Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
+     * @param networkRequest internet interface implementation.
+     *
+     * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
+     */
   @Deprecated
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data, boolean sentryEnabled,
+      CustomerData data, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
-    this(ctx, player, playerName, data, new CustomOptions().setSentryEnabled(sentryEnabled)
-        , networkRequest);
+    this(ctx, player, playerName, data, new CustomOptions(), networkRequest);
+    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
+    /**
+     * Basic constructor.
+     *
+     * @param ctx Activity context.
+     * @param player ExoPlayer to monitor, must be unique per {@link MuxBaseExoPlayer} instance. Two
+     *               different instances can not monitor the same player at the same time. As soon as
+     *               a second instance is created the first instance will stop receiving events from
+     *               the player
+     * @param playerName This is the unique player id and it is a static field. Each instance must
+     *                   have a unique player name in the same process.
+     * @param data Customer, View, and Video data set by the user
+     * @param options Custom Options for configuring the SDK
+     * @param networkRequest internet interface implementation.
+     *
+     * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
+     */
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data, CustomOptions options,
       INetworkRequest networkRequest) {
@@ -433,6 +467,20 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   public void orientationChange(MuxSDKViewOrientation orientation) {
     muxStats.orientationChange(orientation);
+  }
+
+  /**
+   * Called when the video changes from being presented fullscreen or normal.
+   *
+   * If this is not called, the SDK will attempt to guess the presentation by comparing the size of
+   * the player view to the size of the screen. This works in many use cases, but if your fullscreen
+   * player view's dimensions may not match the dimensions of the {@link android.view.Display},
+   * consider manually setting the presentation to detect fullscreen playback events.
+   *
+   * @param presentation new presentation, or null for auto-detection (see above)
+   */
+  public void presentationChange(MuxSDKViewPresentation presentation) {
+    muxStats.presentationChange(presentation);
   }
 
   /**

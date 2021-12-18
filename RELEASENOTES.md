@@ -1,5 +1,27 @@
 # Release notes
 
+## v2.5.8
+### Exoplayer SDK changes
+#### Improvements
+ * Add API to indicate whether video is shown fullscreen (#173)
+
+#### Fixes
+ * Fix for usage of legacy support libraries (#177) (Fixes #174)
+ * Added -donotwarn for ExoPlayer classes. (#179) (Fixes #175)
+
+#### Build Improvements
+ * Refactor AAR packaging and publishing with Gradle (#171)
+ * Fast escape on build error (#178)
+
+### Mux Core v7.0.5 changes
+#### Improvements
+ * Add support for latency metrics.
+ * Add a Fullscreen enum and API to MuxCore to allow it to be set via the player SDK API
+ * Remove Sentry / Replace with Debug Events
+
+### Fixes
+ * Fix upscale percentages by clamping player size
+
 ## v2.5.7
 ### Improvements
  - Add support for Exoplayer r2.15 (#168)
