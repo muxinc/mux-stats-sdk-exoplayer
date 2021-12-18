@@ -1192,7 +1192,24 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     @Override
     public void outputLog(LogPriority logPriority, String s, String s1) {
-
+switch (logPriority) {
+        case ERROR:
+          Log.e(tag, msg);
+          break;
+        case WARN:
+          Log.w(tag, msg);
+          break;
+        case INFO:
+          Log.i(tag, msg);
+          break;
+        case DEBUG:
+          Log.d(tag, msg);
+          break;
+        case VERBOSE:
+        default: // fall-through
+          Log.v(tag, msg);
+          break;
+      }
     }
 
     /**
