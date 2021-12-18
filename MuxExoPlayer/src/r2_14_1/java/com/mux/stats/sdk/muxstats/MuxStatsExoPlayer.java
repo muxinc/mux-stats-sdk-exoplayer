@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.google.android.exoplayer2.video.VideoSize;
@@ -110,6 +111,48 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       buffering();
       playing();
     }
+  }
+
+  /**
+   * Extracts the tag value from live HLS segment, returns -1 if it is not an HLS stream, not a live
+   * playback.
+   *
+   * @param tagName name of the tag to extract from the HLS manifest.
+   * @return tag value if tag is found and we are playing HLS live stream, -1 string otherwise.
+   */
+  @Override
+  protected String parseHlsManifestTag(String tagName) {
+    synchronized (currentTimelineWindow) {
+      if (currentTimelineWindow != null && currentTimelineWindow.manifest != null
+          && isLivePlayback() && tagName != null && tagName.length() > 0) {
+        if (currentTimelineWindow.manifest instanceof HlsManifest) {
+          HlsManifest manifest = (HlsManifest) currentTimelineWindow.manifest;
+          if (manifest.mediaPlaylist.tags != null) {
+            for (String tag : manifest.mediaPlaylist.tags) {
+              if (tag.contains(tagName)) {
+                String value = tag.split(tagName)[1];
+                if (value.contains(",")) {
+                  value = value.split(",")[0];
+                }
+                if (value.startsWith("=") || value.startsWith(":")) {
+                  value = value.substring(1, value.length());
+                }
+                return value;
+              }
+            }
+          }
+        }
+      }
+    }
+    return "-1";
+  }
+
+  @Override
+  protected boolean isLivePlayback() {
+    if (currentTimelineWindow != null) {
+      return currentTimelineWindow.isLive;
+    }
+    return false;
   }
 
   @Override
@@ -441,6 +484,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onTimelineChanged(Timeline timeline, int reason) {
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
+//      window.liveConfiguration.targetOffsetMs
       timeline.getWindow(0, window);
       sourceDuration = window.getDurationMs();
     }
