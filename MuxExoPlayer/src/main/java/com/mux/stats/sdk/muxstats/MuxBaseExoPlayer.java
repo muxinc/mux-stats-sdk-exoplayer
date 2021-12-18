@@ -10,14 +10,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Build.VERSION_CODES;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import androidx.annotation.RequiresApi;
+
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -54,6 +53,7 @@ import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -686,7 +686,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    *
    * @return time.
    */
-  @RequiresApi(api = VERSION_CODES.O)
   @Override
   public Long getPlayerManifestNewestTime() {
     if (currentTimelineWindow != null && isLivePlayback()) {
@@ -1191,8 +1190,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     @Override
-    public void outputLog(LogPriority logPriority, String s, String s1) {
-switch (logPriority) {
+    public void outputLog(LogPriority logPriority, String tag, String msg) {
+      switch (logPriority) {
         case ERROR:
           Log.e(tag, msg);
           break;
