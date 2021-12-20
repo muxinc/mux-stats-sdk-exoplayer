@@ -1,6 +1,6 @@
 # Release notes
 
-## v2.5.8
+## v2.5.9
 ### Exoplayer SDK Changes
 #### Improvements
 * Add support for measuring livestream glass-to-glass latency (#181)
@@ -12,7 +12,6 @@
 ### MuxCore 7.0.7 Changes
 #### Improvements
 * Final API for live latency
-
 
 ## v2.5.8
 ### Exoplayer SDK changes
