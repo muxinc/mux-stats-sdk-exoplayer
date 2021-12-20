@@ -24,6 +24,8 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.Format;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.mux.stats.sdk.core.CustomOptions;
@@ -73,7 +75,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * of {@link ExoPlayer} version and make sure that all events are passed to {@link MuxStats} in
  * the correct order and with appropriate statistics.
  */
-public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
+public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
 
   protected static final String TAG = "MuxStatsListener";
 
@@ -117,6 +119,8 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
    * Media container and can also be different from actual Media duration.
    */
   protected Long sourceDuration;
+  /** Store all time detailes of current segment */
+  protected Timeline.Window currentTimelineWindow = new Window();
   /** This is used to update the current playback position in real time. */
   protected ExoPlayerHandler playerHandler;
   protected Timer updatePlayheadPositionTimer;
@@ -325,6 +329,10 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return;
     }
   }
+
+  protected abstract boolean isLivePlayback();
+
+  protected abstract String parseHlsManifestTag(String tagName);
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
@@ -616,9 +624,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Detect if the current media item being played contains a video track. If it does
-   * it will initialize the {@link #frameRenderedListener} or if it does not then it will initialize
-   * {@link #updatePlayheadPositionTimer}.
+   * Detect if the current media item being played contains a video track.
    */
   protected void configurePlaybackHeadUpdateInterval() {
     if (player == null || player.get() == null) {
@@ -643,9 +649,7 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
   }
 
   /**
-   * Start a periodic timer which will update the playback position on every 150 ms. We only use
-   * this method in case the media item has no video component, in case it does the
-   * {@link #frameRenderedListener} will be updating the playback position.
+   * Start a periodic timer which will update the playback position on every 150 ms.
    */
   protected void setPlaybackHeadUpdateInterval() {
     if (updatePlayheadPositionTimer != null) {
@@ -708,6 +712,78 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       }
     }
     return 0;
+  }
+
+  /**
+   * This is the time of the current playback position as extrapolated from the PDT tags in the
+   * stream. Only available for DASH and HLS.
+   *
+   * @return time.
+   */
+  @Override
+  public Long getPlayerProgramTime() {
+    if (currentTimelineWindow != null && playerHandler != null) {
+      return currentTimelineWindow.windowStartTimeMs + playerHandler.getPlayerCurrentPosition();
+    }
+    return -1L;
+  }
+
+  /**
+   * This is the time of the furthest position in the manifest as extrapolated from the PDT tags in
+   * the stream. Only available for DASH and HLS.
+   *
+   * @return time.
+   */
+  @Override
+  public Long getPlayerManifestNewestTime() {
+    if (currentTimelineWindow != null && isLivePlayback()) {
+      return currentTimelineWindow.windowStartTimeMs;
+    }
+    return -1L;
+  }
+
+  /**
+   * The configured holdback value for a live stream (ms). Analagous to the HOLD-BACK manifest tag.
+   * Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoHoldback() {
+    return parseHlsManifestTagLong("HOLD-BACK");
+  }
+
+  /**
+   * The configured holdback value for parts in a low latency live stream (ms). Analagous to the
+   * PART-HOLD-BACK manfiest tag. Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoPartHoldback() {
+    return parseHlsManifestTagLong("PART-HOLD-BACK");
+  }
+
+  /**
+   * The configured target duration for parts in a low-latency live stream (ms). Analogous to the
+   * PART-TARGET attribute within the EXT-X-PART-INF manifest tag. Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoPartTargetDuration() {
+    return parseHlsManifestTagLong("PART-TARGET");
+  }
+
+  /**
+   *  The configured target duration for segments in a live stream (ms). Analogous to the
+   *  EXT-X-TARGETDURATION manifest tag. Only available for DASH and HLS.
+   *
+   * @return value in milliseconds.
+   */
+  @Override
+  public Long getVideoTargetDuration() {
+    return parseHlsManifestTagLong("EXT-X-TARGETDURATION");
   }
 
   /**
@@ -927,6 +1003,23 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     numberOfEventsSent = 0;
     firstFrameReceived = false;
     firstFrameRenderedAt = -1;
+    currentTimelineWindow = new Window();
+  }
+
+  /**
+   * See {{@link #parseHlsManifestTagLong(String)}}, parse the tag value as a Long value.
+   * @param tagName tag name to parse
+   * @return Long value of the tag if possible, -1 otherwise.
+   */
+  private Long parseHlsManifestTagLong(String tagName) {
+    String value = parseHlsManifestTag(tagName);
+    value = value.replace(".", "");
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException e) {
+      MuxLogger.d(TAG, "Bad number format for value: " + value);
+    }
+    return -1L;
   }
 
   /**
@@ -1144,29 +1237,29 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
       return elapsedRealtime();
     }
 
-      @Override
-      public void outputLog(LogPriority logPriority, String tag, String msg) {
-          switch (logPriority) {
-              case ERROR:
-                  Log.e(tag, msg);
-                  break;
-              case WARN:
-                  Log.w(tag, msg);
-                  break;
-              case INFO:
-                  Log.i(tag, msg);
-                  break;
-              case DEBUG:
-                  Log.d(tag, msg);
-                  break;
-              case VERBOSE:
-              default: // fall-through
-                  Log.v(tag, msg);
-                  break;
-          }
+    @Override
+    public void outputLog(LogPriority logPriority, String tag, String msg) {
+      switch (logPriority) {
+        case ERROR:
+          Log.e(tag, msg);
+          break;
+        case WARN:
+          Log.w(tag, msg);
+          break;
+        case INFO:
+          Log.i(tag, msg);
+          break;
+        case DEBUG:
+          Log.d(tag, msg);
+          break;
+        case VERBOSE:
+        default: // fall-through
+          Log.v(tag, msg);
+          break;
       }
+    }
 
-      /**
+    /**
      * Print underlying {@link MuxStats} SDK messages on the logcat. This will only be
      * called if {@link #enableMuxCoreDebug(boolean, boolean)} is called with first argument as true
      *
@@ -1238,6 +1331,17 @@ public class MuxBaseExoPlayer extends EventBus implements IPlayerListener {
     protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host, String segmentMimeType
     ) {
+      // Populate segment time details.
+      if (player != null && player.get() != null) {
+        synchronized (currentTimelineWindow) {
+          try {
+            player.get().getCurrentTimeline()
+                .getWindow(player.get().getCurrentWindowIndex(), currentTimelineWindow);
+          } catch (Exception e) {
+            // Failed to obtrain data, ignore, we will get it on next call
+          }
+        }
+      }
       BandwidthMetricData segmentData = new BandwidthMetricData();
       // TODO RequestStart timestamp is currently not available from ExoPlayer
       segmentData.setRequestResponseStart(System.currentTimeMillis());

@@ -18,6 +18,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.model.CustomerData;
@@ -109,6 +110,25 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       buffering();
       playing();
     }
+  }
+
+  /**
+   * Extracts the tag value from live HLS segment, returns -1 if it is not an HLS stream, not a live
+   * playback.
+   *
+   * NOT SUPPORTED FOR THIS VERSION OF ExoPlayer
+   *
+   * @param tagName name of the tag to extract from the HLS manifest.
+   * @return tag value if tag is found and we are playing HLS live stream, -1 string otherwise.
+   */
+  @Override
+  protected String parseHlsManifestTag(String tagName) {
+    return "-1";
+  }
+
+  @Override
+  protected boolean isLivePlayback() {
+    return false;
   }
 
   @Override
