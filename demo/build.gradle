@@ -161,6 +161,12 @@ android {
         r2_15_1_ads {
             dimension 'api'
         }
+        r2_16_1 {
+            dimension 'api'
+        }
+        r2_16_1_ads {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -208,6 +214,12 @@ dependencies {
     r2_15_1Api 'com.google.android.exoplayer:extension-ima:2.15.1'
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
+
+    r2_16_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
+    r2_16_1Api 'com.google.android.exoplayer:extension-cronet:2.15.1'
+    r2_16_1Api 'com.google.android.exoplayer:extension-ima:2.15.1'
+    r2_16_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
+    r2_16_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
 
     notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
@@ -257,7 +269,9 @@ afterEvaluate {
         r2_13_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
         r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
         r2_14_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
-        r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
-        r2_14_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_15_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_15_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_16_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
+        r2_16_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
     }
 }

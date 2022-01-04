@@ -54,8 +54,8 @@ allprojects {
 
     project.ext {
         minSdkVersion=16
-        compileSdkVersion=30
-        targetSdkVersion=30
+        compileSdkVersion=31
+        targetSdkVersion=31
         releaseRepoName = 'exoplayer'
         releaseUserOrg = 'google'
         releaseGroupId = 'com.google.android.exoplayer'
