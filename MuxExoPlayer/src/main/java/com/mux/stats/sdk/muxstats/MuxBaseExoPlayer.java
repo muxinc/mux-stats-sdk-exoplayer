@@ -124,6 +124,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   /** This is used to update the current playback position in real time. */
   protected ExoPlayerHandler playerHandler;
   protected Timer updatePlayheadPositionTimer;
+  // Detect basic hardware details.
+  protected MuxDevice muxDevice;
 
   /** Here we store the {@link ExoPlayer} instance. */
   protected WeakReference<ExoPlayer> player;
@@ -252,7 +254,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     this.player = new WeakReference<>(player);
     this.contextRef = new WeakReference<>(ctx);
     state = PlayerState.INIT;
-    MuxStats.setHostDevice(new MuxDevice(ctx));
+    muxDevice = new MuxDevice(ctx);
+    MuxStats.setHostDevice(muxDevice);
     MuxStats.setHostNetworkApi(networkRequest);
     muxStats = new MuxStats(this, playerName, data, options);
     addListener(muxStats);
@@ -373,6 +376,17 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   @SuppressWarnings("unused")
   public CustomerData getCustomerData() {
     return muxStats.getCustomerData();
+  }
+
+  /**
+   * Value used here will be reported to the backend as a device name. If this method is not used
+   * then SDK will auto detect the device name. State will be reseted on every new view or video.
+   * @param deviceName, name to be used instead of auto detected value.
+   */
+  public void overwriteDeviceMetadata(String deviceName) {
+    if (muxDevice != null) {
+      muxDevice.overwriteDeviceMetadata(deviceName);
+    }
   }
 
   /**
@@ -1097,6 +1111,10 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     private String deviceId;
     private String appName = "";
     private String appVersion = "";
+    /**
+     * Use this value instead of auto detected name in case the value is different then null.
+     */
+    protected String metadataDeviceName = null;
 
     /**
      * Basic constructor.
@@ -1124,6 +1142,10 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       }
     }
 
+    public void overwriteDeviceMetadata(String deviceName) {
+      metadataDeviceName = deviceName;
+    }
+
     @Override
     public String getHardwareArchitecture() {
       return Build.HARDWARE;
@@ -1146,6 +1168,9 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     @Override
     public String getModelName() {
+      if (metadataDeviceName != null) {
+        return metadataDeviceName;
+      }
       return Build.MODEL;
     }
 
