@@ -215,11 +215,11 @@ dependencies {
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
 
-    r2_16_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
-    r2_16_1Api 'com.google.android.exoplayer:extension-cronet:2.15.1'
-    r2_16_1Api 'com.google.android.exoplayer:extension-ima:2.15.1'
-    r2_16_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
-    r2_16_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
+    r2_16_1_adsApi "com.google.android.gms:play-services-cronet:18.0.0"
+    r2_16_1Api 'com.google.android.exoplayer:extension-cronet:2.16.1'
+    r2_16_1Api 'com.google.android.exoplayer:extension-ima:2.16.1'
+    r2_16_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.16.1'
+    r2_16_1_adsApi 'com.google.android.exoplayer:extension-ima:2.16.1'
 
     notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
@@ -242,6 +242,7 @@ afterEvaluate {
         r2_15_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
         r2_15_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
 
+        // em - I don't think we need these. The dep is satisfied transitively from the sdk pom
         r2_9_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_9_6_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_10_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.10.6'
