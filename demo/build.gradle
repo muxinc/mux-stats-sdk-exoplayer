@@ -16,6 +16,15 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion project.ext.compileSdkVersion
 
+    // em - This is required for builds to succeed more than once, with the new Exoplayer release
+    //  We shouldn't need this block after we can upgrade to AGP 7.0, but we are waiting for an
+    //  update from fataar before we can take the update to 7.0
+    packagingOptions {
+        pickFirst 'META-INF/annotation-experimental_release.kotlin_module'
+        pickFirst 'META-INF/fragment_release.kotlin_module'
+        pickFirst 'META-INF/kotlin-stdlib.kotlin_module'
+    }
+
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
@@ -113,6 +122,16 @@ android {
             java.srcDirs = ['./src/r2_15_1_ads/java']
             res.srcDirs = ['./src/r2_15_1_ads/res']
             assets.srcDirs = ['./src/r2_15_1_ads/assets']
+        }
+        r2_16_1 {
+            java.srcDirs = ['./src/r2_16_1/java']
+            res.srcDirs = ['./src/r2_16_1/res']
+            assets.srcDirs = ['./src/r2_16_1/assets']
+        }
+        r2_16_1_ads {
+            java.srcDirs = ['./src/r2_16_1_ads/java']
+            res.srcDirs = ['./src/r2_16_1_ads/res']
+            assets.srcDirs = ['./src/r2_16_1_ads/assets']
         }
     }
 
