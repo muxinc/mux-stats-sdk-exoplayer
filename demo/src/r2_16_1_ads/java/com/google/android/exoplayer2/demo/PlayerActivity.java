@@ -206,7 +206,7 @@ public class PlayerActivity extends AppCompatActivity
     super.onSaveInstanceState(outState);
     updateTrackSelectorParameters();
     updateStartPosition();
-    outState.putParcelable(KEY_TRACK_SELECTOR_PARAMETERS, trackSelectorParameters);
+    outState.putParcelable(KEY_TRACK_SELECTOR_PARAMETERS, trackSelectorParameters.toBundle());
     outState.putBoolean(KEY_AUTO_PLAY, startAutoPlay);
     outState.putInt(KEY_WINDOW, startWindow);
     outState.putLong(KEY_POSITION, startPosition);
