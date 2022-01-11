@@ -59,12 +59,14 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.EventListener;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
+import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
+import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
@@ -718,7 +720,22 @@ import java.util.Map;
 
     // Check for a selected track using an audio renderer.
     TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
-    return TrackSelectionUtil.hasTrackOfType(trackSelections, C.TRACK_TYPE_AUDIO) ? 100 : 0;
+    return hasTrackOfType(trackSelections, C.TRACK_TYPE_AUDIO) ? 100 : 0;
+  }
+
+  private static boolean hasTrackOfType(TrackSelectionArray trackSelections, int trackType) {
+    for (int i = 0; i < trackSelections.length; i++) {
+      @Nullable TrackSelection trackSelection = trackSelections.get(i);
+      if (trackSelection == null) {
+        continue;
+      }
+      for (int j = 0; j < trackSelection.length(); j++) {
+        if (MimeTypes.getTrackType(trackSelection.getFormat(j).sampleMimeType) == trackType) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   private void handleAdEvent(AdEvent adEvent) {
