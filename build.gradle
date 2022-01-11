@@ -62,7 +62,7 @@ allprojects {
         releaseVersion = 'r2.1.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
 
-        muxCoreVersion = "7.0.7"
+        muxCoreVersion = "7.0.8"
     }
 }
 
