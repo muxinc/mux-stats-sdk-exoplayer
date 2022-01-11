@@ -38,6 +38,7 @@ import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
+import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -190,7 +191,7 @@ import java.util.Set;
       DataSchemeDataSource dataSchemeDataSource = new DataSchemeDataSource();
       try {
         dataSchemeDataSource.open(adTagDataSpec);
-        request.setAdsResponse(Util.fromUtf8Bytes(Util.readToEnd(dataSchemeDataSource)));
+        request.setAdsResponse(Util.fromUtf8Bytes(readToEnd(dataSchemeDataSource)));
       } finally {
         dataSchemeDataSource.close();
       }
@@ -198,6 +199,30 @@ import java.util.Set;
       request.setAdTagUrl(adTagDataSpec.uri.toString());
     }
     return request;
+  }
+
+  /**
+   * Reads data from the specified opened {@link DataSource} until it ends, and returns a byte array
+   * containing the read data. Stolen from last version of ExoPlayer's Util
+   *
+   * @param dataSource The source from which to read.
+   * @return The concatenation of all read data.
+   * @throws IOException If an error occurs reading from the source.
+   */
+  private static byte[] readToEnd(DataSource dataSource) throws IOException {
+    byte[] data = new byte[1024];
+    int position = 0;
+    int bytesRead = 0;
+    while (bytesRead != C.RESULT_END_OF_INPUT) {
+      if (position == data.length) {
+        data = Arrays.copyOf(data, data.length * 2);
+      }
+      bytesRead = dataSource.read(data, position, data.length - position);
+      if (bytesRead != C.RESULT_END_OF_INPUT) {
+        position += bytesRead;
+      }
+    }
+    return Arrays.copyOf(data, position);
   }
 
   /** Returns whether the ad error indicates that an entire ad group failed to load. */
