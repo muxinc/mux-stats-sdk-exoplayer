@@ -232,6 +232,7 @@ dependencies {
 
     notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
+    notFatAarImplementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }
 
 afterEvaluate {
