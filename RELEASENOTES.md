@@ -1,4 +1,21 @@
 # Release notes
+## v2.6.0
+### ExoPlayer SDK Changes
+#### Improvements
+* Add support for Exoplayer r2.16.1 (#185), Fixes #183
+* Update to AGP 7.0 (#185)
+* Add additional logging for Event dispatching errors
+* Add ability to override device name (#184)
+
+#### Fixes
+* Update to MuxCore 7.0.8 to address Issue #187
+
+### MuxCore Updates
+#### Improvements
+* Additional logging for possible event dispatch errors
+* Update Guava to unblock updates of androidX downstream
+#### Fixes
+* Fix Manual Fullscreen API causing issues with player view size
 
 ## v2.5.9
 ### Exoplayer SDK Changes
