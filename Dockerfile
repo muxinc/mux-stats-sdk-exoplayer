@@ -1,6 +1,6 @@
 # Based on https://github.com/ainoya/docker-android-project
 # then also from https://github.com/bitrise-io/android/blob/master/Dockerfile
-FROM openjdk:8u302
+FROM openjdk:11
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -11,7 +11,7 @@ ENV ANDROID_HOME /usr/local/android-sdk-linux
 # Install dependencies
 RUN dpkg --add-architecture i386 && \
     apt-get update && \
-    apt-get install -yq libstdc++6:i386 zlib1g:i386 libncurses5:i386 --no-install-recommends
+    apt-get install -yq libstdc++6:i386 zlib1g:i386 libncurses5:i386 wget:i386 unzip:i386 git --no-install-recommends
 
 # Download and untar SDK
 RUN cd /usr/local && \
@@ -31,16 +31,8 @@ RUN sdkmanager "build-tools;29.0.3" "platform-tools" "extras;android;m2repositor
 ENV TERM dumb
 ENV JAVA_OPTS -Xms256m -Xmx512m
 
-# Add data into image so we can later pull an initial set of dependencies
-RUN mkdir /data
-COPY . /data
-WORKDIR /data
-
 # Configure the Android SDK and ack the license agreement
 RUN echo "sdk.dir=$ANDROID_HOME" > local.properties
-
-# Pull all our dependencies into the image
-RUN ./gradlew --info androidDependencies
 
 # Run build task by default
 CMD ./gradlew --info clean build
