@@ -40,7 +40,17 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
+
+        repositories {
+            maven {
+                url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
+                credentials {
+                    username = artifactoryUsername
+                    password = artifactoryPassword
+                }
+            }
+
+        }
 
         // Both our release and dev repos are imported
         maven {
