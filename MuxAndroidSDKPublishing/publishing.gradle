@@ -40,7 +40,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        //jcenter()
+        jcenter()
 
         // Both our release and dev repos are imported
         maven {
