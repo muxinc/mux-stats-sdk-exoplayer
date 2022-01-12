@@ -114,6 +114,16 @@ android {
             res.srcDirs = ['./src/r2_15_1_ads/res']
             assets.srcDirs = ['./src/r2_15_1_ads/assets']
         }
+        r2_16_1 {
+            java.srcDirs = ['./src/r2_16_1/java']
+            res.srcDirs = ['./src/r2_16_1/res']
+            assets.srcDirs = ['./src/r2_16_1/assets']
+        }
+        r2_16_1_ads {
+            java.srcDirs = ['./src/r2_16_1_ads/java']
+            res.srcDirs = ['./src/r2_16_1_ads/res']
+            assets.srcDirs = ['./src/r2_16_1_ads/assets']
+        }
     }
 
     flavorDimensions('api')
@@ -161,6 +171,12 @@ android {
         r2_15_1_ads {
             dimension 'api'
         }
+        r2_16_1 {
+            dimension 'api'
+        }
+        r2_16_1_ads {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -172,12 +188,11 @@ android {
 apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
 
 dependencies {
-    implementation 'androidx.annotation:annotation:1.1.0'
-    implementation 'androidx.legacy:legacy-support-core-ui:1.0.0'
-    implementation 'androidx.fragment:fragment:1.1.0'
-    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.annotation:annotation:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.fragment:fragment:1.4.0'
+    implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.multidex:multidex:2.0.1'
-    implementation 'com.android.support:multidex:1.0.3'
 
     // Include the below to test ads for each product flavor that supports them
     r2_9_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
@@ -209,8 +224,15 @@ dependencies {
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
     r2_15_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
 
+    r2_16_1_adsApi "com.google.android.gms:play-services-cronet:18.0.1"
+    r2_16_1Api 'com.google.android.exoplayer:extension-cronet:2.16.1'
+    r2_16_1Api 'com.google.android.exoplayer:extension-ima:2.16.1'
+    r2_16_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.16.1'
+    r2_16_1_adsApi 'com.google.android.exoplayer:extension-ima:2.16.1'
+
     notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
+    notFatAarImplementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }
 
 afterEvaluate {
@@ -230,6 +252,7 @@ afterEvaluate {
         r2_15_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
         r2_15_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
 
+        // em - I don't think we need these. The dep is satisfied transitively from the sdk pom
         r2_9_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_9_6_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_10_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.10.6'
@@ -244,6 +267,8 @@ afterEvaluate {
         r2_14_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.14.1'
         r2_15_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.15.1'
         r2_15_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.15.1'
+        r2_16_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.16.1'
+        r2_16_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.16.1'
 
         r2_9_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
         r2_9_6_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
@@ -257,7 +282,9 @@ afterEvaluate {
         r2_13_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
         r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
         r2_14_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
-        r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
-        r2_14_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_15_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_15_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_16_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
+        r2_16_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
     }
 }

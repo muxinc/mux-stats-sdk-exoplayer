@@ -30,7 +30,7 @@ android {
     defaultConfig {
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.targetSdkVersion
-        versionCode 36
+        versionCode 37
         versionName project.ext.versionName
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -108,6 +108,12 @@ android {
             dimension 'api'
         }
         r2_15_1_ads {
+            dimension 'api'
+        }
+        r2_16_1 {
+            dimension 'api'
+        }
+        r2_16_1_ads {
             dimension 'api'
         }
     }
@@ -192,11 +198,16 @@ dependencies {
     r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer:2.15.1'
     r2_15_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
 
+    r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+    r2_16_1Api 'org.checkerframework:checker-qual:2.5.2'
+    r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer:2.16.1'
+    r2_16_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    def muxCoreImport = 'com.mux:stats.muxcore:7.0.7'
+    def muxCoreImport = "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 
     debugApi muxCoreImport
     releaseEmbed muxCoreImport

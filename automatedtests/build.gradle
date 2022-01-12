@@ -7,7 +7,9 @@ android {
     defaultConfig {
         applicationId "com.mux.stats.sdk.muxstats.automatedtests"
         minSdkVersion 18
-        targetSdkVersion project.ext.targetSdkVersion
+        // Target SDK 31 causes manifest merger errors. One of our dependencies is not setting
+        //  `android:exported` for an Activity. Error logs have no more useful information
+        targetSdkVersion 30 //project.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
@@ -78,6 +80,9 @@ android {
         r2_15_1 {
             dimension 'api'
         }
+        r2_16_1 {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -90,7 +95,7 @@ apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.3'
     implementation 'androidx.navigation:navigation-fragment:2.3.1'
@@ -115,6 +120,7 @@ dependencies {
     androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
     androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+    androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
     api 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
@@ -133,6 +139,8 @@ dependencies {
     r2_14_1Api 'com.google.android.exoplayer:extension-mediasession:2.14.1'
     r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
     r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
+    r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+    r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
 }
 
 afterEvaluate {
@@ -144,5 +152,6 @@ afterEvaluate {
         r2_13_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
         r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
         r2_15_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+        r2_16_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
     }
 }
