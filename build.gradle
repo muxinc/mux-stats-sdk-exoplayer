@@ -19,7 +19,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
+        //jcenter()
     }
 
     dependencies {
@@ -36,7 +36,8 @@ allprojects {
 
     repositories {
         google()
-        jcenter()
+        mavenCentral()
+        //jcenter()
 
         // Both our release and dev repos are imported
         maven {
