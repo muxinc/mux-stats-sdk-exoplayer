@@ -19,7 +19,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter()
+        mavenLocal()
     }
 
     dependencies {
@@ -36,7 +36,7 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        jcenter()
+        mavenLocal()
 
         maven {
             url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
