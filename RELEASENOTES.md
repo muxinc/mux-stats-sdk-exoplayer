@@ -1,4 +1,11 @@
 # Release notes
+## 2.6.1
+### Fixes
+* Update to MuxCore v7.0.10 (#192)
+
+### MuxCore Fixes
+* Fix event-handling issues in rare cases
+
 ## v2.6.0
 ### ExoPlayer SDK Changes
 #### Improvements
