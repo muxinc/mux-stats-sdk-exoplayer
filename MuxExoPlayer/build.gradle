@@ -116,6 +116,12 @@ android {
         r2_16_1_ads {
             dimension 'api'
         }
+        r2_17_1 {
+            dimension 'api'
+        }
+        r2_17_1_ads {
+            dimension 'api'
+        }
     }
 
     // Attach the java src directory relevant for each flavor created
@@ -202,6 +208,11 @@ dependencies {
     r2_16_1Api 'org.checkerframework:checker-qual:2.5.2'
     r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer:2.16.1'
     r2_16_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+
+    r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+    r2_17_1Api 'org.checkerframework:checker-qual:2.5.2'
+    r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer:2.17.1'
+    r2_17_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
 
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
