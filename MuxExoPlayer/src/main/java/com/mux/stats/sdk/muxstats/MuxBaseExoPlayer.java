@@ -337,6 +337,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
   protected abstract String parseHlsManifestTag(String tagName);
 
+  protected static final String SESSION_TAG_PREFIX = "io.litix.data.";
+
+  protected List<String> parseSessionTags(List<String> rawTags) {
+    //noinspection ConstantConditions
+    return Util.filter(rawTags, new ArrayList<>(), tag -> tag.startsWith(SESSION_TAG_PREFIX));
+  }
+
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
    * headers that are not in the {@link BandwidthMetricDispatcher#allowedHeaders} list.
@@ -764,7 +771,15 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoHoldback() {
-    return parseHlsManifestTagLong("HOLD-BACK");
+    dumpSomeTags();
+    return isLivePlayback()? parseHlsManifestTagLong("HOLD-BACK") : null;
+  }
+
+  private void dumpSomeTags() {
+    String sessionTag = parseHlsManifestTag("EXT-X-SESSION-DATA");
+    String versionTag = parseHlsManifestTag("EXT-X-VERSION");
+    Log.d("sessiondata", "Version is " + versionTag);
+    Log.i("sessiondata", "Session Tag is " + sessionTag);
   }
 
   /**
@@ -775,7 +790,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoPartHoldback() {
-    return parseHlsManifestTagLong("PART-HOLD-BACK");
+    return isLivePlayback()? parseHlsManifestTagLong("PART-HOLD-BACK") : null;
   }
 
   /**
@@ -786,7 +801,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoPartTargetDuration() {
-    return parseHlsManifestTagLong("PART-TARGET");
+    return isLivePlayback()? parseHlsManifestTagLong("PART-TARGET") : null;
   }
 
   /**
@@ -797,7 +812,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoTargetDuration() {
-    return parseHlsManifestTagLong("EXT-X-TARGETDURATION");
+    return isLivePlayback()? parseHlsManifestTagLong("EXT-X-TARGETDURATION") : null;
   }
 
   /**
@@ -891,6 +906,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    * {@link PlayerState#PLAYING}
    */
   protected void playing() {
+
     if (seekingInProgress) {
       // We will dispatch playing event after seeked event
       return;
@@ -1021,7 +1037,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * See {{@link #parseHlsManifestTagLong(String)}}, parse the tag value as a Long value.
+   * See {{@link #parseHlsManifestTag(String)}}, parse the tag value as a Long value.
    * @param tagName tag name to parse
    * @return Long value of the tag if possible, -1 otherwise.
    */

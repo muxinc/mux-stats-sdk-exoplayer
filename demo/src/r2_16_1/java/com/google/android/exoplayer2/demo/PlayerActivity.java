@@ -72,6 +72,7 @@ import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -563,6 +564,11 @@ public class PlayerActivity extends AppCompatActivity
   }
 
   private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
+    if (Boolean.TRUE == true) {
+      MediaItem item = MediaItem.fromUri("https://88d7-73-189-3-20.ngrok.io/master.m3u8");
+      return Arrays.asList(item);
+    }
+
     List<MediaItem> mediaItems = new ArrayList<>();
     for (MediaItem item : IntentUtil.createMediaItemsFromIntent(intent)) {
       @Nullable
