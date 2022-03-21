@@ -65,6 +65,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.MatchResult;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class connects the {@link ExoPlayer}, {@link MuxStats} and
@@ -337,11 +340,51 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
   protected abstract String parseHlsManifestTag(String tagName);
 
-  protected static final String SESSION_TAG_PREFIX = "io.litix.data.";
+  protected static final Pattern RX_SESSION_TAG_DATA_ID = Pattern.compile("DATA-ID=\"(.*)\",");
+  protected static final Pattern RX_SESSION_TAG_VALUES = Pattern.compile("VALUE=\"(.*)\"");
+  protected static final String HLS_SESSION_DATA_PREFIX = "io.litix.data.";
 
-  protected List<String> parseSessionTags(List<String> rawTags) {
+  protected List<String> filterHlsSessionTags(List<String> rawTags) {
     //noinspection ConstantConditions
-    return Util.filter(rawTags, new ArrayList<>(), tag -> tag.startsWith(SESSION_TAG_PREFIX));
+    return Util.filter(rawTags, new ArrayList<>(), tag -> tag.substring(1).startsWith("EXT-X-SESSION-DATA"));
+  }
+
+  protected SessionData parseSessionData(String line) {
+    Matcher dataId = RX_SESSION_TAG_DATA_ID.matcher(line);
+    Matcher value = RX_SESSION_TAG_VALUES.matcher(line);
+    String parsedDataId = "";
+    String parsedValue = "";
+
+    if(dataId.find()) {
+      parsedDataId = dataId.group(1);
+    } else {
+      MuxLogger.d(TAG, "Data-ID not found in session data: " + line);
+    }
+    if(value.find()) {
+      parsedValue = value.group(1);
+    } else {
+      MuxLogger.d(TAG, "Value not found in session data: " + line);
+    }
+
+    return new SessionData(parsedDataId, parsedValue);
+  }
+
+  protected static class SessionData {
+    public final String dataId;
+    public final String value;
+
+    public SessionData(String dataId, String value) {
+      this.dataId = dataId;
+      this.value = value;
+    }
+
+    @Override
+    public String toString() {
+      return "SessionData{" +
+          "dataId='" + dataId + '\'' +
+          ", value='" + value + '\'' +
+          '}';
+    }
   }
 
   /**
@@ -771,15 +814,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoHoldback() {
-    dumpSomeTags();
     return isLivePlayback()? parseHlsManifestTagLong("HOLD-BACK") : null;
-  }
-
-  private void dumpSomeTags() {
-    String sessionTag = parseHlsManifestTag("EXT-X-SESSION-DATA");
-    String versionTag = parseHlsManifestTag("EXT-X-VERSION");
-    Log.d("sessiondata", "Version is " + versionTag);
-    Log.i("sessiondata", "Session Tag is " + sessionTag);
   }
 
   /**

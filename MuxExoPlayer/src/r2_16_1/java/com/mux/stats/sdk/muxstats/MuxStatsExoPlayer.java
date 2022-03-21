@@ -128,14 +128,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
    */
   @Override
   protected String parseHlsManifestTag(String tagName) {
-    Log.d("TAGTAG", "parsing hls manifest tag: " + tagName);
     synchronized (currentTimelineWindow) {
-      Log.d("TAGTAG", "Current timeline window is " + currentTimelineWindow);
       if (currentTimelineWindow != null && currentTimelineWindow.manifest != null
           && tagName != null && tagName.length() > 0) {
         if (currentTimelineWindow.manifest instanceof HlsManifest) {
           HlsManifest manifest = (HlsManifest) currentTimelineWindow.manifest;
-          Log.d("TAGTAG", "playlist tags " + manifest.mediaPlaylist.tags);
           if (manifest.mediaPlaylist.tags != null) {
             for (String tag : manifest.mediaPlaylist.tags) {
               if (tag.contains(tagName)) {
@@ -146,7 +143,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
                 if (value.startsWith("=") || value.startsWith(":")) {
                   value = value.substring(1, value.length());
                 }
-                Log.i("TAGTAG", "Parsed tag value " + value);
                 return value;
               }
             }
@@ -155,7 +151,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       }
     }
 
-    Log.i("TAGTAG", "No tag with that value");
     return "-1";
   }
 
@@ -551,8 +546,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       Log.v("sessiondata2", "onTimelineChanged(): manifest is " + manifest);
       if(manifest != null) {
         List<String> tags = manifest.masterPlaylist.tags;
-        for (String tag : tags) {
-          Log.d("sessiondata2", "tag " + tag);
+        List<String> sessionTags = filterHlsSessionTags(tags);
+        for(String sessionTag: sessionTags) {
+          SessionData data = parseSessionData(sessionTag);
+          Log.d("sessiondata2", "Parsed session data " + data);
         }
       }
     }

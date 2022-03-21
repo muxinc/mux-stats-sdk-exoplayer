@@ -565,7 +565,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
     if (Boolean.TRUE == true) {
-      MediaItem item = MediaItem.fromUri("https://88d7-73-189-3-20.ngrok.io/master.m3u8");
+      MediaItem item = MediaItem.fromUri("https://ff07-73-189-3-20.ngrok.io/master.m3u8");
       return Arrays.asList(item);
     }
 

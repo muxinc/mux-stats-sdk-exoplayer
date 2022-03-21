@@ -23,6 +23,7 @@ import java.util.List;
   /**
    * Filters only the items satisfying the predicate into the supplied Collection
    * @param iter
+   * @param out
    * @param predicate
    * @param <T>
    * @return
