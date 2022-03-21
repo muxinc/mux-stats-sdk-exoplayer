@@ -59,13 +59,13 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -158,6 +158,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   @Deprecated
   protected int streamType = -1;
   protected long firstFrameRenderedAt = -1;
+
+  protected static final Pattern RX_SESSION_TAG_DATA_ID = Pattern.compile("DATA-ID=\"(.*)\",");
+  protected static final Pattern RX_SESSION_TAG_VALUES = Pattern.compile("VALUE=\"(.*)\"");
+  /** HLS session data tags with this Data ID will be sent to Mux Data */
+  protected static final String HLS_SESSION_DATA_PREFIX = "io.litix.data.";
+  /** If playing HLS, Contains the EXT-X-SESSION info for the video being played */
+  protected List<SessionData> sessionTags = new LinkedList<>();
 
   /**
    * These are the different playback states that are monitored internally. {@link ExoPlayer} keeps
@@ -340,16 +347,28 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
   protected abstract String parseHlsManifestTag(String tagName);
 
-  protected static final Pattern RX_SESSION_TAG_DATA_ID = Pattern.compile("DATA-ID=\"(.*)\",");
-  protected static final Pattern RX_SESSION_TAG_VALUES = Pattern.compile("VALUE=\"(.*)\"");
-  protected static final String HLS_SESSION_DATA_PREFIX = "io.litix.data.";
-
   protected List<String> filterHlsSessionTags(List<String> rawTags) {
     //noinspection ConstantConditions
     return Util.filter(rawTags, new ArrayList<>(), tag -> tag.substring(1).startsWith("EXT-X-SESSION-DATA"));
   }
 
-  protected SessionData parseSessionData(String line) {
+  protected void onMainPlaylistTags(List<String> playlistTags) {
+    List<SessionData> newSessionData = new LinkedList<>();
+    for(String tag : filterHlsSessionTags(playlistTags)) {
+      SessionData data = parseHlsSessionData(tag);
+      if(data.dataId.startsWith(HLS_SESSION_DATA_PREFIX)) {
+        newSessionData.add(data);
+      }
+    }
+
+    // dispatch new session data on change only
+    if(!newSessionData.equals(sessionTags)) {
+      sessionTags = newSessionData;
+      // TODO: Dispatch Session Data Event
+    }
+  }
+
+  protected SessionData parseHlsSessionData(String line) {
     Matcher dataId = RX_SESSION_TAG_DATA_ID.matcher(line);
     Matcher value = RX_SESSION_TAG_VALUES.matcher(line);
     String parsedDataId = "";
@@ -510,6 +529,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     state = PlayerState.INIT;
     resetInternalStats();
     muxStats.videoChange(customerVideoData);
+    sessionTags = null;
   }
 
   /**

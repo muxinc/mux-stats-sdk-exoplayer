@@ -1,7 +1,6 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -31,7 +30,6 @@ import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
-import java.util.List;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
     Player.Listener {
@@ -539,18 +537,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, int reason) {
-    Log.d("sessiondata2", "onTimelineChanged(): called");
     ExoPlayer exoPlayer = player.get();
     if(exoPlayer != null) {
       HlsManifest manifest = Util.safeCast(exoPlayer.getCurrentManifest(), HlsManifest.class);
-      Log.v("sessiondata2", "onTimelineChanged(): manifest is " + manifest);
       if(manifest != null) {
-        List<String> tags = manifest.masterPlaylist.tags;
-        List<String> sessionTags = filterHlsSessionTags(tags);
-        for(String sessionTag: sessionTags) {
-          SessionData data = parseSessionData(sessionTag);
-          Log.d("sessiondata2", "Parsed session data " + data);
-        }
+        onMainPlaylistTags(manifest.masterPlaylist.tags);
       }
     }
 

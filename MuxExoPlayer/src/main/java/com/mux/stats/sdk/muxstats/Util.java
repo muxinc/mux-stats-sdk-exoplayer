@@ -22,6 +22,7 @@ import java.util.List;
 
   /**
    * Filters only the items satisfying the predicate into the supplied Collection
+   *
    * @param iter
    * @param out
    * @param predicate
@@ -29,8 +30,8 @@ import java.util.List;
    * @return
    */
   public static <T> List<T> filter(Iterable<T> iter, List<T> out, Function<T, Boolean> predicate) {
-    for(T t : iter) {
-      if(predicate.apply(t) == Boolean.TRUE) {
+    for (T t : iter) {
+      if (predicate.apply(t) == Boolean.TRUE) {
         out.add(t);
       }
     }
