@@ -17,6 +17,8 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.RequiresApi;
+
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -28,6 +30,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.common.base.Objects;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -395,6 +398,19 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     public SessionData(String dataId, String value) {
       this.dataId = dataId;
       this.value = value;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      SessionData that = (SessionData) o;
+      return Objects.equal(dataId, that.dataId) && Objects.equal(value, that.value);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hashCode(dataId, value);
     }
 
     @Override
