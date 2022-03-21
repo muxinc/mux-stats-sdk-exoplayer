@@ -368,6 +368,10 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     if(!newSessionData.equals(sessionTags)) {
       sessionTags = newSessionData;
       // TODO: Dispatch Session Data Event
+      Map<String, String> tagMap = new HashMap<>();
+      for(SessionData data: sessionTags) {
+        tagMap.put(data.dataId, data.value);
+      }
     }
   }
 
