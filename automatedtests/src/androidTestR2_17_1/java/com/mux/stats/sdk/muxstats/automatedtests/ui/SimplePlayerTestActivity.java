@@ -39,7 +39,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 
 
-public class SimplePlayerTestActivity extends SimplePlayerBaseActivity  {
+public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
 
   MediaSourceFactory mediaSourceFactory;
 

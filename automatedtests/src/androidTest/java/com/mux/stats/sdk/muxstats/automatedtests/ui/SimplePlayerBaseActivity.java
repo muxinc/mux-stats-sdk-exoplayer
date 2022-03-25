@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -48,7 +49,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
-  Player.EventListener  {
+    Player.Listener {
 
   static final String TAG = "SimplePlayerActivity";
 
@@ -61,7 +62,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
   String videoTitle = "Test Video";
   String urlToPlay;
   PlayerView playerView;
-  SimpleExoPlayer player;
+  Player player;
   DefaultTrackSelector trackSelector;
   MediaSource testMediaSource;
   MuxStatsExoPlayer muxStats;
@@ -213,7 +214,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     mockNetwork = new MockNetworkRequest();
     CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
     muxStats = new MuxStatsExoPlayer(
-        this, player, "demo-player", customerData, true, mockNetwork);
+        this, (ExoPlayer) player, "demo-player", customerData, true, mockNetwork);
     Point size = new Point();
     getWindowManager().getDefaultDisplay().getSize(size);
     muxStats.setScreenSize(size.x, size.y);
@@ -365,77 +366,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
   }
 
-  //////////////////////////////////////////////////////////////////////
-  ////// Player.EventListener //////////////////////////////////////////
-
-//  @Override
-//  public void onPositionDiscontinuity(
-//      PositionInfo oldPosition, PositionInfo newPosition, int reason) {
-//    if (reason == Player.DISCONTINUITY_REASON_SEEK) {
-//      signalSeekEnded();
-//    }
-//  }
-
-  @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-
-  }
-
-  @Override
-  public void onLoadingChanged(boolean isLoading) {
-
-  }
-
-  @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    switch (playbackState) {
-      case Player.STATE_BUFFERING:
-        signalPlaybackBuffering();
-        break;
-      case Player.STATE_ENDED:
-        signalPlaybackEnded();
-        break;
-      case Player.STATE_READY:
-        // By the time we get here, it depends on playWhenReady to know if we're playing
-        if (playWhenReady) {
-          signalPlaybackStarted();
-        } else {
-          // TODO implement this
-//                    signalPlaybackPaused();
-        }
-      case Player.STATE_IDLE:
-        signalPlaybackStopped();
-        break;
-    }
-  }
-
-  @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    activityLock.lock();
-    activityInitialized.signalAll();
-    activityLock.unlock();
-  }
-
-  @Override
-  public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
-
-  }
-
-  @Override
-  public void onPositionDiscontinuity(int reason) {
-
-  }
-
-  @Override
-  public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
-
-  }
-
-  @Override
-  public void onSeekProcessed() {
-
-  }
-
   class MDAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
 
     @Override
@@ -480,5 +410,38 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
       drawable.draw(cnvs);
       return bmp;
     }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  ////// Player.EventListener //////////////////////////////////////////
+
+  @Override
+  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    switch (playbackState) {
+      case Player.STATE_BUFFERING:
+        signalPlaybackBuffering();
+        break;
+      case Player.STATE_ENDED:
+        signalPlaybackEnded();
+        break;
+      case Player.STATE_READY:
+        // By the time we get here, it depends on playWhenReady to know if we're playing
+        if (playWhenReady) {
+          signalPlaybackStarted();
+        } else {
+          // TODO implement this
+//                    signalPlaybackPaused();
+        }
+      case Player.STATE_IDLE:
+        signalPlaybackStopped();
+        break;
+    }
+  }
+
+  @Override
+  public void onRepeatModeChanged(int repeatMode) {
+    activityLock.lock();
+    activityInitialized.signalAll();
+    activityLock.unlock();
   }
 }

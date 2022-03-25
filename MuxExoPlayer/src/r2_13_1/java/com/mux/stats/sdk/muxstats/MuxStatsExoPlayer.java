@@ -227,7 +227,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
       bandwidthDispatcher
-          .onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
+          .onLoadCanceled(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(),
+              loadEventInfo.responseHeaders);
     } else {
       MuxLogger.d(TAG,
           "ERROR: onLoadCanceled called but mediaLoadData argument have no uri parameter.");
@@ -239,8 +240,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
-          mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
+      bandwidthDispatcher.onLoadCompleted(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(),
+          loadEventInfo.bytesLoaded, mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
     } else {
       MuxLogger.d(TAG,
           "ERROR: onLoadCompleted called but mediaLoadData argument have no uri parameter.");
@@ -253,7 +254,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
     if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
+      bandwidthDispatcher.onLoadError(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(), e);
     } else {
       MuxLogger.d(TAG,
           "ERROR: onLoadError called but mediaLoadData argument have no uri parameter.");
@@ -270,8 +271,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         segmentMimeType = mediaLoadData.trackFormat.sampleMimeType;
       }
       bandwidthDispatcher
-          .onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
-              loadEventInfo.uri.getPath(), mediaLoadData.dataType,
+          .onLoadStarted(loadEventInfo.loadTaskId, mediaLoadData.mediaStartTimeMs,
+              mediaLoadData.mediaEndTimeMs, loadEventInfo.uri.getPath(), mediaLoadData.dataType,
               loadEventInfo.uri.getHost(), segmentMimeType);
     } else {
       MuxLogger.d(TAG,

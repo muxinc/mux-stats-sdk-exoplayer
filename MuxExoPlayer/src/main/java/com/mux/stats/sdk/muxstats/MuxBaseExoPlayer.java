@@ -1309,19 +1309,19 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * Each segment that started loading is stored here until the segment ceases loading.
      * The segment url is the key value of the map.
      */
-    HashMap<String, BandwidthMetricData> loadedSegments = new HashMap<>();
+    HashMap<Long, BandwidthMetricData> loadedSegments = new HashMap<>();
 
     /**
      * When the segment failed to load an error will be reported to the backend. This also
      * removes the segment that failed to load from the {@link #loadedSegments} hash map.
      *
-     * @param segmentUrl, url of the segment that failed to load.
+     * @param loadTaskId, unique segment id.
      * @param e, error that occured.
      * @return segment that failed to load.
      */
-    public BandwidthMetricData onLoadError(String segmentUrl,
+    public BandwidthMetricData onLoadError(Long loadTaskId,
         IOException e) {
-      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      BandwidthMetricData segmentData = loadedSegments.get(loadTaskId);
       if (segmentData == null) {
         segmentData = new BandwidthMetricData();
         // TODO We should see how to put minimal stats here !!!
@@ -1339,11 +1339,11 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * the player stopped the playback and wants to stop all network loading. In that case we will
      * remove the appropriate segment from {@link #loadedSegments}.
      *
-     * @param segmentUrl, url of the segment that wants to be loaded.
+     * @param loadTaskId, unique id that represent the loaded segment.
      * @return Canceled segment.
      */
-    public BandwidthMetricData onLoadCanceled(String segmentUrl) {
-      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+    public BandwidthMetricData onLoadCanceled(Long loadTaskId) {
+      BandwidthMetricData segmentData = loadedSegments.get(loadTaskId);
       if (segmentData == null) {
         segmentData = new BandwidthMetricData();
         // TODO We should see how to put minimal stats here !!!
@@ -1353,7 +1353,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       return segmentData;
     }
 
-    protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
+    protected BandwidthMetricData onLoad(Long loadTaskId, long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host, String segmentMimeType
     ) {
       // Populate segment time details.
@@ -1396,15 +1396,15 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       segmentData.setRequestResponseHeaders(null);
       segmentData.setRequestHostName(host);
       segmentData.setRequestRenditionLists(renditionList);
-      loadedSegments.put(segmentUrl, segmentData);
+      loadedSegments.put(loadTaskId, segmentData);
       return segmentData;
     }
 
     /**
      * Called when a segment starts loading. Set appropriate metrics and store the segment in
      * {@link #loadedSegments}. It will be then sent to the backend once the appropriate one of
-     * {@link #onLoadCompleted(String, long, Format)} ,{@link #onLoadError(String, IOException)} or
-     * {@link #onLoadCanceled(String)} is called for this segment.
+     * {@link #onLoadCompleted(Long, String, long, Format)} ,{@link #onLoadError(Long, IOException)}
+     * or {@link #onLoadCanceled(Long)}  is called for this segment.
      *
      * @param mediaStartTimeMs, {@link ExoPlayer} reported segment playback start time, this refer
      *                                           to playback position of segment inside the media
@@ -1418,9 +1418,9 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * @param host, host associated with this segment.
      * @return new segment.
      */
-    public BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
+    public BandwidthMetricData onLoadStarted(Long loadTaskId, long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host, String segmentMimeType) {
-      BandwidthMetricData loadData = onLoad(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
+      BandwidthMetricData loadData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs, segmentUrl
           , dataType, host, segmentMimeType);
       if (loadData != null) {
         loadData.setRequestResponseStart(System.currentTimeMillis());
@@ -1432,14 +1432,15 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * Called when segment is loaded. This function will retrieve the statistics for this segment
      * from {@link #loadedSegments} and fill out the remaining metrics.
      *
+     * @param loadTaskId unique id representing the current segment.
      * @param segmentUrl url related to the segment.
      * @param bytesLoaded number of bytes needed to load the segment.
      * @param trackFormat Media details related to the segment.
      * @return loaded segment.
      */
-    public BandwidthMetricData onLoadCompleted(String segmentUrl, long bytesLoaded,
+    public BandwidthMetricData onLoadCompleted(Long loadTaskId, String segmentUrl, long bytesLoaded,
         Format trackFormat) {
-      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      BandwidthMetricData segmentData = loadedSegments.get(loadTaskId);
       if (segmentData == null) {
         return null;
       }
@@ -1458,7 +1459,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
           }
         }
       }
-      loadedSegments.remove(segmentUrl);
+      loadedSegments.remove(loadTaskId);
       return segmentData;
     }
   }
@@ -1466,24 +1467,24 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   class BandwidthMetricHls extends BandwidthMetric {
 
     @Override
-    public BandwidthMetricData onLoadError(String segmentUrl,
+    public BandwidthMetricData onLoadError(Long loadedSegments,
         IOException e) {
-      BandwidthMetricData loadData = super.onLoadError(segmentUrl, e);
+      BandwidthMetricData loadData = super.onLoadError(loadedSegments, e);
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCanceled(String segmentUrl) {
-      BandwidthMetricData loadData = super.onLoadCanceled(segmentUrl);
+    public BandwidthMetricData onLoadCanceled(Long loadTaskId) {
+      BandwidthMetricData loadData = super.onLoadCanceled(loadTaskId);
       loadData.setRequestCancel("FragLoadEmergencyAborted");
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCompleted(String segmentUrl,
+    public BandwidthMetricData onLoadCompleted(Long loadTaskId, String segmentUrl,
         long bytesLoaded,
         Format trackFormat) {
-      BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
+      BandwidthMetricData loadData = super.onLoadCompleted(loadTaskId, segmentUrl, bytesLoaded, trackFormat);
       if (trackFormat != null && loadData != null) {
         MuxLogger.d(TAG, "\n\nWe got new rendition quality: " + trackFormat.bitrate + "\n\n");
         loadData.setRequestLabeledBitrate(trackFormat.bitrate);
@@ -1513,44 +1514,44 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       return bandwidthMetricHls;
     }
 
-    public void onLoadError(String segmentUrl, IOException e) {
+    public void onLoadError(Long loadTaskId, String segmentUrl, IOException e) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(segmentUrl, e);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(loadTaskId, e);
       dispatch(loadData, new RequestFailed(null));
     }
 
-    public void onLoadCanceled(String segmentUrl, Map<String, List<String>> headers) {
+    public void onLoadCanceled(long loadTaskId, String segmentUrl, Map<String, List<String>> headers) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(segmentUrl);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(loadTaskId);
       parseHeaders(loadData, headers);
       dispatch(loadData, new RequestCanceled(null));
     }
 
-    public void onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
+    public void onLoadStarted(Long loadTaskId, long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
         int dataType, String host, String segmentMimeType) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      currentBandwidthMetric().onLoadStarted(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
+      currentBandwidthMetric().onLoadStarted(loadTaskId, mediaStartTimeMs, mediaEndTimeMs, segmentUrl
           , dataType, host, segmentMimeType);
     }
 
     public void onLoadCompleted(
-        String segmentUrl, long bytesLoaded, Format trackFormat,
+        Long loadTaskId, String segmentUrl, long bytesLoaded, Format trackFormat,
         Map<String, List<String>> responseHeaders) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
       BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(
-          segmentUrl, bytesLoaded, trackFormat);
+          loadTaskId, segmentUrl, bytesLoaded, trackFormat);
       if (loadData != null) {
         parseHeaders(loadData, responseHeaders);
         dispatch(loadData, new RequestCompleted(null));

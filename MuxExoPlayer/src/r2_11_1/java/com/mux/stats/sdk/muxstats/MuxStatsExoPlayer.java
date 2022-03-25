@@ -230,45 +230,18 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadStarted(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    if (loadEventInfo.uri != null) {
-      String segmentMimeType = "unknown";
-      if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.sampleMimeType != null) {
-        segmentMimeType = mediaLoadData.trackFormat.sampleMimeType;
-      }
-      bandwidthDispatcher
-          .onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
-              loadEventInfo.uri.getPath(), mediaLoadData.dataType,
-              loadEventInfo.uri.getHost(), segmentMimeType);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadStarted called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
   public void onLoadCompleted(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
-          mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadCompleted called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
   public void onLoadCanceled(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    if (loadEventInfo.uri != null) {
-      bandwidthDispatcher
-          .onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadCanceled called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
@@ -276,12 +249,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadError called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
