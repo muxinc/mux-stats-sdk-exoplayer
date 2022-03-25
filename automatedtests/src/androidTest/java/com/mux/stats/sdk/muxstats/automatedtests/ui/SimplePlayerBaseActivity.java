@@ -48,8 +48,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
-    Player.EventListener {
+public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
 
   static final String TAG = "SimplePlayerActivity";
 
@@ -97,7 +96,6 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
     playerView = findViewById(R.id.player_view);
 
     initExoPlayer();
-    player.addListener(this);
     playerView.setPlayer(player);
 
     // Do not hide controlls
@@ -410,38 +408,5 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity impleme
       drawable.draw(cnvs);
       return bmp;
     }
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  ////// Player.EventListener //////////////////////////////////////////
-
-  @Override
-  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
-    switch (playbackState) {
-      case Player.STATE_BUFFERING:
-        signalPlaybackBuffering();
-        break;
-      case Player.STATE_ENDED:
-        signalPlaybackEnded();
-        break;
-      case Player.STATE_READY:
-        // By the time we get here, it depends on playWhenReady to know if we're playing
-        if (playWhenReady) {
-          signalPlaybackStarted();
-        } else {
-          // TODO implement this
-//                    signalPlaybackPaused();
-        }
-      case Player.STATE_IDLE:
-        signalPlaybackStopped();
-        break;
-    }
-  }
-
-  @Override
-  public void onRepeatModeChanged(int repeatMode) {
-    activityLock.lock();
-    activityInitialized.signalAll();
-    activityLock.unlock();
   }
 }
