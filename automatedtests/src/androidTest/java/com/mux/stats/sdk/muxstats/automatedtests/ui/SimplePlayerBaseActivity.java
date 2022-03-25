@@ -49,7 +49,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SimplePlayerBaseActivity extends AppCompatActivity implements
-    Player.Listener {
+    Player.EventListener {
 
   static final String TAG = "SimplePlayerActivity";
 

@@ -177,7 +177,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     }
 
     player.setPlayWhenReady(playWhenReady);
-    player.setMediaSource(testMediaSource);
+    ((SimpleExoPlayer)player).setMediaSource(testMediaSource);
     player.seekTo(playbackStartPosition);
     player.prepare();
   }

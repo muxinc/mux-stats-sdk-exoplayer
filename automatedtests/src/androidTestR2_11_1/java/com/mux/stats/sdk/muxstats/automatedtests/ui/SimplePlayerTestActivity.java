@@ -10,6 +10,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.RenderersFactory;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.ExoMediaCrypto;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
@@ -161,7 +162,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
 
     player.setPlayWhenReady(playWhenReady);
     player.seekTo(playbackStartPosition);
-    player.prepare(testMediaSource, false, true);
+    ((SimpleExoPlayer)player).prepare(testMediaSource, false, true);
   }
 
   class CustomNotificationListener implements PlayerNotificationManager.NotificationListener {
