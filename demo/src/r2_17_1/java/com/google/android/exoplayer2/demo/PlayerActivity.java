@@ -45,14 +45,12 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -106,10 +104,6 @@ public class PlayerActivity extends AppCompatActivity
   private int startWindow;
   private long startPosition;
 
-  // For ad playback only.
-
-  private AdsLoader adsLoader;
-
   // Mux SDK integration
   private MuxStatsExoPlayer muxStats;
 
@@ -157,7 +151,6 @@ public class PlayerActivity extends AppCompatActivity
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     releasePlayer();
-    releaseAdsLoader();
     clearStartPosition();
     setIntent(intent);
   }
@@ -209,7 +202,6 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onDestroy() {
     super.onDestroy();
-    releaseAdsLoader();
   }
 
   @Override
@@ -308,7 +300,6 @@ public class PlayerActivity extends AppCompatActivity
           DemoUtil.buildRenderersFactory(/* context= */ this, preferExtensionDecoders);
       MediaSourceFactory mediaSourceFactory =
           new DefaultMediaSourceFactory(dataSourceFactory)
-              .setAdsLoaderProvider(this::getAdsLoader)
               .setAdViewProvider(playerView);
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
@@ -379,7 +370,6 @@ public class PlayerActivity extends AppCompatActivity
 
     List<MediaItem> mediaItems =
         createMediaItems(intent, DemoUtil.getDownloadTracker(/* context= */ this));
-    boolean hasAds = false;
     for (int i = 0; i < mediaItems.size(); i++) {
       MediaItem mediaItem = mediaItems.get(i);
 
@@ -406,21 +396,8 @@ public class PlayerActivity extends AppCompatActivity
           return Collections.emptyList();
         }
       }
-      hasAds |= mediaItem.playbackProperties.adsConfiguration != null;
-    }
-    if (!hasAds) {
-      releaseAdsLoader();
     }
     return mediaItems;
-  }
-
-  private AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-    if (adsLoader == null) {
-      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
-    }
-    adsLoader.setPlayer(player);
-    return adsLoader;
   }
 
   protected void releasePlayer() {
@@ -433,17 +410,6 @@ public class PlayerActivity extends AppCompatActivity
       player = null;
       mediaItems = Collections.emptyList();
       trackSelector = null;
-    }
-    if (adsLoader != null) {
-      adsLoader.setPlayer(null);
-    }
-  }
-
-  private void releaseAdsLoader() {
-    if (adsLoader != null) {
-      adsLoader.release();
-      adsLoader = null;
-      playerView.getOverlayFrameLayout().removeAllViews();
     }
   }
 

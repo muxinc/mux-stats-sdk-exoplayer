@@ -19,6 +19,9 @@ import static com.google.android.exoplayer2.util.Assertions.checkNotNull;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Point;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -32,6 +35,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
@@ -57,6 +61,12 @@ import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.core.MuxSDKViewOrientation;
+import com.mux.stats.sdk.core.model.CustomData;
+import com.mux.stats.sdk.core.model.CustomerData;
+import com.mux.stats.sdk.core.model.CustomerPlayerData;
+import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,7 +86,7 @@ public class PlayerActivity extends AppCompatActivity
   protected StyledPlayerView playerView;
   protected LinearLayout debugRootView;
   protected TextView debugTextView;
-  protected @Nullable SimpleExoPlayer player;
+  protected @Nullable ExoPlayer player;
 
   private boolean isShowingTrackSelectionDialog;
   private Button selectTracksButton;
@@ -93,6 +103,9 @@ public class PlayerActivity extends AppCompatActivity
   // For ad playback only.
 
   private AdsLoader adsLoader;
+
+  // Mux SDK integration
+  private MuxStatsExoPlayer muxStats;
 
   // Activity lifecycle.
 
@@ -122,6 +135,21 @@ public class PlayerActivity extends AppCompatActivity
           new DefaultTrackSelector.ParametersBuilder(/* context= */ this);
       trackSelectorParameters = builder.build();
       clearStartPosition();
+    }
+  }
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+
+    if (muxStats == null) {
+      return;
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      muxStats.orientationChange(MuxSDKViewOrientation.LANDSCAPE);
+    }
+    if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+      muxStats.orientationChange(MuxSDKViewOrientation.PORTRAIT);
     }
   }
 
@@ -272,7 +300,8 @@ public class PlayerActivity extends AppCompatActivity
       trackSelector.setParameters(trackSelectorParameters);
       lastSeenTrackGroupArray = null;
       player =
-          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+          new ExoPlayer.Builder(/* context= */ this)
+              .setRenderersFactory(renderersFactory)
               .setMediaSourceFactory(mediaSourceFactory)
               .setTrackSelector(trackSelector)
               .build();
@@ -283,6 +312,26 @@ public class PlayerActivity extends AppCompatActivity
       playerView.setPlayer(player);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
       debugViewHelper.start();
+
+      CustomerPlayerData customerPlayerData = new CustomerPlayerData();
+      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
+      CustomerVideoData customerVideoData = new CustomerVideoData();
+      customerVideoData.setVideoTitle(intent.getStringExtra("VIDEO_TITLE_EHERE"));
+      CustomData customData = new CustomData();
+      customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
+      CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+      customerData.setCustomData(customData);
+      muxStats = new MuxStatsExoPlayer(
+          this, player, "demo-player", customerData);
+      Point size = new Point();
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        getWindowManager().getDefaultDisplay().getSize(size);
+      } else {
+        this.getDisplay().getSize(size);
+      }
+      muxStats.setScreenSize(size.x, size.y);
+      muxStats.setPlayerView(playerView);
+      muxStats.enableMuxCoreDebug(true, false);
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -343,7 +392,15 @@ public class PlayerActivity extends AppCompatActivity
   private AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this)
+      /*
+       * This replaces `monitorImaAdsLoader` method because in r2.12.x ImaAdsLoader
+       * will create google.v3.AdsLoader on adRequest, which means that monitorImaAdsLoader
+       * Will always receive null pointer and will be unable to recieve add events.
+       */
+      .setAdErrorListener(muxStats.getAdsImaSdkListener())
+      .setAdEventListener(muxStats.getAdsImaSdkListener())
+      .build();
     }
     adsLoader.setPlayer(player);
     return adsLoader;

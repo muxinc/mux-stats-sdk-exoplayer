@@ -6,6 +6,32 @@ steps:
   label: Build AARs and APKs
   plugins:
     - artifacts#v1.3.0:
+       upload:
+          - "MuxExoPlayer/buildout/outputs/aar/*.aar"
+          - "MuxExoPlayer/buildout/outputs/mapping/*/*.txt"
+          - "MuxExoPlayer/buildout/outputs/version-*"
+          - "MuxExoPlayer/buildout/reports/*/*.*"
+          - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"
+          - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
+- wait
+- agents: [dind=true,queue=beta]
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_17_1/debug/automatedtests-r2_17_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_17_1/debug/automatedtests-r2_17_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  label: Test Exoplayer r2_17_1 on Pixel device
+  retry:
+    automatic:
+      - exit_status: 1
+        limit: 2
+  plugins:
+    - artifacts#v1.3.0:
+        download:
+         - "automatedtests/buildout/outputs/apk/r2_16_1/debug/automatedtests-r2_17_1-debug.apk"
+         - "automatedtests/buildout/outputs/apk/androidTest/r2_16_1/debug/automatedtests-r2_17_1-debug-androidTest.apk"
+- wait
+- agents: [dind=true,queue=beta]
+  command: ./.buildkite/publish.sh
+  label: Build AARs and APKs
+  plugins:
+    - artifacts#v1.3.0:
         upload:
           - "MuxExoPlayer/buildout/outputs/aar/*.aar"
           - "MuxExoPlayer/buildout/outputs/mapping/*/*.txt"
@@ -15,7 +41,7 @@ steps:
           - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_16_1IsFatAar/debug/automatedtests-r2_16_1-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_16_1IsFatAar/debug/automatedtests-r2_16_1-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_16_1/debug/automatedtests-r2_16_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_16_1/debug/automatedtests-r2_16_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_16_1 on Pixel device
   retry:
     automatic:
@@ -24,11 +50,11 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_16_1IsFatAar/debug/automatedtests-r2_16_1-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_16_1IsFatAar/debug/automatedtests-r2_16_1-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_16_1/debug/automatedtests-r2_16_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_16_1/debug/automatedtests-r2_16_1-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_15_1IsFatAar/debug/automatedtests-r2_15_1-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_15_1IsFatAar/debug/automatedtests-r2_15_1-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_15_1/debug/automatedtests-r2_15_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_15_1/debug/automatedtests-r2_15_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_15_1 on Pixel device
   retry:
     automatic:
@@ -37,11 +63,11 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_15_1IsFatAar/debug/automatedtests-r2_15_1-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_15_1IsFatAar/debug/automatedtests-r2_15_1-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_15_1/debug/automatedtests-r2_15_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_15_1/debug/automatedtests-r2_15_1-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_14_1IsFatAar/debug/automatedtests-r2_14_1-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_14_1IsFatAar/debug/automatedtests-r2_14_1-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_14_1/debug/automatedtests-r2_14_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_14_1/debug/automatedtests-r2_14_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_14_1 on Pixel device
   retry:
     automatic:
@@ -50,11 +76,11 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_14_1IsFatAar/debug/automatedtests-r2_14_1-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_14_1IsFatAar/debug/automatedtests-r2_14_1-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_14_1/debug/automatedtests-r2_14_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_14_1/debug/automatedtests-r2_14_1-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_13_1IsFatAar/debug/automatedtests-r2_13_1-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_13_1IsFatAar/debug/automatedtests-r2_13_1-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_13_1/debug/automatedtests-r2_13_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_13_1/debug/automatedtests-r2_13_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_13_1 on Pixel device
   retry:
     automatic:
@@ -63,12 +89,12 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_13_1IsFatAar/debug/automatedtests-r2_13_1-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_13_1IsFatAar/debug/automatedtests-r2_13_1-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_13_1/debug/automatedtests-r2_13_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_13_1/debug/automatedtests-r2_13_1-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
   branches: "master"
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_12_1IsFatAar/debug/automatedtests-r2_12_1-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_12_1IsFatAar/debug/automatedtests-r2_12_1-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_12_1/debug/automatedtests-r2_12_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_12_1/debug/automatedtests-r2_12_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_12_1 on Pixel device
   retry:
     automatic:
@@ -77,12 +103,12 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_12_1IsFatAar/debug/automatedtests-r2_12_1-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_12_1IsFatAar/debug/automatedtests-r2_12_1-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_12_1/debug/automatedtests-r2_12_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_12_1/debug/automatedtests-r2_12_1-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
   branches: "master"
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_11_1IsFatAar/debug/automatedtests-r2_11_1-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_11_1IsFatAar/debug/automatedtests-r2_11_1-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_11_1/debug/automatedtests-r2_11_1-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_11_1/debug/automatedtests-r2_11_1-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_11_1 on Pixel device
   retry:
     automatic:
@@ -91,12 +117,12 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_11_1IsFatAar/debug/automatedtests-r2_11_1-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_11_1IsFatAar/debug/automatedtests-r2_11_1-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_11_1/debug/automatedtests-r2_11_1-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_11_1/debug/automatedtests-r2_11_1-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
   branches: "master"
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_10_6IsFatAar/debug/automatedtests-r2_10_6-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_10_6IsFatAar/debug/automatedtests-r2_10_6-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_10_6 on Pixel device
   retry:
     automatic:
@@ -105,12 +131,12 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_10_6IsFatAar/debug/automatedtests-r2_10_6-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_10_6IsFatAar/debug/automatedtests-r2_10_6-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk"
 - wait
 - agents: [dind=true,queue=beta]
   branches: "master"
-  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_9_6IsFatAar/debug/automatedtests-r2_9_6-isFatAar-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_9_6IsFatAar/debug/automatedtests-r2_9_6-isFatAar-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
+  command: docker run --rm -v $(pwd):/data -e BUILD_LABEL="$SAUCECTL_LABEL" -e TEST_APK=/data/automatedtests/buildout/outputs/apk/androidTest/r2_9_6/debug/automatedtests-r2_9_6-debug-androidTest.apk -e APP_APK=/data/automatedtests/buildout/outputs/apk/r2_9_6/debug/automatedtests-r2_9_6-debug.apk -e TEST_DEVICES='Google Pixel[ 345]*' -e SAUCE_USERNAME='mux-sauce' -e SAUCE_ACCESS_KEY=$SAUCE_ACCESS_KEY muxinc/saucectl-runner:0.73.1
   label: Test Exoplayer r2_9_6 on Pixel device
   retry:
     automatic:
@@ -119,8 +145,8 @@ steps:
   plugins:
     - artifacts#v1.3.0:
         download:
-          - "automatedtests/buildout/outputs/apk/r2_9_6IsFatAar/debug/automatedtests-r2_9_6-isFatAar-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_9_6IsFatAar/debug/automatedtests-r2_9_6-isFatAar-debug-androidTest.apk"
+          - "automatedtests/buildout/outputs/apk/r2_9_6/debug/automatedtests-r2_9_6-debug.apk"
+          - "automatedtests/buildout/outputs/apk/androidTest/r2_9_6/debug/automatedtests-r2_9_6-debug-androidTest.apk"
 - wait
 - block: ":rocket: Deploy and release!"
   blocked_state: failed
