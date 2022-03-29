@@ -21,7 +21,7 @@ import java.util.List;
   }
 
   /**
-   * Filters only the items satisfying the predicate into the supplied Collection
+   * Filters only the items satisfying the predicate into the supplied List
    *
    * @param iter
    * @param out
