@@ -10,7 +10,7 @@ import java.util.List;
   }
 
   /**
-   * Safely casts some object to an instance of that object
+   * Safely casts some object to a subclass of it
    * Returns null if the input object was null, or if the input object was not an instance of the
    * input class.
    * <p>
