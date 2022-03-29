@@ -381,7 +381,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     if(dataId.find()) {
       //noinspection ConstantConditions If the regex matches there will be one subgroup
       parsedDataId = dataId.group(1).replace(HLS_SESSION_DATA_PREFIX, "");
-      Log.d("onMainPlaylist(lie)", "parsed " + parsedDataId);
     } else {
       MuxLogger.d(TAG, "Data-ID not found in session data: " + line);
     }
@@ -1080,7 +1079,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * See {{@link #parseHlsManifestTag(String)}}, parse the tag value as a Long value.
+   * Parses a Long value out of an HLS Manifest tag
    * @param tagName tag name to parse
    * @return Long value of the tag if possible, -1 otherwise.
    */

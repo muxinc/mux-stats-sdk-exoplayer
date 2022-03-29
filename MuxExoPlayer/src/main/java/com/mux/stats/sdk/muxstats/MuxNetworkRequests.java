@@ -380,7 +380,6 @@ public class MuxNetworkRequests implements INetworkRequest {
   public void postWithCompletion(String domain, String propertyKey, String body,
       Hashtable<String, String> headers,
       INetworkRequest.IMuxNetworkRequestsCompletion callback) {
-    MuxLogger.d(TAG, "To " + domain + "\n\t" + body);
     try {
       if (propertyKey != null) {
         Uri.Builder uriBuilder = new Uri.Builder();
