@@ -55,6 +55,7 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
+import com.mux.stats.sdk.core.model.SessionData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
@@ -359,7 +360,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     List<SessionData> newSessionData = new LinkedList<>();
     for(String tag : filterHlsSessionTags(playlistTags)) {
       SessionData data = parseHlsSessionData(tag);
-      if(data.dataId.startsWith(HLS_SESSION_DATA_PREFIX)) {
+      if(data.key.startsWith(HLS_SESSION_DATA_PREFIX)) {
         newSessionData.add(data);
       }
     }
@@ -370,7 +371,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       // TODO: Dispatch Session Data Event
       Map<String, String> tagMap = new HashMap<>();
       for(SessionData data: sessionTags) {
-        tagMap.put(data.dataId, data.value);
+        tagMap.put(data.key, data.value);
       }
     }
   }
@@ -393,37 +394,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     return new SessionData(parsedDataId, parsedValue);
-  }
-
-  protected static class SessionData {
-    public final String dataId;
-    public final String value;
-
-    public SessionData(String dataId, String value) {
-      this.dataId = dataId;
-      this.value = value;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
-      SessionData that = (SessionData) o;
-      return Objects.equal(dataId, that.dataId) && Objects.equal(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hashCode(dataId, value);
-    }
-
-    @Override
-    public String toString() {
-      return "SessionData{" +
-          "dataId='" + dataId + '\'' +
-          ", value='" + value + '\'' +
-          '}';
-    }
   }
 
   /**
