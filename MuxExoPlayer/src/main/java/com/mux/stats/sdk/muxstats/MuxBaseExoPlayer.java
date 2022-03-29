@@ -17,8 +17,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
-
 import com.google.ads.interactivemedia.v3.api.AdsLoader;
 import com.google.ads.interactivemedia.v3.api.AdsManager;
 import com.google.ads.interactivemedia.v3.api.AdsManagerLoadedEvent;
@@ -30,12 +28,12 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.common.base.Objects;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
+import com.mux.stats.sdk.core.events.SessionDataEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -55,7 +53,7 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
-import com.mux.stats.sdk.core.model.SessionData;
+import com.mux.stats.sdk.core.model.SessionTag;
 import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
@@ -168,7 +166,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   /** HLS session data tags with this Data ID will be sent to Mux Data */
   protected static final String HLS_SESSION_DATA_PREFIX = "io.litix.data.";
   /** If playing HLS, Contains the EXT-X-SESSION info for the video being played */
-  protected List<SessionData> sessionTags = new LinkedList<>();
+  protected List<SessionTag> sessionTags = new LinkedList<>();
 
   /**
    * These are the different playback states that are monitored internally. {@link ExoPlayer} keeps
@@ -217,7 +215,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     this(ctx, player, playerName,
         new CustomerData(customerPlayerData, customerVideoData, customerViewData),
             false, networkRequest);
-    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
     /**
@@ -241,7 +238,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       CustomerData data, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName, data, new CustomOptions(), networkRequest);
-    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
     /**
@@ -357,33 +353,35 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   protected void onMainPlaylistTags(List<String> playlistTags) {
-    List<SessionData> newSessionData = new LinkedList<>();
-    for(String tag : filterHlsSessionTags(playlistTags)) {
-      SessionData data = parseHlsSessionData(tag);
-      if(data.key.startsWith(HLS_SESSION_DATA_PREFIX)) {
-        newSessionData.add(data);
-      }
-    }
+    Log.i(TAG, "onMainPlaylistTags: " + playlistTags);
+    List<SessionTag> newSessionData = parseHlsSessionData(playlistTags);
+    Log.i(TAG, "onMainPlaylistTags: Collected Session Data: " + newSessionData);
 
     // dispatch new session data on change only
     if(!newSessionData.equals(sessionTags)) {
       sessionTags = newSessionData;
-      // TODO: Dispatch Session Data Event
-      Map<String, String> tagMap = new HashMap<>();
-      for(SessionData data: sessionTags) {
-        tagMap.put(data.key, data.value);
-      }
+      muxStats.setSessionData(sessionTags);
     }
   }
 
-  protected SessionData parseHlsSessionData(String line) {
+  protected List<SessionTag> parseHlsSessionData(List<String> hlsTags) {
+    List<SessionTag> data = new ArrayList<>();
+    for(String tag : filterHlsSessionTags(hlsTags)) {
+      data.add(parseHlsSessionTag(tag));
+    }
+    return data;
+  }
+
+  protected SessionTag parseHlsSessionTag(String line) {
     Matcher dataId = RX_SESSION_TAG_DATA_ID.matcher(line);
     Matcher value = RX_SESSION_TAG_VALUES.matcher(line);
     String parsedDataId = "";
     String parsedValue = "";
 
     if(dataId.find()) {
-      parsedDataId = dataId.group(1);
+      //noinspection ConstantConditions If the regex matches there will be one subgroup
+      parsedDataId = dataId.group(1).replace(HLS_SESSION_DATA_PREFIX, "");
+      Log.d("onMainPlaylist(lie)", "parsed " + parsedDataId);
     } else {
       MuxLogger.d(TAG, "Data-ID not found in session data: " + line);
     }
@@ -393,7 +391,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       MuxLogger.d(TAG, "Value not found in session data: " + line);
     }
 
-    return new SessionData(parsedDataId, parsedValue);
+    return new SessionTag(parsedDataId, parsedValue);
   }
 
   /**

@@ -68,6 +68,7 @@ import com.mux.stats.sdk.core.model.CustomData;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
@@ -120,6 +121,8 @@ public class PlayerActivity extends AppCompatActivity
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     dataSourceFactory = DemoUtil.getDataSourceFactory(/* context= */ this);
+
+    MuxLogger.setAllowLogcat(true);
 
     setContentView();
     debugRootView = findViewById(R.id.controls_root);
@@ -565,7 +568,7 @@ public class PlayerActivity extends AppCompatActivity
 
   private static List<MediaItem> createMediaItems(Intent intent, DownloadTracker downloadTracker) {
     if (Boolean.TRUE == true) {
-      MediaItem item = MediaItem.fromUri("https://ff07-73-189-3-20.ngrok.io/master.m3u8");
+      MediaItem item = MediaItem.fromUri("https:///80a0-73-189-3-20.ngrok.io/master.m3u8");
       return Arrays.asList(item);
     }
 
