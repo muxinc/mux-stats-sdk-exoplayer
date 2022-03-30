@@ -160,5 +160,6 @@ dependencies {
 
     r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
     r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
-    r2_17_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_17_1:'+project.ext.versionName
+//    r2_17_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_17_1:'+project.ext.versionName
+    r2_17_1Api project(":MuxExoPlayer")
 }
