@@ -33,7 +33,6 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
 import com.mux.stats.sdk.core.events.IEvent;
 import com.mux.stats.sdk.core.events.InternalErrorEvent;
-import com.mux.stats.sdk.core.events.SessionDataEvent;
 import com.mux.stats.sdk.core.events.playback.EndedEvent;
 import com.mux.stats.sdk.core.events.playback.PauseEvent;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
@@ -164,7 +163,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   protected static final Pattern RX_SESSION_TAG_DATA_ID = Pattern.compile("DATA-ID=\"(.*)\",");
   protected static final Pattern RX_SESSION_TAG_VALUES = Pattern.compile("VALUE=\"(.*)\"");
   /** HLS session data tags with this Data ID will be sent to Mux Data */
-  protected static final String HLS_SESSION_DATA_PREFIX = "io.litix.data.";
+  protected static final String HLS_SESSION_LITIX_PREFIX = "io.litix.data.";
   /** If playing HLS, Contains the EXT-X-SESSION info for the video being played */
   protected List<SessionTag> sessionTags = new LinkedList<>();
 
@@ -366,8 +365,11 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
   protected List<SessionTag> parseHlsSessionData(List<String> hlsTags) {
     List<SessionTag> data = new ArrayList<>();
-    for(String tag : filterHlsSessionTags(hlsTags)) {
-      data.add(parseHlsSessionTag(tag));
+    for (String tag : filterHlsSessionTags(hlsTags)) {
+      SessionTag st = parseHlsSessionTag(tag);
+      if (st.key != null && st.key.contains(HLS_SESSION_LITIX_PREFIX)) {
+        data.add(parseHlsSessionTag(tag));
+      }
     }
     return data;
   }
@@ -378,13 +380,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     String parsedDataId = "";
     String parsedValue = "";
 
-    if(dataId.find()) {
+    if (dataId.find()) {
       //noinspection ConstantConditions If the regex matches there will be one subgroup
-      parsedDataId = dataId.group(1).replace(HLS_SESSION_DATA_PREFIX, "");
+      parsedDataId = dataId.group(1).replace(HLS_SESSION_LITIX_PREFIX, "");
     } else {
       MuxLogger.d(TAG, "Data-ID not found in session data: " + line);
     }
-    if(value.find()) {
+    if (value.find()) {
       parsedValue = value.group(1);
     } else {
       MuxLogger.d(TAG, "Value not found in session data: " + line);
