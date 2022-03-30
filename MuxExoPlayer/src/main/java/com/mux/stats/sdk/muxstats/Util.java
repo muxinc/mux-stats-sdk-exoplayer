@@ -1,7 +1,5 @@
 package com.mux.stats.sdk.muxstats;
 
-import com.google.common.base.Function;
-
 import java.util.List;
 
 /*package*/ class Util {
@@ -37,6 +35,10 @@ import java.util.List;
     }
 
     return out;
+  }
+
+  /*package*/ interface Function<T, R> {
+    R apply(T t);
   }
 
 }
