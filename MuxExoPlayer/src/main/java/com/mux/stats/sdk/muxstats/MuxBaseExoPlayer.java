@@ -1503,6 +1503,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
     ArrayList<String> allowedHeaders = new ArrayList<>();
+    protected boolean debugModeOn = false;
     protected long requestSegmentDuration = 1000;
     protected long lastRequestSentAt = -1;
     protected int maxNumberOfEventsPerSegmentDuration = 3;
@@ -1604,7 +1605,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     private void dispatch(BandwidthMetricData data, PlaybackEvent event) {
-      if (data != null || shouldDispatchEvent(data, event)) {
+      if (data != null && shouldDispatchEvent(data, event)) {
         event.setBandwidthMetricData(data);
         MuxBaseExoPlayer.this.dispatch(event);
       }
@@ -1688,7 +1689,29 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       if (numberOfRequestCompletedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
         || numberOfRequestCancelBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
         || numberOfRequestFailedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration) {
+        if (debugModeOn) {
+          MuxLogger.d(TAG, "Dropping event: " + event.getType()
+              + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
+              + numberOfRequestCompletedBeaconsSentPerSegment
+              + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
+              + numberOfRequestCancelBeaconsSentPerSegment
+              + "\nnumberOfRequestFailedBeaconsSentPerSegment: "
+              + numberOfRequestFailedBeaconsSentPerSegment
+              + "\ntimeDiff: " + timeDiff
+          );
+        }
         return false;
+      }
+      if (debugModeOn) {
+        MuxLogger.d(TAG, "All good: " + event.getType()
+            + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
+            + numberOfRequestCompletedBeaconsSentPerSegment
+            + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
+            + numberOfRequestCancelBeaconsSentPerSegment
+            + "\nnumberOfRequestFailedBeaconsSentPerSegment: "
+            + numberOfRequestFailedBeaconsSentPerSegment
+            + "\ntimeDiff: " + timeDiff
+        );
       }
       return true;
     }
