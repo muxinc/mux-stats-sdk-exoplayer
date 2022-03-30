@@ -66,7 +66,7 @@ allprojects {
         releaseVersion = 'r2.1.1'
         releaseWebsite = 'https://github.com/google/ExoPlayer'
 
-        muxCoreVersion = "dev-session-data-event-e5d0aff"
+        muxCoreVersion = "7.0.11"
     }
 }
 
