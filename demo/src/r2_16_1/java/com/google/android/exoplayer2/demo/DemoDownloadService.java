@@ -66,7 +66,7 @@ public class DemoDownloadService extends DownloadService {
 
   @Override
   @NonNull
-  protected Notification getForegroundNotification(@NonNull List<Download> downloads) {
+  protected Notification getForegroundNotification(@NonNull List<Download> downloads, int notMetRequirements) {
     return DemoUtil.getDownloadNotificationHelper(/* context= */ this)
         .buildProgressNotification(
             /* context= */ this,

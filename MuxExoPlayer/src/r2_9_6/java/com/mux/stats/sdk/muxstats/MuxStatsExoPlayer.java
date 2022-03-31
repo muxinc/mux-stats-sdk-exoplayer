@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.model.CustomerData;
@@ -379,6 +380,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+    ExoPlayer exoPlayer = player.get();
+    if(exoPlayer != null) {
+      HlsManifest hlsManifest = Util.safeCast(manifest, HlsManifest.class);
+      if(manifest != null) {
+        onMainPlaylistTags(hlsManifest.masterPlaylist.tags);
+      }
+    }
+
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(0, window);
