@@ -252,7 +252,7 @@ dependencies {
     amznPortApi 'com.amazon.android:extension-cronet:2.16.1'
     amznPortApi 'com.amazon.android:extension-ima:2.16.1'
     amznPort_adsApi 'com.amazon.android:extension-cronet:2.16.1'
-    amznPort_adsApi 'com.amazon.android.exoplayer:extension-ima:2.16.1'
+    amznPort_adsApi 'com.amazon.android:extension-ima:2.16.1'
 
     notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
