@@ -124,6 +124,18 @@ android {
             res.srcDirs = ['./src/r2_16_1_ads/res']
             assets.srcDirs = ['./src/r2_16_1_ads/assets']
         }
+
+        amznPort {
+            java.srcDirs = ['./src/amznPort/java']
+            res.srcDirs = ['./src/amznPort/res']
+            assets.srcDirs = ['./src/amznPort/assets']
+        }
+
+        amznPort_ads {
+            java.srcDirs = ['./src/amznPort_ads/java']
+            res.srcDirs = ['./src/amznPort_ads/res']
+            assets.srcDirs = ['./src/amznPort_ads/assets']
+        }
     }
 
     flavorDimensions('api')
@@ -175,6 +187,12 @@ android {
             dimension 'api'
         }
         r2_16_1_ads {
+            dimension 'api'
+        }
+        amznPort {
+            dimension 'api'
+        }
+        amznPort_ads {
             dimension 'api'
         }
     }
@@ -230,6 +248,12 @@ dependencies {
     r2_16_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.16.1'
     r2_16_1_adsApi 'com.google.android.exoplayer:extension-ima:2.16.1'
 
+    amznPort_adsApi "com.google.android.gms:play-services-cronet:18.0.1"
+    amznPortApi 'com.amazon.android:extension-cronet:2.16.1'
+    amznPortApi 'com.amazon.android:extension-ima:2.16.1'
+    amznPort_adsApi 'com.amazon.android:extension-cronet:2.16.1'
+    amznPort_adsApi 'com.amazon.android.exoplayer:extension-ima:2.16.1'
+
     notFatAarApi 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
     notFatAarImplementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
@@ -252,7 +276,7 @@ afterEvaluate {
         r2_15_1IsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
         r2_15_1_adsIsFatAarApi 'org.checkerframework:checker-qual:2.5.2'
 
-        // em - I don't think we need these. The dep is satisfied transitively from the sdk pom
+        // em - I don't think we need these. The dep is satisfied transitively from the sdk module
         r2_9_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_9_6_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.9.6'
         r2_10_6IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.10.6'
@@ -269,6 +293,7 @@ afterEvaluate {
         r2_15_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.15.1'
         r2_16_1IsFatAarApi 'com.google.android.exoplayer:exoplayer:2.16.1'
         r2_16_1_adsIsFatAarApi 'com.google.android.exoplayer:exoplayer:2.16.1'
+        amznPort_adsIsFatAarApi 'com.amazon.android:exoplayer:2.16.1'
 
         r2_9_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
         r2_9_6_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
@@ -286,5 +311,6 @@ afterEvaluate {
         r2_15_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
         r2_16_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
         r2_16_1_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
+        amznPort_adsIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:'+project.ext.versionName
     }
 }

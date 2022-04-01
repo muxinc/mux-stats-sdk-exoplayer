@@ -83,6 +83,9 @@ android {
         r2_16_1 {
             dimension 'api'
         }
+        amznPort {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -141,6 +144,8 @@ dependencies {
     r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
     r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
     r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
+    amznPortApi 'com.amazon.android:exoplayer:2.16.1'
+    amznPortApi 'com.amazon.android:extension-mediasession:2.16.1'
 }
 
 afterEvaluate {
@@ -153,5 +158,6 @@ afterEvaluate {
         r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
         r2_15_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
         r2_16_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
+        amznPortIsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:'+project.ext.versionName
     }
 }

@@ -284,10 +284,18 @@ public class SampleChooserActivity extends AppCompatActivity
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
         } finally {
-          Util.closeQuietly(dataSource);
+          closeDataSource(dataSource);
         }
       }
       return result;
+    }
+
+    private void closeDataSource(DataSource dataSource) {
+      try {
+        dataSource.close();
+      } catch (Exception e) {
+        // swallowed
+      }
     }
 
     @Override
