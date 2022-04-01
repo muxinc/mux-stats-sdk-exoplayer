@@ -124,6 +124,7 @@ dependencies {
     androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+    androidTestAmznPortImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
     api 'org.checkerframework:checker-qual:2.5.2'
     notFatAarImplementation project(':MuxExoPlayer')
