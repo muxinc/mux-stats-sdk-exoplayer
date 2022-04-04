@@ -243,8 +243,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * @param data Customer, View, and Video data set by the user
      * @param options Custom Options for configuring the SDK
      * @param networkRequest internet interface implementation.
-     *
-     * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
      */
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data, CustomOptions options,

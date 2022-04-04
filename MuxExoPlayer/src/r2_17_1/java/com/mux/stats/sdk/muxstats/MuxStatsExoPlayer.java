@@ -100,11 +100,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       INetworkRequest networkRequests) {
     super(ctx, player, playerName, data, options, networkRequests);
 
-    if (player instanceof SimpleExoPlayer) {
-      ((SimpleExoPlayer) player).addAnalyticsListener(this);
-    } else {
-      player.addListener(this);
-    }
+    player.addAnalyticsListener(this);
     if (player.getPlaybackState() == Player.STATE_BUFFERING) {
       // playback started before muxStats was initialized
       play();
