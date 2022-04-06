@@ -1567,7 +1567,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     protected boolean debugModeOn = false;
     protected long requestSegmentDuration = 1000;
     protected long lastRequestSentAt = -1;
-    protected int maxNumberOfEventsPerSegmentDuration = 3;
+    protected int maxNumberOfEventsPerSegmentDuration = 10;
     protected int numberOfRequestCompletedBeaconsSentPerSegment = 0;
     protected int numberOfRequestCancelBeaconsSentPerSegment = 0;
     protected int numberOfRequestFailedBeaconsSentPerSegment = 0;
