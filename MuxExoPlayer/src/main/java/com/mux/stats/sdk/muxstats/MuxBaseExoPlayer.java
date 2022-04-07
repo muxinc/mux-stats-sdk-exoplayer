@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats;
 
 import static android.os.SystemClock.elapsedRealtime;
 
+import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -1563,6 +1564,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
     ArrayList<String> allowedHeaders = new ArrayList<>();
+    protected boolean debugModeOn = false;
+    protected long requestSegmentDuration = 1000;
+    protected long lastRequestSentAt = -1;
+    protected int maxNumberOfEventsPerSegmentDuration = 10;
+    protected int numberOfRequestCompletedBeaconsSentPerSegment = 0;
+    protected int numberOfRequestCancelBeaconsSentPerSegment = 0;
+    protected int numberOfRequestFailedBeaconsSentPerSegment = 0;
 
     public BandwidthMetricDispatcher() {
       allowedHeaders.add("x-cdn");
@@ -1658,7 +1666,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     private void dispatch(BandwidthMetricData data, PlaybackEvent event) {
-      if (data != null) {
+      if (data != null && shouldDispatchEvent(data, event)) {
         event.setBandwidthMetricData(data);
         MuxBaseExoPlayer.this.dispatch(event);
       }
@@ -1703,6 +1711,70 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
         }
       }
       return headers;
+    }
+
+    /**
+     * Make sure we do not overflow backend with Request events in case we have a broken live stream
+     * and player keeps loading manifest or some other short segment not really needed for playback.
+     *
+     * @param data, all statistics collected for this segment.
+     * @param event, event to be dispatched.
+     * @return true if number of request completed events do not exceed two request per media
+     * segment duration.
+     */
+    private boolean shouldDispatchEvent(BandwidthMetricData data, PlaybackEvent event) {
+      if (data != null) {
+        if (data.getRequestMediaDuration() == null || data.getRequestMediaDuration() < 1000) {
+          requestSegmentDuration = 1000;
+        } else {
+          requestSegmentDuration = data.getRequestMediaDuration();
+        }
+      }
+      long timeDiff = System.currentTimeMillis() - lastRequestSentAt;
+      if (timeDiff > requestSegmentDuration) {
+        // Reset all stats
+        lastRequestSentAt = System.currentTimeMillis();
+        numberOfRequestCompletedBeaconsSentPerSegment = 0;
+        numberOfRequestCancelBeaconsSentPerSegment = 0;
+        numberOfRequestFailedBeaconsSentPerSegment = 0;
+      }
+      if (event instanceof RequestCompleted) {
+        numberOfRequestCompletedBeaconsSentPerSegment ++;
+      }
+      if (event instanceof RequestCanceled) {
+        numberOfRequestCancelBeaconsSentPerSegment ++;
+      }
+      if (event instanceof RequestFailed) {
+        numberOfRequestFailedBeaconsSentPerSegment ++;
+      }
+      if (numberOfRequestCompletedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
+        || numberOfRequestCancelBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
+        || numberOfRequestFailedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration) {
+        if (debugModeOn) {
+          MuxLogger.d(TAG, "Dropping event: " + event.getType()
+              + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
+              + numberOfRequestCompletedBeaconsSentPerSegment
+              + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
+              + numberOfRequestCancelBeaconsSentPerSegment
+              + "\nnumberOfRequestFailedBeaconsSentPerSegment: "
+              + numberOfRequestFailedBeaconsSentPerSegment
+              + "\ntimeDiff: " + timeDiff
+          );
+        }
+        return false;
+      }
+      if (debugModeOn) {
+        MuxLogger.d(TAG, "All good: " + event.getType()
+            + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
+            + numberOfRequestCompletedBeaconsSentPerSegment
+            + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
+            + numberOfRequestCancelBeaconsSentPerSegment
+            + "\nnumberOfRequestFailedBeaconsSentPerSegment: "
+            + numberOfRequestFailedBeaconsSentPerSegment
+            + "\ntimeDiff: " + timeDiff
+        );
+      }
+      return true;
     }
   }
 
