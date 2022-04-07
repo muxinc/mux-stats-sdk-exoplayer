@@ -13,3 +13,4 @@
 include ':demo', ':MuxExoPlayer', ":automatedtests"
 
 rootProject.name = 'mux-stats-sdk-exoplayer'
+include ':ExoPlayerCompat'
