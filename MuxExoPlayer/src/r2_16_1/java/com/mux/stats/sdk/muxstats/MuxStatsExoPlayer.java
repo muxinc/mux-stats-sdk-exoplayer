@@ -124,7 +124,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   protected String parseHlsManifestTag(String tagName) {
     synchronized (currentTimelineWindow) {
       if (currentTimelineWindow != null && currentTimelineWindow.manifest != null
-          && isLivePlayback() && tagName != null && tagName.length() > 0) {
+          && tagName != null && tagName.length() > 0) {
         if (currentTimelineWindow.manifest instanceof HlsManifest) {
           HlsManifest manifest = (HlsManifest) currentTimelineWindow.manifest;
           if (manifest.mediaPlaylist.tags != null) {
@@ -144,13 +144,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
       }
     }
+
     return "-1";
   }
 
   @Override
   protected boolean isLivePlayback() {
     if (currentTimelineWindow != null) {
-      return currentTimelineWindow.isLive;
+      return currentTimelineWindow.isLive();
     }
     return false;
   }
@@ -533,6 +534,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, int reason) {
+    ExoPlayer exoPlayer = player.get();
+    if(exoPlayer != null) {
+      HlsManifest manifest = Util.safeCast(exoPlayer.getCurrentManifest(), HlsManifest.class);
+      if(manifest != null) {
+        onMainPlaylistTags(manifest.masterPlaylist.tags);
+      }
+    }
+
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(0, window);

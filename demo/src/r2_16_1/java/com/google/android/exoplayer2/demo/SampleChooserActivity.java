@@ -40,9 +40,11 @@ import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaMetadata;
@@ -55,6 +57,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Log;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.ImmutableList;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -65,7 +68,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** An activity for selecting from a list of media samples. */
+/**
+ * An activity for selecting from a list of media samples.
+ */
 public class SampleChooserActivity extends AppCompatActivity
     implements DownloadTracker.Listener, OnChildClickListener {
 
@@ -93,7 +98,7 @@ public class SampleChooserActivity extends AppCompatActivity
     Intent intent = getIntent();
     String dataUri = intent.getDataString();
     if (dataUri != null) {
-      uris = new String[] {dataUri};
+      uris = new String[]{dataUri};
     } else {
       ArrayList<String> uriList = new ArrayList<>();
       AssetManager assetManager = getAssets();
@@ -282,9 +287,19 @@ public class SampleChooserActivity extends AppCompatActivity
         } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
           sawError = true;
+        } finally {
+          closeDataSource(dataSource);
         }
       }
       return result;
+    }
+
+    private void closeDataSource(DataSource dataSource) {
+      try {
+        dataSource.close();
+      } catch (IOException e) {
+        // Swallowed
+      }
     }
 
     @Override

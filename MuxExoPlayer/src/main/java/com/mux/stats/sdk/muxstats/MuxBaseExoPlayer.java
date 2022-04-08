@@ -52,6 +52,7 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
+import com.mux.stats.sdk.core.model.SessionTag;
 import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
@@ -59,12 +60,15 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class connects the {@link ExoPlayer}, {@link MuxStats} and
@@ -156,6 +160,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   protected int streamType = -1;
   protected long firstFrameRenderedAt = -1;
 
+  protected static final Pattern RX_SESSION_TAG_DATA_ID = Pattern.compile("DATA-ID=\"(.*)\",");
+  protected static final Pattern RX_SESSION_TAG_VALUES = Pattern.compile("VALUE=\"(.*)\"");
+  /** HLS session data tags with this Data ID will be sent to Mux Data */
+  protected static final String HLS_SESSION_LITIX_PREFIX = "io.litix.data.";
+  /** If playing HLS, Contains the EXT-X-SESSION info for the video being played */
+  protected List<SessionTag> sessionTags = new LinkedList<>();
+
   /**
    * These are the different playback states that are monitored internally. {@link ExoPlayer} keeps
    * its own internal state which sometimes can be different then one described here.
@@ -203,7 +214,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     this(ctx, player, playerName,
         new CustomerData(customerPlayerData, customerVideoData, customerViewData),
             false, networkRequest);
-    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
     /**
@@ -227,7 +237,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       CustomerData data, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName, data, new CustomOptions(), networkRequest);
-    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
     /**
@@ -334,6 +343,55 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   protected abstract boolean isLivePlayback();
 
   protected abstract String parseHlsManifestTag(String tagName);
+
+  protected List<String> filterHlsSessionTags(List<String> rawTags) {
+    //noinspection ConstantConditions
+    return Util.filter(rawTags, new ArrayList<>(), tag -> tag.substring(1).startsWith("EXT-X-SESSION-DATA"));
+  }
+
+  protected void onMainPlaylistTags(List<String> playlistTags) {
+    Log.i(TAG, "onMainPlaylistTags: " + playlistTags);
+    List<SessionTag> newSessionData = parseHlsSessionData(playlistTags);
+    Log.i(TAG, "onMainPlaylistTags: Collected Session Data: " + newSessionData);
+
+    // dispatch new session data on change only
+    if(!newSessionData.equals(sessionTags)) {
+      sessionTags = newSessionData;
+      muxStats.setSessionData(sessionTags);
+    }
+  }
+
+  protected List<SessionTag> parseHlsSessionData(List<String> hlsTags) {
+    List<SessionTag> data = new ArrayList<>();
+    for (String tag : filterHlsSessionTags(hlsTags)) {
+      SessionTag st = parseHlsSessionTag(tag);
+      if (st.key != null && st.key.contains(HLS_SESSION_LITIX_PREFIX)) {
+        data.add(parseHlsSessionTag(tag));
+      }
+    }
+    return data;
+  }
+
+  protected SessionTag parseHlsSessionTag(String line) {
+    Matcher dataId = RX_SESSION_TAG_DATA_ID.matcher(line);
+    Matcher value = RX_SESSION_TAG_VALUES.matcher(line);
+    String parsedDataId = "";
+    String parsedValue = "";
+
+    if (dataId.find()) {
+      //noinspection ConstantConditions If the regex matches there will be one subgroup
+      parsedDataId = dataId.group(1).replace(HLS_SESSION_LITIX_PREFIX, "");
+    } else {
+      MuxLogger.d(TAG, "Data-ID not found in session data: " + line);
+    }
+    if (value.find()) {
+      parsedValue = value.group(1);
+    } else {
+      MuxLogger.d(TAG, "Value not found in session data: " + line);
+    }
+
+    return new SessionTag(parsedDataId, parsedValue);
+  }
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
@@ -458,6 +516,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     state = PlayerState.INIT;
     resetInternalStats();
     muxStats.videoChange(customerVideoData);
+    sessionTags = null;
   }
 
   /**
@@ -762,7 +821,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoHoldback() {
-    return parseHlsManifestTagLong("HOLD-BACK");
+    return isLivePlayback()? parseHlsManifestTagLong("HOLD-BACK") : null;
   }
 
   /**
@@ -773,7 +832,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoPartHoldback() {
-    return parseHlsManifestTagLong("PART-HOLD-BACK");
+    return isLivePlayback()? parseHlsManifestTagLong("PART-HOLD-BACK") : null;
   }
 
   /**
@@ -784,7 +843,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoPartTargetDuration() {
-    return parseHlsManifestTagLong("PART-TARGET");
+    return isLivePlayback()? parseHlsManifestTagLong("PART-TARGET") : null;
   }
 
   /**
@@ -795,7 +854,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoTargetDuration() {
-    return parseHlsManifestTagLong("EXT-X-TARGETDURATION");
+    return isLivePlayback()? parseHlsManifestTagLong("EXT-X-TARGETDURATION") : null;
   }
 
   /**
@@ -889,6 +948,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    * {@link PlayerState#PLAYING}
    */
   protected void playing() {
+
     if (seekingInProgress) {
       // We will dispatch playing event after seeked event
       return;
@@ -1019,7 +1079,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * See {{@link #parseHlsManifestTagLong(String)}}, parse the tag value as a Long value.
+   * Parses a Long value out of an HLS Manifest tag
    * @param tagName tag name to parse
    * @return Long value of the tag if possible, -1 otherwise.
    */
