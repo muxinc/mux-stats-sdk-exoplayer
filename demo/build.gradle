@@ -139,7 +139,6 @@ android {
             res.srcDirs = ['./src/amznPort/res']
             assets.srcDirs = ['./src/amznPort/assets']
         }
-
         amznPort_ads {
             java.srcDirs = ['./src/amznPort_ads/java']
             res.srcDirs = ['./src/amznPort_ads/res']
@@ -262,7 +261,6 @@ dependencies {
     r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
     r2_14_1_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:' + project.ext.versionName
 
-
     r2_15_1Api "com.google.android.gms:play-services-cronet:17.0.0"
     r2_15_1Api 'com.google.android.exoplayer:extension-cronet:2.15.1'
     r2_15_1Api 'com.google.android.exoplayer:extension-ima:2.15.1'
@@ -301,15 +299,14 @@ dependencies {
     r2_17_1_adsApi 'org.checkerframework:checker-qual:3.13.0'
     r2_17_1_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_17_1:' + project.ext.versionName
 
-    amznPort_adsApi "com.google.android.gms:play-services-cronet:18.0.1"
-    amznPortApi 'com.google.android.exoplayer:extension-cronet:2.16.1'
-    amznPortApi 'com.google.android.exoplayer:extension-ima:2.16.1'
+    amznPortApi 'com.amazon.android:extension-cronet:2.16.1'
+    amznPortApi 'com.amazon.android:extension-ima:2.16.1'
+    amznPortApi 'com.amazon.android:exoplayer:2.16.1'
     amznPortApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:' + project.ext.versionName
-    amznPort_adsApi 'com.google.android.exoplayer:extension-cronet:2.16.1'
-    amznPort_adsApi 'com.google.android.exoplayer:extension-ima:2.16.1'
-    amznPort_adsApi 'com.google.android.exoplayer:exoplayer-common:2.16.1'
-    amznPort_adsApi 'com.google.android.exoplayer:exoplayer-core:2.16.1'
-    amznPort_adsApi 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
+    amznPort_adsApi "com.google.android.gms:play-services-cronet:18.0.1"
+    amznPort_adsApi 'com.amazon.android:extension-cronet:2.16.1'
+    amznPort_adsApi 'com.amazon.android:extension-ima:2.16.1'
+    amznPort_adsApi 'com.amazon.android:exoplayer:2.16.1'
     amznPort_adsApi 'org.checkerframework:checker-qual:3.13.0'
     amznPort_adsApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:' + project.ext.versionName
 }

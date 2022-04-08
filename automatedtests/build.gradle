@@ -168,5 +168,6 @@ dependencies {
 
     amznPortApi 'com.amazon.android:exoplayer:2.16.1'
     amznPortApi 'com.amazon.android:extension-mediasession:2.16.1'
-    amznPortApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:'+project.ext.versionName
+    //amznPortApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:'+project.ext.versionName
+    amznPortApi project(':MuxExoPlayer')
 }
