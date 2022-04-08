@@ -1,4 +1,17 @@
 # Release notes
+## 2.7.0
+### Improvements
+* Add Support for Experiment Tracking via manifest tags (#195)
+* Add Support for Amazon ExoPlayer Port (#197)
+* Add Support for ExoPlayer `v2.17.x` (#198)
+
+### Fixes
+* HLS/DASH: Fix CDN tracking when playlist and chunks are coming from different CDNs (#198)
+* Rate-limit `requestcompleted` events to prevent ingestion errors when the `DataSource` enters a retry loop (#196)
+
+### MuxCore Changes
+* Add Support for Experiment Tracking
+
 ## 2.6.1
 ### Fixes
 * Update to MuxCore v7.0.10 (#192)
