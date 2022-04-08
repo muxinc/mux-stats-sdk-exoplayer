@@ -68,12 +68,13 @@ public class DemoDownloadService extends DownloadService {
   @NonNull
   protected Notification getForegroundNotification(@NonNull List<Download> downloads, int notMetRequirements) {
     return DemoUtil.getDownloadNotificationHelper(/* context= */ this)
-        .buildProgressNotification(
-            /* context= */ this,
-            R.drawable.ic_download,
-            /* contentIntent= */ null,
-            /* message= */ null,
-            downloads);
+            .buildProgressNotification(
+                    /* context= */ this,
+                    R.drawable.ic_download,
+                    /* contentIntent= */ null,
+                    /* message= */ null,
+                    downloads,
+                    /* notMetRequirements= */0);
   }
 
   /**

@@ -282,8 +282,7 @@ public class SampleChooserActivity extends AppCompatActivity
       DataSource dataSource = DemoUtil.getDataSourceFactory(context).createDataSource();
       for (String uri : uris) {
         DataSpec dataSpec = new DataSpec(Uri.parse(uri));
-        InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec);
-        try {
+        try (InputStream inputStream = new DataSourceInputStream(dataSource, dataSpec)) {
           readPlaylistGroups(new JsonReader(new InputStreamReader(inputStream, "UTF-8")), result);
         } catch (Exception e) {
           Log.e(TAG, "Error loading sample list: " + uri, e);
