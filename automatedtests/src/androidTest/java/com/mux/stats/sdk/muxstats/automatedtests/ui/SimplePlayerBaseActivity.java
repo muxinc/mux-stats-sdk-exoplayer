@@ -61,7 +61,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
   String videoTitle = "Test Video";
   String urlToPlay;
   PlayerView playerView;
-  Player player;
+  ExoPlayer player;
   DefaultTrackSelector trackSelector;
   MediaSource testMediaSource;
   MuxStatsExoPlayer muxStats;
