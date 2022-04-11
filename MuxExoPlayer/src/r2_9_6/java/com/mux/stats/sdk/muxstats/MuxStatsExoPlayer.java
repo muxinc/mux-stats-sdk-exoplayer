@@ -17,6 +17,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.MediaSourceEventListener;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.model.CustomerData;
@@ -93,7 +94,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       INetworkRequest networkRequests) {
     super(ctx, player, playerName, data, options, networkRequests);
 
-    if (player instanceof SimpleExoPlayer) {
+    if (player instanceof SimpleExoPlayer ) {
       ((SimpleExoPlayer) player).addAnalyticsListener(this);
     } else {
       player.addListener(this);
@@ -205,45 +206,18 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   public void onLoadStarted(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    if (loadEventInfo.uri != null) {
-      String segmentMimeType = "unknown";
-      if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.sampleMimeType != null) {
-        segmentMimeType = mediaLoadData.trackFormat.sampleMimeType;
-      }
-      bandwidthDispatcher
-          .onLoadStarted(mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
-              loadEventInfo.uri.getPath(), mediaLoadData.dataType,
-              loadEventInfo.uri.getHost(), segmentMimeType);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadStarted called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
   public void onLoadCompleted(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadCompleted(loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
-          mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadCompleted called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
   public void onLoadCanceled(EventTime eventTime,
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData) {
-    if (loadEventInfo.uri != null) {
-      bandwidthDispatcher
-          .onLoadCanceled(loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadonLoadCanceled called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
@@ -251,12 +225,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaSourceEventListener.LoadEventInfo loadEventInfo,
       MediaSourceEventListener.MediaLoadData mediaLoadData, IOException e,
       boolean wasCanceled) {
-    if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadError(loadEventInfo.uri.getPath(), e);
-    } else {
-      MuxLogger.d(TAG,
-          "ERROR: onLoadError called but mediaLoadData argument have no uri parameter.");
-    }
   }
 
   @Override
@@ -379,6 +347,14 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+    ExoPlayer exoPlayer = player.get();
+    if(exoPlayer != null) {
+      HlsManifest hlsManifest = Util.safeCast(manifest, HlsManifest.class);
+      if(manifest != null) {
+        onMainPlaylistTags(hlsManifest.masterPlaylist.tags);
+      }
+    }
+
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(0, window);

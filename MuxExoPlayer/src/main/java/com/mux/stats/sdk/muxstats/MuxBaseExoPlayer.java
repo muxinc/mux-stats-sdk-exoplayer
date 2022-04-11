@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats;
 
 import static android.os.SystemClock.elapsedRealtime;
 
+import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -52,6 +53,7 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
+import com.mux.stats.sdk.core.model.SessionTag;
 import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
@@ -59,12 +61,15 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class connects the {@link ExoPlayer}, {@link MuxStats} and
@@ -156,6 +161,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   protected int streamType = -1;
   protected long firstFrameRenderedAt = -1;
 
+  protected static final Pattern RX_SESSION_TAG_DATA_ID = Pattern.compile("DATA-ID=\"(.*)\",");
+  protected static final Pattern RX_SESSION_TAG_VALUES = Pattern.compile("VALUE=\"(.*)\"");
+  /** HLS session data tags with this Data ID will be sent to Mux Data */
+  protected static final String HLS_SESSION_LITIX_PREFIX = "io.litix.data.";
+  /** If playing HLS, Contains the EXT-X-SESSION info for the video being played */
+  protected List<SessionTag> sessionTags = new LinkedList<>();
+
   /**
    * These are the different playback states that are monitored internally. {@link ExoPlayer} keeps
    * its own internal state which sometimes can be different then one described here.
@@ -203,7 +215,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     this(ctx, player, playerName,
         new CustomerData(customerPlayerData, customerVideoData, customerViewData),
             false, networkRequest);
-    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
     /**
@@ -227,7 +238,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       CustomerData data, @Deprecated boolean unused,
       INetworkRequest networkRequest) {
     this(ctx, player, playerName, data, new CustomOptions(), networkRequest);
-    // TODO: em - This ctor looks unused and internal. Should it be removed?
   }
 
     /**
@@ -243,8 +253,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * @param data Customer, View, and Video data set by the user
      * @param options Custom Options for configuring the SDK
      * @param networkRequest internet interface implementation.
-     *
-     * @deprecated Prefer to use {@link #MuxBaseExoPlayer(Context, ExoPlayer, String, CustomerData, CustomOptions, INetworkRequest)}
      */
   MuxBaseExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data, CustomOptions options,
@@ -336,6 +344,55 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   protected abstract boolean isLivePlayback();
 
   protected abstract String parseHlsManifestTag(String tagName);
+
+  protected List<String> filterHlsSessionTags(List<String> rawTags) {
+    //noinspection ConstantConditions
+    return Util.filter(rawTags, new ArrayList<>(), tag -> tag.substring(1).startsWith("EXT-X-SESSION-DATA"));
+  }
+
+  protected void onMainPlaylistTags(List<String> playlistTags) {
+    Log.i(TAG, "onMainPlaylistTags: " + playlistTags);
+    List<SessionTag> newSessionData = parseHlsSessionData(playlistTags);
+    Log.i(TAG, "onMainPlaylistTags: Collected Session Data: " + newSessionData);
+
+    // dispatch new session data on change only
+    if(!newSessionData.equals(sessionTags)) {
+      sessionTags = newSessionData;
+      muxStats.setSessionData(sessionTags);
+    }
+  }
+
+  protected List<SessionTag> parseHlsSessionData(List<String> hlsTags) {
+    List<SessionTag> data = new ArrayList<>();
+    for (String tag : filterHlsSessionTags(hlsTags)) {
+      SessionTag st = parseHlsSessionTag(tag);
+      if (st.key != null && st.key.contains(HLS_SESSION_LITIX_PREFIX)) {
+        data.add(parseHlsSessionTag(tag));
+      }
+    }
+    return data;
+  }
+
+  protected SessionTag parseHlsSessionTag(String line) {
+    Matcher dataId = RX_SESSION_TAG_DATA_ID.matcher(line);
+    Matcher value = RX_SESSION_TAG_VALUES.matcher(line);
+    String parsedDataId = "";
+    String parsedValue = "";
+
+    if (dataId.find()) {
+      //noinspection ConstantConditions If the regex matches there will be one subgroup
+      parsedDataId = dataId.group(1).replace(HLS_SESSION_LITIX_PREFIX, "");
+    } else {
+      MuxLogger.d(TAG, "Data-ID not found in session data: " + line);
+    }
+    if (value.find()) {
+      parsedValue = value.group(1);
+    } else {
+      MuxLogger.d(TAG, "Value not found in session data: " + line);
+    }
+
+    return new SessionTag(parsedDataId, parsedValue);
+  }
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
@@ -460,6 +517,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     state = PlayerState.INIT;
     resetInternalStats();
     muxStats.videoChange(customerVideoData);
+    sessionTags = null;
   }
 
   /**
@@ -764,7 +822,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoHoldback() {
-    return parseHlsManifestTagLong("HOLD-BACK");
+    return isLivePlayback()? parseHlsManifestTagLong("HOLD-BACK") : null;
   }
 
   /**
@@ -775,7 +833,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoPartHoldback() {
-    return parseHlsManifestTagLong("PART-HOLD-BACK");
+    return isLivePlayback()? parseHlsManifestTagLong("PART-HOLD-BACK") : null;
   }
 
   /**
@@ -786,7 +844,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoPartTargetDuration() {
-    return parseHlsManifestTagLong("PART-TARGET");
+    return isLivePlayback()? parseHlsManifestTagLong("PART-TARGET") : null;
   }
 
   /**
@@ -797,7 +855,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @Override
   public Long getVideoTargetDuration() {
-    return parseHlsManifestTagLong("EXT-X-TARGETDURATION");
+    return isLivePlayback()? parseHlsManifestTagLong("EXT-X-TARGETDURATION") : null;
   }
 
   /**
@@ -891,6 +949,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    * {@link PlayerState#PLAYING}
    */
   protected void playing() {
+
     if (seekingInProgress) {
       // We will dispatch playing event after seeked event
       return;
@@ -1021,7 +1080,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * See {{@link #parseHlsManifestTagLong(String)}}, parse the tag value as a Long value.
+   * Parses a Long value out of an HLS Manifest tag
    * @param tagName tag name to parse
    * @return Long value of the tag if possible, -1 otherwise.
    */
@@ -1309,19 +1368,19 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * Each segment that started loading is stored here until the segment ceases loading.
      * The segment url is the key value of the map.
      */
-    HashMap<String, BandwidthMetricData> loadedSegments = new HashMap<>();
+    HashMap<Long, BandwidthMetricData> loadedSegments = new HashMap<>();
 
     /**
      * When the segment failed to load an error will be reported to the backend. This also
      * removes the segment that failed to load from the {@link #loadedSegments} hash map.
      *
-     * @param segmentUrl, url of the segment that failed to load.
+     * @param loadTaskId, unique segment id.
      * @param e, error that occured.
      * @return segment that failed to load.
      */
-    public BandwidthMetricData onLoadError(String segmentUrl,
+    public BandwidthMetricData onLoadError(Long loadTaskId,
         IOException e) {
-      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      BandwidthMetricData segmentData = loadedSegments.get(loadTaskId);
       if (segmentData == null) {
         segmentData = new BandwidthMetricData();
         // TODO We should see how to put minimal stats here !!!
@@ -1339,11 +1398,11 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * the player stopped the playback and wants to stop all network loading. In that case we will
      * remove the appropriate segment from {@link #loadedSegments}.
      *
-     * @param segmentUrl, url of the segment that wants to be loaded.
+     * @param loadTaskId, unique id that represent the loaded segment.
      * @return Canceled segment.
      */
-    public BandwidthMetricData onLoadCanceled(String segmentUrl) {
-      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+    public BandwidthMetricData onLoadCanceled(Long loadTaskId) {
+      BandwidthMetricData segmentData = loadedSegments.get(loadTaskId);
       if (segmentData == null) {
         segmentData = new BandwidthMetricData();
         // TODO We should see how to put minimal stats here !!!
@@ -1353,7 +1412,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       return segmentData;
     }
 
-    protected BandwidthMetricData onLoad(long mediaStartTimeMs, long mediaEndTimeMs,
+    protected BandwidthMetricData onLoad(Long loadTaskId, long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host, String segmentMimeType
     ) {
       // Populate segment time details.
@@ -1396,15 +1455,15 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       segmentData.setRequestResponseHeaders(null);
       segmentData.setRequestHostName(host);
       segmentData.setRequestRenditionLists(renditionList);
-      loadedSegments.put(segmentUrl, segmentData);
+      loadedSegments.put(loadTaskId, segmentData);
       return segmentData;
     }
 
     /**
      * Called when a segment starts loading. Set appropriate metrics and store the segment in
      * {@link #loadedSegments}. It will be then sent to the backend once the appropriate one of
-     * {@link #onLoadCompleted(String, long, Format)} ,{@link #onLoadError(String, IOException)} or
-     * {@link #onLoadCanceled(String)} is called for this segment.
+     * {@link #onLoadCompleted(Long, String, long, Format)} ,{@link #onLoadError(Long, IOException)}
+     * or {@link #onLoadCanceled(Long)}  is called for this segment.
      *
      * @param mediaStartTimeMs, {@link ExoPlayer} reported segment playback start time, this refer
      *                                           to playback position of segment inside the media
@@ -1418,9 +1477,9 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * @param host, host associated with this segment.
      * @return new segment.
      */
-    public BandwidthMetricData onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs,
+    public BandwidthMetricData onLoadStarted(Long loadTaskId, long mediaStartTimeMs, long mediaEndTimeMs,
         String segmentUrl, int dataType, String host, String segmentMimeType) {
-      BandwidthMetricData loadData = onLoad(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
+      BandwidthMetricData loadData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs, segmentUrl
           , dataType, host, segmentMimeType);
       if (loadData != null) {
         loadData.setRequestResponseStart(System.currentTimeMillis());
@@ -1432,14 +1491,15 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
      * Called when segment is loaded. This function will retrieve the statistics for this segment
      * from {@link #loadedSegments} and fill out the remaining metrics.
      *
+     * @param loadTaskId unique id representing the current segment.
      * @param segmentUrl url related to the segment.
      * @param bytesLoaded number of bytes needed to load the segment.
      * @param trackFormat Media details related to the segment.
      * @return loaded segment.
      */
-    public BandwidthMetricData onLoadCompleted(String segmentUrl, long bytesLoaded,
+    public BandwidthMetricData onLoadCompleted(Long loadTaskId, String segmentUrl, long bytesLoaded,
         Format trackFormat) {
-      BandwidthMetricData segmentData = loadedSegments.get(segmentUrl);
+      BandwidthMetricData segmentData = loadedSegments.get(loadTaskId);
       if (segmentData == null) {
         return null;
       }
@@ -1458,7 +1518,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
           }
         }
       }
-      loadedSegments.remove(segmentUrl);
+      loadedSegments.remove(loadTaskId);
       return segmentData;
     }
   }
@@ -1466,24 +1526,24 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   class BandwidthMetricHls extends BandwidthMetric {
 
     @Override
-    public BandwidthMetricData onLoadError(String segmentUrl,
+    public BandwidthMetricData onLoadError(Long loadedSegments,
         IOException e) {
-      BandwidthMetricData loadData = super.onLoadError(segmentUrl, e);
+      BandwidthMetricData loadData = super.onLoadError(loadedSegments, e);
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCanceled(String segmentUrl) {
-      BandwidthMetricData loadData = super.onLoadCanceled(segmentUrl);
+    public BandwidthMetricData onLoadCanceled(Long loadTaskId) {
+      BandwidthMetricData loadData = super.onLoadCanceled(loadTaskId);
       loadData.setRequestCancel("FragLoadEmergencyAborted");
       return loadData;
     }
 
     @Override
-    public BandwidthMetricData onLoadCompleted(String segmentUrl,
+    public BandwidthMetricData onLoadCompleted(Long loadTaskId, String segmentUrl,
         long bytesLoaded,
         Format trackFormat) {
-      BandwidthMetricData loadData = super.onLoadCompleted(segmentUrl, bytesLoaded, trackFormat);
+      BandwidthMetricData loadData = super.onLoadCompleted(loadTaskId, segmentUrl, bytesLoaded, trackFormat);
       if (trackFormat != null && loadData != null) {
         MuxLogger.d(TAG, "\n\nWe got new rendition quality: " + trackFormat.bitrate + "\n\n");
         loadData.setRequestLabeledBitrate(trackFormat.bitrate);
@@ -1503,6 +1563,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
     ArrayList<String> allowedHeaders = new ArrayList<>();
+    protected boolean debugModeOn = false;
+    protected long requestSegmentDuration = 1000;
+    protected long lastRequestSentAt = -1;
+    protected int maxNumberOfEventsPerSegmentDuration = 10;
+    protected int numberOfRequestCompletedBeaconsSentPerSegment = 0;
+    protected int numberOfRequestCancelBeaconsSentPerSegment = 0;
+    protected int numberOfRequestFailedBeaconsSentPerSegment = 0;
 
     public BandwidthMetricDispatcher() {
       allowedHeaders.add("x-cdn");
@@ -1513,44 +1580,44 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       return bandwidthMetricHls;
     }
 
-    public void onLoadError(String segmentUrl, IOException e) {
+    public void onLoadError(Long loadTaskId, String segmentUrl, IOException e) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(segmentUrl, e);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadError(loadTaskId, e);
       dispatch(loadData, new RequestFailed(null));
     }
 
-    public void onLoadCanceled(String segmentUrl, Map<String, List<String>> headers) {
+    public void onLoadCanceled(long loadTaskId, String segmentUrl, Map<String, List<String>> headers) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(segmentUrl);
+      BandwidthMetricData loadData = currentBandwidthMetric().onLoadCanceled(loadTaskId);
       parseHeaders(loadData, headers);
       dispatch(loadData, new RequestCanceled(null));
     }
 
-    public void onLoadStarted(long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
+    public void onLoadStarted(Long loadTaskId, long mediaStartTimeMs, long mediaEndTimeMs, String segmentUrl,
         int dataType, String host, String segmentMimeType) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
-      currentBandwidthMetric().onLoadStarted(mediaStartTimeMs, mediaEndTimeMs, segmentUrl
+      currentBandwidthMetric().onLoadStarted(loadTaskId, mediaStartTimeMs, mediaEndTimeMs, segmentUrl
           , dataType, host, segmentMimeType);
     }
 
     public void onLoadCompleted(
-        String segmentUrl, long bytesLoaded, Format trackFormat,
+        Long loadTaskId, String segmentUrl, long bytesLoaded, Format trackFormat,
         Map<String, List<String>> responseHeaders) {
       if (player == null || player.get() == null || muxStats == null
           || currentBandwidthMetric() == null) {
         return;
       }
       BandwidthMetricData loadData = currentBandwidthMetric().onLoadCompleted(
-          segmentUrl, bytesLoaded, trackFormat);
+          loadTaskId, segmentUrl, bytesLoaded, trackFormat);
       if (loadData != null) {
         parseHeaders(loadData, responseHeaders);
         dispatch(loadData, new RequestCompleted(null));
@@ -1598,7 +1665,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     private void dispatch(BandwidthMetricData data, PlaybackEvent event) {
-      if (data != null) {
+      if (data != null && shouldDispatchEvent(data, event)) {
         event.setBandwidthMetricData(data);
         MuxBaseExoPlayer.this.dispatch(event);
       }
@@ -1643,6 +1710,70 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
         }
       }
       return headers;
+    }
+
+    /**
+     * Make sure we do not overflow backend with Request events in case we have a broken live stream
+     * and player keeps loading manifest or some other short segment not really needed for playback.
+     *
+     * @param data, all statistics collected for this segment.
+     * @param event, event to be dispatched.
+     * @return true if number of request completed events do not exceed two request per media
+     * segment duration.
+     */
+    private boolean shouldDispatchEvent(BandwidthMetricData data, PlaybackEvent event) {
+      if (data != null) {
+        if (data.getRequestMediaDuration() == null || data.getRequestMediaDuration() < 1000) {
+          requestSegmentDuration = 1000;
+        } else {
+          requestSegmentDuration = data.getRequestMediaDuration();
+        }
+      }
+      long timeDiff = System.currentTimeMillis() - lastRequestSentAt;
+      if (timeDiff > requestSegmentDuration) {
+        // Reset all stats
+        lastRequestSentAt = System.currentTimeMillis();
+        numberOfRequestCompletedBeaconsSentPerSegment = 0;
+        numberOfRequestCancelBeaconsSentPerSegment = 0;
+        numberOfRequestFailedBeaconsSentPerSegment = 0;
+      }
+      if (event instanceof RequestCompleted) {
+        numberOfRequestCompletedBeaconsSentPerSegment ++;
+      }
+      if (event instanceof RequestCanceled) {
+        numberOfRequestCancelBeaconsSentPerSegment ++;
+      }
+      if (event instanceof RequestFailed) {
+        numberOfRequestFailedBeaconsSentPerSegment ++;
+      }
+      if (numberOfRequestCompletedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
+        || numberOfRequestCancelBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
+        || numberOfRequestFailedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration) {
+        if (debugModeOn) {
+          MuxLogger.d(TAG, "Dropping event: " + event.getType()
+              + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
+              + numberOfRequestCompletedBeaconsSentPerSegment
+              + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
+              + numberOfRequestCancelBeaconsSentPerSegment
+              + "\nnumberOfRequestFailedBeaconsSentPerSegment: "
+              + numberOfRequestFailedBeaconsSentPerSegment
+              + "\ntimeDiff: " + timeDiff
+          );
+        }
+        return false;
+      }
+      if (debugModeOn) {
+        MuxLogger.d(TAG, "All good: " + event.getType()
+            + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
+            + numberOfRequestCompletedBeaconsSentPerSegment
+            + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
+            + numberOfRequestCancelBeaconsSentPerSegment
+            + "\nnumberOfRequestFailedBeaconsSentPerSegment: "
+            + numberOfRequestFailedBeaconsSentPerSegment
+            + "\ntimeDiff: " + timeDiff
+        );
+      }
+      return true;
     }
   }
 

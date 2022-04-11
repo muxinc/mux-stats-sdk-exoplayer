@@ -39,7 +39,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   static final String X_CDN_HEADER_VALUE = "automated.test.com";
 
-  static final long ERROR_MARGIN_FOR_REQUEST_LATENCY = 500;
+  static final long ERROR_MARGIN_FOR_REQUEST_LATENCY = 600;
   static final long ERROR_MARGIN_FOR_BYTES_SERVED = 50;
   static final long ERROR_MARGIN_FOR_SEGMENT_DURATION = 100;
   static final long ERROR_MARGIN_FOR_SEGMENT_VIDEO_RESOLUTION = 10;
@@ -55,6 +55,9 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   public void init() {
     if( currentTestName.getMethodName().equalsIgnoreCase("testBandwidthMetricsHls") ) {
       urlToPlay = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+    } else if (currentTestName.getMethodName().equalsIgnoreCase("testMultipleCDNHeaders")) {
+      // TODO put the multiple cdn link here
+      urlToPlay = "";
     } else {
       urlToPlay = "http://localhost:5000/dash/google_glass/playlist.mpd";
       parsingDash = true;
@@ -70,6 +73,11 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   @Test
+  public void testMultipleCDNHeaders() {
+
+  }
+
+  @Test
   public void testBandwidthMetricsHls() {
     testBandwidthMetrics();
   }
@@ -80,6 +88,12 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   public void testBandwidthMetrics() {
+    // Test not supported for this flavor
+    if (BuildConfig.FLAVOR.contains("r2_11_1")
+        || BuildConfig.FLAVOR.contains("r2_10_6")
+        || BuildConfig.FLAVOR.contains("r2_9_6")) {
+      return;
+    }
     try {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
