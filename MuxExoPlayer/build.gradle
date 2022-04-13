@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-apply plugin: 'com.kezong.fat-aar'
 
 checkstyle {
     configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
@@ -116,6 +115,18 @@ android {
         r2_16_1_ads {
             dimension 'api'
         }
+        r2_17_1 {
+            dimension 'api'
+        }
+        r2_17_1_ads {
+            dimension 'api'
+        }
+        amznPort {
+            dimension 'api'
+        }
+        amznPort_ads {
+            dimension 'api'
+        }
     }
 
     // Attach the java src directory relevant for each flavor created
@@ -163,52 +174,46 @@ android {
 apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
 
 dependencies {
-    r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
-    r2_9_6Api 'org.checkerframework:checker-qual:2.5.0'
-    r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer:2.9.6'
-    r2_9_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
-    
-    r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-    r2_10_6Api 'org.checkerframework:checker-qual:2.5.0'
-    r2_10_6_adsApi 'com.google.android.exoplayer:exoplayer:2.10.6'
-    r2_10_6_adsApi 'org.checkerframework:checker-qual:2.5.0'
-    
-    r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-    r2_11_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
-    r2_11_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-    
-    r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-    r2_12_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'
-    r2_12_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
-    
-    r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-    r2_13_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
-    r2_13_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+    api 'org.checkerframework:checker-qual:2.5.0'
 
-    r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
-    r2_14_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
-    r2_14_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+    r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
+    r2_9_6_adsImplementation 'com.google.android.exoplayer:exoplayer:2.9.6'
 
-    r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
-    r2_15_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer:2.15.1'
-    r2_15_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+    r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
+    r2_10_6_adsImplementation 'com.google.android.exoplayer:exoplayer:2.10.6'
 
-    r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
-    r2_16_1Api 'org.checkerframework:checker-qual:2.5.2'
-    r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer:2.16.1'
-    r2_16_1_adsApi 'org.checkerframework:checker-qual:2.5.2'
+    r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+    r2_11_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+
+    r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
+    r2_12_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.12.1'
+
+    r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
+    r2_13_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.13.1'
+
+    r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
+    r2_14_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.14.1'
+
+    r2_15_1Implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
+    r2_15_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.15.1'
+
+    r2_16_1Implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+    r2_16_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+
+    // Amazon's port doesn't delete any symbols (ever), so we only need one version
+    amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
+    amznPort_adsImplementation "com.amazon.android:exoplayer:2.16.1"
+
+    r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+    r2_17_1Implementation 'org.checkerframework:checker-qual:2.5.2'
+    r2_17_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+    r2_17_1_adsImplementation 'org.checkerframework:checker-qual:2.5.2'
 
     compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
     def muxCoreImport = "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-
     debugApi muxCoreImport
-    releaseEmbed muxCoreImport
+    releaseApi muxCoreImport
 }

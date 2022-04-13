@@ -16,7 +16,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
-        buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"YOUR_ENV_KEY_HERE\"")
+        buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"bar8fjevgudvf4o7r8fdjrfii\"")
     }
 
     buildTypes {
@@ -83,6 +83,12 @@ android {
         r2_16_1 {
             dimension 'api'
         }
+        r2_17_1 {
+            dimension 'api'
+        }
+        amznPort {
+            dimension 'api'
+        }
     }
 
     compileOptions {
@@ -90,8 +96,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
-
-apply from: '../MuxAndroidSDKPublishing/fataar_flavor.gradle', to: android
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -121,37 +125,49 @@ dependencies {
     androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+    androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+    androidTestAmznPortImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
     api 'org.checkerframework:checker-qual:2.5.2'
-    notFatAarImplementation project(':MuxExoPlayer')
 
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
+    r2_9_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
+
     r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
     r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
+    r2_10_6Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
+
     r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
     r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
+    r2_11_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_11_1:'+project.ext.versionName
+
     r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
     r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
+    r2_12_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_12_1:'+project.ext.versionName
+
     r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
     r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
+    r2_13_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
+
     r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
     r2_14_1Api 'com.google.android.exoplayer:extension-mediasession:2.14.1'
+    r2_14_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
+
     r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
     r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
+    r2_15_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
+
     r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
     r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
-}
+    r2_16_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
 
-afterEvaluate {
-    dependencies {
-        r2_9_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_9_6:'+project.ext.versionName
-        r2_10_6IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_10_6:'+project.ext.versionName
-        r2_11_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_11_1:'+project.ext.versionName
-        r2_12_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_12_1:'+project.ext.versionName
-        r2_13_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_13_1:'+project.ext.versionName
-        r2_14_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_14_1:'+project.ext.versionName
-        r2_15_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_15_1:'+project.ext.versionName
-        r2_16_1IsFatAarApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_16_1:'+project.ext.versionName
-    }
+    r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+    r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
+    r2_17_1Api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_r2_17_1:'+project.ext.versionName
+
+    amznPortApi 'com.amazon.android:exoplayer:2.16.1'
+    amznPortApi 'com.amazon.android:extension-mediasession:2.16.1'
+    //amznPortApi 'com.mux.stats.sdk.muxstats:MuxExoPlayer_amznPort:'+project.ext.versionName
+    amznPortApi project(':MuxExoPlayer')
 }

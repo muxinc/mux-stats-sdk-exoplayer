@@ -10,6 +10,7 @@ import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaItem.AdsConfiguration;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
@@ -34,7 +35,7 @@ import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 
 
-public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
+public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implements Player.Listener {
 
   MediaSourceFactory mediaSourceFactory;
 
@@ -65,6 +66,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
             .setTrackSelector(trackSelector)
             .build();
     playerView.setPlayer(player);
+    player.addListener(this);
   }
 
   // This is for background playback, set appropriate notification and etc
@@ -177,7 +179,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
     }
 
     player.setPlayWhenReady(playWhenReady);
-    player.setMediaSource(testMediaSource);
+    ((SimpleExoPlayer)player).setMediaSource(testMediaSource);
     player.seekTo(playbackStartPosition);
     player.prepare();
   }
@@ -196,5 +198,38 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity {
       // TODO implement this
       Log.e(TAG, "onNotificationPosted");
     }
+  }
+
+  //////////////////////////////////////////////////////////////////////
+  ////// Player.EventListener //////////////////////////////////////////
+
+  @Override
+  public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+    switch (playbackState) {
+      case Player.STATE_BUFFERING:
+        signalPlaybackBuffering();
+        break;
+      case Player.STATE_ENDED:
+        signalPlaybackEnded();
+        break;
+      case Player.STATE_READY:
+        // By the time we get here, it depends on playWhenReady to know if we're playing
+        if (playWhenReady) {
+          signalPlaybackStarted();
+        } else {
+          // TODO implement this
+//                    signalPlaybackPaused();
+        }
+      case Player.STATE_IDLE:
+        signalPlaybackStopped();
+        break;
+    }
+  }
+
+  @Override
+  public void onRepeatModeChanged(int repeatMode) {
+    activityLock.lock();
+    activityInitialized.signalAll();
+    activityLock.unlock();
   }
 }
