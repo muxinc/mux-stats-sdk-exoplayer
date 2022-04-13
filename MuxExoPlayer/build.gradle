@@ -133,7 +133,7 @@ android {
     afterEvaluate {
         android.libraryVariants.each { variant ->
             def matcher = variant.name =~ /(r\d+_\d+_\d+).*/
-            if(matcher.find()) {
+            if (matcher.find()) {
                 def strippedExoPlayerVersion = matcher.group(1)
                 def sourceSet = sourceSets.findByName(variant.name)
                 sourceSet.java.srcDirs = ['./src/' + strippedExoPlayerVersion + '/java']
@@ -146,7 +146,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    build  {
+    build {
         doLast {
             productFlavors.each {
                 flavor ->
@@ -159,7 +159,7 @@ android {
                             rename("mapping.txt", "mapping-${versionName}.txt")
                             File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
                             println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
-                            if ( aarFile.length() > 120000 ) {
+                            if (aarFile.length() > 120000) {
                                 // Fail
                                 throw new GradleException(
                                         "${project.name}-${flavor.name}-release.aar exceed 120KB!");
@@ -213,7 +213,5 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    def muxCoreImport = "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-    debugApi muxCoreImport
-    releaseApi muxCoreImport
+    api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }

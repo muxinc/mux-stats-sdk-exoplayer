@@ -1,4 +1,4 @@
-package com.mux.exoplayercompat
+package com.mux.exoplayeradapter
 
 import org.junit.Test
 
