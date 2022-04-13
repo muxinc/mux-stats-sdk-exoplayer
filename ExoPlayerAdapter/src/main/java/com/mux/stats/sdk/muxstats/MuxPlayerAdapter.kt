@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats
 
-import android.content.Context
 import android.view.View
 import com.mux.stats.sdk.muxstats.internal.Weak
 
@@ -8,7 +7,6 @@ import com.mux.stats.sdk.muxstats.internal.Weak
  * Adapts a player framework to a {@link MuxDataPlayer}, passing events between them
  */
 abstract class MuxPlayerAdapter<PlayerView : View, Player>(
-        context: Context,
         muxStats: MuxStats,
         player: Player? = null,
         @Suppress("MemberVisibilityCanBePrivate")
@@ -31,6 +29,8 @@ abstract class MuxPlayerAdapter<PlayerView : View, Player>(
 
   internal val collector = MuxDataCollector(muxStats)
 
+  protected var playerDataSource: PlayerDataSource<Player>? = null
+
   /**
    * Bind this Adapter to a new Player, registering listeners etc
    */
@@ -42,8 +42,31 @@ abstract class MuxPlayerAdapter<PlayerView : View, Player>(
   protected abstract fun unbindPlayer(player: Player)
 
   private fun changePlayer(player: Player) {
-    unbindPlayer(player)
+    this.player?.let { unbindPlayer(it) }
     this.player = player
+    this.playerDataSource
     bindPlayer(player)
   }
+
+  /**
+   *  Data source for player state data, for {@link MuxDataCollector}. Implementations should call
+   *  properties of the player being monitored and forward results
+   */
+  abstract class PlayerDataSource<Player>() {
+
+    constructor(player: Player) : this() {
+      this.player = player
+    }
+
+    /**
+     * True when playing a livestream, false otherwise
+     */
+    abstract val isLive: Boolean
+
+    /**
+     * The Player being wrapped by this object
+     */
+    var player by Weak<Player>(null)
+  }
 }
+

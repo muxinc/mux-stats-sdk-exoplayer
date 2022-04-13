@@ -8,7 +8,7 @@ import kotlin.reflect.KProperty
  * You an also observe changes with onSet() and onGet()
  * Not thread-safe
  */
-class Weak<T>(referent: T) {
+class Weak<T>(referent: T?) {
   private var weakT = WeakReference(referent)
   private var onSet: ((T?) -> Unit)? = null
   private var onGet: (() -> Unit)? = null

@@ -11,4 +11,5 @@ internal class MuxDataCollector(val muxStats: MuxStats) {
   val playerState by ::_playerState
   private var _playerState: MuxPlayerState = MuxPlayerState.INIT
 
+
 }
