@@ -3,35 +3,36 @@ package com.mux.stats.sdk.muxstats
 import android.app.Activity
 import android.graphics.Point
 import android.view.View
-import com.mux.stats.sdk.muxstats.internal.Weak
+import android.widget.TextView
+import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
  * Allows implementers to supply data about the view and screen being used for playback
  */
-interface MuxUiDelegate<PlayerView> {
-  var view: PlayerView?
+abstract class MuxUiDelegate<PlayerView>(view: PlayerView) {
+  var view by weak(view)
+
+  var view2: View? = null
 
   /**
    * Gets the size of the player view in px as a pair of (width, height)
    * If {@link #view} is non-null returns the size of the player view
    * It (@link #view} is null, returns size of 0
    */
-  fun getPlayerViewSize(): Point
+  abstract fun getPlayerViewSize(): Point
 
   /**
    * Gets the sie of the entire screen in px, not including nav/statusbar/window insets
    * If the View is null, returns a size of 0
    */
-  fun getScreenSize(): Point
+  abstract fun getScreenSize(): Point
 }
 
 /**
  * MuxViewDelegate for an Android View
  */
-internal class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView?)
-  : MuxUiDelegate<PlayerView> {
-
-  override var view by Weak(view)
+private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView)
+  : MuxUiDelegate<PlayerView>(view) {
 
   private val _screenSize: Point = Point().let { size ->
     @Suppress("DEPRECATION") // fullscreen considers screen size, less system decoration
@@ -48,3 +49,10 @@ internal class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: P
 
   override fun getScreenSize(): Point = _screenSize
 }
+
+/**
+ * Create a MuxUiDelegate based on a View
+ */
+@JvmSynthetic
+internal fun <PlayerView : View> PlayerView.muxUiDelegate(activity: Activity?)
+        : MuxUiDelegate<PlayerView> = AndroidUiDelegate(activity, this)

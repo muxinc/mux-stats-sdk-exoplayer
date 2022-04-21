@@ -1,31 +1,54 @@
 package com.mux.stats.sdk.muxstats.internal
 
 import java.lang.ref.WeakReference
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 /**
- * Property Delegate that makes the object referenced by the property weakly-reachable
- * You an also observe changes with onSet() and onGet()
- * Not thread-safe
+ * Property Delegate where the property's referent is not reachable
+ * The implementation is private, but within this module you can use weak(...) to use this class
+ * (this prevents Weak from being instantiated in java with new Weak$library())
  */
-class Weak<T>(referent: T?) {
+private class Weak<T>(referent: T?) : ReadWriteProperty<Any, T?> {
   private var weakT = WeakReference(referent)
   private var onSet: ((T?) -> Unit)? = null
-  private var onGet: (() -> Unit)? = null
-
-  operator fun getValue(thisRef: Any, property: KProperty<*>) = weakT.get()
-
-  operator fun setValue(thisRef: Any, property: KProperty<*>, value: T?) {
-    weakT = WeakReference(value)
-  }
 
   fun onSet(block: (T?) -> Unit): Weak<T> {
     onSet = block
     return this
   }
 
-  fun onGet(block: () -> Unit): Weak<T> {
-    onGet = block
-    return this
+  override fun getValue(thisRef: Any, property: KProperty<*>): T? = weakT.get()
+
+  override fun setValue(thisRef: Any, property: KProperty<*>, value: T?) {
+    weakT = WeakReference(value)
   }
 }
+
+/**
+ * Property Delegate that makes the object referenced by the property weakly-reachable
+ * Not thread-safe
+ */
+@JvmSynthetic // synthetic methods are hidden from java, and java has no property delegates
+internal fun <T> weak(t: T): ReadWriteProperty<Any, T?> = Weak(t)
+
+/**
+ * Property Delegate that makes the object referenced by the property weakly-reachable
+ * Not thread-safe
+ */
+@JvmSynthetic // synthetic methods are hidden from java, and java has no property delegates
+internal fun <T> weak(): ReadWriteProperty<Any, T?> = Weak(null)
+
+/**
+ * Weakly-reachable property delegate that is observable
+ */
+@JvmSynthetic
+internal fun <T> observableWeak(t: T?, block: (T?) -> Unit): ReadWriteProperty<Any, T?> =
+        Weak(t).onSet { block(it) }
+
+/**
+ * Weakly-reachable property delegate that is observable
+ */
+@JvmSynthetic
+internal fun <T> observableWeak(block: (T?) -> Unit): ReadWriteProperty<Any, T?> =
+        Weak<T>(null).onSet { block(it) }

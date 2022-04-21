@@ -1,35 +1,42 @@
 package com.mux.stats.sdk.muxstats
 
 import android.view.View
-import com.mux.stats.sdk.muxstats.internal.Weak
+import android.widget.TextView
+import com.mux.stats.sdk.muxstats.internal.downcast
+import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
  * Adapts a player framework to a {@link MuxDataPlayer}, passing events between them
  */
 abstract class MuxPlayerAdapter<PlayerView : View, Player>(
         muxStats: MuxStats,
-        player: Player? = null,
         @Suppress("MemberVisibilityCanBePrivate")
-        protected val uiDelegate: MuxUiDelegate<PlayerView>,
+        val playerDataSource: PlayerDataSource<Player>,
+        @Suppress("MemberVisibilityCanBePrivate")
+        val uiDelegate: MuxUiDelegate<PlayerView>,
 ) {
 
   /**
-   * Sets the Player View associated with this Adapter
+   * The player being adapter by this object.
    */
-  var playerView: PlayerView?
-    get() = uiDelegate.view
-    set(value) {
-      uiDelegate.view = value
-    }
+  protected var player by playerDataSource::player
+
+  protected var exoPlayerView: TextView? by downcast(uiDelegate::view2)
 
   /**
-   * The player being adapter by this object
+   * Data collector, which tracks the state of stuff.
+   * TODO: Whole Class:
+   *  Inputs: Data Src (gets Stuff from player)
+   *    Binding/Listener: Forwards callbacks to a Collector.
+   *    common line in binding: player.setListener { collector.x(it) }
+   *  This class itself does: Binds listeners and data srcs to player, relies on subclasses to
+   *    forward/get stuff
+   *  What about View-y stuff? We do need a view, but here? Only for dimensions?
+   *    The Collector needs the UI delegate.
    */
-  var player by Weak(player).onSet { player -> player?.let { changePlayer(it) } }
+  protected val collector = MuxDataCollector(muxStats)
 
-  internal val collector = MuxDataCollector(muxStats)
-
-  protected var playerDataSource: PlayerDataSource<Player>? = null
+  private var _dataSrc: PlayerDataSource<Player>? = null
 
   /**
    * Bind this Adapter to a new Player, registering listeners etc
@@ -41,11 +48,20 @@ abstract class MuxPlayerAdapter<PlayerView : View, Player>(
    */
   protected abstract fun unbindPlayer(player: Player)
 
-  private fun changePlayer(player: Player) {
+  /**
+   * Creates the object that pulls data from the Player
+   */
+  protected abstract fun createDataSource(player: Player): PlayerDataSource<Player>
+
+  /**
+   * Switches out the player being monitored by this Adapter
+   */
+  fun changePlayer(player: Player?) {
     this.player?.let { unbindPlayer(it) }
-    this.player = player
-    this.playerDataSource
-    bindPlayer(player)
+    player?.let {
+      this._dataSrc = createDataSource(it)
+      bindPlayer(it)
+    }
   }
 
   /**
@@ -59,14 +75,13 @@ abstract class MuxPlayerAdapter<PlayerView : View, Player>(
     }
 
     /**
+     * The Player being wrapped by this object
+     */
+    var player by weak<Player>()
+
+    /**
      * True when playing a livestream, false otherwise
      */
     abstract val isLive: Boolean
-
-    /**
-     * The Player being wrapped by this object
-     */
-    var player by Weak<Player>(null)
   }
 }
-
