@@ -31,6 +31,6 @@ private class Downcast<Upper, Lower : Upper>(var t: KMutableProperty0<Upper?>)
  *  // where aView is a View or other superclass of ExoPlayerView:
  *  var exoPlayerView: ExoPlayerView by downcast<View, ExoPlayerView>(anObject::aView)
  */
-@JvmSynthetic
+@JvmSynthetic // Hide from Java, since Property Delegates are useless to Java
 internal fun <U, L : U> downcast(delegatedProperty: KMutableProperty0<U?>)
         : ReadWriteProperty<Any, L?> = Downcast(delegatedProperty)

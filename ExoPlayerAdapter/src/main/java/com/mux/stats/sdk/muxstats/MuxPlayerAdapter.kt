@@ -4,62 +4,47 @@ import android.view.View
 import android.widget.TextView
 import com.mux.stats.sdk.muxstats.internal.downcast
 import com.mux.stats.sdk.muxstats.internal.weak
+import kotlin.properties.Delegates
 
 /**
  * Adapts a player framework to a {@link MuxDataPlayer}, passing events between them
  */
-abstract class MuxPlayerAdapter<PlayerView : View, Player>(
+class MuxPlayerAdapter<PlayerView : View, Player>(
         muxStats: MuxStats,
-        @Suppress("MemberVisibilityCanBePrivate")
-        val playerDataSource: PlayerDataSource<Player>,
+        playerDataSource: PlayerDataSource<Player>,
         @Suppress("MemberVisibilityCanBePrivate")
         val uiDelegate: MuxUiDelegate<PlayerView>,
 ) {
 
   /**
-   * The player being adapter by this object.
+   * The Player Binding associated with this Adapter. If the value is changed, the new binding will
+   * be used.
    */
-  protected var player by playerDataSource::player
+  var playerDataSource: PlayerDataSource<Player>? by Delegates.observable(playerDataSource) {
+    _, _, new -> changePlayer(new)
+  }
 
-  protected var exoPlayerView: TextView? by downcast(uiDelegate::view2)
-
-  /**
-   * Data collector, which tracks the state of stuff.
-   * TODO: Whole Class:
-   *  Inputs: Data Src (gets Stuff from player)
-   *    Binding/Listener: Forwards callbacks to a Collector.
-   *    common line in binding: player.setListener { collector.x(it) }
-   *  This class itself does: Binds listeners and data srcs to player, relies on subclasses to
-   *    forward/get stuff
-   *  What about View-y stuff? We do need a view, but here? Only for dimensions?
-   *    The Collector needs the UI delegate.
-   */
-  protected val collector = MuxDataCollector(muxStats)
-
-  private var _dataSrc: PlayerDataSource<Player>? = null
+  private var player by playerDataSource::player
+  private val collector = MuxDataCollector(muxStats)
+  // TODO: Something like this in ExoPlayer Adapter or MuxBaseExoPlayer
+  private var exoPlayerView: TextView? by downcast(uiDelegate::view2)
 
   /**
    * Bind this Adapter to a new Player, registering listeners etc
    */
-  protected abstract fun bindPlayer(player: Player)
+  private fun bindPlayer(player: Player) {}
 
   /**
    * Unbind from a player, clearing listeners etc
    */
-  protected abstract fun unbindPlayer(player: Player)
+  private fun unbindPlayer(player: Player) {}
 
   /**
-   * Creates the object that pulls data from the Player
+   * Switches the Data Source for the given player
    */
-  protected abstract fun createDataSource(player: Player): PlayerDataSource<Player>
-
-  /**
-   * Switches out the player being monitored by this Adapter
-   */
-  fun changePlayer(player: Player?) {
+  private fun changePlayer(player: PlayerDataSource<Player>?) {
     this.player?.let { unbindPlayer(it) }
-    player?.let {
-      this._dataSrc = createDataSource(it)
+    player?.player?.let {
       bindPlayer(it)
     }
   }
