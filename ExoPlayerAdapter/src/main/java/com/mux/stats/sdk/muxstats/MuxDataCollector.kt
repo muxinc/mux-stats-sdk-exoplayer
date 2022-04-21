@@ -3,7 +3,7 @@ package com.mux.stats.sdk.muxstats
 /**
  * Collects events from a player and delivers them into a MuxStats instance
  */
-class MuxDataCollector(val muxStats: MuxStats) {
+class MuxDataCollector(val muxStats: MuxStats, val uiDelegate: MuxUiDelegate<*>) {
 
   /**
    * The current state of the player, as represented by Mux Data

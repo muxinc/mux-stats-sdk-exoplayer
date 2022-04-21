@@ -12,8 +12,6 @@ import com.mux.stats.sdk.muxstats.internal.weak
 abstract class MuxUiDelegate<PlayerView>(view: PlayerView) {
   var view by weak(view)
 
-  var view2: View? = null
-
   /**
    * Gets the size of the player view in px as a pair of (width, height)
    * If {@link #view} is non-null returns the size of the player view
@@ -29,7 +27,7 @@ abstract class MuxUiDelegate<PlayerView>(view: PlayerView) {
 }
 
 /**
- * MuxViewDelegate for an Android View
+ * MuxViewDelegate for an Android View.
  */
 private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView)
   : MuxUiDelegate<PlayerView>(view) {

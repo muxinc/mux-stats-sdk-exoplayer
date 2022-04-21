@@ -1,72 +1,88 @@
 package com.mux.stats.sdk.muxstats
 
-import android.view.View
-import android.widget.TextView
-import com.mux.stats.sdk.muxstats.internal.downcast
+import com.mux.stats.sdk.muxstats.internal.observableWeak
 import com.mux.stats.sdk.muxstats.internal.weak
-import kotlin.properties.Delegates
 
 /**
  * Adapts a player framework to a {@link MuxDataPlayer}, passing events between them
  */
-class MuxPlayerAdapter<PlayerView : View, Player>(
-        muxStats: MuxStats,
-        playerDataSource: PlayerDataSource<Player>,
+class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
+        player: MainPlayer,
+        @Suppress("MemberVisibilityCanBePrivate")
+        val muxStats: MuxStats,
         @Suppress("MemberVisibilityCanBePrivate")
         val uiDelegate: MuxUiDelegate<PlayerView>,
+        @Suppress("MemberVisibilityCanBePrivate")
+        val basicMetrics: PlayerBinding<MainPlayer>,
+        @Suppress("MemberVisibilityCanBePrivate")
+        val extraMetrics: ExtraPlayerBindings<ExtraPlayer>? = null,
 ) {
 
   /**
-   * The Player Binding associated with this Adapter. If the value is changed, the new binding will
-   * be used.
+   * The main Player being observed by this Adapter. When changed, the old player will be unbound
+   * and the new player will be bound
+   * This is the Player that belongs to {@link #basicMetrics}
    */
-  var playerDataSource: PlayerDataSource<Player>? by Delegates.observable(playerDataSource) {
-    _, _, new -> changePlayer(new)
-  }
-
-  private var player by playerDataSource::player
-  private val collector = MuxDataCollector(muxStats)
-  // TODO: Something like this in ExoPlayer Adapter or MuxBaseExoPlayer
-  private var exoPlayerView: TextView? by downcast(uiDelegate::view2)
+  var basicPlayer: MainPlayer? by observableWeak(player) { changeBasicPlayer(it, collector) }
 
   /**
-   * Bind this Adapter to a new Player, registering listeners etc
+   * The Player responsible for gathering extra metrics that might not be available from all players
+   * such as Bandwidth or Live Latency
    */
-  private fun bindPlayer(player: Player) {}
-
-  /**
-   * Unbind from a player, clearing listeners etc
-   */
-  private fun unbindPlayer(player: Player) {}
-
-  /**
-   * Switches the Data Source for the given player
-   */
-  private fun changePlayer(player: PlayerDataSource<Player>?) {
-    this.player?.let { unbindPlayer(it) }
-    player?.player?.let {
-      bindPlayer(it)
-    }
+  var extraPlayer: ExtraPlayer? by observableWeak(extraMetrics?.player) {
+    changeExtraPlayer(it, collector)
   }
 
   /**
-   *  Data source for player state data, for {@link MuxDataCollector}. Implementations should call
-   *  properties of the player being monitored and forward results
+   * The View being used to collect data related to the player view. This is the View being managed
+   * by the {@link #uiDelegate}
    */
-  abstract class PlayerDataSource<Player>() {
+  var playerView: PlayerView? by uiDelegate::view
 
-    constructor(player: Player) : this() {
-      this.player = player
+  private val collector = MuxDataCollector(muxStats, uiDelegate)
+
+  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxDataCollector) {
+    basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer) }
+    player?.let { newPlayer -> basicMetrics.bindPlayer(newPlayer, collector) }
+  }
+
+  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxDataCollector) {
+    if (extraMetrics != null) {
+      extraPlayer?.let { oldPlayer ->
+        extraMetrics.bindings.onEach { it.unbindPlayer(oldPlayer) }
+      }
+      player?.let { newPlayer ->
+        extraMetrics.bindings.onEach { it.bindPlayer(newPlayer, collector) }
+      }
+      extraMetrics.player = player
     }
+  }
+
+  /*
+  * A Binding between some Player object and a MuxDataCollector
+  */
+  interface PlayerBinding<Player> {
 
     /**
-     * The Player being wrapped by this object
+     * Binds a player to a MuxDataCollector, setting listeners or whatever is required to observe
+     * state, and calling hooks on MuxDataCollector
      */
-    var player by weak<Player>()
+    fun bindPlayer(player: Player, collector: MuxDataCollector)
 
     /**
-     * True when playing a livestream, false otherwise
+     * Unbinds a player from a MuxDataCollector, removing listeners and cleaning up
      */
-    abstract val isLive: Boolean
+    fun unbindPlayer(player: Player)
+  }
+
+  /**
+   * Container for bindings that gather metrics that may not be available from all players, such as
+   * session data, or bandwidth metrics. These may come from a different source object (ie an
+   * internal ExoPlayer) than the main player.
+   */
+  class ExtraPlayerBindings<ExtraPlayer>(
+          player: ExtraPlayer,
+          val bindings: List<PlayerBinding<ExtraPlayer>>) {
+    var player: ExtraPlayer? by weak(player)
   }
 }
