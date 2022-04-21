@@ -64,17 +64,18 @@ public class LatencyTests extends TestBase {
   public void testLiveStreamMetrics() {
     try {
       // Test not supported for this flavor
-      if (BuildConfig.FLAVOR.contains("r2_10_6")
+      if (BuildConfig.FLAVOR.contains("r2_11_1")
+        || BuildConfig.FLAVOR.contains("r2_10_6")
         || BuildConfig.FLAVOR.contains("r2_9_6")) {
         return;
       }
-      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS * 100)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
       Thread.sleep(PLAY_PERIOD_IN_MS);
       if (!isLatencyMetricsPresent()) {
         fail("Latency metrics not found on live stream:\n"
-            + "playerProgramTiomeFound: " + playerProgramTiomeFound
+            + "playerProgramTimeFound: " + playerProgramTiomeFound
             + "playerManifestNewestTimeFound: " + playerManifestNewestTimeFound
             + "videoHoldbackFound: " + videoHoldbackFound
             + "videoPartHoldbackFound: " + videoPartHoldbackFound
