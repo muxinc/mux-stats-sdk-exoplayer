@@ -64,30 +64,90 @@ android {
     lintConfig file("../checker-framework-lint.xml")
   }
 
-  flavorDimensions('api')
+  flavorDimensions 'exoplayer'
 
   productFlavors {
-    r2_9_6 { dimension 'api' }
-    r2_9_6_ads { dimension 'api' }
-    r2_10_6 { dimension 'api' }
-    r2_10_6_ads { dimension 'api' }
-    r2_11_1 { dimension 'api' }
-    r2_11_1_ads { dimension 'api' }
-    r2_12_1 { dimension 'api' }
-    r2_12_1_ads { dimension 'api' }
-    r2_13_1 { dimension 'api' }
-    r2_13_1_ads { dimension 'api' }
-    r2_14_1 { dimension 'api' }
-    r2_14_1_ads { dimension 'api' }
-    r2_15_1 { dimension 'api' }
-    r2_15_1_ads { dimension 'api' }
-    r2_16_1 { dimension 'api' }
-    r2_16_1_ads { dimension 'api' }
-    r2_17_1 { dimension 'api' }
-    r2_17_1_ads { dimension 'api' }
-    amznPort { dimension 'api' }
-    amznPort_ads { dimension 'api' }
-  }
+    r2_9_6 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_9_6_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_10_6 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_10_6_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_11_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_11_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_12_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_12_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_13_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_13_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_13']
+    }
+    r2_14_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_14']
+    }
+    r2_14_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_14']
+    }
+    r2_15_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_15']
+    }
+    r2_15_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_15']
+    }
+    r2_16_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_16toNow']
+    }
+    r2_16_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_16toNow']
+    }
+    r2_17_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_16toNow']
+    }
+    r2_17_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_16toNow']
+    }
+    amznPort {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_16toNow']
+    }
+    amznPort_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_16toNow']
+    }
+  } //productFlavors
 
   // Attach the java src directory relevant for each flavor created
   afterEvaluate {
@@ -129,7 +189,8 @@ android {
       }
     }
   }
-}
+
+} //android
 
 apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
 
@@ -195,4 +256,5 @@ dependencies {
   compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+  implementation project(':ExoPlayerAdapter')
 }

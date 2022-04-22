@@ -29,33 +29,33 @@ android {
     from2_16toNow { dimension 'exoplayer' }
   }
   sourceSets {
-    upto2_13_1 {
-      java.srcDirs += 'exo-analytics-upto-now'
-      java.srcDirs += 'exo-error-upto-2_14'
-      java.srcDirs += 'exo-event-upto-2_13'
-      java.srcDirs += 'exo-player-upto-2_15'
-      java.srcDirs += 'exo-common'
+    upto2_13 {
+      java.srcDirs += 'exo-analytics-upto-now/java'
+      java.srcDirs += 'exo-error-upto-2_14/java'
+      java.srcDirs += 'exo-event-upto-2_13/java'
+      java.srcDirs += 'exo-player-upto-2_15/java'
+      java.srcDirs += 'exo-common/java'
     }
-    just2_14_1 {
-      java.srcDirs += 'exo-analytics-upto-now'
-      java.srcDirs += 'exo-error-upto-2_14'
-      java.srcDirs += 'exo-event-2_14_1-now'
-      java.srcDirs += 'exo-player-upto-2_15'
-      java.srcDirs += 'exo-common'
+    just2_14 {
+      java.srcDirs += 'exo-analytics-upto-now/java'
+      java.srcDirs += 'exo-error-upto-2_14/java'
+      java.srcDirs += 'exo-event-2_14_1-now/java'
+      java.srcDirs += 'exo-player-upto-2_15/java'
+      java.srcDirs += 'exo-common/java'
     }
-    just2_15_1 {
-      java.srcDirs += 'exo-analytics-upto-now'
-      java.srcDirs += 'exo-error-2_15-now'
-      java.srcDirs += 'exo-event-2_14_1-now'
-      java.srcDirs += 'exo-player-upto-2_15'
-      java.srcDirs += 'exo-common'
+    just2_15 {
+      java.srcDirs += 'exo-analytics-upto-now/java'
+      java.srcDirs += 'exo-error-2_15-now/java'
+      java.srcDirs += 'exo-event-2_14_1-now/java'
+      java.srcDirs += 'exo-player-upto-2_15/java'
+      java.srcDirs += 'exo-common/java'
     }
-    from2_16_1toNow {
-      java.srcDirs += 'exo-analytics-upto-now'
-      java.srcDirs += 'exo-error-2_15-now'
-      java.srcDirs += 'exo-event-2_14-now'
-      java.srcDirs += 'exo-player-2_16-now'
-      java.srcDirs += 'exo-common'
+    from2_16toNow {
+      java.srcDirs += 'exo-analytics-upto-now/java'
+      java.srcDirs += 'exo-error-2_15-now/java'
+      java.srcDirs += 'exo-event-2_14-now/java'
+      java.srcDirs += 'exo-player-2_16-now/java'
+      java.srcDirs += 'exo-common/java'
     }
   }
 
