@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats
 
+import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.muxstats.internal.observableWeak
 import com.mux.stats.sdk.muxstats.internal.weak
 
@@ -7,15 +8,14 @@ import com.mux.stats.sdk.muxstats.internal.weak
  * Adapts a player framework to a {@link MuxDataPlayer}, passing events between them
  */
 class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
-        player: MainPlayer,
-        @Suppress("MemberVisibilityCanBePrivate")
-        val muxStats: MuxStats,
-        @Suppress("MemberVisibilityCanBePrivate")
-        val uiDelegate: MuxUiDelegate<PlayerView>,
-        @Suppress("MemberVisibilityCanBePrivate")
-        val basicMetrics: PlayerBinding<MainPlayer>,
-        @Suppress("MemberVisibilityCanBePrivate")
-        val extraMetrics: ExtraPlayerBindings<ExtraPlayer>? = null,
+  player: MainPlayer,
+  val collector: MuxPlayerStateTracker,
+  @Suppress("MemberVisibilityCanBePrivate")
+  val uiDelegate: MuxUiDelegate<PlayerView>,
+  @Suppress("MemberVisibilityCanBePrivate")
+  val basicMetrics: PlayerBinding<MainPlayer>,
+  @Suppress("MemberVisibilityCanBePrivate")
+  val extraMetrics: ExtraPlayerBindings<ExtraPlayer>? = null,
 ) {
 
   /**
@@ -39,14 +39,12 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
    */
   var playerView: PlayerView? by uiDelegate::view
 
-  private val collector = MuxDataCollector(muxStats, uiDelegate)
-
-  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxDataCollector) {
+  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxPlayerStateTracker) {
     basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer) }
     player?.let { newPlayer -> basicMetrics.bindPlayer(newPlayer, collector) }
   }
 
-  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxDataCollector) {
+  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxPlayerStateTracker) {
     if (extraMetrics != null) {
       extraPlayer?.let { oldPlayer ->
         extraMetrics.bindings.onEach { it.unbindPlayer(oldPlayer) }
@@ -67,7 +65,7 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
      * Binds a player to a MuxDataCollector, setting listeners or whatever is required to observe
      * state, and calling hooks on MuxDataCollector
      */
-    fun bindPlayer(player: Player, collector: MuxDataCollector)
+    fun bindPlayer(player: Player, collector: MuxPlayerStateTracker)
 
     /**
      * Unbinds a player from a MuxDataCollector, removing listeners and cleaning up
@@ -81,8 +79,9 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
    * internal ExoPlayer) than the main player.
    */
   class ExtraPlayerBindings<ExtraPlayer>(
-          player: ExtraPlayer,
-          val bindings: List<PlayerBinding<ExtraPlayer>>) {
+    player: ExtraPlayer,
+    val bindings: List<PlayerBinding<ExtraPlayer>>
+  ) {
     var player: ExtraPlayer? by weak(player)
   }
 }

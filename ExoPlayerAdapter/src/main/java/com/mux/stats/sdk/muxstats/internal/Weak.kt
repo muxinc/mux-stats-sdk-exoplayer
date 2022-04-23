@@ -44,11 +44,11 @@ internal fun <T> weak(): ReadWriteProperty<Any, T?> = Weak(null)
  */
 @JvmSynthetic
 internal fun <T> observableWeak(t: T?, block: (T?) -> Unit): ReadWriteProperty<Any, T?> =
-        Weak(t).onSet { block(it) }
+  Weak(t).onSet { block(it) }
 
 /**
  * Weakly-reachable property delegate that is observable
  */
 @JvmSynthetic
 internal fun <T> observableWeak(block: (T?) -> Unit): ReadWriteProperty<Any, T?> =
-        Weak<T>(null).onSet { block(it) }
+  Weak<T>(null).onSet { block(it) }

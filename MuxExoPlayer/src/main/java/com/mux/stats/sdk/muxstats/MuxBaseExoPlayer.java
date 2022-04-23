@@ -2,7 +2,6 @@ package com.mux.stats.sdk.muxstats;
 
 import static android.os.SystemClock.elapsedRealtime;
 
-import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -747,8 +746,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   @Override
-  public boolean isBuffering() {
-    return getState() == MuxBaseExoPlayer.PlayerState.BUFFERING;
+  public boolean isBuffering(core
+                         basicreturn getState() == MuxBaseExoPlayer.PlayerState.BUFFERING;
   }
 
   /**
@@ -919,10 +918,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     // If this is the first play event it may be very important not to be skipped
     // In all other cases skip this play event
     if (
-        (state == PlayerState.REBUFFERING
-            || seekingInProgress
-            || state == PlayerState.SEEKED) &&
-            (numberOfPlayEventsSent > 0)
+        (state == PlayerState.REBUFFERING || seekingInProgress || state == PlayerState.SEEKED)
+            && (numberOfPlayEventsSent > 0)
     ) {
       // Ignore play event after rebuffering and Seeking
       return;
@@ -1431,7 +1428,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       segmentData.setRequestVideoHeight(sourceHeight);
       segmentData.setRequestUrl(segmentUrl);
       switch (dataType) {
-        case C.DATA_eYPE_MANIFEST:
+        case C.DATA_TYPE_MANIFEST:
           detectMimeType = false;
         case C.DATA_TYPE_MEDIA_INITIALIZATION:
           if (segmentMimeType.contains("video")) {

@@ -7,9 +7,9 @@ import com.google.android.exoplayer2.Player
  */
 object MuxExoPlayerBindings {
 
-  private fun coreBinding() = coreExoMetrics()
+  private fun coreBinding() = basicExoMetrics()
 }
 
 private data class BasicMetricsBindings(
-        val coreBinding: MuxPlayerAdapter.PlayerBinding<Player>
+  val coreBinding: MuxPlayerAdapter.PlayerBinding<Player>
 )

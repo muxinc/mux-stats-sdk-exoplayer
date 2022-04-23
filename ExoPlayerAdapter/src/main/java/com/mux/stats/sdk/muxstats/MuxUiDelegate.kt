@@ -3,7 +3,6 @@ package com.mux.stats.sdk.muxstats
 import android.app.Activity
 import android.graphics.Point
 import android.view.View
-import android.widget.TextView
 import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
@@ -29,8 +28,8 @@ abstract class MuxUiDelegate<PlayerView>(view: PlayerView) {
 /**
  * MuxViewDelegate for an Android View.
  */
-private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView)
-  : MuxUiDelegate<PlayerView>(view) {
+private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView) :
+  MuxUiDelegate<PlayerView>(view) {
 
   private val _screenSize: Point = Point().let { size ->
     @Suppress("DEPRECATION") // fullscreen considers screen size, less system decoration
