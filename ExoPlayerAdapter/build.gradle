@@ -30,32 +30,28 @@ android {
   }
   sourceSets {
     upto2_13 {
-      java.srcDirs += 'exo-analytics-upto-now/java'
-      java.srcDirs += 'exo-error-upto-2_14/java'
-      java.srcDirs += 'exo-event-upto-2_13/java'
-      java.srcDirs += 'exo-player-upto-2_15/java'
-      java.srcDirs += 'exo-common/java'
+      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-error-upto-2_14/java'
+      java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_14 {
-      java.srcDirs += 'exo-analytics-upto-now/java'
-      java.srcDirs += 'exo-error-upto-2_14/java'
-      java.srcDirs += 'exo-event-2_14_1-now/java'
-      java.srcDirs += 'exo-player-upto-2_15/java'
-      java.srcDirs += 'exo-common/java'
+      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-error-upto-2_14/java'
+      java.srcDirs += 'src/exo-event-2_14_1-now/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_15 {
-      java.srcDirs += 'exo-analytics-upto-now/java'
-      java.srcDirs += 'exo-error-2_15-now/java'
-      java.srcDirs += 'exo-event-2_14_1-now/java'
-      java.srcDirs += 'exo-player-upto-2_15/java'
-      java.srcDirs += 'exo-common/java'
+      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-event-2_14_1-now/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     from2_16toNow {
-      java.srcDirs += 'exo-analytics-upto-now/java'
-      java.srcDirs += 'exo-error-2_15-now/java'
-      java.srcDirs += 'exo-event-2_14-now/java'
-      java.srcDirs += 'exo-player-2_16-now/java'
-      java.srcDirs += 'exo-common/java'
+      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
     }
   }
 
@@ -73,13 +69,14 @@ dependencies {
   implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 
   //noinspection GradleDynamicVersion,GradleDependency
-  upto2_13Implementation 'com.google.android.exoplayer:exoplayer:2.[9.6,13.+]'
+  upto2_13Implementation 'com.google.android.exoplayer:exoplayer:[2.9.6, 2.13.+]'
   //noinspection GradleDynamicVersion,GradleDependency
   just2_14Implementation 'com.google.android.exoplayer:exoplayer:2.14.+'
   //noinspection GradleDynamicVersion,GradleDependency
   just2_15Implementation 'com.google.android.exoplayer:exoplayer:2.15.+'
   //noinspection GradleDynamicVersion,GradleDependency
-  from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:2.[16,.+'
+  from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:[2.16.0,2.17.+]'
+  //from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:2.16.+'
 
   testImplementation 'junit:junit:4.13.2'
   androidTestImplementation 'androidx.test.ext:junit:1.1.3'
