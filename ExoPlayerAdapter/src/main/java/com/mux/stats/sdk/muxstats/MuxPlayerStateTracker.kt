@@ -57,6 +57,7 @@ class MuxPlayerStateTracker(
    * the segments.
    */
   // TODO: em - This is auto detectable using the same stuff that feeds Bandwidth Metrics, whatever it is
+  //  Should do that in the Basic Metrics
   var reportMimeType = true
 
   private var seekingInProgress = false // TODO: em - We have a SEEKING state so why do we have this
