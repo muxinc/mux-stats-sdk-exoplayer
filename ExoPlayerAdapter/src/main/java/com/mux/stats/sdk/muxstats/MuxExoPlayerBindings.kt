@@ -8,6 +8,10 @@ import com.google.android.exoplayer2.Player
 object MuxExoPlayerBindings {
 
   private fun coreBinding() = basicExoMetrics()
+
+  private fun basicExoMetrics(): Any {
+    return ":("
+  }
 }
 
 private data class BasicMetricsBindings(

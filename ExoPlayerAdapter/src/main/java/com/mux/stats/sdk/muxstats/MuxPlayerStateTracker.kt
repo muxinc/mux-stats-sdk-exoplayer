@@ -45,6 +45,13 @@ class MuxPlayerStateTracker(
   var mimeType: String? = null
 
   /**
+   * True if the media being played has a video stream, false if not
+   * This is used to decide how to handle position discontinuities for audio-only streams
+   * The default value is true, which might be fine to keep, depending on your player
+   */
+  var mediaHasVideoStream: Boolean = true
+
+  /**
    * Whether or not the MIME type of the playing media can be reported.
    * If playing DASH or HLS, this should be set to false, as the MIME type may vary according to
    * the segments.

@@ -38,13 +38,13 @@ android {
     just2_14 {
       java.srcDirs += 'src/exo-analytics-upto-now/java'
       java.srcDirs += 'src/exo-error-upto-2_14/java'
-      java.srcDirs += 'src/exo-event-2_14_1-now/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_15 {
       java.srcDirs += 'src/exo-analytics-upto-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
-      java.srcDirs += 'src/exo-event-2_14_1-now/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     from2_16toNow {
