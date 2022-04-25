@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats
 
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.IEvent
+import com.mux.stats.sdk.core.events.InternalErrorEvent
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
@@ -10,6 +11,7 @@ import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.muxstats.internal.weak
 import kotlinx.coroutines.*
+import java.lang.Exception
 import kotlin.properties.Delegates
 
 /**
@@ -32,6 +34,9 @@ class MuxPlayerStateTracker(
 
   companion object {
     const val DURATION_UNKNOWN = -1L
+    const val ERROR_UNKNOWN = -1;
+    const val ERROR_DRM = -2
+    const val ERROR_IO = -3
 
     private const val FIRST_FRAME_NOT_RENDERED: Long = -1
     // Wait this long after the first frame was rendered before logic considers it rendered
@@ -233,6 +238,15 @@ class MuxPlayerStateTracker(
     dispatch(PauseEvent(null))
     dispatch(EndedEvent(null))
     _playerState = MuxPlayerState.ENDED
+  }
+
+  fun error(error: Exception) {
+    if (error is MuxErrorException) {
+      dispatch(InternalErrorEvent(error.code, error.message))
+    } else {
+      dispatch(InternalErrorEvent(ERROR_UNKNOWN,
+        "${error.javaClass.canonicalName} - ${error.message}"))
+    }
   }
 
   /**

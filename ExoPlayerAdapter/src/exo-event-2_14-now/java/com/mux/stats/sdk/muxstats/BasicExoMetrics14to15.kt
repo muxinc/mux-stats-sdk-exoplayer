@@ -27,9 +27,9 @@ private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<ExoPlayer> 
   }
 
   override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
-    playerListener = newListener(player, collector)
-    // non-null guaranteed unless unbind() and bind() on different threads
-    player.addListener(playerListener!!)
+    playerListener = newListener(player, collector).also {
+      player.addListener(it)
+    }
   }
 
   override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
