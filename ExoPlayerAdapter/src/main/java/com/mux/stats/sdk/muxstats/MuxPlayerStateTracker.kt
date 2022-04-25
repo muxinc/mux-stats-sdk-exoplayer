@@ -240,7 +240,7 @@ class MuxPlayerStateTracker(
     _playerState = MuxPlayerState.ENDED
   }
 
-  fun error(error: Exception) {
+  fun internalError(error: Exception) {
     if (error is MuxErrorException) {
       dispatch(InternalErrorEvent(error.code, error.message))
     } else {

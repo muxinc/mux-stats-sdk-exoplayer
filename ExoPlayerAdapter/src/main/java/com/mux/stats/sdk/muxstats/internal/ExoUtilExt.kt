@@ -1,10 +1,13 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
+import com.mux.stats.sdk.muxstats.MuxErrorException
 import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxPlayerStateTracker
-import com.mux.stats.sdk.muxstats.internal.weak
 
 // -- General Utils --
 
@@ -31,6 +34,7 @@ internal inline fun <reified T> T.logTag() = T::class.java.simpleName
 /**
  * Handles an ExoPlayer position discontinuity
  */
+@JvmSynthetic // Hides from java
 internal fun MuxPlayerStateTracker.handlePositionDiscontinuity(reason: Int) {
   when (reason) {
     Player.DISCONTINUITY_REASON_SEEK -> {
@@ -89,6 +93,56 @@ internal fun MuxPlayerStateTracker.handleExoPlaybackState(
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
 internal fun ExoPlayer.watchContentPosition(stateTracker: MuxPlayerStateTracker):
         MuxPlayerStateTracker.PositionWatcher = ExoPositionWatcher(this, stateTracker)
+
+@JvmSynthetic
+internal fun MuxPlayerStateTracker.handleExoPlaybackException(e: ExoPlaybackException) {
+  if (e.type == ExoPlaybackException.TYPE_RENDERER) {
+    val cause = e.rendererException
+    if (cause is MediaCodecRenderer.DecoderInitializationException) {
+      val die = cause
+      if (die.codecInfo == null) {
+        if (die.cause is MediaCodecUtil.DecoderQueryException) {
+          internalError(MuxErrorException(e.type, "Unable to query device decoders"))
+        } else if (die.secureDecoderRequired) {
+          internalError(MuxErrorException(e.type, "No secure decoder for " + die.mimeType))
+        } else {
+          internalError(MuxErrorException(e.type, "No decoder for " + die.mimeType))
+        }
+      } else {
+        internalError(
+          MuxErrorException(e.type, "Unable to instantiate decoder for " + die.mimeType)
+        )
+      } // if(die.codecInfo)..else
+    } else {
+      internalError(
+        MuxErrorException(
+          e.type,
+          "${cause.javaClass.canonicalName} - ${cause.message}"
+        )
+      )
+    } // if(cause is..)...else
+  } else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
+    val error: Exception = e.sourceException
+    internalError(
+      MuxErrorException(
+        e.type,
+        "${error.javaClass.canonicalName} - ${error.message}"
+      )
+    )
+  } else if (e.type == ExoPlaybackException.TYPE_UNEXPECTED) {
+    val error: Exception = e.unexpectedException
+    internalError(
+      MuxErrorException(
+        e.type,
+        "${error.javaClass.canonicalName} - ${error.message}"
+      )
+    )
+  } else {
+    internalError(e)
+  }
+}
+
+// -- private helper classes
 
 /**
  * Watches an ExoPlayer's position, polling it every {@link #UPDATE_INTERVAL_MILIS} milliseconds
