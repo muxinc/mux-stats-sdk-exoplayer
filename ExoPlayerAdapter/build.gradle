@@ -50,8 +50,6 @@ android {
     from2_16toNow {
       java.srcDirs += 'src/exo-analytics-upto-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
-      // TODO: exo-event needs a 2_16toNow src set because 2.16.1+ AnalyticsListener becomes main
-      //    src of truth
       //java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
     }
