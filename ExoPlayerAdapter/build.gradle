@@ -30,26 +30,27 @@ android {
   }
   sourceSets {
     upto2_13 {
-      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_14/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_14 {
-      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_14/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_15 {
-      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     from2_16toNow {
-      java.srcDirs += 'src/exo-analytics-upto-now/java'
+      java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
+      // TODO: Don't need anyomre, probs
       //java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
     }

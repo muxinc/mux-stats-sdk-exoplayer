@@ -5,6 +5,7 @@ import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
+import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.muxstats.internal.weak
@@ -32,9 +33,7 @@ class MuxPlayerStateTracker(
   companion object {
     const val DURATION_UNKNOWN = -1L
 
-    private const val TAG = "MuxDataCollector"
     private const val FIRST_FRAME_NOT_RENDERED: Long = -1
-
     // Wait this long after the first frame was rendered before logic considers it rendered
     private const val FIRST_FRAME_WAIT_MILLIS = 50L
   }
@@ -302,7 +301,7 @@ class MuxPlayerStateTracker(
 
   private fun dispatch(event: IEvent) {
     if (dead) {
-      MuxLogger.w(TAG, "event sent after release: $event")
+      MuxLogger.w(logTag(), "event sent after release: $event")
       return
     }
     totalEventsSent++
@@ -357,7 +356,7 @@ class MuxPlayerStateTracker(
           stateTracker.playbackPositionMills = position
         } else {
           // If the data source is returning null, assume caller cleaned up the player
-          MuxLogger.d(TAG, "PlaybackPositionWatcher: Player lost. Stopping")
+          MuxLogger.d(logTag(), "PlaybackPositionWatcher: Player lost. Stopping")
           stop("player lost")
         }
       }
