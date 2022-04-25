@@ -321,20 +321,21 @@ class MuxPlayerStateTracker(
    * Manages a timer loop in a coroutine scope that periodically polls the player for its current
    * playback position. The polling is done from the main thread.
    *
-   * The Player is not strongly-reachable from inside this object. If the player is gc'd while the
-   * position is watched, this object will stop
+   * This object should be stopped when no longer needed. To handle cases where users forget to
+   * release our SDK, implementations should not hold strong references to big objects like context
+   * or a player. If {@link #getTimeMillis()} returns null, this object will automatically stop
    *
    * Stops if:
    *  the caller calls {@link #stop(String)
-   *  the object providing play time is garbage-collected
+   *  the superclass starts returning null from {@link getTimeMillis()}
    */
-  class PositionWatcher(
-    getTime: () -> Long,
+  abstract class PositionWatcher(
     val updateIntervalMillis: Long,
     val stateTracker: MuxPlayerStateTracker
   ) {
     private val timerScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-    private val getTime by weak(getTime)
+
+    protected abstract fun getTimeMillis(): Long?
 
     fun stop(message: String) {
       timerScope.cancel(message)
@@ -351,9 +352,9 @@ class MuxPlayerStateTracker(
 
     private fun updateOnMain(coroutineScope: CoroutineScope) {
       coroutineScope.launch(Dispatchers.Main) {
-        val getTime = getTime //
-        if (getTime != null) {
-          stateTracker.playbackPositionMills = getTime()
+        val position = getTimeMillis()
+        if (position != null) {
+          stateTracker.playbackPositionMills = position
         } else {
           // If the data source is returning null, assume caller cleaned up the player
           MuxLogger.d(TAG, "PlaybackPositionWatcher: Player lost. Stopping")
