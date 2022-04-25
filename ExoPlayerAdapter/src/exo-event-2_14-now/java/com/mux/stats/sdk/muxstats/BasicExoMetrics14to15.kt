@@ -5,8 +5,8 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.mux.stats.sdk.muxstats.internal.exoplayer.handleExoPlaybackState
-import com.mux.stats.sdk.muxstats.internal.exoplayer.watchContentPosition
+import com.mux.stats.sdk.muxstats.internal.handleExoPlaybackState
+import com.mux.stats.sdk.muxstats.internal.watchContentPosition
 import com.mux.stats.sdk.muxstats.internal.weak
 
 /**

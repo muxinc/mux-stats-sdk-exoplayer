@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal.exoplayer
+package com.mux.stats.sdk.muxstats.internal
 
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
