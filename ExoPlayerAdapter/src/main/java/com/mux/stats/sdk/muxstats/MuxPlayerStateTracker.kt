@@ -7,7 +7,6 @@ import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
-import com.mux.stats.sdk.muxstats.internal.weak
 import kotlinx.coroutines.*
 import kotlin.properties.Delegates
 
@@ -75,12 +74,13 @@ class MuxPlayerStateTracker(
    * then sets the {@link #playbackPositionMillis} property on this object. It can be stopped by
    * calling {@link #PositionWatcher.stop(String)}, and will automatically stop if it can no longer
    * access play time info
+   *
+   * Setting this property will stop any watcher that was previously set, and start the new one
    */
-  var positionWatcher: PositionWatcher<*>?
-          by Delegates.observable(null) { _, old, new ->
-            old?.apply { stop("watcher replaced") }
-            new?.start()
-          }
+  var positionWatcher: PositionWatcher? by Delegates.observable(null) { _, old, new ->
+    old?.apply { stop("watcher replaced") }
+    new?.start()
+  }
 
   private var seekingInProgress = false // TODO: em - We have a SEEKING state so why do we have this
   private var firstFrameReceived = false
@@ -285,7 +285,6 @@ class MuxPlayerStateTracker(
   private fun rebufferingStarted() {
     _playerState = MuxPlayerState.REBUFFERING
     dispatch(RebufferStartEvent(null))
-  }
 
   /**
    * Called internally when the player finishes rebuffering. Callers are responsible for setting the
@@ -324,52 +323,47 @@ class MuxPlayerStateTracker(
 
   /**
    * Manages a timer loop in a coroutine scope that periodically polls the player for its current
-   * playback position. The polling is done from the main thread.
-   *
-   * The Player is not strongly-reachable from inside this object. If the player is gc'd while the
-   * position is watched, this object will stop
+   * playback position. This object should be stopped when no longer needed. The polling is done
+   * from the main thread.
    *
    * Stops if:
    *  the caller calls {@link #stop(String)
-   *  the object providing play time is garbage-collected
+   *  the super class returns null from {@link #getCurrentPosition()}
    */
-  class PositionWatcher<Player>(
-    player: Player,
-    getTime: () -> Long,
+  abstract class PositionWatcher(
     val updateIntervalMillis: Long,
-    val stateTracker: MuxPlayerStateTracker
+    val stateTracker: MuxPlayerStateTracker,
   ) {
     private val timerScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-    private var dead: Boolean = false
 
-    private val player by weak(player)
-    private var getTime: (() -> Long)? = getTime
+    /**
+     * Gets the current playback position of the player, or returns TIME_UNKNOWN
+     *
+     * Should *only* return null if the player being observed has been released or otherwise
+     * completely stopped
+     */
+    abstract fun getCurrentPosition(): Long?
 
     fun stop(message: String) {
-      dead = true
+      // Don't hold a reference to the player if we're stopped
       timerScope.cancel(message)
-      // getTime() probably references the player in its closure so make sure to clean it up
-      getTime = null
     }
 
     fun start() {
-      if (!dead) {
-        timerScope.launch {
-          while (true) {
-            updateOnMain(this)
-            delay(updateIntervalMillis)
-          }
+      timerScope.launch {
+        while (true) {
+          updateOnMain(this)
+          delay(updateIntervalMillis)
         }
-      } else {
-        MuxLogger.w(TAG, "PositionWatcher.start(): cannot be restarted. Skipping")
       }
     }
 
     private fun updateOnMain(coroutineScope: CoroutineScope) {
       coroutineScope.launch(Dispatchers.Main) {
-        val player = player // get a strong reference to the player if it's around right now
-        if (player != null && getTime != null) {
-          stateTracker.playbackPositionMills = getTime?.invoke() ?: TIME_UNKNOWN
+        // get a strong reference to the player container if it's around right now
+        val position = getCurrentPosition()
+        if (position != null) {
+          stateTracker.playbackPositionMills = position
         } else {
           MuxLogger.d(TAG, "PlaybackPositionWatcher: Player lost. Stopping")
           stop("player lost")
