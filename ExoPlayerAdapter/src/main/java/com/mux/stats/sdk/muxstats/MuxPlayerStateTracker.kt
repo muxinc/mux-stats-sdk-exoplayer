@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats
 
-import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.events.playback.*
@@ -8,6 +7,9 @@ import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
+import com.mux.stats.sdk.muxstats.internal.weak
+import kotlinx.coroutines.*
+import kotlin.properties.Delegates
 
 /**
  * Collects events from a player and delivers them into a MuxStats instance.
@@ -19,18 +21,22 @@ import com.mux.stats.sdk.muxstats.internal.oneOf
  */
 class MuxPlayerStateTracker(
   val muxStats: MuxStats,
+  // TODO : I don't think we need this
   val uiDelegate: MuxUiDelegate<*>,
+  // TODO: I don't think we need this
   val playerDelegate: IPlayerListener,
   val eventBus: EventBus,
   val trackFirstFrameRendered: Boolean = true,
 ) {
 
   companion object {
+    const val DURATION_UNKNOWN = -1L
+
     private const val TAG = "MuxDataCollector"
     private const val FIRST_FRAME_NOT_RENDERED: Long = -1
 
     // Wait this long after the first frame was rendered before logic considers it rendered
-    private const val FIRST_FRAME_WAIT_MILLIS: Long = 50
+    private const val FIRST_FRAME_WAIT_MILLIS = 50L
   }
 
   /**
@@ -49,16 +55,36 @@ class MuxPlayerStateTracker(
    * This is used to decide how to handle position discontinuities for audio-only streams
    * The default value is true, which might be fine to keep, depending on your player
    */
-  var mediaHasVideoStream: Boolean = true
+  var mediaHasVideoTrack: Boolean = true
 
   /**
    * Whether or not the MIME type of the playing media can be reported.
    * If playing DASH or HLS, this should be set to false, as the MIME type may vary according to
    * the segments.
    */
-  // TODO: em - This is auto detectable using the same stuff that feeds Bandwidth Metrics, whatever it is
-  //  Should do that in the Basic Metrics
   var reportMimeType = true
+
+  /**
+   * Total duration of the media being played, in milliseconds
+   */
+  var sourceDurationMs: Long = DURATION_UNKNOWN
+
+  /**
+   * The current playback position of the player
+   */
+  var playbackPositionMills: Long = DURATION_UNKNOWN
+
+  /**
+   * An asynchronous watcher for playback position. It waits for the given update interval, and
+   * then sets the {@link #playbackPositionMillis} property on this object. It can be stopped by
+   * calling {@link #PositionWatcher.stop(String)}, and will automatically stop if it can no longer
+   * access play time info
+   */
+  var positionWatcher: PositionWatcher?
+          by Delegates.observable(null) { _, old, new ->
+            old?.apply { stop("watcher replaced") }
+            new?.start()
+          }
 
   private var seekingInProgress = false // TODO: em - We have a SEEKING state so why do we have this
   private var firstFrameReceived = false
@@ -235,8 +261,8 @@ class MuxPlayerStateTracker(
   /**
    * Kills this object. After being killed, this object will no longer report metrics to Mux Data
    */
-  // TODO: We don't really need this method. The Adapter should unbind everything when it gets released
   fun release() {
+    positionWatcher?.stop("tracker released")
     dead = true
   }
 
@@ -289,5 +315,51 @@ class MuxPlayerStateTracker(
       }
     }
     eventBus.dispatch(event)
+  }
+
+  /**
+   * Manages a timer loop in a coroutine scope that periodically polls the player for its current
+   * playback position. The polling is done from the main thread.
+   *
+   * The Player is not strongly-reachable from inside this object. If the player is gc'd while the
+   * position is watched, this object will stop
+   *
+   * Stops if:
+   *  the caller calls {@link #stop(String)
+   *  the object providing play time is garbage-collected
+   */
+  class PositionWatcher(
+    getTime: () -> Long,
+    val updateIntervalMillis: Long,
+    val stateTracker: MuxPlayerStateTracker
+  ) {
+    private val timerScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
+    private val getTime by weak(getTime)
+
+    fun stop(message: String) {
+      timerScope.cancel(message)
+    }
+
+    fun start() {
+      timerScope.launch {
+        while (true) {
+          updateOnMain(this)
+          delay(updateIntervalMillis)
+        }
+      }
+    }
+
+    private fun updateOnMain(coroutineScope: CoroutineScope) {
+      coroutineScope.launch(Dispatchers.Main) {
+        val getTime = getTime //
+        if (getTime != null) {
+          stateTracker.playbackPositionMills = getTime()
+        } else {
+          // If the data source is returning null, assume caller cleaned up the player
+          MuxLogger.d(TAG, "PlaybackPositionWatcher: Player lost. Stopping")
+          stop("player lost")
+        }
+      }
+    }
   }
 }
