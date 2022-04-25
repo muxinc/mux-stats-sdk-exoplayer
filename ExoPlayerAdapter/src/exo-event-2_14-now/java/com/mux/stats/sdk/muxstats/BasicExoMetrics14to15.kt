@@ -1,8 +1,12 @@
 package com.mux.stats.sdk.muxstats
 
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
-import com.mux.stats.sdk.muxstats.internal.handleExoPlaybackState
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.mux.stats.sdk.muxstats.internal.exoplayer.handleExoPlaybackState
+import com.mux.stats.sdk.muxstats.internal.exoplayer.watchContentPosition
 import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
@@ -12,21 +16,23 @@ import com.mux.stats.sdk.muxstats.internal.weak
  * NOTE: This is only used on ExoPlayer versions 2.15 and below. AnalyticsListener is preferred,
  * and its presence is guaranteed on our player object in exo 2.16 and higher
  */
-private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<Player> {
+private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
 
   private var playerListener: Player.Listener? = null
 
-  override fun bindPlayer(player: Player, collector: MuxPlayerStateTracker) {
+  override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
     playerListener = newListener({ player }, collector)
     // non-null guaranteed unless unbind() and bind() on different threads
     player.addListener(playerListener!!)
   }
 
-  override fun unbindPlayer(player: Player) {
+  override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+    collector.positionWatcher?.stop("player unbound")
+    collector.positionWatcher = null
     playerListener?.let { player.removeListener(it) }
   }
 
-  private fun newListener(playerSrc: () -> Player, collector: MuxPlayerStateTracker) =
+  private fun newListener(playerSrc: () -> ExoPlayer, collector: MuxPlayerStateTracker) =
     object : Player.Listener {
       val player by weak(playerSrc()) // player should be weakly reachable in case user doesn't clean up
 
@@ -36,7 +42,6 @@ private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<Player> {
         player?.let { collector.handleExoPlaybackState(playbackState, it.playWhenReady) }
       }
 
-      // TODO: Test 2.14 variant to ensure this one is available
       override fun onPositionDiscontinuity(
         oldPosition: Player.PositionInfo,
         newPosition: Player.PositionInfo,
@@ -63,15 +68,12 @@ private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<Player> {
         }
       }
 
-      // TODO: This method is not available until 2.16. On 2.16+ we use AnalyticsListener instead
-      // TODO (really big): We only get tracks data if you're not using SimpleExoPlayer, because
-      //    the listeners are mutually exclusive.
-      //    As written (on master), Passing in SimpleExoPlayer means only using AnalyticsListener,
-      //    means not getting tracks data, not starting the playback pos watcher, not collecting any
-      //    data unless it can be gotten from the analytics listener, which may or may not be
-      //    listening for it
-//      override fun onTracksInfoChanged(tracksInfo: TracksInfo) {
-//      }
+      override fun onTracksChanged(
+        trackGroups: TrackGroupArray,
+        trackSelections: TrackSelectionArray
+      ) {
+        player?.watchContentPosition(collector)
+      }
     } // object : Player.Listener
 } // class BaseExoMetrics
 
@@ -82,4 +84,5 @@ private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<Player> {
  * and its presence is guaranteed on our player object in exo 2.16 and higher
  */
 @JvmSynthetic
-internal fun exoMetricsFromListener(): MuxPlayerAdapter.PlayerBinding<Player> = BasicExoMetrics14to15();
+internal fun exoMetricsFromListener(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
+  BasicExoMetrics14to15();

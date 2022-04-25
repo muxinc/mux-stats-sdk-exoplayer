@@ -40,14 +40,14 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
   var playerView: PlayerView? by uiDelegate::view
 
   private fun changeBasicPlayer(player: MainPlayer?, collector: MuxPlayerStateTracker) {
-    basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer) }
+    basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer, collector) }
     player?.let { newPlayer -> basicMetrics.bindPlayer(newPlayer, collector) }
   }
 
   private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxPlayerStateTracker) {
     if (extraMetrics != null) {
       extraPlayer?.let { oldPlayer ->
-        extraMetrics.bindings.onEach { it.unbindPlayer(oldPlayer) }
+        extraMetrics.bindings.onEach { it.unbindPlayer(oldPlayer, collector) }
       }
       player?.let { newPlayer ->
         extraMetrics.bindings.onEach { it.bindPlayer(newPlayer, collector) }
@@ -70,7 +70,7 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
     /**
      * Unbinds a player from a MuxDataCollector, removing listeners and cleaning up
      */
-    fun unbindPlayer(player: Player)
+    fun unbindPlayer(player: Player, collector: MuxPlayerStateTracker)
   }
 
   /**

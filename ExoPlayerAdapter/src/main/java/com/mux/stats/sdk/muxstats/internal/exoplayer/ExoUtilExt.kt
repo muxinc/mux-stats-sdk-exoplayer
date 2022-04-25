@@ -1,8 +1,10 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats.internal.exoplayer
 
+import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxPlayerStateTracker
+import com.mux.stats.sdk.muxstats.internal.weak
 
 // -- General Utils --
 
@@ -58,5 +60,23 @@ internal fun MuxPlayerStateTracker.handleExoPlaybackState(
         pause()
       }
     }
+  } // when (playbackState)
+} // fun handleExoPlaybackState
+
+@JvmSynthetic // Hidden from Java callers, since the only ones are external
+internal fun ExoPlayer.watchContentPosition(stateTracker: MuxPlayerStateTracker):
+        MuxPlayerStateTracker.PositionWatcher = ExoPositionWatcher(this, stateTracker)
+
+/**
+ * Watches an ExoPlayer's position, polling it every {@link #UPDATE_INTERVAL_MILIS} milliseconds
+ */
+private class ExoPositionWatcher(player: ExoPlayer, stateTracker: MuxPlayerStateTracker) :
+  MuxPlayerStateTracker.PositionWatcher(
+    UPDATE_INTERVAL_MILLIS, stateTracker
+  ) {
+  companion object {
+    const val UPDATE_INTERVAL_MILLIS = 150L
   }
+  private val player by weak(player) // don't hold the player because this object does async looping
+  override fun getTimeMillis(): Long? = player?.contentPosition
 }
