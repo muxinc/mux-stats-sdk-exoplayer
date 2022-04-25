@@ -6,6 +6,7 @@ import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.mux.stats.sdk.core.util.MuxLogger
+import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.handleExoPlaybackState
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.watchContentPosition
@@ -57,18 +58,7 @@ private class PlayerListener(player: ExoPlayer, val collector: MuxPlayerStateTra
     newPosition: Player.PositionInfo,
     reason: Int
   ) {
-    when (reason) {
-      Player.DISCONTINUITY_REASON_SEEK -> {
-        // If they seek while paused, this is how we know the seek is complete
-        if (collector.muxPlayerState == MuxPlayerState.PAUSED
-          // Seeks on audio-only media are reported this way instead
-          || !collector.mediaHasVideoTrack
-        ) {
-          collector.seeked(false)
-        }
-      }
-      else -> {} // ignored
-    }
+    collector.handlePositionDiscontinuity(reason)
   }
 
   override fun onTimelineChanged(timeline: Timeline, reason: Int) {

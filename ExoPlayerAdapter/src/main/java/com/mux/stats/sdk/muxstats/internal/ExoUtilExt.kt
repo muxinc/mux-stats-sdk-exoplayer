@@ -29,6 +29,23 @@ internal inline fun <reified T> T.logTag() = T::class.java.simpleName
 // -- ExoPlayer Helpers --
 
 /**
+ * Handles an ExoPlayer position discontinuity
+ */
+internal fun MuxPlayerStateTracker.handlePositionDiscontinuity(reason: Int) {
+  when (reason) {
+    Player.DISCONTINUITY_REASON_SEEK -> {
+      // If they seek while paused, this is how we know the seek is complete
+      if (muxPlayerState == MuxPlayerState.PAUSED
+        // Seeks on audio-only media are reported this way instead
+        || !mediaHasVideoTrack
+      ) {
+        seeked(false)
+      }
+    }
+    else -> {} // ignored
+  }
+}
+/**
  * Handles a change of basic ExoPlayer state
  */
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
