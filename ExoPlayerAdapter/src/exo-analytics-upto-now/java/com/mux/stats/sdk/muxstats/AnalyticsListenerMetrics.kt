@@ -7,7 +7,6 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.weak
 
-// TODO: Write a player binding
 private class AnalyticsListenerBindingUpTo14 : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> {
 
   private var listener: AnalyticsListener? by weak(null)
@@ -22,5 +21,6 @@ private class AnalyticsListenerBindingUpTo14 : MuxPlayerAdapter.PlayerBinding<Si
   override fun unbindPlayer(player: SimpleExoPlayer, collector: MuxPlayerStateTracker) {
     listener?.let { player.removeAnalyticsListener(it) }
   }
-
 }
+
+private class AnalyticsListener
