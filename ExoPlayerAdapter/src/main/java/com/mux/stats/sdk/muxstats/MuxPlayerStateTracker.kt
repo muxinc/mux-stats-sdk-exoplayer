@@ -21,16 +21,12 @@ import kotlin.properties.Delegates
  */
 class MuxPlayerStateTracker(
   val muxStats: MuxStats,
-  // TODO : I don't think we need this
-  val uiDelegate: MuxUiDelegate<*>,
-  // TODO: I don't think we need this
-  val playerDelegate: IPlayerListener,
   val eventBus: EventBus,
   val trackFirstFrameRendered: Boolean = true,
 ) {
 
   companion object {
-    const val DURATION_UNKNOWN = -1L
+    const val TIME_UNKNOWN = -1L
 
     private const val TAG = "MuxDataCollector"
     private const val FIRST_FRAME_NOT_RENDERED: Long = -1
@@ -67,12 +63,12 @@ class MuxPlayerStateTracker(
   /**
    * Total duration of the media being played, in milliseconds
    */
-  var sourceDurationMs: Long = DURATION_UNKNOWN
+  var sourceDurationMs: Long = TIME_UNKNOWN
 
   /**
    * The current playback position of the player
    */
-  var playbackPositionMills: Long = DURATION_UNKNOWN
+  var playbackPositionMills: Long = TIME_UNKNOWN
 
   /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
@@ -80,7 +76,7 @@ class MuxPlayerStateTracker(
    * calling {@link #PositionWatcher.stop(String)}, and will automatically stop if it can no longer
    * access play time info
    */
-  var positionWatcher: PositionWatcher?
+  var positionWatcher: PositionWatcher<*>?
           by Delegates.observable(null) { _, old, new ->
             old?.apply { stop("watcher replaced") }
             new?.start()
@@ -100,6 +96,7 @@ class MuxPlayerStateTracker(
    * Call when the player starts buffering. Buffering events after the player began playing are
    * reported as rebuffering events
    */
+  @Suppress("unused")
   fun buffering() {
     // Only process buffering if we are not already buffering or seeking
     if (_playerState.noneOf(
@@ -122,6 +119,7 @@ class MuxPlayerStateTracker(
    * Call when the player prepares to play. That is, during the initialization and buffering, while
    * the caller intends for the video to play
    */
+  @Suppress("unused")
   fun play() {
     // Skip during during seeking or buffering,
     //   unless it's the first play event, which should always be captured
@@ -141,6 +139,7 @@ class MuxPlayerStateTracker(
    * or seeked from there
    * If rebuffering was in progress,
    */
+  @Suppress("unused")
   fun playing() {
     // Don't processing playing() while we are seeking. We won't be playing until after seeked()
     //  and the player will update us after seek completes, which calls seeked() again
@@ -163,6 +162,7 @@ class MuxPlayerStateTracker(
    *  which is already reported. Instead, we will move to the SEEKED state
    * Otherwise, we move to the PAUSED state and send a PauseEvent
    */
+  @Suppress("unused")
   fun pause() {
     // Process unless we're already paused
     if (_playerState != MuxPlayerState.PAUSED) {
@@ -194,6 +194,7 @@ class MuxPlayerStateTracker(
    * If the seek completed before frames were rendered, or that metrics is not detected, the new
    *  state will be SEEKED
    */
+  @Suppress("unused")
   fun seeked(inferSeekingOrPlaying: Boolean) {
     // Only handle if we were previously seeking
     if (seekingInProgress) {
@@ -215,6 +216,7 @@ class MuxPlayerStateTracker(
    * If the player was playing, a PauseEvent will be dispatched.
    * In all cases, the state will move to SEEKING, and frame rendering data will be reset
    */
+  @Suppress("unused")
   fun seeking() {
     if (muxPlayerState == MuxPlayerState.PLAYING) {
       dispatch(PauseEvent(null))
@@ -230,6 +232,7 @@ class MuxPlayerStateTracker(
    * Call when the end of playback was reached.
    * A PauseEvent and EndedEvent will both be sent, and the state will be set to ENDED
    */
+  @Suppress("unused")
   fun ended() {
     dispatch(PauseEvent(null))
     dispatch(EndedEvent(null))
@@ -242,6 +245,7 @@ class MuxPlayerStateTracker(
    *
    * This method will start a new Video View on Mux Data's backend
    */
+  @Suppress("unused")
   fun programChange(customerVideoData: CustomerVideoData) {
     reset()
     muxStats.programChange(customerVideoData)
@@ -250,8 +254,9 @@ class MuxPlayerStateTracker(
   /**
    * Call when the media stream (by URL) was changed.
    *
-   * This mehtod will start a new Video View on Mux Data's backend
+   * This method will start a new Video View on Mux Data's backend
    */
+  @Suppress("unused")
   fun videoChange(customerVideoData: CustomerVideoData) {
     _playerState = MuxPlayerState.INIT
     reset()
@@ -328,34 +333,44 @@ class MuxPlayerStateTracker(
    *  the caller calls {@link #stop(String)
    *  the object providing play time is garbage-collected
    */
-  class PositionWatcher(
+  class PositionWatcher<Player>(
+    player: Player,
     getTime: () -> Long,
     val updateIntervalMillis: Long,
     val stateTracker: MuxPlayerStateTracker
   ) {
     private val timerScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
-    private val getTime by weak(getTime)
+    private var dead: Boolean = false
+
+    private val player by weak(player)
+    private var getTime: (() -> Long)? = getTime
 
     fun stop(message: String) {
+      dead = true
       timerScope.cancel(message)
+      // getTime() probably references the player in its closure so make sure to clean it up
+      getTime = null
     }
 
     fun start() {
-      timerScope.launch {
-        while (true) {
-          updateOnMain(this)
-          delay(updateIntervalMillis)
+      if (!dead) {
+        timerScope.launch {
+          while (true) {
+            updateOnMain(this)
+            delay(updateIntervalMillis)
+          }
         }
+      } else {
+        MuxLogger.w(TAG, "PositionWatcher.start(): cannot be restarted. Skipping")
       }
     }
 
     private fun updateOnMain(coroutineScope: CoroutineScope) {
       coroutineScope.launch(Dispatchers.Main) {
-        val getTime = getTime //
-        if (getTime != null) {
-          stateTracker.playbackPositionMills = getTime()
+        val player = player // get a strong reference to the player if it's around right now
+        if (player != null && getTime != null) {
+          stateTracker.playbackPositionMills = getTime?.invoke() ?: TIME_UNKNOWN
         } else {
-          // If the data source is returning null, assume caller cleaned up the player
           MuxLogger.d(TAG, "PlaybackPositionWatcher: Player lost. Stopping")
           stop("player lost")
         }
