@@ -5,6 +5,8 @@ import android.content.Context
 import android.view.View
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.mux.stats.sdk.core.CustomOptions
 import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
@@ -12,6 +14,7 @@ import com.mux.stats.sdk.core.model.CustomerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.createExoPlayerAdapter
+import com.mux.stats.sdk.muxstats.internal.downcast
 import com.mux.stats.sdk.muxstats.internal.weak
 
 @Suppress("unused")
@@ -40,6 +43,18 @@ class DemoMuxStatsExoPlayer(
       player = player,
       eventBus = eventBus
     )
+
+  /**
+   * The view being used by the player that is being monitored, safely cast as a PlayerView if
+   * possible. Null if there is no view or the view is not the right type
+   */
+  var exoPlayerView: PlayerView? by downcast(::_playerView)
+
+  /**
+   * The view being used by the player that is being monitored, safely cast as a StyledPlayerView if
+   * possible. Null if there is no view or the view is not the right type
+   */
+  var styledPlayerView: StyledPlayerView? by downcast(::_playerView)
 
   init {
     // Initialize MuxStats stuff

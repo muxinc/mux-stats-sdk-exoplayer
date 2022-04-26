@@ -164,4 +164,5 @@ dependencies {
 
   // Automated tests should always test the local module and not the maven dependency.
   implementation project(":MuxExoPlayer")
+  implementation project(':ExoPlayerAdapter')
 }
