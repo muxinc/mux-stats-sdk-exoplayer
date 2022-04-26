@@ -50,9 +50,8 @@ android {
     from2_16toNow {
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
-      // TODO: Don't need anyomre, probs
-      //java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
+      // From 2.16 onward, we don't need exo-event
     }
   }
 

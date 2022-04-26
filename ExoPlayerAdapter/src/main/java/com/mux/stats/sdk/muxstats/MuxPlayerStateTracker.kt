@@ -24,10 +24,6 @@ import kotlin.properties.Delegates
  */
 class MuxPlayerStateTracker(
   val muxStats: MuxStats,
-  // TODO : I don't think we need this
-  val uiDelegate: MuxUiDelegate<*>,
-  // TODO: I don't think we need this
-  val playerDelegate: IPlayerListener,
   val eventBus: EventBus,
   val trackFirstFrameRendered: Boolean = true,
 ) {

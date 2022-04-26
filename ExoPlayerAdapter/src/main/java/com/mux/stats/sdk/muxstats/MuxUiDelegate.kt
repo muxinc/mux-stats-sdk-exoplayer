@@ -8,7 +8,7 @@ import com.mux.stats.sdk.muxstats.internal.weak
 /**
  * Allows implementers to supply data about the view and screen being used for playback
  */
-abstract class MuxUiDelegate<PlayerView>(view: PlayerView) {
+abstract class MuxUiDelegate<PlayerView>(view: PlayerView?) {
   var view by weak(view)
 
   /**
@@ -28,7 +28,7 @@ abstract class MuxUiDelegate<PlayerView>(view: PlayerView) {
 /**
  * MuxViewDelegate for an Android View.
  */
-private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView) :
+private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView?) :
   MuxUiDelegate<PlayerView>(view) {
 
   private val _screenSize: Point = Point().let { size ->
@@ -51,5 +51,5 @@ private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: Pl
  * Create a MuxUiDelegate based on a View
  */
 @JvmSynthetic
-internal fun <PlayerView : View> PlayerView.muxUiDelegate(activity: Activity?)
-        : MuxUiDelegate<PlayerView> = AndroidUiDelegate(activity, this)
+internal fun <V : View> Activity.muxUiDelegate(view: V?)
+        : MuxUiDelegate<View> = AndroidUiDelegate(this, view)

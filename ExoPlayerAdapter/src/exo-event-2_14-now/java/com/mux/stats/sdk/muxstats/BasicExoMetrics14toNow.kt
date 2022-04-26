@@ -19,7 +19,7 @@ import com.mux.stats.sdk.muxstats.internal.weak
  * NOTE: This is only used on ExoPlayer versions 2.15 and below. AnalyticsListener is preferred,
  * and its presence is guaranteed on our player object in exo 2.16 and higher
  */
-private class BasicExoMetrics14to15 : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
+private class BasicExoMetrics14toNow : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
 
   private var playerListener: Player.Listener? by weak(null)
 
@@ -83,5 +83,5 @@ private class PlayerListener(player: ExoPlayer, val collector: MuxPlayerStateTra
  * and its presence is guaranteed on our player object in exo 2.16 and higher
  */
 @JvmSynthetic
-internal fun exoMetricsFromListener(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
-  BasicExoMetrics14to15();
+internal fun basicExoEvents(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
+  BasicExoMetrics14toNow();

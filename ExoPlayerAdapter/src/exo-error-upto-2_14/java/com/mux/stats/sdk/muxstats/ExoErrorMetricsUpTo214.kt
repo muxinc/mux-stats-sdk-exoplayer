@@ -42,13 +42,6 @@ private class ErrorPlayerListenerUpTo214(val collector: MuxPlayerStateTracker) :
   }
 }
 
-private class ErrorAnalyticsListenerUpTo214(val collector: MuxPlayerStateTracker) :
-  AnalyticsListener {
-  override fun onPlayerError(eventTime: AnalyticsListener.EventTime, error: ExoPlaybackException) {
-    collector.handleExoPlaybackException(error)
-  }
-}
-
 /**
  * Generates a player binding for core exoplayer metrics. Data comes from
  *
