@@ -7,7 +7,7 @@ import com.mux.stats.sdk.muxstats.internal.exoAnalyticsListener
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.weak
 
-private class AnalyticsListenerBindingUpTo14 : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> {
+private class AnalyticsListenerBindingUpTo16 : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> {
 
   private var listener: AnalyticsListener? by weak(null)
 
@@ -29,4 +29,4 @@ private class AnalyticsListenerBindingUpTo14 : MuxPlayerAdapter.PlayerBinding<Si
 
 @JvmSynthetic // Hides from java callers outside the module
 internal fun analyticsListenerMetrics()
-        : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> = AnalyticsListenerBindingUpTo14()
+        : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> = AnalyticsListenerBindingUpTo16()

@@ -53,3 +53,4 @@ private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: Pl
 @JvmSynthetic
 internal fun <V : View> Activity.muxUiDelegate(view: V?)
         : MuxUiDelegate<View> = AndroidUiDelegate(this, view)
+

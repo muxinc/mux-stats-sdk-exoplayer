@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats
 
-import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.muxstats.internal.observableWeak
 import com.mux.stats.sdk.muxstats.internal.weak
 
@@ -38,6 +37,18 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
    * by the {@link #uiDelegate}
    */
   var playerView: PlayerView? by uiDelegate::view
+
+  /**
+   * Unbinds all bindings. After this no strong references will be held to the player
+   */
+  fun release() {
+    basicPlayer?.let { player ->
+      basicMetrics.unbindPlayer(player, collector)
+    }
+    extraPlayer?.let { player ->
+      extraMetrics?.bindings?.onEach { binding -> binding.unbindPlayer(player, collector) }
+    }
+  }
 
   private fun changeBasicPlayer(player: MainPlayer?, collector: MuxPlayerStateTracker) {
     basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer, collector) }
