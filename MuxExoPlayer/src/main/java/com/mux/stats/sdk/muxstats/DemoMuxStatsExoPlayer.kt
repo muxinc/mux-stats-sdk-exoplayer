@@ -24,6 +24,7 @@ class DemoMuxStatsExoPlayer(
   val customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
+  // TODO: decalre constructor so we can add @JvmOverloads
 
   private var _player by weak(player)
   private var _playerView by weak(playerView)
@@ -98,12 +99,10 @@ class DemoMuxStatsExoPlayer(
   }
 }
 
-private class ExoPlayerDelegate(
-  playerAdapter: () -> MuxPlayerAdapter<*, *, *>,
-) :
-  IPlayerListener {
-  private val viewDelegate by weak(playerAdapter().uiDelegate)
-  private val collector = playerAdapter().collector
+private class ExoPlayerDelegate(val playerAdapter: MuxPlayerAdapter<*, *, *>) : IPlayerListener {
+  private val viewDelegate: MuxUiDelegate<*>
+    get() = playerAdapter.uiDelegate
+  private val collector get() = playerAdapter.collector
 
   init {
     MuxLogger.d(
@@ -134,9 +133,9 @@ private class ExoPlayerDelegate(
 
   override fun isBuffering(): Boolean = collector.muxPlayerState == MuxPlayerState.BUFFERING
 
-  override fun getPlayerViewWidth() = viewDelegate?.getPlayerViewSize()?.x ?: 0
+  override fun getPlayerViewWidth() = viewDelegate.getPlayerViewSize().x
 
-  override fun getPlayerViewHeight() = viewDelegate?.getPlayerViewSize()?.y ?: 0
+  override fun getPlayerViewHeight() = viewDelegate.getPlayerViewSize().y
 
   override fun getPlayerProgramTime(): Long {
     TODO("Not yet implemented")
