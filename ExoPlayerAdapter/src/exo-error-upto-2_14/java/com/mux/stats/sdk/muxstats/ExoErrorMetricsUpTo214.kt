@@ -43,10 +43,7 @@ private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Pla
 }
 
 /**
- * Generates a player binding for core exoplayer metrics. Data comes from
- *
- * NOTE: This is only used on ExoPlayer versions 2.15 and below. AnalyticsListener is preferred,
- * and its presence is guaranteed on our player object in exo 2.16 and higher
+ * Generates a player binding for exoplayer error metrics.
  */
 @JvmSynthetic
 internal fun playerErrorMetrics(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
