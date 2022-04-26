@@ -10,6 +10,7 @@ import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
+import kotlinx.coroutines.internal.synchronized
 import kotlin.properties.Delegates
 
 /**
@@ -80,7 +81,7 @@ class MuxStateCollector(
    * access play time info
    */
   var positionWatcher: PositionWatcher?
-          by Delegates.observable(null) { _, old, new ->
+          by Delegates.observable(null) @Synchronized { _, old, new ->
             old?.apply { stop("watcher replaced") }
             new?.start()
           }
