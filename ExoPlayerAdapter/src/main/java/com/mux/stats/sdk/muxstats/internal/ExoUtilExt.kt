@@ -7,7 +7,7 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
 import com.mux.stats.sdk.muxstats.MuxErrorException
 import com.mux.stats.sdk.muxstats.MuxPlayerState
-import com.mux.stats.sdk.muxstats.MuxPlayerStateTracker
+import com.mux.stats.sdk.muxstats.MuxStateCollector
 
 // -- General Utils --
 
@@ -35,7 +35,7 @@ internal inline fun <reified T> T.logTag() = T::class.java.simpleName
  * Handles an ExoPlayer position discontinuity
  */
 @JvmSynthetic // Hides from java
-internal fun MuxPlayerStateTracker.handlePositionDiscontinuity(reason: Int) {
+internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
   when (reason) {
     Player.DISCONTINUITY_REASON_SEEK -> {
       // If they seek while paused, this is how we know the seek is complete
@@ -53,7 +53,7 @@ internal fun MuxPlayerStateTracker.handlePositionDiscontinuity(reason: Int) {
  * Handles a change of basic ExoPlayer state
  */
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
-internal fun MuxPlayerStateTracker.handleExoPlaybackState(
+internal fun MuxStateCollector.handleExoPlaybackState(
   playbackState: Int, // the @IntDef for player state omitted. Unavailable on all exo versions
   playWhenReady: Boolean
 ) {
@@ -91,11 +91,11 @@ internal fun MuxPlayerStateTracker.handleExoPlaybackState(
 } // fun handleExoPlaybackState
 
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
-internal fun ExoPlayer.watchContentPosition(stateTracker: MuxPlayerStateTracker):
-        MuxPlayerStateTracker.PositionWatcher = ExoPositionWatcher(this, stateTracker)
+internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
+        MuxStateCollector.PositionWatcher = ExoPositionWatcher(this, stateCollector)
 
 @JvmSynthetic
-internal fun MuxPlayerStateTracker.handleExoPlaybackException(e: ExoPlaybackException) {
+internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackException) {
   if (e.type == ExoPlaybackException.TYPE_RENDERER) {
     val cause = e.rendererException
     if (cause is MediaCodecRenderer.DecoderInitializationException) {
@@ -147,9 +147,9 @@ internal fun MuxPlayerStateTracker.handleExoPlaybackException(e: ExoPlaybackExce
 /**
  * Watches an ExoPlayer's position, polling it every {@link #UPDATE_INTERVAL_MILIS} milliseconds
  */
-private class ExoPositionWatcher(player: ExoPlayer, stateTracker: MuxPlayerStateTracker) :
-  MuxPlayerStateTracker.PositionWatcher(
-    UPDATE_INTERVAL_MILLIS, stateTracker
+private class ExoPositionWatcher(player: ExoPlayer, stateCollector: MuxStateCollector) :
+  MuxStateCollector.PositionWatcher(
+    UPDATE_INTERVAL_MILLIS, stateCollector
   ) {
   companion object {
     const val UPDATE_INTERVAL_MILLIS = 150L

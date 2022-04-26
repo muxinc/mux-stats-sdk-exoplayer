@@ -27,23 +27,23 @@ private class BasicExoMetrics14toNow : MuxPlayerAdapter.PlayerBinding<ExoPlayer>
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener = newListener(player, collector).also {
       player.addListener(it)
     }
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     collector.positionWatcher?.stop("player unbound")
     collector.positionWatcher = null
     playerListener?.let { player.removeListener(it) }
   }
 
-  private fun newListener(player: ExoPlayer, collector: MuxPlayerStateTracker) =
+  private fun newListener(player: ExoPlayer, collector: MuxStateCollector) =
     PlayerListener(player, collector)
 } // class BaseExoMetrics
 
-private class PlayerListener(player: ExoPlayer, val collector: MuxPlayerStateTracker) :
+private class PlayerListener(player: ExoPlayer, val collector: MuxStateCollector) :
   Player.Listener {
   val player by weak(player) // player should be weakly reachable in case user doesn't clean up
 

@@ -23,20 +23,20 @@ private class ExoErrorMetricsByListenerUpTo214 : MuxPlayerAdapter.PlayerBinding<
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener = newListener(collector).also { player.addListener(it) }
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     collector.positionWatcher?.stop("player unbound")
     collector.positionWatcher = null
     playerListener?.let { player.removeListener(it) }
   }
 
-  private fun newListener(collector: MuxPlayerStateTracker) = ErrorPlayerListenerUpTo214(collector)
+  private fun newListener(collector: MuxStateCollector) = ErrorPlayerListenerUpTo214(collector)
 } // class ErrorPlayerBuListenerUpTo214
 
-private class ErrorPlayerListenerUpTo214(val collector: MuxPlayerStateTracker) : Player.Listener {
+private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Player.Listener {
   override fun onPlayerError(error: ExoPlaybackException) {
     collector.handleExoPlaybackException(error)
   }

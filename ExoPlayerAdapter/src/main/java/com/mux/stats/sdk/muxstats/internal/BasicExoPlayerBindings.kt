@@ -13,11 +13,11 @@ private class BasicExoPlayerBindings : MuxPlayerAdapter.PlayerBinding<ExoPlayer>
   private val coreBinding = playerStateMetrics()
   private val errorBinding = playerErrorMetrics()
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     coreBinding.bindPlayer(player, collector)
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     coreBinding.bindPlayer(player, collector)
   }
 }
@@ -35,7 +35,7 @@ fun MuxStats.createExoPlayerAdapter(
   player = player,
   uiDelegate = activity.muxUiDelegate(playerView),
   basicMetrics = BasicExoPlayerBindings(),
-  collector = MuxPlayerStateTracker(
+  collector = MuxStateCollector(
     muxStats = this,
     eventBus = eventBus
   )

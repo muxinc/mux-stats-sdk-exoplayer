@@ -1,16 +1,8 @@
 package com.mux.stats.sdk.muxstats
 
 import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
-import com.google.android.exoplayer2.analytics.AnalyticsListener
-import com.google.android.exoplayer2.source.TrackGroupArray
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.*
-import com.mux.stats.sdk.muxstats.internal.handleExoPlaybackState
 import com.mux.stats.sdk.muxstats.internal.logTag
-import com.mux.stats.sdk.muxstats.internal.watchContentPosition
 import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
@@ -25,17 +17,17 @@ private class PlayerStateMetrics216ToNow : MuxPlayerAdapter.PlayerBinding<ExoPla
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener = analyticsListenerMetrics().also {
       it.bindPlayer(player, collector)
     }
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener?.unbindPlayer(player, collector)
   }
 
-  private fun newListener(player: ExoPlayer, collector: MuxPlayerStateTracker) =
+  private fun newListener(player: ExoPlayer, collector: MuxStateCollector) =
     analyticsListenerMetrics()
 }
 

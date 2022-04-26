@@ -32,8 +32,7 @@ class DemoMuxStatsExoPlayer(
   private val muxStats =
     MuxStats(ExoPlayerDelegate { playerAdapter }, playerName, customerData, customOptions)
   private val eventBus = EventBus().apply { addListener(muxStats) }
-  private val collector =
-    MuxPlayerStateTracker(muxStats, eventBus)
+  private val collector = MuxStateCollector(muxStats, eventBus)
   private val playerAdapter: MuxPlayerAdapter<View, ExoPlayer, ExoPlayer> =
     muxStats.createExoPlayerAdapter(
       activity = context as Activity, // TODO: handle non-activity case

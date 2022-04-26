@@ -18,13 +18,13 @@ private class AnalyticsListenerBinding216ToNow : MuxPlayerAdapter.PlayerBinding<
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     listener = exoAnalyticsListener(player, collector).also {
       player.addAnalyticsListener(it)
     }
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     listener?.let { player.removeAnalyticsListener(it) }
   }
 

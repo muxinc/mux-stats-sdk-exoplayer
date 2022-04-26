@@ -3,13 +3,13 @@ package com.mux.stats.sdk.muxstats.internal
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.MediaLoadData
-import com.mux.stats.sdk.muxstats.MuxPlayerStateTracker
+import com.mux.stats.sdk.muxstats.MuxStateCollector
 
 /**
  * There's only one required AnalyticsListener implementation (as of Exo 2.17) so it's here in the
  * common code.
  */
-private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxPlayerStateTracker) :
+private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCollector) :
   AnalyticsListener {
 
   private val player: ExoPlayer? by weak(player)
@@ -63,6 +63,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxPlayerSt
 }
 
 @JvmSynthetic
-internal fun <P : ExoPlayer> exoAnalyticsListener(player: P, collector: MuxPlayerStateTracker)
+internal fun <P : ExoPlayer> exoAnalyticsListener(player: P, collector: MuxStateCollector)
         : AnalyticsListener = ExoAnalyticsListener(player, collector)
 

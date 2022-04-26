@@ -8,7 +8,7 @@ import com.mux.stats.sdk.muxstats.internal.weak
  */
 class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
   player: MainPlayer,
-  val collector: MuxPlayerStateTracker,
+  val collector: MuxStateCollector,
   @Suppress("MemberVisibilityCanBePrivate")
   val uiDelegate: MuxUiDelegate<PlayerView>,
   @Suppress("MemberVisibilityCanBePrivate")
@@ -50,12 +50,12 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
     }
   }
 
-  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxPlayerStateTracker) {
+  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxStateCollector) {
     basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer, collector) }
     player?.let { newPlayer -> basicMetrics.bindPlayer(newPlayer, collector) }
   }
 
-  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxPlayerStateTracker) {
+  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxStateCollector) {
     if (extraMetrics != null) {
       extraPlayer?.let { oldPlayer ->
         extraMetrics.bindings.onEach { it.unbindPlayer(oldPlayer, collector) }
@@ -76,12 +76,12 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
      * Binds a player to a MuxDataCollector, setting listeners or whatever is required to observe
      * state, and calling hooks on MuxDataCollector
      */
-    fun bindPlayer(player: Player, collector: MuxPlayerStateTracker)
+    fun bindPlayer(player: Player, collector: MuxStateCollector)
 
     /**
      * Unbinds a player from a MuxDataCollector, removing listeners and cleaning up
      */
-    fun unbindPlayer(player: Player, collector: MuxPlayerStateTracker)
+    fun unbindPlayer(player: Player, collector: MuxStateCollector)
   }
 
   /**

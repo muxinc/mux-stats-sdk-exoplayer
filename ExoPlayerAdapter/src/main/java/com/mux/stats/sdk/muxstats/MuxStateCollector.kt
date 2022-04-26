@@ -20,7 +20,7 @@ import kotlin.properties.Delegates
  * You should supply one of these to {@link MuxPlayerAdapter}, and call is methods from your
  * {@link PlayerBinding<Player>}
  */
-class MuxPlayerStateTracker(
+class MuxStateCollector(
   val muxStats: MuxStats,
   val eventBus: EventBus,
   val trackFirstFrameRendered: Boolean = true,
@@ -343,7 +343,7 @@ class MuxPlayerStateTracker(
    */
   abstract class PositionWatcher(
     val updateIntervalMillis: Long,
-    val stateTracker: MuxPlayerStateTracker
+    val stateCollector: MuxStateCollector
   ) {
     private val timerScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 
@@ -366,7 +366,7 @@ class MuxPlayerStateTracker(
       coroutineScope.launch(Dispatchers.Main) {
         val position = getTimeMillis()
         if (position != null) {
-          stateTracker.playbackPositionMills = position
+          stateCollector.playbackPositionMills = position
         } else {
           // If the data source is returning null, assume caller cleaned up the player
           MuxLogger.d(logTag(), "PlaybackPositionWatcher: Player lost. Stopping")
