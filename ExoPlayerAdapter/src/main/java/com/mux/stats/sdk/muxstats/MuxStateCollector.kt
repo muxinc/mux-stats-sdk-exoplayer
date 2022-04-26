@@ -1,7 +1,7 @@
 package com.mux.stats.sdk.muxstats
 
-import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.IEvent
+import com.mux.stats.sdk.core.events.IEventDispatcher
 import com.mux.stats.sdk.core.events.InternalErrorEvent
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.core.model.CustomerVideoData
@@ -22,7 +22,7 @@ import kotlin.properties.Delegates
  */
 class MuxStateCollector(
   val muxStats: MuxStats,
-  val eventBus: EventBus,
+  val dispatcher: IEventDispatcher,
   val trackFirstFrameRendered: Boolean = true,
 ) {
 
@@ -326,7 +326,7 @@ class MuxStateCollector(
         pauseEventsSent++
       }
     }
-    eventBus.dispatch(event)
+    dispatcher.dispatch(event)
   }
 
   /**

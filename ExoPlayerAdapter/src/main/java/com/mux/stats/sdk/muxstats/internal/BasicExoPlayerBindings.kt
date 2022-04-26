@@ -37,7 +37,7 @@ fun MuxStats.createExoPlayerAdapter(
   basicMetrics = BasicExoPlayerBindings(),
   collector = MuxStateCollector(
     muxStats = this,
-    eventBus = eventBus
+    dispatcher = eventBus
   )
 )
 
