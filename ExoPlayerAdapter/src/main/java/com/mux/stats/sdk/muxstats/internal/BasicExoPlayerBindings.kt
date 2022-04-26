@@ -34,7 +34,7 @@ fun MuxStats.createExoPlayerAdapter(
 ): MuxPlayerAdapter<View, ExoPlayer, ExoPlayer> = MuxPlayerAdapter(
   player = player,
   uiDelegate = activity.muxUiDelegate(playerView),
-  basicMetrics = basicExoEvents(),
+  basicMetrics = BasicExoPlayerBindings(),
   collector = MuxPlayerStateTracker(
     muxStats = this,
     eventBus = eventBus
