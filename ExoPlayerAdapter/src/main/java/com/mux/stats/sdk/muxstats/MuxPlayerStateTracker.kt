@@ -9,9 +9,7 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
-import com.mux.stats.sdk.muxstats.internal.weak
 import kotlinx.coroutines.*
-import java.lang.Exception
 import kotlin.properties.Delegates
 
 /**
@@ -29,12 +27,13 @@ class MuxPlayerStateTracker(
 ) {
 
   companion object {
-    const val DURATION_UNKNOWN = -1L
+    const val TIME_UNKNOWN = -1L
     const val ERROR_UNKNOWN = -1;
     const val ERROR_DRM = -2
     const val ERROR_IO = -3
 
     private const val FIRST_FRAME_NOT_RENDERED: Long = -1
+
     // Wait this long after the first frame was rendered before logic considers it rendered
     private const val FIRST_FRAME_WAIT_MILLIS = 50L
   }
@@ -67,12 +66,12 @@ class MuxPlayerStateTracker(
   /**
    * Total duration of the media being played, in milliseconds
    */
-  var sourceDurationMs: Long = DURATION_UNKNOWN
+  var sourceDurationMs: Long = TIME_UNKNOWN
 
   /**
    * The current playback position of the player
    */
-  var playbackPositionMills: Long = DURATION_UNKNOWN
+  var playbackPositionMills: Long = TIME_UNKNOWN
 
   /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
@@ -240,8 +239,12 @@ class MuxPlayerStateTracker(
     if (error is MuxErrorException) {
       dispatch(InternalErrorEvent(error.code, error.message))
     } else {
-      dispatch(InternalErrorEvent(ERROR_UNKNOWN,
-        "${error.javaClass.canonicalName} - ${error.message}"))
+      dispatch(
+        InternalErrorEvent(
+          ERROR_UNKNOWN,
+          "${error.javaClass.canonicalName} - ${error.message}"
+        )
+      )
     }
   }
 

@@ -25,6 +25,7 @@ private class AnalyticsListenerBinding216ToNow : MuxPlayerAdapter.PlayerBinding<
   }
 
   override fun unbindPlayer(player: ExoPlayer, collector: MuxPlayerStateTracker) {
+    listener?.let { player.removeAnalyticsListener(it) }
   }
 
 }

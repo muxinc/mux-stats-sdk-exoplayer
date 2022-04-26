@@ -1,9 +1,6 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.mux.stats.sdk.muxstats.MuxPlayerStateTracker
@@ -57,6 +54,11 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxPlayerSt
         collector.sourceDurationMs = durationMs
       }
     }
+  }
+
+  @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over
+  override fun onVideoInputFormatChanged(eventTime: AnalyticsListener.EventTime, format: Format) {
+    // TODO: Handle this
   }
 }
 
