@@ -90,6 +90,10 @@ internal fun MuxStateCollector.handleExoPlaybackState(
   } // when (playbackState)
 } // fun handleExoPlaybackState
 
+/**
+ * Returns and starts an object that will poll ExoPlayer for its content position every so often
+ * and updated the given MuxStateCollector
+ */
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
 internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
         MuxStateCollector.PositionWatcher = ExoPositionWatcher(this, stateCollector)
