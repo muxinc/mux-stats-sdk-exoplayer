@@ -99,10 +99,11 @@ class DemoMuxStatsExoPlayer(
   }
 }
 
-private class ExoPlayerDelegate(val playerAdapter: MuxPlayerAdapter<*, *, *>) : IPlayerListener {
+private class ExoPlayerDelegate(val playerAdapter: () -> MuxPlayerAdapter<*, *, *>) :
+  IPlayerListener {
   private val viewDelegate: MuxUiDelegate<*>
-    get() = playerAdapter.uiDelegate
-  private val collector get() = playerAdapter.collector
+    get() = playerAdapter().uiDelegate
+  private val collector get() = playerAdapter().collector
 
   init {
     MuxLogger.d(
@@ -112,6 +113,12 @@ private class ExoPlayerDelegate(val playerAdapter: MuxPlayerAdapter<*, *, *>) : 
   }
 
   override fun getCurrentPosition(): Long = collector.playbackPositionMills
+    .also {
+      MuxLogger.d(
+        "DemoMuxStatsExoPlayer", "GetCurrentPosition():\n\t " +
+                "viewD: $viewDelegate \n\tand collector: $collector"
+      )
+    }
 
   override fun getMimeType() = collector.mimeType
 
