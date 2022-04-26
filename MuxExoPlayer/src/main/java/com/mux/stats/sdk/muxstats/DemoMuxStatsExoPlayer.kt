@@ -10,6 +10,7 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.model.CustomerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.createExoPlayerAdapter
 import com.mux.stats.sdk.muxstats.internal.weak
 
@@ -27,16 +28,18 @@ class DemoMuxStatsExoPlayer(
   private var _player by weak(player)
   private var _playerView by weak(playerView)
 
-  private val muxStats = MuxStats(null, playerName, customerData, customOptions)
+  private val muxStats =
+    MuxStats(ExoPlayerDelegate { playerAdapter }, playerName, customerData, customOptions)
   private val eventBus = EventBus().apply { addListener(muxStats) }
   private val collector =
     MuxPlayerStateTracker(muxStats, eventBus)
-  private val playerAdapter = muxStats.createExoPlayerAdapter(
-    activity = context as Activity, // TODO: handle non-activity case
-    playerView = playerView,
-    player = player,
-    eventBus = eventBus
-  )
+  private val playerAdapter: MuxPlayerAdapter<View, ExoPlayer, ExoPlayer> =
+    muxStats.createExoPlayerAdapter(
+      activity = context as Activity, // TODO: handle non-activity case
+      playerView = playerView,
+      player = player,
+      eventBus = eventBus
+    )
 
   init {
     // Initialize MuxStats stuff
@@ -96,16 +99,20 @@ class DemoMuxStatsExoPlayer(
 }
 
 private class ExoPlayerDelegate(
-  player: MuxPlayerAdapter<*, *, *>,
-  uiDelegate: MuxUiDelegate<View>
+  playerAdapter: () -> MuxPlayerAdapter<*, *, *>,
 ) :
   IPlayerListener {
-  private val _playerAdapter by weak(player)
-  private val viewDelegate by weak(uiDelegate)
-  private val collector = player.collector
+  private val viewDelegate by weak(playerAdapter().uiDelegate)
+  private val collector = playerAdapter().collector
 
-  override fun getCurrentPosition(): Long =
-    _playerAdapter?.collector?.playbackPositionMills ?: MuxPlayerStateTracker.TIME_UNKNOWN
+  init {
+    MuxLogger.d(
+      "DemoMuxStatsExoPlayer",
+      "Creating Delegate with viewD: $viewDelegate \n\tand collector: $collector"
+    )
+  }
+
+  override fun getCurrentPosition(): Long = collector.playbackPositionMills
 
   override fun getMimeType() = collector.mimeType
 
