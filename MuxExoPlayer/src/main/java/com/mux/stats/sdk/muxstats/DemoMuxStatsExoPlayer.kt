@@ -27,7 +27,14 @@ class DemoMuxStatsExoPlayer(
   val customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
-  // TODO: decalre constructor so we can add @JvmOverloads
+  // TODO: declare constructor so we can add @JvmOverloads? No, don't.
+  //  We can do fun ExoPlayer.monitorWithMuxData() // figures out some of the context/activity/view/whatever
+  //  And those extensions can be overloaded for different reasons (ie, only supplying some Customer Data, etc)
+  //  *Those* can have non-optional parameters. Make them @JvmSynthetic for maximum safety
+  // TODO: All public ctor fields should be optional. A private ctor can assert nullness on anything
+  //  that can't be null, using the available data, and provide a more-friendly error message
+  // TODO: We might want to add the deprecated ctors, but they've been deprecated since forever,
+  //  so why don't we just do a major rev and finally remove them
 
   private var _player by weak(player)
   private var _playerView by weak(playerView)
