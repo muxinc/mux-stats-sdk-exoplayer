@@ -15,10 +15,12 @@ private class BasicExoPlayerBindings : MuxPlayerAdapter.PlayerBinding<ExoPlayer>
 
   override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     coreBinding.bindPlayer(player, collector)
+    errorBinding.bindPlayer(player, collector)
   }
 
   override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
-    coreBinding.bindPlayer(player, collector)
+    coreBinding.unbindPlayer(player, collector)
+    errorBinding.unbindPlayer(player, collector)
   }
 }
 
