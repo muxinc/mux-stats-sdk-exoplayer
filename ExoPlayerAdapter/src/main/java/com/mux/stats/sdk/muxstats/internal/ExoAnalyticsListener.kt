@@ -40,8 +40,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   override fun onPositionDiscontinuity(
     eventTime: AnalyticsListener.EventTime,
-    oldPosition: Player.PositionInfo,
-    newPosition: Player.PositionInfo,
     reason: Int
   ) {
     collector.handlePositionDiscontinuity(reason)
@@ -49,7 +47,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   override fun onTimelineChanged(eventTime: AnalyticsListener.EventTime, reason: Int) {
     val player = player // strong reference during the listener call
-    if (player != null && eventTime.timeline != null) {
+    if (player != null) {
       Timeline.Window().apply {
         collector.sourceDurationMs = durationMs
       }

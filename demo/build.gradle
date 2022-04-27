@@ -183,6 +183,7 @@ android {
         }
         r2_13_1 {
             dimension 'exoplayer'
+          matchingFallbacks = ['upto2_13']
         }
         r2_13_1_ads {
             dimension 'exoplayer'

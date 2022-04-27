@@ -3,7 +3,6 @@ package com.mux.stats.sdk.muxstats
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.handleExoPlaybackException
 import com.mux.stats.sdk.muxstats.internal.logTag
@@ -16,8 +15,8 @@ import com.mux.stats.sdk.muxstats.internal.weak
  * NOTE: This is only used on ExoPlayer versions 2.15 and below. AnalyticsListener is preferred,
  * and its presence is guaranteed on our player object in exo 2.16 and higher
  */
-private class ExoErrorMetricsByListenerUpTo214 : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
-  private var playerListener: Player.Listener? by weak(null)
+private class ExoErrorMetricsByListenerUpTo213 : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
+  private var playerListener: Player.EventListener? by weak(null)
 
   init {
     MuxLogger.d(logTag(), "created");
@@ -36,7 +35,7 @@ private class ExoErrorMetricsByListenerUpTo214 : MuxPlayerAdapter.PlayerBinding<
   private fun newListener(collector: MuxStateCollector) = ErrorPlayerListenerUpTo214(collector)
 } // class ErrorPlayerBuListenerUpTo214
 
-private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Player.Listener {
+private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Player.EventListener {
   override fun onPlayerError(error: ExoPlaybackException) {
     collector.handleExoPlaybackException(error)
   }
@@ -47,4 +46,4 @@ private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Pla
  */
 @JvmSynthetic
 internal fun playerErrorMetrics(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
-  ExoErrorMetricsByListenerUpTo214();
+  ExoErrorMetricsByListenerUpTo213();

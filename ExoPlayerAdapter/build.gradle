@@ -31,13 +31,13 @@ android {
   sourceSets {
     upto2_13 {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
-      java.srcDirs += 'src/exo-error-upto-2_14/java'
+      java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_14 {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
-      java.srcDirs += 'src/exo-error-upto-2_14/java'
+      java.srcDirs += 'src/exo-error-just-2_14/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
