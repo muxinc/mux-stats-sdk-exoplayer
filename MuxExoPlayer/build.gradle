@@ -215,5 +215,5 @@ dependencies {
 
     def muxCoreImport = "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
     debugApi muxCoreImport
-    releaseApi muxCoreImport
+    implementation muxCoreImport
 }
