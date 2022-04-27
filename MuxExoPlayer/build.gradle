@@ -213,7 +213,5 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-    def muxCoreImport = "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-    debugApi muxCoreImport
-    implementation muxCoreImport
+    implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }
