@@ -156,5 +156,4 @@ dependencies {
 
     // Automated tests should always test the local module and not the maven dependency.
     implementation project(":MuxExoPlayer")
-    implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }
