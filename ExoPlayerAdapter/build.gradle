@@ -81,7 +81,6 @@ dependencies {
   //from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:2.16.+'
 
   testImplementation 'junit:junit:4.13.2'
-  androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-  // TODO: automated tests might not be appropriate for this lib, unit tests should be fine
-  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+  testImplementation 'androidx.test.ext:junit:1.1.3'
+  testImplementation "io.mockk:mockk:1.12.3"
 }
