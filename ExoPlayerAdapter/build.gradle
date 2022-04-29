@@ -1,0 +1,87 @@
+plugins {
+  id 'com.android.library'
+  id 'org.jetbrains.kotlin.android'
+}
+
+android {
+  compileSdk 32
+
+  defaultConfig {
+    minSdk 16
+    targetSdk 32
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    consumerProguardFiles "consumer-rules.pro"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  flavorDimensions 'exoplayer'
+  productFlavors {
+    upto2_13 { dimension 'exoplayer' }
+    just2_14 { dimension 'exoplayer' }
+    just2_15 { dimension 'exoplayer' }
+    from2_16toNow { dimension 'exoplayer' }
+  }
+  sourceSets {
+    upto2_13 {
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-upto-2_13/java'
+      java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    just2_14 {
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-just-2_14/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    just2_15 {
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    from2_16toNow {
+      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
+      // From 2.16 onward, we don't need exo-event
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = '1.8'
+  }
+}
+
+dependencies {
+
+  implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+  //noinspection GradleDynamicVersion
+  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.+'
+
+  //noinspection GradleDynamicVersion,GradleDependency
+  upto2_13Implementation 'com.google.android.exoplayer:exoplayer:[2.9.6, 2.13.+]'
+  //noinspection GradleDynamicVersion,GradleDependency
+  just2_14Implementation 'com.google.android.exoplayer:exoplayer:2.14.+'
+  //noinspection GradleDynamicVersion,GradleDependency
+  just2_15Implementation 'com.google.android.exoplayer:exoplayer:2.15.+'
+  //noinspection GradleDynamicVersion,GradleDependency
+  from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:[2.16.0,2.17.+]'
+  //from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:2.16.+'
+
+  testImplementation 'junit:junit:4.13.2'
+  androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+  // TODO: automated tests might not be appropriate for this lib, unit tests should be fine
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+}

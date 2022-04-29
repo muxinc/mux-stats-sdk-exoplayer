@@ -613,15 +613,12 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * This was used to tell us if we are playing HLS or DASH because this can not be determined
-   * automatically.
-   *
-   * @param type stream type.
+   * @deprecated This method is deprecated and does nothing
    */
   @Deprecated
   @SuppressWarnings("unused")
-  public void setStreamType(int type) {
-    streamType = type;
+  public void setStreamType(int unused) {
+    // no-op
   }
 
   /**
