@@ -2,8 +2,13 @@ package com.mux.exoplayeradapter
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.Point
 import android.view.View
+import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_PLAYER_HEIGHT
+import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_PLAYER_WIDTH
+import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_SCREEN_HEIGHT
+import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_SCREEN_WIDTH
+import com.mux.exoplayeradapter.double.UiDelegateMocks.mockActivity
+import com.mux.exoplayeradapter.double.UiDelegateMocks.mockView
 import com.mux.stats.sdk.muxstats.muxUiDelegate
 import com.mux.stats.sdk.muxstats.noUiDelegate
 import io.mockk.every
@@ -13,14 +18,6 @@ import org.junit.Before
 import org.junit.Test
 
 class UiDelegateTests : AbsRobolectricTest() {
-
-  companion object {
-    const val MOCK_SCREEN_WIDTH = 2400
-    const val MOCK_SCREEN_HEIGHT = 1080
-
-    const val MOCK_PLAYER_WIDTH = 1080
-    const val MOCK_PLAYER_HEIGHT = 700
-  }
 
   lateinit var activity: Activity
   lateinit var view: View
@@ -113,26 +110,5 @@ class UiDelegateTests : AbsRobolectricTest() {
       playerSize.y,
       0
     )
-  }
-
-  private fun mockView() = mockk<View> {
-    every { width } returns MOCK_PLAYER_WIDTH
-    every { height } returns MOCK_PLAYER_HEIGHT
-  }
-
-  /**
-   * Mocks the path we call to get the size of the screen
-   */
-  private fun mockActivity() = mockk<Activity> {
-    every { windowManager } returns mockk {
-      every { defaultDisplay } returns mockk {
-        every { getSize(Point()) } answers {
-          arg<Point>(0).apply {
-            x = MOCK_SCREEN_WIDTH
-            y = MOCK_SCREEN_HEIGHT
-          }
-        }
-      }
-    }
   }
 }

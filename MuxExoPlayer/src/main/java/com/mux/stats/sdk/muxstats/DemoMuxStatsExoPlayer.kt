@@ -115,7 +115,7 @@ class DemoMuxStatsExoPlayer(
    * Tears down this object. After this, the object will no longer be usable
    */
   fun release() {
-    playerAdapter.release()
+    playerAdapter.unbindEverything()
     muxStats.release()
   }
 }

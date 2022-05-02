@@ -41,7 +41,7 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
   /**
    * Unbinds all bindings. After this no strong references will be held to the player
    */
-  fun release() {
+  fun unbindEverything() {
     basicPlayer?.let { player ->
       basicMetrics.unbindPlayer(player, collector)
     }
