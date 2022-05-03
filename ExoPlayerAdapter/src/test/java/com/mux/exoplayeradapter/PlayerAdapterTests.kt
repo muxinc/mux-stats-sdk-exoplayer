@@ -11,25 +11,25 @@ import com.mux.stats.sdk.muxstats.internal.observableWeak
 import com.mux.stats.sdk.muxstats.muxUiDelegate
 import io.mockk.*
 import org.junit.Test
-import java.lang.AssertionError
 
 class PlayerAdapterTests : AbsRobolectricTest() {
 
   @Test
   fun testBindOnCreate() {
-    val basicBinding1 = mockk<MuxPlayerAdapter.PlayerBinding<Any>> {
+    val basicBinding = mockk<MuxPlayerAdapter.PlayerBinding<Any>> {
       every { bindPlayer(any(), any()) } just runs
       every { unbindPlayer(any(), any()) } throws AssertionError("unbind shouldn't be called")
     }
-    val extraBinding1 = mockk<MuxPlayerAdapter.PlayerBinding<Any>> {
+    val extraBinding = mockk<MuxPlayerAdapter.PlayerBinding<Any>> {
       every { bindPlayer(any(), any()) } just runs
       every { unbindPlayer(any(), any()) } throws AssertionError("unbind shouldn't be called")
     }
-    val playerAdapter = playerAdapter(basicBinding1, extraBinding1)
+    @Suppress("UNUSED_VARIABLE")
+    val playerAdapter = playerAdapter(basicBinding, extraBinding)
     // ctors should invoke the bindings
     verify {
-      basicBinding1.bindPlayer(any(), any())
-      extraBinding1.bindPlayer(any(), any())
+      basicBinding.bindPlayer(any(), any())
+      extraBinding.bindPlayer(any(), any())
     }
   }
 
