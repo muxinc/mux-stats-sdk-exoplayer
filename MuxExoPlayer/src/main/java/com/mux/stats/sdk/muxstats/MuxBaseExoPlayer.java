@@ -2,7 +2,6 @@ package com.mux.stats.sdk.muxstats;
 
 import static android.os.SystemClock.elapsedRealtime;
 
-import android.app.usage.UsageEvents.Event;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -29,6 +28,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.Timeline.Window;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.MuxSDKViewOrientation;
 import com.mux.stats.sdk.core.events.EventBus;
@@ -189,6 +189,9 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   /** This value is set to true if {@link com.google.android.exoplayer2.MediaItem} has video. */
   boolean playItemHaveVideoTrack;
 
+  /** Cached return value from {@link #isHlsExtensionAvailable()} */
+  private Boolean foundHlsExtension;
+
   /**
    * Basic constructor.
    *
@@ -342,6 +345,39 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   protected abstract boolean isLivePlayback();
+
+  /**
+   * Detects if the runtime ExoPlayer has the HLS extension. If not, references to symbols like
+   * HlsManifest, HlsMediaPlaylist, etc will cause runtime errors
+   */
+  protected final boolean isHlsExtensionAvailable() {
+    if (foundHlsExtension == null) {
+      try {
+        // This class is for sure in the hls extension
+        Class.forName("com.google.android.exoplayer2.source.hls.HlsManifest");
+        foundHlsExtension = true;
+      } catch (ClassNotFoundException e) {
+        MuxLogger.w(TAG, "exoplayer library-hls not available. Some features may not work");
+        foundHlsExtension = false;
+      }
+    }
+
+    return foundHlsExtension;
+  }
+
+  protected final void handleHlsManifest(ExoPlayer exoPlayer) {
+    Log.d("myfix", "handleHlsManifest(): is HLS available? " + isHlsExtensionAvailable());
+    Log.d("myfix", "handleHlsManifest(): exoPlayer is " + exoPlayer + " btw");
+    if (exoPlayer != null && isHlsExtensionAvailable()) {
+      // Don't reference this symbol unless the HLS extension is really available to use
+      HlsManifest manifest = Util.safeCast(exoPlayer.getCurrentManifest(), HlsManifest.class);
+      Log.i("myfix", "Got HlsManifest " + manifest);
+      Log.i("myfix" , "For the record the manifest right now is " + exoPlayer.getCurrentManifest());
+      if (manifest != null) {
+        onMainPlaylistTags(manifest.masterPlaylist.tags);
+      }
+    }
+  }
 
   protected abstract String parseHlsManifestTag(String tagName);
 

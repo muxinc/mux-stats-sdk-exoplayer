@@ -22,13 +22,14 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.mux.stats.sdk.core.CustomOptions;
 import com.google.android.exoplayer2.video.VideoSize;
+import com.mux.stats.sdk.core.CustomOptions;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
+
 import java.io.IOException;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
@@ -38,66 +39,66 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerPlayerData customerPlayerData,
-      CustomerVideoData customerVideoData) {
+                           CustomerPlayerData customerPlayerData,
+                           CustomerVideoData customerVideoData) {
     this(ctx, player, playerName, customerPlayerData,
         customerVideoData, null, true);
   }
 
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerPlayerData customerPlayerData,
-      CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData) {
+                           CustomerPlayerData customerPlayerData,
+                           CustomerVideoData customerVideoData,
+                           CustomerViewData customerViewData) {
     this(ctx, player, playerName, customerPlayerData, customerVideoData,
         customerViewData, true);
   }
 
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerPlayerData customerPlayerData,
-      CustomerVideoData customerVideoData,
-      @Deprecated boolean unused) {
+                           CustomerPlayerData customerPlayerData,
+                           CustomerVideoData customerVideoData,
+                           @Deprecated boolean unused) {
     this(ctx, player, playerName, customerPlayerData, customerVideoData,
         null, unused);
   }
 
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerPlayerData customerPlayerData,
-      CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData, @Deprecated boolean unused) {
+                           CustomerPlayerData customerPlayerData,
+                           CustomerVideoData customerVideoData,
+                           CustomerViewData customerViewData, @Deprecated boolean unused) {
     this(ctx, player, playerName, new CustomerData(customerPlayerData, customerVideoData,
         customerViewData), unused, new MuxNetworkRequests());
   }
 
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerPlayerData customerPlayerData,
-      CustomerVideoData customerVideoData,
-      CustomerViewData customerViewData, @Deprecated boolean unused, INetworkRequest networkRequests) {
+                           CustomerPlayerData customerPlayerData,
+                           CustomerVideoData customerVideoData,
+                           CustomerViewData customerViewData, @Deprecated boolean unused, INetworkRequest networkRequests) {
     this(ctx, player, playerName, new CustomerData(customerPlayerData, customerVideoData,
         customerViewData), unused, networkRequests);
   }
 
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data,
-      @Deprecated boolean unused,
-      INetworkRequest networkRequests) {
+                           CustomerData data,
+                           @Deprecated boolean unused,
+                           INetworkRequest networkRequests) {
     this(ctx, player, playerName, data, new CustomOptions()
         , networkRequests);
   }
 
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data) {
+                           CustomerData data) {
     this(ctx, player, playerName, data, new CustomOptions(), new MuxNetworkRequests());
   }
 
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
-      CustomerData data,
-      CustomOptions options,
-      INetworkRequest networkRequests) {
+                           CustomerData data,
+                           CustomOptions options,
+                           INetworkRequest networkRequests) {
     super(ctx, player, playerName, data, options, networkRequests);
 
     player.addAnalyticsListener(this);
@@ -172,12 +173,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   // ------BEGIN AnalyticsListener callbacks------
   @Override
   public void onAudioAttributesChanged(AnalyticsListener.EventTime eventTime,
-      AudioAttributes audioAttributes) {
+                                       AudioAttributes audioAttributes) {
   }
 
   @Override
   public void onAudioUnderrun(AnalyticsListener.EventTime eventTime, int bufferSize,
-      long bufferSizeMs, long elapsedSinceLastFeedMs) {
+                              long bufferSizeMs, long elapsedSinceLastFeedMs) {
   }
 
   @Override
@@ -187,7 +188,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onDownstreamFormatChanged(AnalyticsListener.EventTime eventTime,
-      MediaLoadData mediaLoadData) {
+                                        MediaLoadData mediaLoadData) {
     if (mediaLoadData.trackFormat != null
         && mediaLoadData.trackFormat.containerMimeType != null
         && detectMimeType) {
@@ -223,8 +224,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onLoadCanceled(AnalyticsListener.EventTime eventTime,
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData) {
+                             LoadEventInfo loadEventInfo,
+                             MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
       bandwidthDispatcher
           .onLoadCanceled(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(),
@@ -237,8 +238,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onLoadCompleted(AnalyticsListener.EventTime eventTime,
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData) {
+                              LoadEventInfo loadEventInfo,
+                              MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
       bandwidthDispatcher.onLoadCompleted(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(),
           loadEventInfo.bytesLoaded, mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
@@ -250,9 +251,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onLoadError(AnalyticsListener.EventTime eventTime,
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData, IOException e,
-      boolean wasCanceled) {
+                          LoadEventInfo loadEventInfo,
+                          MediaLoadData mediaLoadData, IOException e,
+                          boolean wasCanceled) {
     if (loadEventInfo.uri != null) {
       bandwidthDispatcher.onLoadError(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(), e);
     } else {
@@ -263,8 +264,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onLoadStarted(AnalyticsListener.EventTime eventTime,
-      LoadEventInfo loadEventInfo,
-      MediaLoadData mediaLoadData) {
+                            LoadEventInfo loadEventInfo,
+                            MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
       String segmentMimeType = "unknown";
       if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat.sampleMimeType != null) {
@@ -286,7 +287,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onPlaybackParametersChanged(AnalyticsListener.EventTime eventTime,
-      PlaybackParameters playbackParameters) {
+                                          PlaybackParameters playbackParameters) {
     onPlaybackParametersChanged(playbackParameters);
   }
 
@@ -297,7 +298,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onPlaybackSuppressionReasonChanged(AnalyticsListener.EventTime eventTime,
-      int playbackSuppressionReason) {
+                                                 int playbackSuppressionReason) {
   }
 
   @Override
@@ -307,7 +308,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
-      int reason) {
+                                     int reason) {
     onPlayWhenReadyChanged(playWhenReady, reason);
     onPlaybackStateChanged(player.get().getPlaybackState());
   }
@@ -331,13 +332,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onShuffleModeChanged(AnalyticsListener.EventTime eventTime,
-      boolean shuffleModeEnabled) {
+                                   boolean shuffleModeEnabled) {
     onShuffleModeEnabledChanged(shuffleModeEnabled);
   }
 
   @Override
   public void onSurfaceSizeChanged(AnalyticsListener.EventTime eventTime, int width,
-      int height) {
+                                   int height) {
   }
 
   @Override
@@ -347,7 +348,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTracksChanged(AnalyticsListener.EventTime eventTime, TrackGroupArray trackGroups,
-      TrackSelectionArray trackSelections) {
+                              TrackSelectionArray trackSelections) {
     onTracksChanged(trackGroups, trackSelections);
   }
 
@@ -534,13 +535,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, int reason) {
-    ExoPlayer exoPlayer = player.get();
-    if(exoPlayer != null) {
-      HlsManifest manifest = Util.safeCast(exoPlayer.getCurrentManifest(), HlsManifest.class);
-      if(manifest != null) {
-        onMainPlaylistTags(manifest.masterPlaylist.tags);
-      }
-    }
+    handleHlsManifest(player.get());
 
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
