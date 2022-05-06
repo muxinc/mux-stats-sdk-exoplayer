@@ -366,13 +366,9 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   protected final void handleHlsManifest(ExoPlayer exoPlayer) {
-    Log.d("myfix", "handleHlsManifest(): is HLS available? " + isHlsExtensionAvailable());
-    Log.d("myfix", "handleHlsManifest(): exoPlayer is " + exoPlayer + " btw");
     if (exoPlayer != null && isHlsExtensionAvailable()) {
       // Don't reference this symbol unless the HLS extension is really available to use
       HlsManifest manifest = Util.safeCast(exoPlayer.getCurrentManifest(), HlsManifest.class);
-      Log.i("myfix", "Got HlsManifest " + manifest);
-      Log.i("myfix" , "For the record the manifest right now is " + exoPlayer.getCurrentManifest());
       if (manifest != null) {
         onMainPlaylistTags(manifest.masterPlaylist.tags);
       }
