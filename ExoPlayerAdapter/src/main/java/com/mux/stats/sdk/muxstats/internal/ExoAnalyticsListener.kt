@@ -1,6 +1,9 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import com.google.android.exoplayer2.*
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Format
+import com.google.android.exoplayer2.PlaybackParameters
+import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.mux.stats.sdk.muxstats.MuxStateCollector

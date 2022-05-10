@@ -146,7 +146,6 @@ dependencies {
   r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
   r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
 
-
   r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
   r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
 
