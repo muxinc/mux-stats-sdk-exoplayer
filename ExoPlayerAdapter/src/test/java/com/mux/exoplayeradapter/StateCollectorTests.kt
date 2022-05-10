@@ -69,7 +69,7 @@ class StateCollectorTests : AbsRobolectricTest() {
     stateCollector.play()
     assertEquals("the first play event should always be recorded",
       stateCollector.muxPlayerState,
-      MuxPlayerState.SEEKING
+      MuxPlayerState.PLAY
     )
     eventDispatcher.assertHasOneOf(PlayEvent(null))
     // The first play() while seeked should be recorded
@@ -79,19 +79,20 @@ class StateCollectorTests : AbsRobolectricTest() {
     stateCollector.play()
     assertEquals("the first play event should always be recorded",
       stateCollector.muxPlayerState,
-      MuxPlayerState.SEEKED
+      MuxPlayerState.PLAY
     )
     eventDispatcher.assertHasOneOf(PlayEvent(null))
 
     // subsequent play() while rebuffering should be ignored
     setUpCollector()
     stateCollector.play()
+    stateCollector.playing()
     stateCollector.buffering()
     stateCollector.play()
     assertNotEquals(
       "play -> buffering -> play = buffering",
       stateCollector.muxPlayerState,
-      MuxPlayerState.PLAYING
+      MuxPlayerState.PLAY
     )
     eventDispatcher.assertHasOneOf(PlayEvent(null))
     // subsequent play() while seeked should be ignored
@@ -103,7 +104,7 @@ class StateCollectorTests : AbsRobolectricTest() {
     assertNotEquals(
       "play -> buffering -> play = buffering",
       stateCollector.muxPlayerState,
-      MuxPlayerState.PLAYING
+      MuxPlayerState.PLAY
     )
     eventDispatcher.assertHasOneOf(PlayEvent(null))
     // subsequent play() while seeking should be ignored
@@ -114,7 +115,7 @@ class StateCollectorTests : AbsRobolectricTest() {
     assertNotEquals(
       "play -> buffering -> play = buffering",
       stateCollector.muxPlayerState,
-      MuxPlayerState.PLAYING
+      MuxPlayerState.PLAY
     )
     eventDispatcher.assertHasOneOf(PlayEvent(null))
   }

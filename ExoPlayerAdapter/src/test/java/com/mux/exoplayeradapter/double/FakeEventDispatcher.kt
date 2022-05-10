@@ -8,7 +8,7 @@ import java.util.*
 class FakeEventDispatcher : IEventDispatcher {
   private val _events = LinkedList<Record>()
   val captureRecords: List<Record> get() = _events
-  val capturedEvents = captureRecords.map { it.event }
+  val capturedEvents get() = _events.map { it.event }
 
   override fun dispatch(e: IEvent?) {
     assertNotNull("null events should not be dispatched to the bus", e)
@@ -49,11 +49,15 @@ class FakeEventDispatcher : IEventDispatcher {
   }
 
   fun assertOnlyThese(expected: List<IEvent>) {
+    if (captureRecords.isEmpty()) {
+      failAssert("Expected events, but captured none", expected, capturedEvents)
+    }
+
     if (expected.size != captureRecords.size) {
       failAssert("Captured the wrong number of events", expected, capturedEvents)
     }
 
-    for (idx in 0..expected.size) {
+    for (idx in expected.indices) {
       if (expected[idx].type != captureRecords[idx].event.type) {
         failAssert(
           "Captured events did not exactly match",
