@@ -1,10 +1,7 @@
 package com.mux.exoplayeradapter
 
 import com.mux.exoplayeradapter.double.FakeEventDispatcher
-import com.mux.stats.sdk.core.events.playback.PlayEvent
-import com.mux.stats.sdk.core.events.playback.RebufferEndEvent
-import com.mux.stats.sdk.core.events.playback.RebufferStartEvent
-import com.mux.stats.sdk.core.events.playback.TimeUpdateEvent
+import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import com.mux.stats.sdk.muxstats.MuxStats
@@ -67,7 +64,8 @@ class StateCollectorTests : AbsRobolectricTest() {
     setUpCollector()
     stateCollector.seeking()
     stateCollector.play()
-    assertEquals("the first play event should always be recorded",
+    assertEquals(
+      "the first play event should always be recorded",
       stateCollector.muxPlayerState,
       MuxPlayerState.PLAY
     )
@@ -77,7 +75,8 @@ class StateCollectorTests : AbsRobolectricTest() {
     stateCollector.seeking()
     stateCollector.seeked(false)
     stateCollector.play()
-    assertEquals("the first play event should always be recorded",
+    assertEquals(
+      "the first play event should always be recorded",
       stateCollector.muxPlayerState,
       MuxPlayerState.PLAY
     )
@@ -118,5 +117,53 @@ class StateCollectorTests : AbsRobolectricTest() {
       MuxPlayerState.PLAY
     )
     eventDispatcher.assertHasOneOf(PlayEvent(null))
+  }
+
+  @Test
+  fun testPlaying() {
+    // playing() ignored if seeking.
+    stateCollector.seeking()
+    stateCollector.playing()
+    assertNotEquals(
+      "seeking -> playing = seeking",
+      stateCollector.muxPlayerState,
+      MuxPlayerState.PLAYING
+    )
+    eventDispatcher.assertHasNoneOf(PlayingEvent(null))
+
+    // if paused, should go through PLAY and into PLAYING
+    setUpCollector()
+    stateCollector.pause()
+    stateCollector.playing()
+    assertEquals(
+      "pause -> playing() = play",
+      stateCollector.muxPlayerState,
+      MuxPlayerState.PLAYING
+    )
+    eventDispatcher.assertHasOneOf(PlayEvent(null))
+    eventDispatcher.assertHasOneOf(PlayingEvent(null))
+
+    // if rebuffering, should signal rebuffering is ended and then go to PLAYING
+    setUpCollector()
+    stateCollector.play()
+    stateCollector.playing()
+    stateCollector.buffering()
+    stateCollector.playing()
+    assertEquals(
+      "pause -> playing() = play",
+      stateCollector.muxPlayerState,
+      MuxPlayerState.PLAYING
+    )
+    eventDispatcher.assertHasOneOf(RebufferEndEvent(null))
+    // should be 2, but only the second playing() call is under test
+    eventDispatcher.assertHasOneOrMoreOf(PlayingEvent(null))
+  }
+
+  @Test
+  fun testPause() {
+    // if already paused, skip
+    stateCollector.pause()
+    stateCollector.pause()
+    assertEquals("")
   }
 }

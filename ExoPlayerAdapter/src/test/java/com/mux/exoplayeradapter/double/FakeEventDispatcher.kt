@@ -43,6 +43,13 @@ class FakeEventDispatcher : IEventDispatcher {
     }
   }
 
+  fun assertHasOneOrMoreOf(event: IEvent) {
+    val eventsOfType = capturedEvents.filter { it.type == event.type }.map { it.type }
+    if (!eventsOfType.contains(event.type)) {
+      throw AssertionError("Event $event was not present in:\n\t$capturedEvents")
+    }
+  }
+
   fun assertHasAllOf(expected: List<IEvent>) {
     val hasAll = capturedEvents.map { it.type }.containsAll(expected.map { it.type })
     if (!hasAll) failAssert("did not capture all expected events", expected, capturedEvents)

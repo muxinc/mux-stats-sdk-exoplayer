@@ -10,7 +10,6 @@ import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
-import kotlinx.coroutines.internal.synchronized
 import kotlin.properties.Delegates
 
 /**
@@ -168,15 +167,14 @@ class MuxStateCollector(
     if (_playerState != MuxPlayerState.PAUSED) {
       // Process unless we just seeked OR if this is our first pause event
       if (_playerState != MuxPlayerState.SEEKED || pauseEventsSent <= 0) {
-
-        // If we were rebuffering and move to PAUSED, the rebuffering is over
-        if (_playerState == MuxPlayerState.REBUFFERING) {
-          rebufferingEnded()
-        }
         // If we were seeking and moved to paused, the seek is over
         if (seekingInProgress) {
           seeked(false)
           return
+        }
+        // If we were rebuffering and move to PAUSED, the rebuffering is over
+        if (_playerState == MuxPlayerState.REBUFFERING) {
+          rebufferingEnded()
         }
 
         _playerState = MuxPlayerState.PAUSED
@@ -194,11 +192,11 @@ class MuxStateCollector(
    * If the seek completed before frames were rendered, or that metrics is not detected, the new
    *  state will be SEEKED
    */
-  fun seeked(inferSeekingOrPlaying: Boolean) {
+  fun seeked(inferSeekedOrPlaying: Boolean) {
     // Only handle if we were previously seeking
     if (seekingInProgress) {
       // go to playing if we have rendered frames, otherwise go to seeked
-      if (inferSeekingOrPlaying && firstFrameRendered()) {
+      if (inferSeekedOrPlaying && firstFrameRendered()) {
         playing()
       } else {
         // If we haven't rendered any frames yet, go to seeked state
