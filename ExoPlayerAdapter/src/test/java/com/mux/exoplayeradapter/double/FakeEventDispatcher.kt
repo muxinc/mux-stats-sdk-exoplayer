@@ -55,7 +55,7 @@ class FakeEventDispatcher : IEventDispatcher {
     if (!hasAll) failAssert("did not capture all expected events", expected, capturedEvents)
   }
 
-  fun assertOnlyThese(expected: List<IEvent>) {
+  fun assertHasExactlyThese(expected: List<IEvent>) {
     if (captureRecords.isEmpty()) {
       failAssert("Expected events, but captured none", expected, capturedEvents)
     }

@@ -85,9 +85,9 @@ class MuxStateCollector(
             new?.start()
           }
 
+  private var firstFrameRenderedAtMillis = FIRST_FRAME_NOT_RENDERED // Based on system time
   private var seekingInProgress = false // TODO: em - We have a SEEKING state so why do we have this
   private var firstFrameReceived = false
-  private var firstFrameRenderedAtMillis = 0L // Based on system time
 
   private var pauseEventsSent = 0
   private var playEventsSent = 0
@@ -165,9 +165,10 @@ class MuxStateCollector(
   fun pause() {
     // Process unless we're already paused
     if (_playerState != MuxPlayerState.PAUSED) {
-      // Process unless we just seeked OR if this is our first pause event
+      // Ignore pause() if we just seeked, we're in the SEEKED state until something else happens
+      //   (unless there were no prior pause events)
       if (_playerState != MuxPlayerState.SEEKED || pauseEventsSent <= 0) {
-        // If we were seeking and moved to paused, the seek is over
+        // If we were seeking and moved to paused, the then we are in SEEKED until playback starts
         if (seekingInProgress) {
           seeked(false)
           return
@@ -187,24 +188,22 @@ class MuxStateCollector(
    * Call when the player has stopped seeking. This is normally handled automatically, but may need
    * to be called if there was an surprise position discontinuity in some cases
    *
-   * If the seek completed after video frames were rendered, and first-frame detection is enabled,
-   *  and inferSeekingOrPlaying is true, the new state will be PLAYING
-   * If the seek completed before frames were rendered, or that metrics is not detected, the new
-   *  state will be SEEKED
+   * This method can also infer a PLAYING state transition, if required. Use @param inferPlayingState
    */
-  fun seeked(inferSeekedOrPlaying: Boolean) {
+  fun seeked(inferPlayingState: Boolean) {
     // Only handle if we were previously seeking
     if (seekingInProgress) {
-      // go to playing if we have rendered frames, otherwise go to seeked
-      if (inferSeekedOrPlaying && firstFrameRendered()) {
+      seekingInProgress = false
+
+      // Infer the Playing state if we have enough info, and were asked to
+      if (inferPlayingState && firstFrameRendered()) {
+        dispatch(SeekedEvent(null))
         playing()
       } else {
         // If we haven't rendered any frames yet, go to seeked state
         _playerState = MuxPlayerState.SEEKED
+        dispatch(SeekedEvent(null))
       }
-
-      seekingInProgress = false
-      dispatch(SeekedEvent(null))
     }
   }
 
@@ -232,6 +231,11 @@ class MuxStateCollector(
     dispatch(PauseEvent(null))
     dispatch(EndedEvent(null))
     _playerState = MuxPlayerState.ENDED
+  }
+
+  fun onFirstFrameRendered() {
+    firstFrameRenderedAtMillis = System.currentTimeMillis()
+    firstFrameReceived = true
   }
 
   fun internalError(error: Exception) {
@@ -366,6 +370,8 @@ class MuxStateCollector(
         val position = getTimeMillis()
         if (position != null) {
           stateCollector.playbackPositionMills = position
+          // pick up seeked events that may not otherwise be delivered in sequence
+          stateCollector.seeked(true)
         } else {
           // If the data source is returning null, assume caller cleaned up the player
           MuxLogger.d(logTag(), "PlaybackPositionWatcher: Player lost. Stopping")
