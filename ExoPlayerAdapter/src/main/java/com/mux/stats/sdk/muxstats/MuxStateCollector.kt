@@ -74,6 +74,26 @@ class MuxStateCollector(
   var playbackPositionMills: Long = TIME_UNKNOWN
 
   /**
+   * The media bitrate advertised by the current media item
+   */
+  var sourceAdvertisedBitrate: Int = 0
+
+  /**
+   * The frame rate advertised by the current media item
+   */
+  var sourceAdvertisedFrameRate: Float = 0F
+
+  /**
+   * Width of the current media item in pixels. 0 for non-video media
+   */
+  var sourceWidth: Int = 0
+
+  /**
+   * Width of the current media item in pixels. 0 for non-video media
+   */
+  var sourceHeight: Int = 0
+
+  /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
    * then sets the {@link #playbackPositionMillis} property on this object. It can be stopped by
    * calling {@link #PositionWatcher.stop(String)}, and will automatically stop if it can no longer
@@ -271,6 +291,20 @@ class MuxStateCollector(
     _playerState = MuxPlayerState.INIT
     reset()
     muxStats.videoChange(customerVideoData)
+  }
+
+  fun renditionChange(
+    advertisedBitrate: Int,
+    advertisedFrameRate: Float,
+    sourceWidth: Int,
+    sourceHeight: Int
+  ) {
+    sourceAdvertisedBitrate = advertisedBitrate
+    sourceAdvertisedFrameRate = advertisedFrameRate
+    this.sourceWidth = sourceWidth
+    this.sourceHeight = sourceHeight
+
+    dispatch(RenditionChangeEvent(null))
   }
 
   /**
