@@ -16,6 +16,7 @@ import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.createExoPlayerAdapter
 import com.mux.stats.sdk.muxstats.internal.downcast
+import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.weak
 
 @Suppress("unused")
@@ -114,7 +115,7 @@ class DemoMuxStatsExoPlayer(
    */
   fun monitorImaAdsLoader(adsLoader: AdsLoader?) {
     if (adsLoader == null) {
-      MuxLogger.d(MuxBaseExoPlayer.TAG, "Null AdsLoader provided to monitorImaAdsLoader")
+      MuxLogger.d(logTag(), "Null AdsLoader provided to monitorImaAdsLoader")
       return
     }
     try {
