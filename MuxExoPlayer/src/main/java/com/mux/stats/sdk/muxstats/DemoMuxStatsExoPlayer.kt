@@ -52,9 +52,9 @@ class DemoMuxStatsExoPlayer(
       eventBus = eventBus
     )
 
-  // todo: em - We may wish to
   private val adsImaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
+      player,
       collector,
       eventBus
     )
@@ -104,17 +104,7 @@ class DemoMuxStatsExoPlayer(
     IMA SDK.
     <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead."""
   )
-  fun getIMASdkListener(): AdsImaSDKListener? {
-    return try {
-      // Let's just check one of them
-      Class.forName("com.google.ads.interactivemedia.v3.api.Ad")
-      Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent")
-      Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent")
-      AdsImaSDKListener(this)
-    } catch (cnfe: ClassNotFoundException) {
-      throw IllegalStateException("IMA SDK Modules not found")
-    }
-  }
+  fun getIMASdkListener(): AdsImaSDKListener? = adsImaSdkListener
 
   /**
    * Monitor an instance of Google IMA SDK's AdsLoader
@@ -129,12 +119,6 @@ class DemoMuxStatsExoPlayer(
     }
     try {
       // TODO: these may not be necessary, but doing it for the sake of it
-      Class.forName("com.google.ads.interactivemedia.v3.api.AdsLoader")
-      Class.forName("com.google.ads.interactivemedia.v3.api.AdsManager")
-      Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent")
-      Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent")
-      Class.forName("com.google.ads.interactivemedia.v3.api.Ad")
-      val baseExoPlayer: MuxBaseExoPlayer = this
       adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent -> // TODO: Add in the adresponse stuff when we can
 
         // Set up the ad events that we want to use
@@ -164,9 +148,7 @@ class DemoMuxStatsExoPlayer(
     collector.videoChange(videoData)
   }
 
-  fun programChange(videoData: CustomerVideoData) {
-    collector.programChange(videoData)
-  }
+  fun programChange(videoData: CustomerVideoData) = collector.programChange(videoData)
 
   fun orientationChange(orientation: MuxSDKViewOrientation) =
     muxStats.orientationChange(orientation)
@@ -174,9 +156,8 @@ class DemoMuxStatsExoPlayer(
   fun presentationChange(presentation: MuxSDKViewPresentation) =
     muxStats.presentationChange(presentation)
 
-  fun enableMuxCoreDebug(enable: Boolean, verbose: Boolean) {
+  fun enableMuxCoreDebug(enable: Boolean, verbose: Boolean) =
     muxStats.allowLogcatOutput(enable, verbose)
-  }
 
   /**
    * Tears down this object. After this, the object will no longer be usable
@@ -210,17 +191,13 @@ private class ExoPlayerDelegate(val playerAdapter: () -> MuxPlayerAdapter<*, *, 
 
   override fun getMimeType() = collector.mimeType
 
-  override fun getSourceWidth(): Int? = 0//collector.sourceWidth
+  override fun getSourceWidth(): Int = collector.sourceWidth
 
-  override fun getSourceHeight(): Int? = 0//sourceHeight
+  override fun getSourceHeight(): Int = collector.sourceHeight
 
-  override fun getSourceAdvertisedBitrate(): Int {
-    TODO("Not yet implemented")
-  }
+  override fun getSourceAdvertisedBitrate(): Int = collector.sourceAdvertisedBitrate
 
-  override fun getSourceAdvertisedFramerate(): Float {
-    TODO("Not yet implemented")
-  }
+  override fun getSourceAdvertisedFramerate(): Float = collector.sourceAdvertisedFrameRate
 
   override fun getSourceDuration() = collector.sourceDurationMs
 
@@ -255,6 +232,4 @@ private class ExoPlayerDelegate(val playerAdapter: () -> MuxPlayerAdapter<*, *, 
   override fun getVideoTargetDuration(): Long {
     TODO("Not yet implemented")
   }
-
-
 }
