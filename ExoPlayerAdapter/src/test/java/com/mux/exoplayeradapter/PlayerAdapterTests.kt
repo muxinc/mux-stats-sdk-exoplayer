@@ -6,8 +6,6 @@ import com.mux.exoplayeradapter.double.UiDelegateMocks
 import com.mux.stats.sdk.muxstats.MuxPlayerAdapter
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import com.mux.stats.sdk.muxstats.MuxUiDelegate
-import com.mux.stats.sdk.muxstats.internal.logTag
-import com.mux.stats.sdk.muxstats.internal.observableWeak
 import com.mux.stats.sdk.muxstats.muxUiDelegate
 import io.mockk.*
 import org.junit.Test
@@ -24,6 +22,7 @@ class PlayerAdapterTests : AbsRobolectricTest() {
       every { bindPlayer(any(), any()) } just runs
       every { unbindPlayer(any(), any()) } throws AssertionError("unbind shouldn't be called")
     }
+
     @Suppress("UNUSED_VARIABLE")
     val playerAdapter = playerAdapter(basicBinding, extraBinding)
     // ctors should invoke the bindings
@@ -83,59 +82,13 @@ class PlayerAdapterTests : AbsRobolectricTest() {
     }
   }
 
-  // TODO: Untangle this. Probably need to run on a device so a heap dump can be obtained
-//  @Test
-//  fun reachability() {
-//    var thing: Any? = Object()
-//    val x = X(thing, "")
-//    thing = null
-//    System.gc()
-//    assertNull(
-//      "should be null",
-//      x.delegated
-//    )
-//  }
-//
-//  @Test
-//  fun testPlayerReachability() {
-//    var fakePlayer: Any? = Object()
-//    var fakeExtraPlayer: Any? = Object()
-//    var mockUiDelegate: MuxUiDelegate<*>? =
-//      UiDelegateMocks.mockView().muxUiDelegate(UiDelegateMocks.mockActivity())
-//    val mockCollector = mockStateCollector()
-//
-//    val playerAdapter = MuxPlayerAdapter(
-//      collector = mockCollector,
-//      player = fakePlayer,
-//      uiDelegate = mockUiDelegate!!,
-//      basicMetrics = FakePlayerBinding("basic metrics"),
-//      extraMetrics = MuxPlayerAdapter.ExtraPlayerBindings(
-//        fakeExtraPlayer, listOf(FakePlayerBinding("extra metrics 0"))
-//      )
-//    )
-//    // Make the system gc the player
-//    @Suppress("UNUSED_VALUE")
-//    fakePlayer = null
-//    @Suppress("UNUSED_VALUE")
-//    fakeExtraPlayer = null
-//    @Suppress("UNUSED_VALUE")
-//    mockUiDelegate = null
-//    System.gc()
-//
-//    //runBlocking { delay(5 * 1000) }
-//
-//    assertNull("extra player should be weakly reachable", playerAdapter.extraPlayer)
-//    assertNull("player should be weakly reachable", playerAdapter.basicPlayer)
-//    assertNull("player view should be weakly reachable", playerAdapter.uiDelegate.view)
-//  }
-
   private fun playerAdapter(
     basicMetrics: MuxPlayerAdapter.PlayerBinding<Any> = FakePlayerBinding("basic metrics"),
     extraMetrics: MuxPlayerAdapter.PlayerBinding<Any> = FakePlayerBinding("extra metrics")
   ): MuxPlayerAdapter<View, Any, Any> {
-    var fakePlayer: Any = Object()
-    var fakeExtraPlayer: Any = Object()
-    var mockUiDelegate: MuxUiDelegate<View> =
+    val fakePlayer: Any = Object()
+    val fakeExtraPlayer: Any = Object()
+    val mockUiDelegate: MuxUiDelegate<View> =
       UiDelegateMocks.mockView().muxUiDelegate(UiDelegateMocks.mockActivity())
     val mockCollector = mockStateCollector()
 
@@ -153,23 +106,4 @@ class PlayerAdapterTests : AbsRobolectricTest() {
 
   private fun mockStateCollector() = mockk<MuxStateCollector>()
 
-}
-
-private class X<T>(t: T?, val anything: String) {
-  //  private var t = WeakReference(t)
-//  var prop: T?
-//    get() = t.get()
-//    set(value) {
-//      t = WeakReference(value)
-//    }
-  //var delegated by observableWeak(t) { Log.d(logTag(), "$it")}
-  var delegated by observableWeak(t) { something(it, anything) }
-
-  private fun something(t: T?, anything: String) {
-    t?.let {
-      log(logTag(), "$it $anything")
-    }
-  }
-
-  //fun get(): T? = t.get()
 }

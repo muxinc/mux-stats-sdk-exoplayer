@@ -6,5 +6,4 @@ import org.robolectric.annotation.Config
 
 @Config(manifest = Config.NONE)
 @RunWith(RobolectricTestRunner::class)
-abstract class AbsRobolectricTest {
-}
+abstract class AbsRobolectricTest
