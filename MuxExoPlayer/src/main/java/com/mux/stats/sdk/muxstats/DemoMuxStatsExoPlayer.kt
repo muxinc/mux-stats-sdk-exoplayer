@@ -3,6 +3,7 @@ package com.mux.stats.sdk.muxstats
 import android.app.Activity
 import android.content.Context
 import android.view.View
+import com.google.ads.interactivemedia.v3.api.AdsLoader
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
@@ -51,6 +52,14 @@ class DemoMuxStatsExoPlayer(
       eventBus = eventBus
     )
 
+  // todo: em - We may wish to
+  private val adsImaSdkListener: AdsImaSDKListener? by lazy {
+    AdsImaSDKListener.createIfImaAvailable(
+      collector,
+      eventBus
+    )
+  }
+
   /**
    * The view being used by the player that is being monitored, safely cast as a PlayerView if
    * possible. Null if there is no view or the view is not the right type
@@ -80,6 +89,64 @@ class DemoMuxStatsExoPlayer(
       collector.play()
       collector.buffering()
       collector.playing()
+    }
+  }
+
+  /**
+   * Get the instance of the IMA SDK Listener for tracking ads running through Google's IMA SDK
+   * within your application.
+   *
+   * @return the IMA SDK Listener
+   * @throws
+   */
+  @Deprecated(
+    """This method is no longer the preferred method to track Ad performance with Google's
+    IMA SDK.
+    <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead."""
+  )
+  fun getIMASdkListener(): AdsImaSDKListener? {
+    return try {
+      // Let's just check one of them
+      Class.forName("com.google.ads.interactivemedia.v3.api.Ad")
+      Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent")
+      Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent")
+      AdsImaSDKListener(this)
+    } catch (cnfe: ClassNotFoundException) {
+      throw IllegalStateException("IMA SDK Modules not found")
+    }
+  }
+
+  /**
+   * Monitor an instance of Google IMA SDK's AdsLoader
+   *
+   * @param adsLoader For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested,
+   * this makes this method impossible to use.
+   */
+  fun monitorImaAdsLoader(adsLoader: AdsLoader?) {
+    if (adsLoader == null) {
+      MuxLogger.d(MuxBaseExoPlayer.TAG, "Null AdsLoader provided to monitorImaAdsLoader")
+      return
+    }
+    try {
+      // TODO: these may not be necessary, but doing it for the sake of it
+      Class.forName("com.google.ads.interactivemedia.v3.api.AdsLoader")
+      Class.forName("com.google.ads.interactivemedia.v3.api.AdsManager")
+      Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent")
+      Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent")
+      Class.forName("com.google.ads.interactivemedia.v3.api.Ad")
+      val baseExoPlayer: MuxBaseExoPlayer = this
+      adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent -> // TODO: Add in the adresponse stuff when we can
+
+        // Set up the ad events that we want to use
+        val adsManager = adsManagerLoadedEvent.adsManager
+
+        // Attach mux event and error event listeners.
+        adsManager.addAdErrorListener(adsImaSdkListener)
+        adsManager.addAdEventListener(adsImaSdkListener)
+      } // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
+      )
+    } catch (cnfe: ClassNotFoundException) {
+      return
     }
   }
 

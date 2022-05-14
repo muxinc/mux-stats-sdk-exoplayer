@@ -308,6 +308,20 @@ class MuxStateCollector(
   }
 
   /**
+   * Call when an Ad begins playing
+   */
+  fun playingAds() {
+    _playerState = MuxPlayerState.PLAYING_ADS
+  }
+
+  /**
+   * Call when all ads are finished being played
+   */
+  fun finishedPlayingAds() {
+    _playerState = MuxPlayerState.FINISHED_PLAYING_ADS
+  }
+
+  /**
    * Kills this object. After being killed, this object will no longer report metrics to Mux Data
    */
   fun release() {
