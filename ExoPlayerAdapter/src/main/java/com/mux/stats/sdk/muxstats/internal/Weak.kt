@@ -21,6 +21,7 @@ private class Weak<T>(referent: T?) : ReadWriteProperty<Any, T?> {
   override fun getValue(thisRef: Any, property: KProperty<*>): T? = weakT.get()
 
   override fun setValue(thisRef: Any, property: KProperty<*>, value: T?) {
+    value?.let { onSet?.invoke(value) }
     weakT = WeakReference(value)
   }
 }
@@ -44,11 +45,11 @@ internal fun <T> weak(): ReadWriteProperty<Any, T?> = Weak(null)
  */
 @JvmSynthetic
 internal fun <T> observableWeak(t: T?, block: (T?) -> Unit): ReadWriteProperty<Any, T?> =
-  Weak(t).onSet { block(it) }
+  Weak(t).onSet(block)
 
 /**
  * Weakly-reachable property delegate that is observable
  */
 @JvmSynthetic
 internal fun <T> observableWeak(block: (T?) -> Unit): ReadWriteProperty<Any, T?> =
-  Weak<T>(null).onSet { block(it) }
+  Weak<T>(null).onSet(block)

@@ -26,9 +26,6 @@ private class PlayerStateMetrics216ToNow : MuxPlayerAdapter.PlayerBinding<ExoPla
   override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener?.unbindPlayer(player, collector)
   }
-
-  private fun newListener(player: ExoPlayer, collector: MuxStateCollector) =
-    analyticsListenerMetrics()
 }
 
 /**

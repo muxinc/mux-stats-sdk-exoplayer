@@ -21,6 +21,7 @@ private class Weak<T>(referent: T?) : ReadWriteProperty<Any, T?> {
   override fun getValue(thisRef: Any, property: KProperty<*>): T? = weakT.get()
 
   override fun setValue(thisRef: Any, property: KProperty<*>, value: T?) {
+    value?.let { onSet?.invoke(value) }
     weakT = WeakReference(value)
   }
 }

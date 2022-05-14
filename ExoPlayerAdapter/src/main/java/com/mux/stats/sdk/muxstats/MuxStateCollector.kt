@@ -10,7 +10,6 @@ import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
-import kotlinx.coroutines.internal.synchronized
 import kotlin.properties.Delegates
 
 /**
@@ -75,6 +74,26 @@ class MuxStateCollector(
   var playbackPositionMills: Long = TIME_UNKNOWN
 
   /**
+   * The media bitrate advertised by the current media item
+   */
+  var sourceAdvertisedBitrate: Int = 0
+
+  /**
+   * The frame rate advertised by the current media item
+   */
+  var sourceAdvertisedFrameRate: Float = 0F
+
+  /**
+   * Width of the current media item in pixels. 0 for non-video media
+   */
+  var sourceWidth: Int = 0
+
+  /**
+   * Width of the current media item in pixels. 0 for non-video media
+   */
+  var sourceHeight: Int = 0
+
+  /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
    * then sets the {@link #playbackPositionMillis} property on this object. It can be stopped by
    * calling {@link #PositionWatcher.stop(String)}, and will automatically stop if it can no longer
@@ -86,9 +105,9 @@ class MuxStateCollector(
             new?.start()
           }
 
+  private var firstFrameRenderedAtMillis = FIRST_FRAME_NOT_RENDERED // Based on system time
   private var seekingInProgress = false // TODO: em - We have a SEEKING state so why do we have this
   private var firstFrameReceived = false
-  private var firstFrameRenderedAtMillis = 0L // Based on system time
 
   private var pauseEventsSent = 0
   private var playEventsSent = 0
@@ -166,17 +185,17 @@ class MuxStateCollector(
   fun pause() {
     // Process unless we're already paused
     if (_playerState != MuxPlayerState.PAUSED) {
-      // Process unless we just seeked OR if this is our first pause event
+      // Ignore pause() if we just seeked, we're in the SEEKED state until something else happens
+      //   (unless there were no prior pause events)
       if (_playerState != MuxPlayerState.SEEKED || pauseEventsSent <= 0) {
-
-        // If we were rebuffering and move to PAUSED, the rebuffering is over
-        if (_playerState == MuxPlayerState.REBUFFERING) {
-          rebufferingEnded()
-        }
-        // If we were seeking and moved to paused, the seek is over
+        // If we were seeking and moved to paused, the then we are in SEEKED until playback starts
         if (seekingInProgress) {
           seeked(false)
           return
+        }
+        // If we were rebuffering and move to PAUSED, the rebuffering is over
+        if (_playerState == MuxPlayerState.REBUFFERING) {
+          rebufferingEnded()
         }
 
         _playerState = MuxPlayerState.PAUSED
@@ -189,24 +208,22 @@ class MuxStateCollector(
    * Call when the player has stopped seeking. This is normally handled automatically, but may need
    * to be called if there was an surprise position discontinuity in some cases
    *
-   * If the seek completed after video frames were rendered, and first-frame detection is enabled,
-   *  and inferSeekingOrPlaying is true, the new state will be PLAYING
-   * If the seek completed before frames were rendered, or that metrics is not detected, the new
-   *  state will be SEEKED
+   * This method can also infer a PLAYING state transition, if required. Use @param inferPlayingState
    */
-  fun seeked(inferSeekingOrPlaying: Boolean) {
+  fun seeked(inferPlayingState: Boolean) {
     // Only handle if we were previously seeking
     if (seekingInProgress) {
-      // go to playing if we have rendered frames, otherwise go to seeked
-      if (inferSeekingOrPlaying && firstFrameRendered()) {
+      seekingInProgress = false
+
+      // Infer the Playing state if we have enough info, and were asked to
+      if (inferPlayingState && firstFrameRendered()) {
+        dispatch(SeekedEvent(null))
         playing()
       } else {
         // If we haven't rendered any frames yet, go to seeked state
         _playerState = MuxPlayerState.SEEKED
+        dispatch(SeekedEvent(null))
       }
-
-      seekingInProgress = false
-      dispatch(SeekedEvent(null))
     }
   }
 
@@ -234,6 +251,11 @@ class MuxStateCollector(
     dispatch(PauseEvent(null))
     dispatch(EndedEvent(null))
     _playerState = MuxPlayerState.ENDED
+  }
+
+  fun onFirstFrameRendered() {
+    firstFrameRenderedAtMillis = System.currentTimeMillis()
+    firstFrameReceived = true
   }
 
   fun internalError(error: Exception) {
@@ -269,6 +291,34 @@ class MuxStateCollector(
     _playerState = MuxPlayerState.INIT
     reset()
     muxStats.videoChange(customerVideoData)
+  }
+
+  fun renditionChange(
+    advertisedBitrate: Int,
+    advertisedFrameRate: Float,
+    sourceWidth: Int,
+    sourceHeight: Int
+  ) {
+    sourceAdvertisedBitrate = advertisedBitrate
+    sourceAdvertisedFrameRate = advertisedFrameRate
+    this.sourceWidth = sourceWidth
+    this.sourceHeight = sourceHeight
+
+    dispatch(RenditionChangeEvent(null))
+  }
+
+  /**
+   * Call when an Ad begins playing
+   */
+  fun playingAds() {
+    _playerState = MuxPlayerState.PLAYING_ADS
+  }
+
+  /**
+   * Call when all ads are finished being played
+   */
+  fun finishedPlayingAds() {
+    _playerState = MuxPlayerState.FINISHED_PLAYING_ADS
   }
 
   /**
@@ -368,6 +418,8 @@ class MuxStateCollector(
         val position = getTimeMillis()
         if (position != null) {
           stateCollector.playbackPositionMills = position
+          // pick up seeked events that may not otherwise be delivered in sequence
+          stateCollector.seeked(true)
         } else {
           // If the data source is returning null, assume caller cleaned up the player
           MuxLogger.d(logTag(), "PlaybackPositionWatcher: Player lost. Stopping")

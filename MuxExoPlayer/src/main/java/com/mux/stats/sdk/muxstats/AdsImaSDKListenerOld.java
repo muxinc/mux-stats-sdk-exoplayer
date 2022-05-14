@@ -18,7 +18,7 @@ import com.mux.stats.sdk.core.model.ViewData;
 /**
  * Ima SDK wrapper, listen to ad events and dispatch the appropriate AdPlayback events accordingly.
  */
-public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
+public class AdsImaSDKListenerOld implements AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
 
   /** Associated ExoPlayer wrapper that generates the ad events. */
   private final MuxBaseExoPlayer exoPlayerListener;
@@ -36,7 +36,7 @@ public class AdsImaSDKListener implements AdErrorEvent.AdErrorListener, AdEvent.
    *
    * @param listener, associated ExoPlayer wrapper that generate the ad events.
    */
-  public AdsImaSDKListener(MuxBaseExoPlayer listener) {
+  public AdsImaSDKListenerOld(MuxBaseExoPlayer listener) {
     exoPlayerListener = listener;
   }
 

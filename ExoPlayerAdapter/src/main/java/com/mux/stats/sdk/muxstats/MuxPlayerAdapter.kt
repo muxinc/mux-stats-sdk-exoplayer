@@ -22,26 +22,29 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
    * and the new player will be bound
    * This is the Player that belongs to {@link #basicMetrics}
    */
-  var basicPlayer: MainPlayer? by observableWeak(player) { changeBasicPlayer(it, collector) }
+  var basicPlayer by observableWeak(player) { changeBasicPlayer(it, collector) }
 
   /**
    * The Player responsible for gathering extra metrics that might not be available from all players
    * such as Bandwidth or Live Latency
    */
-  var extraPlayer: ExtraPlayer? by observableWeak(extraMetrics?.player) {
-    changeExtraPlayer(it, collector)
-  }
+  var extraPlayer by observableWeak(extraMetrics?.player) { changeExtraPlayer(it, collector) }
 
   /**
    * The View being used to collect data related to the player view. This is the View being managed
    * by the {@link #uiDelegate}
    */
-  var playerView: PlayerView? by uiDelegate::view
+  var playerView by uiDelegate::view
+
+  init {
+    basicMetrics.bindPlayer(player, collector)
+    extraMetrics?.bindings?.onEach { it.bindPlayer(extraMetrics.player!!, collector) }
+  }
 
   /**
    * Unbinds all bindings. After this no strong references will be held to the player
    */
-  fun release() {
+  fun unbindEverything() {
     basicPlayer?.let { player ->
       basicMetrics.unbindPlayer(player, collector)
     }
@@ -93,6 +96,6 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
     player: ExtraPlayer,
     val bindings: List<PlayerBinding<ExtraPlayer>>
   ) {
-    var player: ExtraPlayer? by weak(player)
+    var player by weak(player)
   }
 }

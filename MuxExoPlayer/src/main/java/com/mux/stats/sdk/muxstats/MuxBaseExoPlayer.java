@@ -139,7 +139,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   /** Activity context. */
   protected WeakReference<Context> contextRef;
   /** Ad monitoring and processing logic. */
-  protected AdsImaSDKListener adsImaSdkListener;
+  protected AdsImaSDKListenerOld adsImaSdkListener;
 
   /** Event counter. This is useful to know when the view have started. */
   protected boolean detectMimeType;
@@ -271,7 +271,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     playItemHaveVideoTrack = false;
     setPlaybackHeadUpdateInterval();
     try {
-      adsImaSdkListener = new AdsImaSDKListener(this);
+      adsImaSdkListener = new AdsImaSDKListenerOld(this);
     } catch (NoClassDefFoundError Err) {
       // The ad modules are not included here, so we silently swallow the
       // exception as the application can't be running ads anyway.
@@ -289,13 +289,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    * <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead.
    */
   @Deprecated
-  public AdsImaSDKListener getIMASdkListener() {
+  public AdsImaSDKListenerOld getIMASdkListener() {
     try {
       // Let's just check one of them
       Class.forName("com.google.ads.interactivemedia.v3.api.Ad");
       Class.forName("com.google.ads.interactivemedia.v3.api.AdErrorEvent");
       Class.forName("com.google.ads.interactivemedia.v3.api.AdEvent");
-      return new AdsImaSDKListener(this);
+      return new AdsImaSDKListenerOld(this);
     } catch (ClassNotFoundException cnfe) {
       throw new IllegalStateException("IMA SDK Modules not found");
     }
@@ -410,17 +410,17 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   /**
    * ExoPlayer 2.12+ need this to hook add events.
    */
-  public AdsImaSDKListener getAdsImaSdkListener() {
+  public AdsImaSDKListenerOld getAdsImaSdkListener() {
     return adsImaSdkListener;
   }
 
   @Deprecated
-  public AdsImaSDKListener getAdErrorEventListener() {
+  public AdsImaSDKListenerOld getAdErrorEventListener() {
     return adsImaSdkListener;
   }
 
   @Deprecated
-  public AdsImaSDKListener getAdEventListener() {
+  public AdsImaSDKListenerOld getAdEventListener() {
     return adsImaSdkListener;
   }
 

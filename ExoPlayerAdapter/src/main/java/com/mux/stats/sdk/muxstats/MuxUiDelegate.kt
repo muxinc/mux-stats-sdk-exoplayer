@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats
 
 import android.app.Activity
+import android.content.Context
 import android.graphics.Point
 import android.view.View
 import com.mux.stats.sdk.muxstats.internal.weak
@@ -32,8 +33,8 @@ private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: Pl
   MuxUiDelegate<PlayerView>(view) {
 
   private val _screenSize: Point = Point().let { size ->
-    @Suppress("DEPRECATION") // fullscreen considers screen size, less system decoration
-    activity?.windowManager?.defaultDisplay?.getSize(size)
+    @Suppress("DEPRECATION")  // probably we're in the same context as the player window
+    activity?.windowManager?.defaultDisplay?.getSize(size) // TODO: we can use getSizeRange(), not sure why we're not
     size
   }
 
@@ -54,3 +55,9 @@ private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: Pl
 internal fun <V : View> V?.muxUiDelegate(activity: Activity)
         : MuxUiDelegate<View> = AndroidUiDelegate(activity, this)
 
+/**
+ * Create a MuxUiDelegate for a view-less playback experience. Returns 0 for all sizes, as we are
+ * not able to get a Display from a non-activity context
+ */
+@JvmSynthetic
+internal fun Context.noUiDelegate() : MuxUiDelegate<*> = AndroidUiDelegate(null, null)
