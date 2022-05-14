@@ -209,27 +209,15 @@ private class ExoPlayerDelegate(val playerAdapter: () -> MuxPlayerAdapter<*, *, 
 
   override fun getPlayerViewHeight() = viewDelegate.getPlayerViewSize().y
 
-  override fun getPlayerProgramTime(): Long {
-    TODO("Not yet implemented")
-  }
+  override fun getPlayerProgramTime(): Long? = null
 
-  override fun getPlayerManifestNewestTime(): Long {
-    TODO("Not yet implemented")
-  }
+  override fun getPlayerManifestNewestTime(): Long? = null
 
-  override fun getVideoHoldback(): Long {
-    TODO("Not yet implemented")
-  }
+  override fun getVideoHoldback(): Long? = null
 
-  override fun getVideoPartHoldback(): Long {
-    TODO("Not yet implemented")
-  }
+  override fun getVideoPartHoldback(): Long? = null
 
-  override fun getVideoPartTargetDuration(): Long {
-    TODO("Not yet implemented")
-  }
+  override fun getVideoPartTargetDuration(): Long? = null
 
-  override fun getVideoTargetDuration(): Long {
-    TODO("Not yet implemented")
-  }
+  override fun getVideoTargetDuration(): Long? = null
 }
