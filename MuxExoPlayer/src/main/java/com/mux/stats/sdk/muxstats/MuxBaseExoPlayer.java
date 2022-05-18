@@ -354,7 +354,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     if (foundHlsExtension == null) {
       try {
         // This class is for sure in the hls extension
-        Class.forName("com.google.android.exoplayer2.source.hls.HlsManifest");
+        Class.forName(HlsManifest.class.getCanonicalName());
         foundHlsExtension = true;
       } catch (ClassNotFoundException e) {
         MuxLogger.w(TAG, "exoplayer library-hls not available. Some features may not work");
