@@ -1,4 +1,8 @@
 # Release notes
+## 2.7.2
+### Fixes
+* Fix Build/Crash Issues When Used With Minimal/Custom ExoPlayers (#208)
+ 
 ## 2.7.1
 ### Fixes
 Fix Customer Issue #202: MuxCore classes not available to callers (#204)
