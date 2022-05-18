@@ -127,31 +127,40 @@ dependencies {
     api 'org.checkerframework:checker-qual:2.5.2'
 
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
+    r2_9_6Api 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
     r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
 
     r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
+    r2_10_6Api 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
     r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
 
     r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+    r2_11_1Api 'com.google.android.exoplayer:exoplayer-ui:2.11.1'
     r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
 
     r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+    r2_12_1Api 'com.google.android.exoplayer:exoplayer-ui:2.12.1'
     r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
 
 
     r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+    r2_13_1Api 'com.google.android.exoplayer:exoplayer-ui:2.13.1'
     r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
 
     r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+    r2_14_1Api 'com.google.android.exoplayer:exoplayer-ui:2.14.1'
     r2_14_1Api 'com.google.android.exoplayer:extension-mediasession:2.14.1'
 
     r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+    r2_15_1Api 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
     r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
 
     r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+    r2_16_1Api 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
     r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
 
     r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+    r2_17_1Api 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
     r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
 
     // Automated tests should always test the local module and not the maven dependency.
