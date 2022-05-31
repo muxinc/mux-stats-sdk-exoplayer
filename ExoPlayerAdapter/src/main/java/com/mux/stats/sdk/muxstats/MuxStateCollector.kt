@@ -5,11 +5,13 @@ import com.mux.stats.sdk.core.events.IEventDispatcher
 import com.mux.stats.sdk.core.events.InternalErrorEvent
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.core.model.CustomerVideoData
+import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
+import java.util.*
 import kotlin.properties.Delegates
 
 /**
@@ -104,6 +106,8 @@ class MuxStateCollector(
             old?.apply { stop("watcher replaced") }
             new?.start()
           }
+
+  private var sessionTags: List<SessionTag> = Collections.emptyList()
 
   private var firstFrameRenderedAtMillis = FIRST_FRAME_NOT_RENDERED // Based on system time
   private var seekingInProgress = false // TODO: em - We have a SEEKING state so why do we have this
@@ -319,6 +323,14 @@ class MuxStateCollector(
    */
   fun finishedPlayingAds() {
     _playerState = MuxPlayerState.FINISHED_PLAYING_ADS
+  }
+
+  fun onMainPlaylistTags(tags: List<SessionTag>) {
+    // dispatch new session data on change only
+    if (sessionTags != tags) {
+      sessionTags = tags
+      muxStats.setSessionData(tags)
+    }
   }
 
   /**

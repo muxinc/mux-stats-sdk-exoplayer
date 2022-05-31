@@ -40,6 +40,11 @@ fun MuxStats.createExoPlayerAdapter(
   collector = MuxStateCollector(
     muxStats = this,
     dispatcher = eventBus
+  ),
+  extraMetrics = MuxPlayerAdapter.ExtraPlayerBindings(
+    player,
+    listOf(
+      createExoSessionDataBinding()
+    )
   )
 )
-

@@ -33,8 +33,8 @@ private class PlayerStateMetricsTo215 : MuxPlayerAdapter.PlayerBinding<ExoPlayer
   override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener?.unbindPlayer(player, collector)
     if (player is SimpleExoPlayer) {
-      analyticsListener?.unbindPlayer(player, collector)
-    }
+    analyticsListener?.unbindPlayer(player, collector)
+  }
   }
 }
 

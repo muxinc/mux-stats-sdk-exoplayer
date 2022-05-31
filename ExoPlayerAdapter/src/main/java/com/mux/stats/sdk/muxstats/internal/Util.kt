@@ -5,6 +5,8 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
+import com.google.android.exoplayer2.source.hls.HlsManifest
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxErrorException
 import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
@@ -27,9 +29,24 @@ internal fun Any.noneOf(vararg accept: Any) = !accept.contains(this)
  * Gets a Log Tag from the name of the calling class. Can be used in any package that isn't
  * obfuscated (such as muxstats)
  */
+@Suppress("unused")
 internal inline fun <reified T> T.logTag() = T::class.java.simpleName
 
 // -- ExoPlayer Helpers --
+
+// lazily-cached check for the HLS extension, which may not be available at runtime
+private val hlsExtensionAvailable: Boolean by lazy {
+  try {
+    Class.forName(HlsManifest::class.java.canonicalName!!)
+    true
+  } catch (e: ClassNotFoundException) {
+    MuxLogger.w("isHlsExtensionAvailable", "HLS extension not found. Some features may not work")
+    false
+  }
+}
+
+@JvmSynthetic
+internal fun isHlsExtensionAvailable() = hlsExtensionAvailable
 
 /**
  * Handles an ExoPlayer position discontinuity
@@ -49,6 +66,7 @@ internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
     else -> {} // ignored
   }
 }
+
 /**
  * Handles a change of basic ExoPlayer state
  */
@@ -94,6 +112,7 @@ internal fun MuxStateCollector.handleExoPlaybackState(
  * Returns and starts an object that will poll ExoPlayer for its content position every so often
  * and updated the given MuxStateCollector
  */
+@Suppress("unused") // this method is used with some versions of ExoPlayer
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
 internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
         MuxStateCollector.PositionWatcher = ExoPositionWatcher(this, stateCollector)
@@ -158,6 +177,7 @@ private class ExoPositionWatcher(player: ExoPlayer, stateCollector: MuxStateColl
   companion object {
     const val UPDATE_INTERVAL_MILLIS = 150L
   }
+
   private val player by weak(player) // don't hold the player because this object does async looping
   override fun getTimeMillis(): Long? = player?.contentPosition
 }
