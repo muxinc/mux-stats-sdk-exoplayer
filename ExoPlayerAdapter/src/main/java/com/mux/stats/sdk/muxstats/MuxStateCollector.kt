@@ -189,6 +189,7 @@ class MuxStateCollector(
    * Otherwise, we move to the PAUSED state and send a PauseEvent
    */
   fun pause() {
+    Thread.dumpStack()
     Log.w(logTag(), "pause() in state $_playerState")
     // Process unless we're already paused
     if (_playerState != MuxPlayerState.PAUSED) {

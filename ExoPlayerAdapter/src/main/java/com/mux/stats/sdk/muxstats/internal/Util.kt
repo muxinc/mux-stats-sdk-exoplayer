@@ -80,7 +80,6 @@ internal fun MuxStateCollector.handleExoPlaybackState(
     return
   }
 
-
   when (playbackState) {
     Player.STATE_BUFFERING -> {
       buffering()
