@@ -31,13 +31,13 @@ import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
 
-public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
+public class MuxStatsExoPlayerOld extends MuxBaseExoPlayer implements AnalyticsListener,
     Player.Listener {
 
   static final String TAG = "MuxStatsEventQueue";
 
   @Deprecated
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData) {
     this(ctx, player, playerName, customerPlayerData,
@@ -45,7 +45,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Deprecated
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
       CustomerViewData customerViewData) {
@@ -54,7 +54,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Deprecated
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
       @Deprecated boolean unused) {
@@ -63,7 +63,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Deprecated
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, @Deprecated boolean unused) {
@@ -72,7 +72,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Deprecated
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
       CustomerVideoData customerVideoData,
       CustomerViewData customerViewData, @Deprecated boolean unused, INetworkRequest networkRequests) {
@@ -81,7 +81,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Deprecated
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerData data,
       @Deprecated boolean unused,
       INetworkRequest networkRequests) {
@@ -89,12 +89,12 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         , networkRequests);
   }
 
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerData data) {
     this(ctx, player, playerName, data, new CustomOptions(), new MuxNetworkRequests());
   }
 
-  public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
+  public MuxStatsExoPlayerOld(Context ctx, ExoPlayer player, String playerName,
       CustomerData data,
       CustomOptions options,
       INetworkRequest networkRequests) {
@@ -124,7 +124,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   protected String parseHlsManifestTag(String tagName) {
     synchronized (currentTimelineWindow) {
       if (currentTimelineWindow != null && currentTimelineWindow.manifest != null
-          && tagName != null && tagName.length() > 0) {
+          && isLivePlayback() && tagName != null && tagName.length() > 0) {
         if (currentTimelineWindow.manifest instanceof HlsManifest) {
           HlsManifest manifest = (HlsManifest) currentTimelineWindow.manifest;
           if (manifest.mediaPlaylist.tags != null) {
@@ -144,14 +144,13 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         }
       }
     }
-
     return "-1";
   }
 
   @Override
   protected boolean isLivePlayback() {
     if (currentTimelineWindow != null) {
-      return currentTimelineWindow.isLive();
+      return currentTimelineWindow.isLive;
     }
     return false;
   }
@@ -227,8 +226,7 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
       bandwidthDispatcher
-          .onLoadCanceled(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(),
-              loadEventInfo.responseHeaders);
+          .onLoadCanceled(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(), loadEventInfo.responseHeaders);
     } else {
       MuxLogger.d(TAG,
           "ERROR: onLoadCanceled called but mediaLoadData argument have no uri parameter.");
@@ -240,8 +238,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
       LoadEventInfo loadEventInfo,
       MediaLoadData mediaLoadData) {
     if (loadEventInfo.uri != null) {
-      bandwidthDispatcher.onLoadCompleted(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(),
-          loadEventInfo.bytesLoaded, mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
+      bandwidthDispatcher.onLoadCompleted(loadEventInfo.loadTaskId, loadEventInfo.uri.getPath(), loadEventInfo.bytesLoaded,
+          mediaLoadData.trackFormat, loadEventInfo.responseHeaders);
     } else {
       MuxLogger.d(TAG,
           "ERROR: onLoadCompleted called but mediaLoadData argument have no uri parameter.");
@@ -271,8 +269,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         segmentMimeType = mediaLoadData.trackFormat.sampleMimeType;
       }
       bandwidthDispatcher
-          .onLoadStarted(loadEventInfo.loadTaskId, mediaLoadData.mediaStartTimeMs,
-              mediaLoadData.mediaEndTimeMs, loadEventInfo.uri.getPath(), mediaLoadData.dataType,
+          .onLoadStarted(loadEventInfo.loadTaskId, mediaLoadData.mediaStartTimeMs, mediaLoadData.mediaEndTimeMs,
+              loadEventInfo.uri.getPath(), mediaLoadData.dataType,
               loadEventInfo.uri.getHost(), segmentMimeType);
     } else {
       MuxLogger.d(TAG,
@@ -534,14 +532,6 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, int reason) {
-    ExoPlayer exoPlayer = player.get();
-    if(exoPlayer != null) {
-      HlsManifest manifest = Util.safeCast(exoPlayer.getCurrentManifest(), HlsManifest.class);
-      if(manifest != null) {
-        onMainPlaylistTags(manifest.masterPlaylist.tags);
-      }
-    }
-
     if (timeline != null && timeline.getWindowCount() > 0) {
       Timeline.Window window = new Timeline.Window();
       timeline.getWindow(0, window);

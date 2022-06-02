@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats
 
-import android.app.Activity
 import android.content.Context
 import android.view.View
 import com.google.ads.interactivemedia.v3.api.AdsLoader
@@ -11,6 +10,7 @@ import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.mux.stats.sdk.core.CustomOptions
 import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
+import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.model.CustomerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
@@ -20,13 +20,13 @@ import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.weak
 
 @Suppress("unused")
-class DemoMuxStatsExoPlayer(
+class MuxStatsExoPlayer(
   context: Context,
   player: ExoPlayer,
   playerView: View? = null,
   playerName: String,
   val customerData: CustomerData,
-  val customOptions: CustomOptions? = null,
+  customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
   // TODO: declare constructor so we can add @JvmOverloads? No, don't.
@@ -38,22 +38,25 @@ class DemoMuxStatsExoPlayer(
   // TODO: We might want to add the deprecated ctors, but they've been deprecated since forever,
   //  so why don't we just do a major rev and finally remove them
 
+  companion object {
+    const val TAG = "MuxStatsExoPlayer"
+  }
+
   private var _player by weak(player)
   private var _playerView by weak(playerView)
 
+  private val eventBus = EventBus()//.apply { addListener(muxStats) }
+  private val collector = MuxStateCollector( { muxStats }, eventBus)
+  private val playerAdapter = collector.createExoPlayerAdapter(
+    context = context,
+    playerView = playerView,
+    player = player,
+  )
   private val muxStats =
-    MuxStats(ExoPlayerDelegate { playerAdapter }, playerName, customerData, customOptions)
-  private val eventBus = EventBus().apply { addListener(muxStats) }
-  private val collector = MuxStateCollector(muxStats, eventBus)
-  private val playerAdapter: MuxPlayerAdapter<View, ExoPlayer, ExoPlayer> =
-    muxStats.createExoPlayerAdapter(
-      activity = context as Activity, // TODO: handle non-activity case
-      playerView = playerView,
-      player = player,
-      eventBus = eventBus
-    )
+    MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
+      .also { eventBus.addListener(it) }
 
-  private val adsImaSdkListener: AdsImaSDKListener? by lazy {
+  private val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
       player,
       collector,
@@ -98,14 +101,13 @@ class DemoMuxStatsExoPlayer(
    * within your application.
    *
    * @return the IMA SDK Listener
-   * @throws
    */
   @Deprecated(
     """This method is no longer the preferred method to track Ad performance with Google's
     IMA SDK.
     <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead."""
   )
-  fun getIMASdkListener(): AdsImaSDKListener? = adsImaSdkListener
+  fun getAdsImaSdkListener(): AdsImaSDKListener? = imaSdkListener
 
   /**
    * Monitor an instance of Google IMA SDK's AdsLoader
@@ -121,19 +123,19 @@ class DemoMuxStatsExoPlayer(
     try {
       // TODO: these may not be necessary, but doing it for the sake of it
       adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent -> // TODO: Add in the adresponse stuff when we can
-
         // Set up the ad events that we want to use
         val adsManager = adsManagerLoadedEvent.adsManager
-
         // Attach mux event and error event listeners.
-        adsManager.addAdErrorListener(adsImaSdkListener)
-        adsManager.addAdEventListener(adsImaSdkListener)
+        adsManager.addAdErrorListener(imaSdkListener)
+        adsManager.addAdEventListener(imaSdkListener)
       } // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
       )
     } catch (cnfe: ClassNotFoundException) {
       return
     }
   }
+
+  fun isPaused() = playerAdapter.collector.isPaused()
 
   fun setAutomaticErrorTracking(enabled: Boolean) = muxStats.setAutomaticErrorTracking(enabled)
 
@@ -157,6 +159,19 @@ class DemoMuxStatsExoPlayer(
   fun presentationChange(presentation: MuxSDKViewPresentation) =
     muxStats.presentationChange(presentation)
 
+  fun dispatch(event: IEvent?) = eventBus.dispatch(event)
+
+  /**
+   * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
+   * headers that are not in the [BandwidthMetricDispatcher.allowedHeaders] list.
+   * This is used in automated tests and is not intended to be used from the application layer.
+   *
+   * @param headerName name of the header to send to the backend.
+   */
+  protected fun allowHeaderToBeSentToBackend(headerName: String?) {
+    //synchronized(bandwidthDispatcher) { bandwidthDispatcher.allowedHeaders.add(headerName) }
+  }
+
   fun enableMuxCoreDebug(enable: Boolean, verbose: Boolean) =
     muxStats.allowLogcatOutput(enable, verbose)
 
@@ -167,58 +182,42 @@ class DemoMuxStatsExoPlayer(
     playerAdapter.unbindEverything()
     muxStats.release()
   }
-}
 
-private class ExoPlayerDelegate(val playerAdapter: () -> MuxPlayerAdapter<*, *, *>) :
-  IPlayerListener {
-  private val viewDelegate: MuxUiDelegate<*>
-    get() = playerAdapter().uiDelegate
-  private val collector get() = playerAdapter().collector
+  private inner class ExoPlayerDelegate : IPlayerListener {
+    private val viewDelegate: MuxUiDelegate<*> get() = playerAdapter.uiDelegate
 
-  init {
-    MuxLogger.d(
-      "DemoMuxStatsExoPlayer",
-      "Creating Delegate with viewD: $viewDelegate \n\tand collector: $collector"
-    )
+    override fun getCurrentPosition(): Long = collector.playbackPositionMills
+
+    override fun getMimeType() = collector.mimeType
+
+    override fun getSourceWidth(): Int = collector.sourceWidth
+
+    override fun getSourceHeight(): Int = collector.sourceHeight
+
+    override fun getSourceAdvertisedBitrate(): Int = collector.sourceAdvertisedBitrate
+
+    override fun getSourceAdvertisedFramerate(): Float = collector.sourceAdvertisedFrameRate
+
+    override fun getSourceDuration() = collector.sourceDurationMs
+
+    override fun isPaused() = collector.isPaused()
+
+    override fun isBuffering(): Boolean = collector.muxPlayerState == MuxPlayerState.BUFFERING
+
+    override fun getPlayerViewWidth() = viewDelegate.getPlayerViewSize().x
+
+    override fun getPlayerViewHeight() = viewDelegate.getPlayerViewSize().y
+
+    override fun getPlayerProgramTime(): Long? = null
+
+    override fun getPlayerManifestNewestTime(): Long? = null
+
+    override fun getVideoHoldback(): Long? = null
+
+    override fun getVideoPartHoldback(): Long? = null
+
+    override fun getVideoPartTargetDuration(): Long? = null
+
+    override fun getVideoTargetDuration(): Long? = null
   }
-
-  override fun getCurrentPosition(): Long = collector.playbackPositionMills
-    .also {
-      MuxLogger.d(
-        "DemoMuxStatsExoPlayer", "GetCurrentPosition():\n\t " +
-                "viewD: $viewDelegate \n\tand collector: $collector"
-      )
-    }
-
-  override fun getMimeType() = collector.mimeType
-
-  override fun getSourceWidth(): Int = collector.sourceWidth
-
-  override fun getSourceHeight(): Int = collector.sourceHeight
-
-  override fun getSourceAdvertisedBitrate(): Int = collector.sourceAdvertisedBitrate
-
-  override fun getSourceAdvertisedFramerate(): Float = collector.sourceAdvertisedFrameRate
-
-  override fun getSourceDuration() = collector.sourceDurationMs
-
-  override fun isPaused() = collector.muxPlayerState == MuxPlayerState.PAUSED
-
-  override fun isBuffering(): Boolean = collector.muxPlayerState == MuxPlayerState.BUFFERING
-
-  override fun getPlayerViewWidth() = viewDelegate.getPlayerViewSize().x
-
-  override fun getPlayerViewHeight() = viewDelegate.getPlayerViewSize().y
-
-  override fun getPlayerProgramTime(): Long? = null
-
-  override fun getPlayerManifestNewestTime(): Long? = null
-
-  override fun getVideoHoldback(): Long? = null
-
-  override fun getVideoPartHoldback(): Long? = null
-
-  override fun getVideoPartTargetDuration(): Long? = null
-
-  override fun getVideoTargetDuration(): Long? = null
 }

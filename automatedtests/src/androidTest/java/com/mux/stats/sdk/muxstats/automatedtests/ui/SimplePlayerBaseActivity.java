@@ -212,11 +212,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     mockNetwork = new MockNetworkRequest();
     CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
     muxStats = new MuxStatsExoPlayer(
-        this, (ExoPlayer) player, "demo-player", customerData, true, mockNetwork);
-    Point size = new Point();
-    getWindowManager().getDefaultDisplay().getSize(size);
-    muxStats.setScreenSize(size.x, size.y);
-    muxStats.setPlayerView(playerView);
+        this, (ExoPlayer) player, playerView, "demo-player", customerData, null, mockNetwork);
+    //Point size = new Point();
+    //getWindowManager().getDefaultDisplay().getSize(size);
+    //muxStats.setScreenSize(size.x, size.y);
+    //muxStats.setPlayerView(playerView);
     muxStats.enableMuxCoreDebug(true, false);
     for (String headerName : addAllowedHeaders) {
       MuxStatsHelper.allowHeaderToBeSentToBackend(muxStats, headerName);

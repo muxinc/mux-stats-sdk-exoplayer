@@ -20,7 +20,7 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
   /**
    * The main Player being observed by this Adapter. When changed, the old player will be unbound
    * and the new player will be bound
-   * This is the Player that belongs to {@link #basicMetrics}
+   * This is the Player that belongs to [basicMetrics]
    */
   var basicPlayer by observableWeak(player) { changeBasicPlayer(it, collector) }
 
@@ -32,7 +32,7 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
 
   /**
    * The View being used to collect data related to the player view. This is the View being managed
-   * by the {@link #uiDelegate}
+   * by the [uiDelegate]
    */
   var playerView by uiDelegate::view
 

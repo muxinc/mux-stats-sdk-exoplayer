@@ -19,11 +19,12 @@ import kotlin.properties.Delegates
  * As a player's state model may differ from that used by Mux Data products, the state as understood
  * by Mux Data is tracked here.
  *
- * You should supply one of these to {@link MuxPlayerAdapter}, and call is methods from your
- * {@link PlayerBinding<Player>}
+ * You should supply one of these to [MuxPlayerAdapter], and call is methods from your
+ * [MuxPlayerAdapter.PlayerBinding]
  */
 class MuxStateCollector(
-  val muxStats: MuxStats,
+  // TODO em: if MuxStateCollector is in MuxStats, don't need this janky block
+  val muxStats: () -> MuxStats,
   val dispatcher: IEventDispatcher,
   val trackFirstFrameRendered: Boolean = true,
 ) {
@@ -257,6 +258,13 @@ class MuxStateCollector(
     _playerState = MuxPlayerState.ENDED
   }
 
+  fun isPaused(): Boolean {
+    return _playerState == MuxPlayerState.PAUSED
+            || _playerState == MuxPlayerState.ENDED
+            || _playerState == MuxPlayerState.ERROR
+            || _playerState == MuxPlayerState.INIT
+  }
+
   fun onFirstFrameRendered() {
     firstFrameRenderedAtMillis = System.currentTimeMillis()
     firstFrameReceived = true
@@ -283,18 +291,18 @@ class MuxStateCollector(
    */
   fun programChange(customerVideoData: CustomerVideoData) {
     reset()
-    muxStats.programChange(customerVideoData)
+    muxStats().programChange(customerVideoData)
   }
 
   /**
    * Call when the media stream (by URL) was changed.
    *
-   * This mehtod will start a new Video View on Mux Data's backend
+   * This method will start a new Video View on Mux Data's backend
    */
   fun videoChange(customerVideoData: CustomerVideoData) {
     _playerState = MuxPlayerState.INIT
     reset()
-    muxStats.videoChange(customerVideoData)
+    muxStats().videoChange(customerVideoData)
   }
 
   fun renditionChange(
@@ -329,7 +337,7 @@ class MuxStateCollector(
     // dispatch new session data on change only
     if (sessionTags != tags) {
       sessionTags = tags
-      muxStats.setSessionData(tags)
+      muxStats().setSessionData(tags)
     }
   }
 
@@ -398,11 +406,11 @@ class MuxStateCollector(
    *
    * This object should be stopped when no longer needed. To handle cases where users forget to
    * release our SDK, implementations should not hold strong references to big objects like context
-   * or a player. If {@link #getTimeMillis()} returns null, this object will automatically stop
+   * or a player. If [getTimeMillis] returns null, this object will automatically stop
    *
    * Stops if:
-   *  the caller calls {@link #stop(String)
-   *  the superclass starts returning null from {@link getTimeMillis()}
+   *  the caller calls [stop]
+   *  the superclass starts returning null from [getTimeMillis]
    */
   abstract class PositionWatcher(
     val updateIntervalMillis: Long,

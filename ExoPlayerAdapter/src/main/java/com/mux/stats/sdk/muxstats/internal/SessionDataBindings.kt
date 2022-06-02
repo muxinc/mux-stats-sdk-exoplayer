@@ -88,5 +88,5 @@ private class SessionDataPlayerBinding : MuxPlayerAdapter.PlayerBinding<ExoPlaye
 }
 
 @JvmSynthetic
-fun MuxStats.createExoSessionDataBinding(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
+fun MuxStateCollector.createExoSessionDataBinding(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
   SessionDataPlayerBinding()

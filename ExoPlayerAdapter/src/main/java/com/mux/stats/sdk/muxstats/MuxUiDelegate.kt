@@ -60,4 +60,4 @@ internal fun <V : View> V?.muxUiDelegate(activity: Activity)
  * not able to get a Display from a non-activity context
  */
 @JvmSynthetic
-internal fun Context.noUiDelegate() : MuxUiDelegate<*> = AndroidUiDelegate(null, null)
+internal fun noUiDelegate() : MuxUiDelegate<View> = AndroidUiDelegate(null, null)
