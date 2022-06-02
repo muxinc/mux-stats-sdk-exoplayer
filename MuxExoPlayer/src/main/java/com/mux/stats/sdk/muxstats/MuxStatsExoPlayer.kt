@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.mux.stats.sdk.core.Core
 import com.mux.stats.sdk.core.CustomOptions
 import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
@@ -14,8 +15,9 @@ import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.model.CustomerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.createExoPlayerAdapter
+import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.downcast
+import com.mux.stats.sdk.muxstats.internal.isDebugVariant
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.weak
 
@@ -46,17 +48,15 @@ class MuxStatsExoPlayer(
   private var _playerView by weak(playerView)
 
   private val eventBus = EventBus()//.apply { addListener(muxStats) }
-  private val collector = MuxStateCollector( { muxStats }, eventBus)
+  private val collector = MuxStateCollector({ muxStats }, eventBus)
   private val playerAdapter = collector.createExoPlayerAdapter(
     context = context,
     playerView = playerView,
     player = player,
   )
-  private val muxStats =
-    MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
-      .also { eventBus.addListener(it) }
+  private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
 
-  private val imaSdkListener: AdsImaSDKListener? by lazy {
+  val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
       player,
       collector,
@@ -77,11 +77,16 @@ class MuxStatsExoPlayer(
   var styledPlayerView: StyledPlayerView? by downcast(::_playerView)
 
   init {
-    // Initialize MuxStats stuff
+    // Init MuxStats (muxStats must be created last)
     MuxStats.setHostDevice(MuxBaseExoPlayer.MuxDevice(context))
     MuxStats.setHostNetworkApi(network)
-    // Uncomment for Logcat
-    // enableMuxCoreDebug(true, true)
+    muxStats =
+      MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
+        .also { eventBus.addListener(it) }
+
+    // Setup logging for debug builds of the SDK
+    enableMuxCoreDebug(isDebugVariant(), false)
+    Core.allowLogcatOutputForPlayer(playerName, isDebugVariant(), false)
 
     // Catch up to the current playback state if we start monitoring in the middle of play
     if (player.playbackState == Player.STATE_BUFFERING) {

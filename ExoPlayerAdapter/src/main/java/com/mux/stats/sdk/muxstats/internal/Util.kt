@@ -80,27 +80,28 @@ internal fun MuxStateCollector.handleExoPlaybackState(
     return
   }
 
-  fun playOrPause(playWhenReady: Boolean) {
-    if (playWhenReady) {
-      play()
-    } else {
-      pause()
-    }
-  }
 
   when (playbackState) {
     Player.STATE_BUFFERING -> {
       buffering()
-      playOrPause(playWhenReady)
+      if (playWhenReady) {
+        play()
+      } else {
+        pause()
+      }
     }
     Player.STATE_READY -> {
-      playOrPause(playWhenReady)
+      if (playWhenReady) {
+        playing()
+      } else {
+        pause()
+      }
     }
     Player.STATE_ENDED -> {
       ended()
     }
     Player.STATE_IDLE -> {
-      if (muxPlayerState == MuxPlayerState.PLAY || muxPlayerState == MuxPlayerState.PLAYING) {
+      if (muxPlayerState.oneOf(MuxPlayerState.PLAY, MuxPlayerState.PLAYING)) {
         // If we are playing/preparing to play and go idle, the player was stopped
         pause()
       }

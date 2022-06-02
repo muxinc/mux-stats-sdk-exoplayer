@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats
 
+import android.util.Log
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.events.IEventDispatcher
 import com.mux.stats.sdk.core.events.InternalErrorEvent
@@ -188,6 +189,7 @@ class MuxStateCollector(
    * Otherwise, we move to the PAUSED state and send a PauseEvent
    */
   fun pause() {
+    Log.w(logTag(), "pause() in state $_playerState")
     // Process unless we're already paused
     if (_playerState != MuxPlayerState.PAUSED) {
       // Ignore pause() if we just seeked, we're in the SEEKED state until something else happens
@@ -195,14 +197,17 @@ class MuxStateCollector(
       if (_playerState != MuxPlayerState.SEEKED || pauseEventsSent <= 0) {
         // If we were seeking and moved to paused, the then we are in SEEKED until playback starts
         if (seekingInProgress) {
+          Log.w(logTag(), "pause() while seeking: seeked")
           seeked(false)
           return
         }
         // If we were rebuffering and move to PAUSED, the rebuffering is over
         if (_playerState == MuxPlayerState.REBUFFERING) {
+          Log.w(logTag(), "pause() while rebuffering: rebuffering ended")
           rebufferingEnded()
         }
 
+        Log.w(logTag(), "pause(): Sending pause Event")
         _playerState = MuxPlayerState.PAUSED
         dispatch(PauseEvent(null))
       }
@@ -385,7 +390,7 @@ class MuxStateCollector(
 
   private fun dispatch(event: IEvent) {
     if (dead) {
-      MuxLogger.w(logTag(), "event sent after release: $event")
+      MuxLogger.w(logTag(), "event sent after release: ${event.debugString}")
       return
     }
     totalEventsSent++

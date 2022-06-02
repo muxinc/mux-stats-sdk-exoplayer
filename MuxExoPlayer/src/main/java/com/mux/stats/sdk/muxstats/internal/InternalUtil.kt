@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import com.mux.stats.sdk.muxstats.BuildConfig
+
 /**
  * Returns true if the object is one of any of the parameters supplied
  */
@@ -17,3 +19,6 @@ internal fun Any.noneOf(vararg accept: Any) = !accept.contains(this)
  * obfuscated (such as muxstats)
  */
 internal inline fun <reified T> T.logTag() = T::class.java.simpleName
+
+@JvmSynthetic
+internal fun isDebugVariant() = BuildConfig.BUILD_TYPE == "debug"

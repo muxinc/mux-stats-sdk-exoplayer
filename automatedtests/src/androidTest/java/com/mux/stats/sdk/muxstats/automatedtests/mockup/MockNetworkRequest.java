@@ -1,5 +1,7 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 
+import android.util.Log;
+
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
@@ -12,6 +14,7 @@ import org.json.JSONObject;
 
 public class MockNetworkRequest implements INetworkRequest {
 
+  private static final String TAG = MockNetworkRequest.class.getSimpleName();
   public static final String EVENT_INDEX = "event_index";
 
   IMuxNetworkRequestsCompletion callback;
@@ -36,12 +39,12 @@ public class MockNetworkRequest implements INetworkRequest {
 
   @Override
   public void get(URL url) {
-    System.out.println("GET: " + url);
+    Log.v(TAG, "GET: " + url);
   }
 
   @Override
   public void post(URL url, JSONObject body, Hashtable<String, String> headers) {
-    System.out.println("POST: " + url + ", body: " + body.toString());
+    Log.v(TAG,"POST: " + url + ", body: " + body.toString());
     // TODO parse these requests to an events
   }
 
@@ -56,7 +59,7 @@ public class MockNetworkRequest implements INetworkRequest {
         JSONObject eventJo = events.getJSONObject(i);
         receivedEvents.add(eventJo);
       }
-      System.out.println("Mock network postWithCompletion called !!!");
+      Log.v(TAG, "Mock network postWithCompletion called with body\n" + body);
       this.callback = callback;
       // For now always simulate a successful report
       callback.onComplete(true);
