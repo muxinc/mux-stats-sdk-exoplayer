@@ -99,14 +99,13 @@ class MuxStateCollector(
 
   /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
-   * then sets the {@link #playbackPositionMillis} property on this object. It can be stopped by
-   * calling {@link #PositionWatcher.stop(String)}, and will automatically stop if it can no longer
+   * then sets the [.playbackPositionMillis] property on this object. It can be stopped by
+   * calling [PositionWatcher.stop], and will automatically stop if it can no longer
    * access play time info
    */
   var positionWatcher: PositionWatcher?
           by Delegates.observable(null) @Synchronized { _, old, new ->
             old?.apply { stop("watcher replaced") }
-            new?.start()
           }
 
   private var sessionTags: List<SessionTag> = Collections.emptyList()

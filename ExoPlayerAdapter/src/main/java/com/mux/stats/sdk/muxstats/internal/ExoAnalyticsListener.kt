@@ -49,6 +49,16 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     collector.handlePositionDiscontinuity(reason)
   }
 
+  @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.12)
+  override fun onSeekStarted(eventTime: AnalyticsListener.EventTime) {
+    collector.seeking()
+  }
+
+  @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.12)
+  override fun onSeekProcessed(eventTime: AnalyticsListener.EventTime) {
+    collector.seeked(false)
+  }
+
   override fun onTimelineChanged(eventTime: AnalyticsListener.EventTime, reason: Int) {
     val player = player // strong reference during the listener call
     if (player != null) {
@@ -59,7 +69,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     }
   }
 
-  @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over
+  @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.13)
   override fun onVideoInputFormatChanged(eventTime: AnalyticsListener.EventTime, format: Format) {
     // Format is nullable on some versions of exoplayer (though the framework probably won't supply that value)
     @Suppress("RedundantNullableReturnType") val optionalFormat: Format? = format

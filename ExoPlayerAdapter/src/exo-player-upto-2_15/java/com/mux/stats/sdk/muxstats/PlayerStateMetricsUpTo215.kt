@@ -4,6 +4,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.logTag
+import com.mux.stats.sdk.muxstats.internal.watchContentPosition
 import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
@@ -28,13 +29,15 @@ private class PlayerStateMetricsTo215 : MuxPlayerAdapter.PlayerBinding<ExoPlayer
     } else {
       playerListener = basicExoEvents().also { it.bindPlayer(player, collector) }
     }
+    player.watchContentPosition(collector)
   }
 
   override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     playerListener?.unbindPlayer(player, collector)
+    collector.positionWatcher?.stop("unbound")
     if (player is SimpleExoPlayer) {
-    analyticsListener?.unbindPlayer(player, collector)
-  }
+      analyticsListener?.unbindPlayer(player, collector)
+    }
   }
 }
 

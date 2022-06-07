@@ -115,7 +115,8 @@ internal fun MuxStateCollector.handleExoPlaybackState(
 @Suppress("unused") // this method is used with some versions of ExoPlayer
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
 internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
-        MuxStateCollector.PositionWatcher = ExoPositionWatcher(this, stateCollector)
+        MuxStateCollector.PositionWatcher =
+  ExoPositionWatcher(this, stateCollector).apply { start() }
 
 @JvmSynthetic
 internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackException) {

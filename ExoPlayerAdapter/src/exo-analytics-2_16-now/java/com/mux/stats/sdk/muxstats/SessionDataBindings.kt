@@ -1,13 +1,12 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats
 
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.MuxPlayerAdapter
-import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.MuxStats
+import com.mux.stats.sdk.muxstats.internal.isHlsExtensionAvailable
+import com.mux.stats.sdk.muxstats.internal.weak
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -28,7 +27,7 @@ private class SessionDataPlayerBinding : MuxPlayerAdapter.PlayerBinding<ExoPlaye
   /**
    * Listens for timeline changes and updates HLS session data if we're on an HLS stream.
    * This class should only be instantiated if ExoPlayer's HLS extension is available at runtime
-   * @see isHlsExtensionAvailable
+   * @see [.isHlsExtensionAvailable]
    */
   private class SessionDataListener(player: ExoPlayer, val collector: MuxStateCollector) :
     AnalyticsListener {
@@ -87,6 +86,12 @@ private class SessionDataPlayerBinding : MuxPlayerAdapter.PlayerBinding<ExoPlaye
   }
 }
 
-@JvmSynthetic
+/**
+ * Creates a listener that listens for timeline changes and updates HLS session data if we're on an
+ * HLS stream.
+ * This class should only be instantiated if ExoPlayer's HLS extension is available at runtime
+ * @see [.isHlsExtensionAvailable]
+ */
+@Suppress("unused") // using the receiver to avoid polluting customers' namespace
 fun MuxStateCollector.createExoSessionDataBinding(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
   SessionDataPlayerBinding()

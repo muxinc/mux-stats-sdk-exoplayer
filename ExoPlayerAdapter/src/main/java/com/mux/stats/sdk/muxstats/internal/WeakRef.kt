@@ -31,7 +31,7 @@ private class WeakRef<T>(referent: T?) : ReadWriteProperty<Any, T?> {
  * Not thread-safe
  */
 @JvmSynthetic // synthetic methods are hidden from java, and java has no property delegates
-internal fun <T> weak(t: T): ReadWriteProperty<Any, T?> = WeakRef(t)
+internal fun <T> weak(t: T?): ReadWriteProperty<Any, T?> = WeakRef(t)
 
 /**
  * Property Delegate that makes the object referenced by the property weakly-reachable

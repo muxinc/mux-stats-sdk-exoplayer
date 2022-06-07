@@ -22,6 +22,8 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.List;
+
 /**
  * Instrumented test, which will execute on an Android device.
  *
@@ -185,6 +187,8 @@ public class PlaybackTests extends TestBase {
 
       // Check first playback period, stage 1
       result = checkPlaybackPeriodAtIndex(0, PLAY_PERIOD_IN_MS);
+      List<String> eventsSoFar = networkRequest.getReceivedEventNames();
+      Log.e(TAG, "Events so far: " + eventsSoFar);
 
       // Check pause period, stage 2
       result = checkPausePeriodAtIndex(result.eventIndex, PAUSE_PERIOD_IN_MS);
