@@ -147,6 +147,8 @@ class MuxStateCollector(
    * the caller intends for the video to play
    */
   fun play() {
+    Thread.dumpStack()
+    Log.i(logTag(), "play() called in $_playerState")
     // Skip during during seeking or buffering,
     //   unless it's the first play event, which should always be captured
     if (playEventsSent <= 0
@@ -159,13 +161,15 @@ class MuxStateCollector(
   }
 
   /**
-   * Call when the player begins playing. Note that this state is distinct from {@link #play()},
+   * Call when the player begins playing. Note that this state is distinct from [.play],
    * which is the state of preparing with intent to play
    * If seeking is in progress, this is ignored, when on seeked,state transitions to either playing,
    * or seeked from there
    * If rebuffering was in progress,
    */
   fun playing() {
+    Thread.dumpStack()
+    Log.i(logTag(), "playing() called in state $_playerState")
     // Don't processing playing() while we are seeking. We won't be playing until after seeked()
     //  and the player will update us after seek completes, which calls seeked() again
     if (!seekingInProgress) {
@@ -189,7 +193,7 @@ class MuxStateCollector(
    */
   fun pause() {
     Thread.dumpStack()
-    Log.w(logTag(), "pause() in state $_playerState")
+    Log.i(logTag(), "pause() in state $_playerState")
     // Process unless we're already paused
     if (_playerState != MuxPlayerState.PAUSED) {
       // Ignore pause() if we just seeked, we're in the SEEKED state until something else happens
