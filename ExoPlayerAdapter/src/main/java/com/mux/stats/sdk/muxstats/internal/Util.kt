@@ -85,14 +85,14 @@ internal fun MuxStateCollector.handleExoPlaybackState(
       buffering()
       if (playWhenReady) {
         play()
-      } else {
+      } else if (muxPlayerState != MuxPlayerState.PAUSED) {
         pause()
       }
     }
     Player.STATE_READY -> {
       if (playWhenReady) {
         playing()
-      } else {
+      } else if (muxPlayerState != MuxPlayerState.PAUSED) {
         pause()
       }
     }

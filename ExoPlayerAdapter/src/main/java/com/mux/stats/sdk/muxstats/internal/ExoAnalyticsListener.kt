@@ -33,12 +33,11 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     //todo
   }
 
-  override fun onPlayWhenReadyChanged(
+  override fun onPlaybackStateChanged(
     eventTime: AnalyticsListener.EventTime,
-    playWhenReady: Boolean,
-    reason: Int
+    state: Int
   ) {
-    player?.let { collector.handleExoPlaybackState(it.playbackState, playWhenReady) }
+    player?.let { collector.handleExoPlaybackState(state, it.playWhenReady) }
   }
 
   @Suppress("OVERRIDE_DEPRECATION") // The extra info is not required for our metrics

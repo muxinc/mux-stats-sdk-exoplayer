@@ -183,6 +183,8 @@ public class PlaybackTests extends TestBase {
       // Play another x seconds, stage 7
       Thread.sleep(PLAY_PERIOD_IN_MS);
 
+      Log.i(TAG, "Starting checks");
+
       CheckupResult result;
 
       // Check first playback period, stage 1

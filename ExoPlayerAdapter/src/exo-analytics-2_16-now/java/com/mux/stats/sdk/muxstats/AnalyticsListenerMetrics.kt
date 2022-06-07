@@ -13,7 +13,7 @@ import com.mux.stats.sdk.muxstats.internal.weak
  */
 private class AnalyticsListenerBinding216ToNow : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
 
-  private var listener: AnalyticsListener? by weak(null)
+  private var listener: AnalyticsListener? = null//by weak(null)
 
   init {
     MuxLogger.d(logTag(), "created");
