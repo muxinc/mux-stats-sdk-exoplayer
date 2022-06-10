@@ -33,9 +33,18 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     //todo
   }
 
+  // TODO: Requires exo 2.12
+  override fun onPlayWhenReadyChanged(
+    eventTime: AnalyticsListener.EventTime,
+    playWhenReady: Boolean,
+    reason: Int
+  ) {
+    player?.let { collector.handleExoPlaybackState(it.playbackState, playWhenReady) }
+  }
+
   override fun onPlaybackStateChanged(
     eventTime: AnalyticsListener.EventTime,
-    state: Int
+    state: Int,
   ) {
     player?.let { collector.handleExoPlaybackState(state, it.playWhenReady) }
   }
