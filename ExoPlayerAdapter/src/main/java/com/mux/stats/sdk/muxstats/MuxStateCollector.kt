@@ -171,7 +171,7 @@ class MuxStateCollector(
     Thread.dumpStack()
     Log.i(logTag(), "playing() called in state $_playerState")
     // Don't processing playing() while we are seeking. We won't be playing until after seeked()
-    //  and the player will update us after seek completes, which calls seeked() again
+    //  then play()/playing()
     if (!seekingInProgress) {
       if (_playerState.oneOf(MuxPlayerState.PAUSED, MuxPlayerState.FINISHED_PLAYING_ADS)) {
         play()
@@ -199,16 +199,16 @@ class MuxStateCollector(
       // Ignore pause() if we just seeked, we're in the SEEKED state until something else happens
       //   (unless there were no prior pause events)
       if (_playerState != MuxPlayerState.SEEKED || pauseEventsSent <= 0) {
+        // If we were rebuffering and move to PAUSED, the rebuffering is over
+        if (_playerState == MuxPlayerState.REBUFFERING) {
+          Log.w(logTag(), "pause() while rebuffering: rebuffering ended")
+          rebufferingEnded()
+        }
         // If we were seeking and moved to paused, the then we are in SEEKED until playback starts
         if (seekingInProgress) {
           Log.w(logTag(), "pause() while seeking: seeked")
           seeked(false)
           return
-        }
-        // If we were rebuffering and move to PAUSED, the rebuffering is over
-        if (_playerState == MuxPlayerState.REBUFFERING) {
-          Log.w(logTag(), "pause() while rebuffering: rebuffering ended")
-          rebufferingEnded()
         }
 
         Log.w(logTag(), "pause(): Sending pause Event")
