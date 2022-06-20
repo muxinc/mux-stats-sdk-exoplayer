@@ -433,6 +433,10 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
         failOnHeaderValue(SimpleHTTPServer.X_CDN_RESPONSE_HEADER, xCdnHeader, X_CDN_HEADER_VALUE,
             requestCompletedEventIndex, requestCompletedJson.toString());
       }
+      // Check C-Litix headers
+      checkHeaderForValue(X_LITIX_HEADER1, "value1", headersJsonObject);
+      checkHeaderForValue(X_LITIX_HEADER2, "value2", headersJsonObject);
+      checkHeaderForValue(X_LITIX_HEADER3, "value3", headersJsonObject);
       if (!contentTypeHeader.equalsIgnoreCase(expectedContentType)) {
         failOnHeaderValue(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER, contentTypeHeader,
             expectedContentType, requestCompletedEventIndex, requestCompletedJson.toString());
@@ -440,6 +444,19 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
     } catch (JSONException e) {
       fail("Request complete event not serialized to JSON correctly !\n"
         + "Json object: \n" + requestCompletedJson.toString());
+    }
+  }
+
+  private void checkHeaderForValue(String headerName, String expectedHeaderValue,
+      JSONObject headerObject) throws JSONException {
+    if (!headerObject.has(headerName)) {
+      fail("Missing header: " + headerName);
+    } else {
+      String actualHeaderValue = headerObject.getString(headerName);
+      if (!actualHeaderValue.equals(expectedHeaderValue)) {
+        fail("Value missmatch for header name: " + headerName + ", actual value: "
+            + actualHeaderValue + ", expected value: " + expectedHeaderValue);
+      }
     }
   }
 

@@ -39,6 +39,9 @@ import org.junit.rules.TestName;
 public abstract class TestBase {
 
   static final String TAG = "MuxStats";
+  static final String X_LITIX_HEADER1 = "x-litix-Header1";
+  static final String X_LITIX_HEADER2 = "X-LitiX-Header2";
+  static final String X_LITIX_HEADER3 = "X-LITIX-Header3";
 
   @Rule
   public ActivityTestRule<SimplePlayerTestActivity> activityRule =
@@ -95,7 +98,9 @@ public abstract class TestBase {
   public void init() {
     try {
       httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
-//            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
+      httpServer.setAdditionalHeader(X_LITIX_HEADER1, "value1");
+      httpServer.setAdditionalHeader(X_LITIX_HEADER2, "value2");
+      httpServer.setAdditionalHeader(X_LITIX_HEADER3, "value3");
     } catch (IOException e) {
       e.printStackTrace();
       // Failed to start server

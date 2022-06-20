@@ -63,6 +63,7 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -1595,6 +1596,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     private final BandwidthMetric bandwidthMetricHls = new BandwidthMetricHls();
     ArrayList<String> allowedHeaders = new ArrayList<>();
+    ArrayList<String> allowedHeadersPrefix = new ArrayList<>();
     protected boolean debugModeOn = false;
     protected long requestSegmentDuration = 1000;
     protected long lastRequestSentAt = -1;
@@ -1606,6 +1608,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     public BandwidthMetricDispatcher() {
       allowedHeaders.add("x-cdn");
       allowedHeaders.add("content-type");
+      allowedHeadersPrefix.add("x-litix-");
     }
 
     public BandwidthMetric currentBandwidthMetric() {
@@ -1711,6 +1714,9 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
       Hashtable<String, String> headers = new Hashtable<String, String>();
       for (String headerName : responseHeaders.keySet()) {
+        if (headerName == null) {
+          continue;
+        }
         boolean headerAllowed = false;
         synchronized (this) {
           for (String allowedHeader : allowedHeaders) {
@@ -1718,7 +1724,13 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
               headerAllowed = true;
             }
           }
+          for (String allowedHeaderPrefix : allowedHeadersPrefix) {
+            if (headerName.toLowerCase(Locale.ROOT).startsWith(allowedHeaderPrefix)) {
+              headerAllowed = true;
+            }
+          }
         }
+
         if (!headerAllowed) {
           // Pass this header, we do not need it
           continue;
