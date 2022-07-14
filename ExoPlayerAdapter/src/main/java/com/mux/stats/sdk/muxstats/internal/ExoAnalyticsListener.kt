@@ -53,12 +53,12 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     collector.onFirstFrameRendered()
   }
 
-//  override fun onPlaybackStateChanged(
-//    eventTime: AnalyticsListener.EventTime,
-//    state: Int,
-//  ) {
-//    player?.let { collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
-//  }
+  override fun onPlaybackStateChanged(
+    eventTime: AnalyticsListener.EventTime,
+    state: Int,
+  ) {
+    player?.let { collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
+  }
 
   @Suppress("OVERRIDE_DEPRECATION") // The extra info is not required for our metrics
   override fun onPositionDiscontinuity(

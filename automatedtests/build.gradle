@@ -16,7 +16,7 @@ android {
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
-    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"bar8fjevgudvf4o7r8fdjrfii\"")
+    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"horo40t67r8tokjhmmkn7i4ii\"")
   }
 
   buildTypes {
