@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
@@ -75,6 +76,7 @@ internal fun MuxStateCollector.handleExoPlaybackState(
   playbackState: Int, // the @IntDef for player state omitted. Unavailable on all exo versions
   playWhenReady: Boolean
 ) {
+  Log.v("playstate", "player state changed: State is $playbackState and PWR is $playWhenReady");
   if (this.muxPlayerState == MuxPlayerState.PLAYING_ADS) {
     // Normal playback events are ignored during ad playback
     return

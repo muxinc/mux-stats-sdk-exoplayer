@@ -1,6 +1,7 @@
 package com.mux.stats.sdk.muxstats;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -383,6 +384,7 @@ public class MuxStatsExoPlayerOld extends MuxBaseExoPlayer implements AnalyticsL
      * playWhenReady via the player object.
      */
     boolean playWhenReady = player.get().getPlayWhenReady();
+    Log.v("playstate", "player state changed: State is " + playbackState + " and PWR is " + playWhenReady);
     PlayerState state = this.getState();
     if (state == PlayerState.PLAYING_ADS) {
       // Ignore all normal events while playing ads

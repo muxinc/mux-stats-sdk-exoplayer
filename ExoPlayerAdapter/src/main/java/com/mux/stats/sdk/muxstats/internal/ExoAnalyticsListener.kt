@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import android.util.Log
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.PlaybackParameters
@@ -39,15 +40,25 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     playWhenReady: Boolean,
     reason: Int
   ) {
-    player?.let { collector.handleExoPlaybackState(it.playbackState, playWhenReady) }
+    player?.let {
+      Log.d(logTag(), "Playback State(from player): ${it.playbackState}, ")
+      collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
   }
 
-  override fun onPlaybackStateChanged(
+  override fun onRenderedFirstFrame(
     eventTime: AnalyticsListener.EventTime,
-    state: Int,
+    output: Any,
+    renderTimeMs: Long
   ) {
-    player?.let { collector.handleExoPlaybackState(state, it.playWhenReady) }
+    collector.onFirstFrameRendered()
   }
+
+//  override fun onPlaybackStateChanged(
+//    eventTime: AnalyticsListener.EventTime,
+//    state: Int,
+//  ) {
+//    player?.let { collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
+//  }
 
   @Suppress("OVERRIDE_DEPRECATION") // The extra info is not required for our metrics
   override fun onPositionDiscontinuity(

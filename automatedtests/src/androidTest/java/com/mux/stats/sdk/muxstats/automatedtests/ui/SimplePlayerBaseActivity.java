@@ -217,7 +217,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     //getWindowManager().getDefaultDisplay().getSize(size);
     //muxStats.setScreenSize(size.x, size.y);
     //muxStats.setPlayerView(playerView);
-    muxStats.enableMuxCoreDebug(true, true);
+    muxStats.enableMuxCoreDebug(true, false);
     for (String headerName : addAllowedHeaders) {
       MuxStatsHelper.allowHeaderToBeSentToBackend(muxStats, headerName);
     }
