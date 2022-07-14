@@ -264,17 +264,36 @@ class MuxStateCollector(
    */
   fun seeked(inferPlayingState: Boolean) {
     // Only handle if we were previously seeking
+//    if (seekingInProgress) {
+//      seekingInProgress = false
+//
+//      // Infer the Playing state if we have enough info, and were asked to
+//      if (inferPlayingState && firstFrameRendered()) {
+//        dispatch(SeekedEvent(null))
+//        playing()
+//      } else {
+//        // If we haven't rendered any frames yet, go to seeked state
+//        _playerState = MuxPlayerState.SEEKED
+//        dispatch(SeekedEvent(null))
+//      }
+//    }
     if (seekingInProgress) {
-      seekingInProgress = false
-
-      // Infer the Playing state if we have enough info, and were asked to
-      if (inferPlayingState && firstFrameRendered()) {
-        dispatch(SeekedEvent(null))
-        playing()
+      if (inferPlayingState) {
+        if ((System.currentTimeMillis() - firstFrameRenderedAtMillis
+                  > 50) && firstFrameReceived
+        ) {
+          // This is a playback !!!
+          dispatch(SeekedEvent(null))
+          seekingInProgress = false
+          playing()
+        } else {
+          // No playback yet.
+        }
       } else {
-        // If we haven't rendered any frames yet, go to seeked state
-        _playerState = MuxPlayerState.SEEKED
+        // the player was seeking while paused
         dispatch(SeekedEvent(null))
+        seekingInProgress = false
+        _playerState= MuxPlayerState.SEEKED
       }
     }
   }
@@ -285,6 +304,10 @@ class MuxStateCollector(
    * In all cases, the state will move to SEEKING, and frame rendering data will be reset
    */
   fun seeking() {
+    // TODO: We are getting a seeking() before the start of the view for some reason.
+    //  This (I think?) causes state handling for another event to call seeked()
+    //  We should eliminate the improper seeking() call, or find good criteria to ignore it,
+    //  or reset seeking state (possibly other state data too) when ViewStart is dispatched (use an IEventListener I guess)
     if (muxPlayerState == MuxPlayerState.PLAYING) {
       dispatch(PauseEvent(null))
     }
