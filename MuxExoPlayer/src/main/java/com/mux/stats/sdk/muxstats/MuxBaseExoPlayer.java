@@ -468,13 +468,42 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * Value used here will be reported to the backend as a device name. If this method is not used
-   * then SDK will auto detect the device name. State will be reseted on every new view or video.
-   * @param deviceName, name to be used instead of auto detected value.
+   * User can choose a device name to be sent to the backend.
+   * @param deviceName value to be used as a device name.
    */
-  public void overwriteDeviceMetadata(String deviceName) {
+  public void overwriteDeviceName(String deviceName) {
     if (muxDevice != null) {
-      muxDevice.overwriteDeviceMetadata(deviceName);
+      muxDevice.overwriteDeviceName(deviceName);
+    }
+  }
+
+  /**
+   * User can choose a family name to be sent to the backend.
+   * @param osFamilyName value to be used as a family name.
+   */
+  public void overwriteOsFamilyName(String osFamilyName) {
+    if (muxDevice != null) {
+      muxDevice.overwriteOsFamilyName(osFamilyName);
+    }
+  }
+
+  /**
+   * User can choose a os version to be sent to the backend.
+   * @param osVersion to be used
+   */
+  public void overwriteOsVersion(String osVersion) {
+    if (muxDevice != null) {
+      muxDevice.overwriteOsFamilyName(osVersion);
+    }
+  }
+
+  /**
+   * User can choose a manufacturer to be sent to the backend.
+   * @param manufacturer to be used.
+   */
+  public void overwriteManufacturer(String manufacturer) {
+    if (muxDevice != null) {
+      muxDevice.overwriteOsFamilyName(manufacturer);
     }
   }
 
@@ -1205,7 +1234,10 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     /**
      * Use this value instead of auto detected name in case the value is different then null.
      */
-    protected String metadataDeviceName = null;
+    protected String overwrittenDeviceName = null;
+    protected String overwrittenOsFamilyName = null;
+    protected String overwrittenOsVersion = null;
+    protected String overwrittenManufacturer = null;
 
     /**
      * Basic constructor.
@@ -1233,8 +1265,20 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
       }
     }
 
-    public void overwriteDeviceMetadata(String deviceName) {
-      metadataDeviceName = deviceName;
+    public void overwriteDeviceName(String deviceName) {
+      overwrittenDeviceName = deviceName;
+    }
+
+    public void overwriteOsFamilyName(String osFamily) {
+      overwrittenOsFamilyName = osFamily;
+    }
+
+    public void overwriteOsVersion(String osVersion) {
+      overwrittenOsVersion = osVersion;
+    }
+
+    public void overwriteManufacturer(String manufacturer) {
+      overwrittenManufacturer = manufacturer;
     }
 
     @Override
@@ -1248,8 +1292,18 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     @Override
+    public String getMuxOSFamily() {
+      return overwrittenOsFamilyName;
+    }
+
+    @Override
     public String getOSVersion() {
       return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")";
+    }
+
+    @Override
+    public String getMuxOSVersion() {
+      return overwrittenOsVersion;
     }
 
     @Override
@@ -1258,11 +1312,18 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     @Override
+    public String getMuxManufacturer() {
+      return overwrittenManufacturer;
+    }
+
+    @Override
     public String getModelName() {
-      if (metadataDeviceName != null) {
-        return metadataDeviceName;
-      }
       return Build.MODEL;
+    }
+
+    @Override
+    public String getMuxModelName() {
+      return overwrittenDeviceName;
     }
 
     @Override
