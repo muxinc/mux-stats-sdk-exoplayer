@@ -229,6 +229,5 @@ dependencies {
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-//    api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-    api "com.mux:stats.muxcore:dev-overriding_device_data-be463ee"
+    api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }
