@@ -1266,14 +1266,6 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     }
 
     /**
-     * @deprecated please prefer {@link #overwriteDeviceName(String)}
-     */
-    @Deprecated
-    public void overwriteDeviceMetadata(String deviceName) {
-      overwriteDeviceName(deviceName);
-    }
-
-    /**
      * User can choose a device name to be sent to the backend
      */
     public void overwriteDeviceName(String deviceName) {
