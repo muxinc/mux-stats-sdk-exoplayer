@@ -1,4 +1,26 @@
 # Release notes
+## 2.9.0
+### Improvements
+* Allow ability to override OS data values. (#216)
+* Update to MuxCore `7.3.0`
+
+### MuxCore Changes
+* Support for overriding OS data values
+
+## v2.8.0
+### Improvements
+* Add support for Custom Data Domains
+* Add support for manually tracking if a view was played automatically
+* Update to MuxCore `v7.2.0` (#211)
+
+### Fixes
+* Fix Issue with HLS/DASH CDN tracking (#211)
+
+### MuxCore Changes
+* Custom Beacon Collection Domains
+* Add Autoplay flag on CustomerPlayerData
+* Fix serialization strategy for complex objects in beacons
+ 
 ## 2.7.2
 ### Fixes
 * Fix Build/Crash Issues When Used With Minimal/Custom ExoPlayers (#208)
