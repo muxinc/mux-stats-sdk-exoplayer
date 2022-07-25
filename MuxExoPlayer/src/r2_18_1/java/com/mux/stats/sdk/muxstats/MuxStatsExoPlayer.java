@@ -12,6 +12,7 @@ import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.analytics.AnalyticsListener;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer;
@@ -19,9 +20,11 @@ import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.source.LoadEventInfo;
 import com.google.android.exoplayer2.source.MediaLoadData;
+import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsManifest;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.common.collect.ImmutableList;
 import com.mux.stats.sdk.core.CustomOptions;
 import com.google.android.exoplayer2.video.VideoSize;
 import com.mux.stats.sdk.core.model.CustomerData;
@@ -344,9 +347,8 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Override
-  public void onTracksChanged(AnalyticsListener.EventTime eventTime, TrackGroupArray trackGroups,
-      TrackSelectionArray trackSelections) {
-    onTracksChanged(trackGroups, trackSelections);
+  public void onTracksChanged(AnalyticsListener.EventTime eventTime, Tracks tracks) {
+    onTracksChanged(tracks);
   }
 
   @Override
@@ -542,8 +544,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   }
 
   @Override
-  public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
-    bandwidthDispatcher.onTracksChanged(trackGroups);
+  public void onTracksChanged(Tracks tracks) {
+    // onTracksChanged now wraps old-style TrackGroups into another object (which we don't need)
+    ImmutableList<Tracks.Group> groups18 = tracks.getGroups();
+    TrackGroup[] trackGroups = new TrackGroup[groups18.size()];
+    for (int i = 0; i < tracks.getGroups().size(); i++) {
+      trackGroups[1] = groups18.get(i).getMediaTrackGroup();
+    }
+
+    bandwidthDispatcher.onTracksChanged(new TrackGroupArray(trackGroups));
     configurePlaybackHeadUpdateInterval();
   }
 }
