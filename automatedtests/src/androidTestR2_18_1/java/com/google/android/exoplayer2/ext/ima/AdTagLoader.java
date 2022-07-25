@@ -29,8 +29,10 @@ import android.net.Uri;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.view.ViewGroup;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
+
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
 import com.google.ads.interactivemedia.v3.api.AdError;
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
@@ -51,17 +53,16 @@ import com.google.ads.interactivemedia.v3.api.player.ContentProgressProvider;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.ExoPlaybackException;
 import com.google.android.exoplayer2.ExoPlayerLibraryInfo;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.source.ads.AdPlaybackState;
 import com.google.android.exoplayer2.source.ads.AdsLoader.EventListener;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource.AdLoadException;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
-import com.google.android.exoplayer2.trackselection.TrackSelectionUtil;
 import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
@@ -70,6 +71,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableList;
+
 import java.io.IOException;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
@@ -78,7 +81,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/** Handles loading and playback of a single ad tag. */
+/**
+ * Handles loading and playback of a single ad tag.
+ */
 /* package */ final class AdTagLoader implements Player.Listener {
 
   private static final String TAG = "AdTagLoader";
@@ -94,7 +99,9 @@ import java.util.Map;
    */
   private static final int AD_PROGRESS_UPDATE_INTERVAL_MS = 100;
 
-  /** The value used in {@link VideoProgressUpdate}s to indicate an unset duration. */
+  /**
+   * The value used in {@link VideoProgressUpdate}s to indicate an unset duration.
+   */
   private static final long IMA_DURATION_UNSET = -1L;
 
   /**
@@ -107,16 +114,23 @@ import java.util.Map;
    * milliseconds.
    */
   private static final long THRESHOLD_AD_PRELOAD_MS = 4000;
-  /** The threshold below which ad cue points are treated as matching, in microseconds. */
+  /**
+   * The threshold below which ad cue points are treated as matching, in microseconds.
+   */
   private static final long THRESHOLD_AD_MATCH_US = 1000;
 
-  /** The state of ad playback. */
+  /**
+   * The state of ad playback.
+   */
   @Documented
   @Retention(RetentionPolicy.SOURCE)
   @IntDef({IMA_AD_STATE_NONE, IMA_AD_STATE_PLAYING, IMA_AD_STATE_PAUSED})
-  private @interface ImaAdState {}
+  private @interface ImaAdState {
+  }
 
-  /** The ad playback state when IMA is not playing an ad. */
+  /**
+   * The ad playback state when IMA is not playing an ad.
+   */
   private static final int IMA_AD_STATE_NONE = 0;
   /**
    * The ad playback state when IMA has called {@link ComponentListener#playAd(AdMediaInfo)} and not
@@ -144,15 +158,19 @@ import java.util.Map;
   private final AdDisplayContainer adDisplayContainer;
   private final AdsLoader adsLoader;
 
-  @Nullable private Object pendingAdRequestContext;
-  @Nullable private Player player;
+  @Nullable
+  private Object pendingAdRequestContext;
+  @Nullable
+  private Player player;
   private VideoProgressUpdate lastContentProgress;
   private VideoProgressUpdate lastAdProgress;
   private int lastVolumePercent;
 
-  @Nullable private AdsManager adsManager;
+  @Nullable
+  private AdsManager adsManager;
   private boolean isAdsManagerInitialized;
-  @Nullable private AdLoadException pendingAdLoadError;
+  @Nullable
+  private AdLoadException pendingAdLoadError;
   private Timeline timeline;
   private long contentDurationMs;
   private AdPlaybackState adPlaybackState;
@@ -161,22 +179,39 @@ import java.util.Map;
 
   // Fields tracking IMA's state.
 
-  /** Whether IMA has sent an ad event to pause content since the last resume content event. */
+  /**
+   * Whether IMA has sent an ad event to pause content since the last resume content event.
+   */
   private boolean imaPausedContent;
-  /** The current ad playback state. */
-  private @ImaAdState int imaAdState;
-  /** The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
-  @Nullable private AdMediaInfo imaAdMediaInfo;
-  /** The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}. */
-  @Nullable private AdInfo imaAdInfo;
-  /** Whether IMA has been notified that playback of content has finished. */
+  /**
+   * The current ad playback state.
+   */
+  private @ImaAdState
+  int imaAdState;
+  /**
+   * The current ad media info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}.
+   */
+  @Nullable
+  private AdMediaInfo imaAdMediaInfo;
+  /**
+   * The current ad info, or {@code null} if in state {@link #IMA_AD_STATE_NONE}.
+   */
+  @Nullable
+  private AdInfo imaAdInfo;
+  /**
+   * Whether IMA has been notified that playback of content has finished.
+   */
   private boolean sentContentComplete;
 
   // Fields tracking the player/loader state.
 
-  /** Whether the player is playing an ad. */
+  /**
+   * Whether the player is playing an ad.
+   */
   private boolean playingAd;
-  /** Whether the player is buffering an ad. */
+  /**
+   * Whether the player is buffering an ad.
+   */
   private boolean bufferingAd;
   /**
    * If the player is playing an ad, stores the ad index in its ad group. {@link C#INDEX_UNSET}
@@ -187,7 +222,8 @@ import java.util.Map;
    * The ad info for a pending ad for which the media failed preparation, or {@code null} if no
    * pending ads have failed to prepare.
    */
-  @Nullable private AdInfo pendingAdPrepareErrorAdInfo;
+  @Nullable
+  private AdInfo pendingAdPrepareErrorAdInfo;
   /**
    * If a content period has finished but IMA has not yet called {@link
    * ComponentListener#playAd(AdMediaInfo)}, stores the value of {@link
@@ -200,7 +236,9 @@ import java.util.Map;
    * content progress should increase. {@link C#TIME_UNSET} otherwise.
    */
   private long fakeContentProgressOffsetMs;
-  /** Stores the pending content position when a seek operation was intercepted to play an ad. */
+  /**
+   * Stores the pending content position when a seek operation was intercepted to play an ad.
+   */
   private long pendingContentPositionMs;
   /**
    * Whether {@link ComponentListener#getContentProgress()} has sent {@link
@@ -213,7 +251,9 @@ import java.util.Map;
    */
   private long waitingForPreloadElapsedRealtimeMs;
 
-  /** Creates a new ad tag loader, starting the ad request if the ad tag is valid. */
+  /**
+   * Creates a new ad tag loader, starting the ad request if the ad tag is valid.
+   */
   @SuppressWarnings({"methodref.receiver.bound.invalid", "method.invocation.invalid"})
   public AdTagLoader(
       Context context,
@@ -269,17 +309,23 @@ import java.util.Map;
     adsLoader = requestAds(context, imaSdkSettings, adDisplayContainer);
   }
 
-  /** Returns the underlying IMA SDK ads loader. */
+  /**
+   * Returns the underlying IMA SDK ads loader.
+   */
   public AdsLoader getAdsLoader() {
     return adsLoader;
   }
 
-  /** Returns the IMA SDK ad display container. */
+  /**
+   * Returns the IMA SDK ad display container.
+   */
   public AdDisplayContainer getAdDisplayContainer() {
     return adDisplayContainer;
   }
 
-  /** Skips the current skippable ad, if there is one. */
+  /**
+   * Skips the current skippable ad, if there is one.
+   */
   public void skipAd() {
     if (adsManager != null) {
       adsManager.skip();
@@ -339,7 +385,9 @@ import java.util.Map;
     maybeInitializeAdsManager(contentPositionMs, contentDurationMs);
   }
 
-  /** Activates playback. */
+  /**
+   * Activates playback.
+   */
   public void activate(Player player) {
     this.player = player;
     player.addListener(this);
@@ -368,7 +416,9 @@ import java.util.Map;
     }
   }
 
-  /** Deactivates playback. */
+  /**
+   * Deactivates playback.
+   */
   public void deactivate() {
     Player player = checkNotNull(this.player);
     if (!AdPlaybackState.NONE.equals(adPlaybackState) && imaPausedContent) {
@@ -387,7 +437,9 @@ import java.util.Map;
     this.player = null;
   }
 
-  /** Stops passing of events from this instance and unregisters obstructions. */
+  /**
+   * Stops passing of events from this instance and unregisters obstructions.
+   */
   public void removeListener(EventListener eventListener) {
     eventListeners.remove(eventListener);
     if (eventListeners.isEmpty()) {
@@ -395,7 +447,9 @@ import java.util.Map;
     }
   }
 
-  /** Releases all resources used by the ad tag loader. */
+  /**
+   * Releases all resources used by the ad tag loader.
+   */
   public void release() {
     if (released) {
       return;
@@ -422,7 +476,9 @@ import java.util.Map;
     updateAdPlaybackState();
   }
 
-  /** Notifies the IMA SDK that the specified ad has been prepared for playback. */
+  /**
+   * Notifies the IMA SDK that the specified ad has been prepared for playback.
+   */
   public void handlePrepareComplete(int adGroupIndex, int adIndexInAdGroup) {
     AdInfo adInfo = new AdInfo(adGroupIndex, adIndexInAdGroup);
     if (configuration.debugModeEnabled) {
@@ -438,7 +494,9 @@ import java.util.Map;
     }
   }
 
-  /** Notifies the IMA SDK that the specified ad has failed to prepare for playback. */
+  /**
+   * Notifies the IMA SDK that the specified ad has failed to prepare for playback.
+   */
   public void handlePrepareError(int adGroupIndex, int adIndexInAdGroup, IOException exception) {
     if (player == null) {
       return;
@@ -650,7 +708,7 @@ import java.util.Map;
   private long[] getGroupTimesUs(AdPlaybackState adPlaybackState) {
     long[] groupTimes = new long[adPlaybackState.adGroupCount];
 
-    for(int i = 0; i < adPlaybackState.adGroupCount; i++) {
+    for (int i = 0; i < adPlaybackState.adGroupCount; i++) {
       groupTimes[i] = adPlaybackState.getAdGroup(i).timeUs;
     }
 
@@ -719,11 +777,25 @@ import java.util.Map;
     }
 
     // Check for a selected track using an audio renderer.
-    TrackSelectionArray trackSelections = player.getCurrentTrackSelections();
-    return hasTrackOfType(trackSelections, C.TRACK_TYPE_AUDIO) ? 100 : 0;
+    return hasSelectedTrackOfType(player.getCurrentTracks(), C.TRACK_TYPE_AUDIO) ? 100 : 0;
   }
 
-  private static boolean hasTrackOfType(TrackSelectionArray trackSelections, int trackType) {
+  private static boolean hasSelectedTrackOfType(Tracks tracks, int trackType) {
+    ImmutableList<Tracks.Group> trackGroups = tracks.getGroups();
+    for (Tracks.Group g : trackGroups) {
+      if(g.isSelected()) {
+        for (int i = 0; i < g.length; i++) {
+          if (MimeTypes.getTrackType(g.getTrackFormat(i).sampleMimeType) == trackType) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private static boolean hasSelectedTrackOfType(TrackSelectionArray trackSelections, int trackType) {
     for (int i = 0; i < trackSelections.length; i++) {
       @Nullable TrackSelection trackSelection = trackSelections.get(i);
       if (trackSelection == null) {
@@ -1151,8 +1223,8 @@ import java.util.Map;
         && contentDurationMs != C.TIME_UNSET
         && pendingContentPositionMs == C.TIME_UNSET
         && getContentPeriodPositionMs(checkNotNull(player), timeline, period)
-                + THRESHOLD_END_OF_CONTENT_MS
-            >= contentDurationMs) {
+        + THRESHOLD_END_OF_CONTENT_MS
+        >= contentDurationMs) {
       sendContentComplete();
     }
   }
@@ -1299,10 +1371,10 @@ import java.util.Map;
 
   private final class ComponentListener
       implements AdsLoadedListener,
-          ContentProgressProvider,
-          AdEventListener,
-          AdErrorListener,
-          VideoAdPlayer {
+      ContentProgressProvider,
+      AdEventListener,
+      AdErrorListener,
+      VideoAdPlayer {
 
     // AdsLoader.AdsLoadedListener implementation.
 
