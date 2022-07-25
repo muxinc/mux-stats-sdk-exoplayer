@@ -370,6 +370,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+    if (player == null  || player.get() == null) {
+      return;
+    }
     handleHlsManifest(player.get());
 
     if (timeline != null && timeline.getWindowCount() > 0) {
