@@ -2,175 +2,175 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion project.ext.compileSdkVersion
+  compileSdkVersion project.ext.compileSdkVersion
 
-    defaultConfig {
-        applicationId "com.mux.stats.sdk.muxstats.automatedtests"
-        minSdkVersion 18
-        // Target SDK 31 causes manifest merger errors. One of our dependencies is not setting
-        //  `android:exported` for an Activity. Error logs have no more useful information
-        targetSdkVersion 30 //project.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
-        multiDexEnabled true
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+  defaultConfig {
+    applicationId "com.mux.stats.sdk.muxstats.automatedtests"
+    minSdkVersion 18
+    // Target SDK 31 causes manifest merger errors. One of our dependencies is not setting
+    //  `android:exported` for an Activity. Error logs have no more useful information
+    targetSdkVersion 30 //project.ext.targetSdkVersion
+    versionCode 1
+    versionName "1.0"
+    multiDexEnabled true
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
-        buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"bar8fjevgudvf4o7r8fdjrfii\"")
+    buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
+    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"bar8fjevgudvf4o7r8fdjrfii\"")
+  }
+
+  buildTypes {
+    debug {
+      minifyEnabled false
     }
 
-    buildTypes {
-        debug {
-            minifyEnabled false
-        }
-
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
     }
+  }
 
-    lintOptions {
-        abortOnError false
-        disable 'GradleCompatible'
-        // exoplayer 2.8.1 workaround
-        // https://github.com/google/ExoPlayer/issues/4234
-        lintConfig file("../checker-framework-lint.xml")
+  lintOptions {
+    abortOnError false
+    disable 'GradleCompatible'
+    // exoplayer 2.8.1 workaround
+    // https://github.com/google/ExoPlayer/issues/4234
+    lintConfig file("../checker-framework-lint.xml")
+  }
+
+  testOptions {
+    // Changes the directory where Gradle saves test reports. By default, Gradle saves test reports
+    // in the path_to_your_project/module_name/build/outputs/reports/ directory.
+    // '$rootDir' sets the path relative to the root directory of the current project.
+    reportDir "./automated_test_results/reports"
+    // Changes the directory where Gradle saves test results. By default, Gradle saves test results
+    // in the path_to_your_project/module_name/build/outputs/test-results/ directory.
+    // '$rootDir' sets the path relative to the root directory of the current project.
+    resultsDir "./automated_test_results/results"
+  }
+
+  flavorDimensions 'api'
+
+  sourceSets {
+    androidTest {
+      // Important, can't get asset file in instrumentation test without this
+      assets.srcDirs = ['src/main/assets']
     }
+  }
 
-    testOptions {
-        // Changes the directory where Gradle saves test reports. By default, Gradle saves test reports
-        // in the path_to_your_project/module_name/build/outputs/reports/ directory.
-        // '$rootDir' sets the path relative to the root directory of the current project.
-        reportDir "./automated_test_results/reports"
-        // Changes the directory where Gradle saves test results. By default, Gradle saves test results
-        // in the path_to_your_project/module_name/build/outputs/test-results/ directory.
-        // '$rootDir' sets the path relative to the root directory of the current project.
-        resultsDir "./automated_test_results/results"
+  productFlavors {
+    r2_9_6 {
+      dimension 'api'
     }
-
-    flavorDimensions 'api'
-
-    sourceSets {
-        androidTest {
-            // Important, can't get asset file in instrumentation test without this
-            assets.srcDirs = ['src/main/assets']
-        }
+    r2_10_6 {
+      dimension 'api'
     }
-
-    productFlavors {
-        r2_9_6 {
-            dimension 'api'
-        }
-        r2_10_6 {
-            dimension 'api'
-        }
-        r2_11_1 {
-            dimension 'api'
-        }
-        r2_12_1 {
-            dimension 'api'
-        }
-        r2_13_1 {
-            dimension 'api'
-        }
-        r2_14_1 {
-            dimension 'api'
-        }
-        r2_15_1 {
-            dimension 'api'
-        }
-        r2_16_1 {
-            dimension 'api'
-        }
-        r2_17_1 {
-            dimension 'api'
-        }
-      r2_18_1 {
-        dimension 'api'
-      }
+    r2_11_1 {
+      dimension 'api'
     }
+    r2_12_1 {
+      dimension 'api'
+    }
+    r2_13_1 {
+      dimension 'api'
+    }
+    r2_14_1 {
+      dimension 'api'
+    }
+    r2_15_1 {
+      dimension 'api'
+    }
+    r2_16_1 {
+      dimension 'api'
+    }
+    r2_17_1 {
+      dimension 'api'
+    }
+    r2_18_1 {
+      dimension 'api'
+    }
+  }
 
   compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.3'
-    implementation 'androidx.navigation:navigation-fragment:2.3.1'
-    implementation 'androidx.navigation:navigation-ui:2.3.1'
-    androidTestImplementation 'androidx.test:runner:1.3.0'
+  implementation fileTree(dir: "libs", include: ["*.jar"])
+  implementation 'androidx.appcompat:appcompat:1.4.0'
+  implementation 'com.google.android.material:material:1.2.1'
+  implementation 'androidx.constraintlayout:constraintlayout:2.0.3'
+  implementation 'androidx.navigation:navigation-fragment:2.3.1'
+  implementation 'androidx.navigation:navigation-ui:2.3.1'
+  androidTestImplementation 'androidx.test:runner:1.3.0'
 
-    androidTestImplementation 'androidx.test:rules:1.3.0'
-    // Optional -- Hamcrest library
-    androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
-    // Optional -- UI testing with Espresso
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    // Optional -- UI testing with UI Automator
-    androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestR2_9_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
-    androidTestR2_9_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
-    androidTestR2_10_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
-    androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
-    androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
-    androidTestR2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
-    androidTestR2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
-    androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
-    androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
-    androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
-    androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
-    androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestImplementation 'androidx.test:rules:1.3.0'
+  // Optional -- Hamcrest library
+  androidTestImplementation 'org.hamcrest:hamcrest-library:1.3'
+  // Optional -- UI testing with Espresso
+  androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+  // Optional -- UI testing with UI Automator
+  androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
+  androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+  androidTestR2_9_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
+  androidTestR2_9_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
+  androidTestR2_10_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
+  androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
+  androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
+  androidTestR2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+  androidTestR2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
+  androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+  androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
   api 'org.checkerframework:checker-qual:2.5.2'
 
-    r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
-    r2_9_6Api 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
-    r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
+  r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
+  r2_9_6Api 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
+  r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
 
-    r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-    r2_10_6Api 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
-    r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
+  r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
 
-    r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-    r2_11_1Api 'com.google.android.exoplayer:exoplayer-ui:2.11.1'
-    r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer-ui:2.11.1'
+  r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
 
-    r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-    r2_12_1Api 'com.google.android.exoplayer:exoplayer-ui:2.12.1'
-    r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer-ui:2.12.1'
+  r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
 
 
-    r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-    r2_13_1Api 'com.google.android.exoplayer:exoplayer-ui:2.13.1'
-    r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer-ui:2.13.1'
+  r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
 
-    r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
-    r2_14_1Api 'com.google.android.exoplayer:exoplayer-ui:2.14.1'
-    r2_14_1Api 'com.google.android.exoplayer:extension-mediasession:2.14.1'
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer-ui:2.14.1'
+  r2_14_1Api 'com.google.android.exoplayer:extension-mediasession:2.14.1'
 
-    r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
-    r2_15_1Api 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
-    r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
+  r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
 
-    r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
-    r2_16_1Api 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
-    r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
 
-    r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
-    r2_17_1Api 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
-    r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
 
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
 
   // Automated tests should always test the local module and not the maven dependency.
-    implementation project(":MuxExoPlayer")
+  implementation project(":MuxExoPlayer")
 }
