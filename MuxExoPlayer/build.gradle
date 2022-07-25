@@ -121,6 +121,12 @@ android {
         r2_17_1_ads {
             dimension 'api'
         }
+      r2_18_1 {
+        dimension 'api'
+      }
+      r2_18_1_ads {
+        dimension 'api'
+      }
         amznPort {
             dimension 'api'
         }
@@ -225,7 +231,12 @@ dependencies {
     r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.17.1'
     r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.17.1'
 
-    compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer-core:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
+  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.18.1'
+  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
+
+  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
     compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
     compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 

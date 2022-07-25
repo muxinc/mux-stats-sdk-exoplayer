@@ -86,9 +86,12 @@ android {
         r2_17_1 {
             dimension 'api'
         }
+      r2_18_1 {
+        dimension 'api'
+      }
     }
 
-    compileOptions {
+  compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -123,8 +126,9 @@ dependencies {
     androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
     androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
-    api 'org.checkerframework:checker-qual:2.5.2'
+  api 'org.checkerframework:checker-qual:2.5.2'
 
     r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
     r2_9_6Api 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
@@ -163,6 +167,10 @@ dependencies {
     r2_17_1Api 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
     r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
 
-    // Automated tests should always test the local module and not the maven dependency.
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
+
+  // Automated tests should always test the local module and not the maven dependency.
     implementation project(":MuxExoPlayer")
 }
