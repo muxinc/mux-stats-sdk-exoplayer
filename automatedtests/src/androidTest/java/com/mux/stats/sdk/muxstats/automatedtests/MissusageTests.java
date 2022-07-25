@@ -5,6 +5,7 @@ import static org.junit.Assert.fail;
 import com.mux.stats.sdk.core.events.playback.PlayEvent;
 import com.mux.stats.sdk.core.events.playback.PlayingEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 import java.io.IOException;
@@ -34,36 +35,41 @@ public class MissusageTests extends TestBase {
     }
   }
 
-  // Not working, find out how to reproduce Thread safe crash
-//    @Test
-//    public void testPlayerReleasedWhileStatsRunning() {
-//        try {
-//            // Regular start
-//            testActivity.runOnUiThread(() -> {
-//                testActivity.setVideoTitle(currentTestName.getMethodName());
-//                testActivity.setUrlToPlay(urlToPlay);
-//                testActivity.initMuxSats();
-//                testActivity.startPlayback();
-//                pView = testActivity.getPlayerView();
-//                testMediaSource = testActivity.getTestMediaSource();
-//                networkRequest = testActivity.getMockNetwork();
-//            });
-//            if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
-//                fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
-//            }
-//            // Play x seconds
-//            Thread.sleep(PLAY_PERIOD_IN_MS);
-//            // rlease ExoPlayer
-//            testActivity.runOnUiThread(() -> {
-//                testActivity.releaseExoPlayer();
-//            });
-//            // Wait x seconds see if it will crash !!!
-//            Thread.sleep(PLAY_PERIOD_IN_MS * 2);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            fail(e.getMessage());
-//        }
-//    }
+  /**
+   * Proper sequence is destroy then release. Make sure that if release is call before destroy
+   * we do not crash in any way
+   */
+  @Test
+  public void testPlayerEventHandlingAfterRelease() {
+    try {
+      // Init test activity but not the Mux stats
+      testActivity.runOnUiThread(() -> {
+        testActivity.setVideoTitle(BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
+        testActivity.setUrlToPlay(urlToPlay);
+        testActivity.setPlayWhenReady(playWhenReady);
+        testActivity.initMuxSats();
+        testActivity.setPlaybackStartPosition(playbackStartPosition);
+        testActivity.startPlayback();
+        pView = testActivity.getPlayerView();
+        testMediaSource = testActivity.getTestMediaSource();
+        networkRequest = testActivity.getMockNetwork();
+      });
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+        fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+      }
+      // TODO release player, trigger some player events, watch for it to crash
+      testActivity.runOnUiThread(() -> {
+        MuxStatsExoPlayer muxStats = testActivity.getMuxStats();
+        long duration = pView.getPlayer().getDuration();
+        pView.getPlayer().seekTo(duration - PLAY_PERIOD_IN_MS);
+        muxStats.release();
+      });
+      // wait for seek event to trigger and crash null listener !!!
+      Thread.sleep(INIT_MUX_STATS_AFTER);
+    } catch (Exception e) {
+      fail(getExceptionFullTraceAndMessage(e));
+    }
+  }
 
   @Test
   public void testLateStatsInit() {

@@ -668,9 +668,11 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
     if (updatePlayheadPositionTimer != null) {
       updatePlayheadPositionTimer.cancel();
     }
-    muxStats.release();
-    muxStats = null;
-    player = null;
+    if (muxStats != null) {
+      muxStats.release();
+      muxStats = null;
+      player = null;
+    }
   }
 
   /**

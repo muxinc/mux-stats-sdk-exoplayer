@@ -307,6 +307,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
   @Override
   public void onPlayWhenReadyChanged(AnalyticsListener.EventTime eventTime, boolean playWhenReady,
       int reason) {
+    if (player == null  || player.get() == null) {
+      return;
+    }
     onPlayWhenReadyChanged(playWhenReady, reason);
     onPlaybackStateChanged(player.get().getPlaybackState());
   }
@@ -378,6 +381,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onPlaybackStateChanged(int playbackState) {
+    if (player == null  || player.get() == null) {
+      return;
+    }
     /*
      * Sometimes onPlaybackStateChanged callback will not be triggered, and it is
      * prone to bugs to keep same value in two places, so we should always access
@@ -483,6 +489,9 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTimelineChanged(Timeline timeline, int reason) {
+    if (player == null  || player.get() == null) {
+      return;
+    }
     handleHlsManifest(player.get());
 
     if (timeline != null && timeline.getWindowCount() > 0) {
