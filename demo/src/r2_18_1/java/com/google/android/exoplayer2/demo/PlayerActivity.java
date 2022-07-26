@@ -38,11 +38,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.exoplayer2.C;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.PlaybackException;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
@@ -54,6 +56,8 @@ import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionParameters;
+import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.StyledPlayerControlView;
 import com.google.android.exoplayer2.ui.StyledPlayerView;
 import com.google.android.exoplayer2.upstream.DataSource;
@@ -73,6 +77,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /** An activity that plays media using {@link SimpleExoPlayer}. */
 public class PlayerActivity extends AppCompatActivity
@@ -90,16 +95,16 @@ public class PlayerActivity extends AppCompatActivity
   protected StyledPlayerView playerView;
   protected LinearLayout debugRootView;
   protected TextView debugTextView;
-  protected @Nullable SimpleExoPlayer player;
+  protected @Nullable ExoPlayer player;
 
   private boolean isShowingTrackSelectionDialog;
   private Button selectTracksButton;
   private DataSource.Factory dataSourceFactory;
   private List<MediaItem> mediaItems;
-  private DefaultTrackSelector trackSelector;
-  private DefaultTrackSelector.Parameters trackSelectorParameters;
+  private Tracks lastSeenTracks;
+  private TrackSelector trackSelector;
+  private TrackSelectionParameters trackSelectorParameters;
   private DebugTextViewHelper debugViewHelper;
-  private TrackGroupArray lastSeenTrackGroupArray;
   private boolean startAutoPlay;
   private int startWindow;
   private long startPosition;
@@ -261,11 +266,11 @@ public class PlayerActivity extends AppCompatActivity
   public void onClick(View view) {
     if (view == selectTracksButton
         && !isShowingTrackSelectionDialog
-        && TrackSelectionDialog.willHaveContent(trackSelector)) {
+        && TrackSelectionDialog.willHaveContent(Objects.requireNonNull(player))) {
       isShowingTrackSelectionDialog = true;
       TrackSelectionDialog trackSelectionDialog =
-          TrackSelectionDialog.createForTrackSelector(
-              trackSelector,
+          TrackSelectionDialog.createForPlayer(
+              player,
               /* onDismissListener= */ dismissedDialog -> isShowingTrackSelectionDialog = false);
       trackSelectionDialog.show(getSupportFragmentManager(), /* tag= */ null);
     }
@@ -304,14 +309,14 @@ public class PlayerActivity extends AppCompatActivity
 
       trackSelector = new DefaultTrackSelector(/* context= */ this);
       trackSelector.setParameters(trackSelectorParameters);
-      lastSeenTrackGroupArray = null;
+      lastSeenTracks  = null;
       player =
-          new SimpleExoPlayer.Builder(/* context= */ this, renderersFactory)
+          new ExoPlayer.Builder(/* context= */ this, renderersFactory)
               .setMediaSourceFactory(mediaSourceFactory)
               .setTrackSelector(trackSelector)
               .build();
       player.addListener(new PlayerEventListener());
-      player.addAnalyticsListener(new EventLogger(trackSelector));
+      player.addAnalyticsListener(new EventLogger());
       player.setAudioAttributes(AudioAttributes.DEFAULT, /* handleAudioFocus= */ true);
       player.setPlayWhenReady(startAutoPlay);
       playerView.setPlayer(player);
@@ -436,8 +441,7 @@ public class PlayerActivity extends AppCompatActivity
   // User controls
 
   private void updateButtonVisibility() {
-    selectTracksButton.setEnabled(
-        player != null && TrackSelectionDialog.willHaveContent(trackSelector));
+    selectTracksButton.setEnabled(player != null && TrackSelectionDialog.willHaveContent(player));
   }
 
   private void showControls() {
@@ -475,23 +479,20 @@ public class PlayerActivity extends AppCompatActivity
 
     @Override
     @SuppressWarnings("ReferenceEquality")
-    public void onTracksChanged(
-        @NonNull TrackGroupArray trackGroups, @NonNull TrackSelectionArray trackSelections) {
+    public void onTracksChanged(Tracks tracks) {
       updateButtonVisibility();
-      if (trackGroups != lastSeenTrackGroupArray) {
-        MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
-        if (mappedTrackInfo != null) {
-          if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_VIDEO)
-              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-            showToast(R.string.error_unsupported_video);
-          }
-          if (mappedTrackInfo.getTypeSupport(C.TRACK_TYPE_AUDIO)
-              == MappedTrackInfo.RENDERER_SUPPORT_UNSUPPORTED_TRACKS) {
-            showToast(R.string.error_unsupported_audio);
-          }
-        }
-        lastSeenTrackGroupArray = trackGroups;
+      if (tracks == lastSeenTracks) {
+        return;
       }
+      if (tracks.containsType(C.TRACK_TYPE_VIDEO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_VIDEO, /* allowExceedsCapabilities= */ true)) {
+        showToast(R.string.error_unsupported_video);
+      }
+      if (tracks.containsType(C.TRACK_TYPE_AUDIO)
+          && !tracks.isTypeSupported(C.TRACK_TYPE_AUDIO, /* allowExceedsCapabilities= */ true)) {
+        showToast(R.string.error_unsupported_audio);
+      }
+      lastSeenTracks = tracks;
     }
   }
 
