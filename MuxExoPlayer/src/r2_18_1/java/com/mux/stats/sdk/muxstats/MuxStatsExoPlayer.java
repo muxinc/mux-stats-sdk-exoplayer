@@ -23,15 +23,15 @@ import com.google.android.exoplayer2.source.MediaLoadData;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.hls.HlsManifest;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.common.collect.ImmutableList;
 import com.mux.stats.sdk.core.CustomOptions;
-import com.google.android.exoplayer2.video.VideoSize;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
+
 import java.io.IOException;
 
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
@@ -545,11 +545,11 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   @Override
   public void onTracksChanged(Tracks tracks) {
-    // onTracksChanged now wraps old-style TrackGroups into another object (which we don't need)
+    // onTracksChanged v2.18 wraps old-style TrackGroups into another object (which we don't need)
     ImmutableList<Tracks.Group> groups18 = tracks.getGroups();
     TrackGroup[] trackGroups = new TrackGroup[groups18.size()];
     for (int i = 0; i < tracks.getGroups().size(); i++) {
-      trackGroups[1] = groups18.get(i).getMediaTrackGroup();
+      trackGroups[i] = groups18.get(i).getMediaTrackGroup();
     }
 
     bandwidthDispatcher.onTracksChanged(new TrackGroupArray(trackGroups));
