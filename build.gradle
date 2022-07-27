@@ -16,57 +16,57 @@
 
 
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
+  repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
+  }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
-    }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:7.0.4'
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+  }
 }
 
 allprojects {
-    apply plugin: "com.jfrog.artifactory"
-    apply plugin: 'maven-publish'
+  apply plugin: "com.jfrog.artifactory"
+  apply plugin: 'maven-publish'
 
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
+  repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
 
-        maven {
-            url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
-        }
-
-        // Both our release and dev repos are imported
-        maven {
-            url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
-        }
-
-        maven {
-            url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
-        }
+    maven {
+      url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
     }
 
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    // Both our release and dev repos are imported
+    maven {
+      url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
     }
 
-    project.ext {
-        minSdkVersion=16
-        compileSdkVersion=31
-        targetSdkVersion=31
-        releaseRepoName = 'exoplayer'
-        releaseUserOrg = 'google'
-        releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.1.1'
-        releaseWebsite = 'https://github.com/google/ExoPlayer'
-
-        muxCoreVersion = "7.3.0"
+    maven {
+      url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
     }
+  }
+
+  tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+  }
+
+  project.ext {
+    minSdkVersion = 16
+    compileSdkVersion = 31
+    targetSdkVersion = 31
+    releaseRepoName = 'exoplayer'
+    releaseUserOrg = 'google'
+    releaseGroupId = 'com.google.android.exoplayer'
+    releaseVersion = 'r2.1.1'
+    releaseWebsite = 'https://github.com/google/ExoPlayer'
+
+    muxCoreVersion = "7.3.0"
+  }
 }
 
 apply from: 'MuxAndroidSDKPublishing/publishing.gradle'
