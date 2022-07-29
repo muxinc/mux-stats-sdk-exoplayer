@@ -213,10 +213,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
     muxStats = new MuxStatsExoPlayer(
         this, (ExoPlayer) player, playerView, "demo-player", customerData, null, mockNetwork);
-    //Point size = new Point();
-    //getWindowManager().getDefaultDisplay().getSize(size);
-    //muxStats.setScreenSize(size.x, size.y);
-    //muxStats.setPlayerView(playerView);
+    Point size = new Point();
+    // These need to be set in order to calculate if the app is in the full screen mode.
+    getWindowManager().getDefaultDisplay().getSize(size);
+    muxStats.setScreenSize(size.x, size.y);
+    muxStats.setPlayerView(playerView);
     muxStats.enableMuxCoreDebug(true, false);
     for (String headerName : addAllowedHeaders) {
       MuxStatsHelper.allowHeaderToBeSentToBackend(muxStats, headerName);

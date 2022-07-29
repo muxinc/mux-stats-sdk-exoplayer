@@ -85,7 +85,9 @@ public class MuxStatsExoPlayerOld extends MuxBaseExoPlayer implements AnalyticsL
                               CustomerData data,
                               @Deprecated boolean unused,
                               INetworkRequest networkRequests) {
-    this.MuxStatsExoPlayerOld(ctx, player, playerName, data, new CustomOptions()
+//    this.MuxStatsExoPlayerOld(ctx, player, playerName, data, new CustomOptions()
+//        , networkRequests);
+    this(ctx, player, playerName, data, new CustomOptions()
         , networkRequests);
   }
 

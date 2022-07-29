@@ -93,6 +93,7 @@ internal fun MuxStateCollector.handleExoPlaybackState(
     }
     Player.STATE_READY -> {
       if (playWhenReady) {
+        Log.e("MuxStats", "Playing called from handleExoPlaybackState event !!!")
         playing()
       } else if (muxPlayerState != MuxPlayerState.PAUSED) {
         pause()
