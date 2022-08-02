@@ -3,7 +3,7 @@
 ### Improvements
 * Support for ExoPlayer `v2.18.1` (#219)
 * Fix crashes in rare cases where the player is released asynchronously (#218)
-* Update MuxCore to `v2.9.1`
+* Update MuxCore to `v7.9.1`
 
 ### MuxCore Changes
 * Split views with long periods of inactivity into multiple views
