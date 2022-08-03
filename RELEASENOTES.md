@@ -1,4 +1,13 @@
 # Release notes
+## 2.9.1
+### Improvements
+* Support for ExoPlayer `v2.18.1` (#219)
+* Fix crashes in rare cases where the player is released asynchronously (#218)
+* Update MuxCore to `v7.3.1`
+
+### MuxCore Changes
+* Split views with long periods of inactivity into multiple views
+
 ## 2.9.0
 ### Improvements
 * Allow ability to override OS data values. (#216)
