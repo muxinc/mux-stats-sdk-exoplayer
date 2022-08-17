@@ -1,4 +1,8 @@
 # Release notes
+## 2.10.0
+## Fixes
+* Fix setPlayerSize to treat input as physical pixels, as documented (#221)
+
 ## 2.9.1
 ### Improvements
 * Support for ExoPlayer `v2.18.1` (#219)
