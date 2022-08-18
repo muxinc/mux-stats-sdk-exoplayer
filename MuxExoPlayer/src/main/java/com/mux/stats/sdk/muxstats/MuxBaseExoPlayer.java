@@ -633,7 +633,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
    */
   @SuppressWarnings("unused")
   public void setPlayerSize(int width, int height) {
-    muxStats.setPlayerSize(width, height);
+    muxStats.setPlayerSize(pxToDp(width), pxToDp(height));
   }
 
   /**
