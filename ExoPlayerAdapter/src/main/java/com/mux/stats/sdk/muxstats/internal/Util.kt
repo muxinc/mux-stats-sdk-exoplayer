@@ -1,11 +1,15 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import android.content.Context
 import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil
+import com.google.android.exoplayer2.source.TrackGroup
+import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxErrorException
@@ -59,13 +63,61 @@ internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
       // If they seek while paused, this is how we know the seek is complete
       if (muxPlayerState == MuxPlayerState.PAUSED
         // Seeks on audio-only media are reported this way instead
-        || !mediaHasVideoTrack
+        || !mediaHasVideoTrack!!
       ) {
         seeked(false)
       }
     }
     else -> {} // ignored
   }
+}
+
+//fun MuxPlayerAdapter<View, ExoPlayer, ExoPlayer>.allowHeaderToBeSentToBackend(headerName: String?) {
+//  basicMetrics.
+//}
+
+/**
+ * Extracts the tag value from live HLS segment, returns -1 if it is not an HLS stream, not a live
+ * playback.
+ *
+ * @param tagName name of the tag to extract from the HLS manifest.
+ * @return tag value if tag is found and we are playing HLS live stream, -1 string otherwise.
+ */
+fun MuxStateCollector.parseHlsManifestTag(tagName: String?): String {
+  synchronized(currentTimelineWindow) {
+    if (currentTimelineWindow != null && currentTimelineWindow.manifest != null && tagName != null && tagName.length > 0
+    ) {
+      if (currentTimelineWindow.manifest is HlsManifest) {
+        val manifest = currentTimelineWindow.manifest as HlsManifest
+        if (manifest.mediaPlaylist.tags != null) {
+          for (tag in manifest.mediaPlaylist.tags) {
+            if (tag.contains(tagName)) {
+              var value = tag.split(tagName).toTypedArray()[1]
+              if (value.contains(",")) {
+                value = value.split(",").toTypedArray()[0]
+              }
+              if (value.startsWith("=") || value.startsWith(":")) {
+                value = value.substring(1, value.length)
+              }
+              return value
+            }
+          }
+        }
+      }
+    }
+  }
+  return "-1"
+}
+
+fun MuxStateCollector.parseHlsManifestTagLong(tagName: String): Long {
+  var value: String = parseHlsManifestTag(tagName)
+  value = value.replace(".", "")
+  try {
+    return value.toLong()
+  } catch (e: NumberFormatException) {
+    Log.d("Manifest Parsing", "Bad number format for value: $value")
+  }
+  return -1L
 }
 
 /**
@@ -110,16 +162,6 @@ internal fun MuxStateCollector.handleExoPlaybackState(
     }
   } // when (playbackState)
 } // fun handleExoPlaybackState
-
-/**
- * Returns and starts an object that will poll ExoPlayer for its content position every so often
- * and updated the given MuxStateCollector
- */
-@Suppress("unused") // this method is used with some versions of ExoPlayer
-@JvmSynthetic // Hidden from Java callers, since the only ones are external
-internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
-        MuxStateCollector.PositionWatcher =
-  ExoPositionWatcher(this, stateCollector).apply { start() }
 
 @JvmSynthetic
 internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackException) {
@@ -168,6 +210,37 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
     internalError(e)
   }
 }
+
+/////////////////////////////////////////////////////////////
+/// ExoPlayer Helper Functions //////////////////////////////
+
+fun ExoPlayer.MuxMediaHasVideoTrack(): Boolean {
+  val trackGroups:TrackGroupArray = getCurrentTrackGroups();
+  var playItemHaveVideoTrack = false;
+  if (trackGroups.length > 0) {
+    for (groupIndex in 0 until trackGroups.length-1) {
+      val trackGroup:TrackGroup = trackGroups.get(groupIndex);
+      if (0 < trackGroup.length) {
+        val trackFormat:Format = trackGroup.getFormat(0);
+        if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType!!.contains("video")) {
+          playItemHaveVideoTrack = true;
+          break;
+        }
+      }
+    }
+  }
+  return playItemHaveVideoTrack;
+}
+
+/**
+ * Returns and starts an object that will poll ExoPlayer for its content position every so often
+ * and updated the given MuxStateCollector
+ */
+@Suppress("unused") // this method is used with some versions of ExoPlayer
+@JvmSynthetic // Hidden from Java callers, since the only ones are external
+internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
+        MuxStateCollector.PositionWatcher =
+  ExoPositionWatcher(this, stateCollector).apply { start() }
 
 // -- private helper classes
 

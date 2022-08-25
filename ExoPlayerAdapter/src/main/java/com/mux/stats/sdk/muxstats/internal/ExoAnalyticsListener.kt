@@ -6,8 +6,13 @@ import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.PlaybackParameters
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.analytics.AnalyticsListener
+import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
+import com.google.android.exoplayer2.source.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaLoadData
+import com.google.android.exoplayer2.source.TrackGroupArray
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.mux.stats.sdk.muxstats.MuxStateCollector
+import java.io.IOException
 
 /**
  * There's only one required AnalyticsListener implementation (as of Exo 2.17) so it's here in the
@@ -17,6 +22,8 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   AnalyticsListener {
 
   private val player: ExoPlayer? by weak(player)
+
+  private val bandwidthMetricCollector: BandwidthMetricDispatcher = BandwidthMetricDispatcher(player, collector)
 
   override fun onDownstreamFormatChanged(
     eventTime: AnalyticsListener.EventTime,
@@ -100,6 +107,74 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
         sourceHeight = fmt.height,
         sourceWidth = fmt.width
       )
+    }
+  }
+
+  @Deprecated("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.13)
+  override fun onTracksChanged(eventTime: EventTime, trackGroups: TrackGroupArray,
+                               trackSelections: TrackSelectionArray) {
+    collector.mediaHasVideoTrack = player?.MuxMediaHasVideoTrack();
+    collector.positionWatcher?.start();
+    bandwidthMetricCollector.onTracksChanged(trackGroups)
+  }
+
+  override fun onLoadCanceled(
+    eventTime: EventTime,
+    loadEventInfo: LoadEventInfo,
+    mediaLoadData: MediaLoadData
+  ) {
+    if (loadEventInfo.uri != null) {
+      bandwidthMetricCollector
+        .onLoadCanceled(
+          loadEventInfo.loadTaskId,
+          loadEventInfo.uri.path,
+          loadEventInfo.responseHeaders
+        )
+    }
+  }
+
+  override fun onLoadCompleted(
+    eventTime: EventTime,
+    loadEventInfo: LoadEventInfo,
+    mediaLoadData: MediaLoadData
+  ) {
+    if (loadEventInfo.uri != null) {
+      bandwidthMetricCollector.onLoadCompleted(
+        loadEventInfo.loadTaskId,
+        loadEventInfo.uri.path,
+        loadEventInfo.bytesLoaded,
+        mediaLoadData.trackFormat,
+        loadEventInfo.responseHeaders
+      )
+    }
+  }
+
+  override fun onLoadError(
+    eventTime: EventTime,
+    loadEventInfo: LoadEventInfo,
+    mediaLoadData: MediaLoadData,
+    e: IOException,
+    wasCanceled: Boolean
+  ) {
+    bandwidthMetricCollector.onLoadError(loadEventInfo.loadTaskId, loadEventInfo.uri.path, e)
+  }
+
+  override fun onLoadStarted(
+    eventTime: EventTime,
+    loadEventInfo: LoadEventInfo,
+    mediaLoadData: MediaLoadData
+  ) {
+    if (loadEventInfo.uri != null) {
+      var segmentMimeType: String? = "unknown"
+      if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat!!.sampleMimeType != null) {
+        segmentMimeType = mediaLoadData.trackFormat!!.sampleMimeType
+      }
+      bandwidthMetricCollector
+        .onLoadStarted(
+          loadEventInfo.loadTaskId, mediaLoadData.mediaStartTimeMs,
+          mediaLoadData.mediaEndTimeMs, loadEventInfo.uri.path, mediaLoadData.dataType,
+          loadEventInfo.uri.host, segmentMimeType
+        )
     }
   }
 }

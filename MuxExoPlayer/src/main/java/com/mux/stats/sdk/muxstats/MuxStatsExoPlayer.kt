@@ -23,7 +23,7 @@ import com.mux.stats.sdk.muxstats.internal.weak
 
 @Suppress("unused")
 class MuxStatsExoPlayer(
-  context: Context,
+  val context: Context,
   player: ExoPlayer,
   playerView: View? = null,
   playerName: String,
@@ -188,6 +188,17 @@ class MuxStatsExoPlayer(
     muxStats.release()
   }
 
+  /**
+   * Convert physical pixels to device density independent pixels.
+   *
+   * @param px physical pixels to be converted.
+   * @return number of density pixels calculated.
+   */
+  fun pxToDp(px: Int): Int {
+    val displayMetrics = context.resources.displayMetrics
+    return Math.ceil((px / displayMetrics.density).toDouble()).toInt()
+  }
+
   private inner class ExoPlayerDelegate : IPlayerListener {
     private val viewDelegate: MuxUiDelegate<*> get() = playerAdapter.uiDelegate
 
@@ -209,20 +220,38 @@ class MuxStatsExoPlayer(
 
     override fun isBuffering(): Boolean = collector.muxPlayerState == MuxPlayerState.BUFFERING
 
-    override fun getPlayerViewWidth() = viewDelegate.getPlayerViewSize().x
+    override fun getPlayerViewWidth() = pxToDp(viewDelegate.getPlayerViewSize().x)
 
-    override fun getPlayerViewHeight() = viewDelegate.getPlayerViewSize().y
+    override fun getPlayerViewHeight() = pxToDp(viewDelegate.getPlayerViewSize().y)
 
-    override fun getPlayerProgramTime(): Long? = null
+    override fun getPlayerProgramTime(): Long? {
+      return collector.currentTimelineWindow.windowStartTimeMs + currentPosition
+    }
 
-    override fun getPlayerManifestNewestTime(): Long? = null
+    override fun getPlayerManifestNewestTime(): Long? {
+      return if (collector.currentTimelineWindow.isLive()) {
+        collector.currentTimelineWindow.windowStartTimeMs
+      } else -1L
+    }
 
-    override fun getVideoHoldback(): Long? = null
+    override fun getVideoHoldback(): Long? {
+      return if (collector.currentTimelineWindow.isLive())
+        collector.parseHlsManifestTagLong("HOLD-BACK") else -1
+    }
 
-    override fun getVideoPartHoldback(): Long? = null
+    override fun getVideoPartHoldback(): Long? {
+      return if (collector.currentTimelineWindow.isLive())
+        collector.parseHlsManifestTagLong("PART-HOLD-BACK") else -1
+    }
 
-    override fun getVideoPartTargetDuration(): Long? = null
+    override fun getVideoPartTargetDuration(): Long? {
+      return if (collector.currentTimelineWindow.isLive())
+        collector.parseHlsManifestTagLong("PART-TARGET") else -1
+    }
 
-    override fun getVideoTargetDuration(): Long? = null
+    override fun getVideoTargetDuration(): Long? {
+      return if (collector.currentTimelineWindow.isLive())
+        collector.parseHlsManifestTagLong("EXT-X-TARGETDURATION") else -1
+    }
   }
 }

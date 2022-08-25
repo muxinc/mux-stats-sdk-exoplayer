@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats
 
+import android.util.Log
 import com.google.ads.interactivemedia.v3.api.Ad
 import com.google.ads.interactivemedia.v3.api.AdErrorEvent
 import com.google.ads.interactivemedia.v3.api.AdEvent
@@ -139,10 +140,12 @@ class AdsImaSDKListener private constructor(
           player.playWhenReady = true
         }
         AdEvent.AdEventType.PAUSED -> {
-          if (!player.playWhenReady || player.currentPosition != 0L) {
-            dispatchAdPlaybackEvent(AdPauseEvent(null), ad)
+          if (!player.playWhenReady
+            && player.currentPosition == 0L) {
+            // This is preroll ads when play when ready is set to false, we need to ignore these events
+            return;
           }
-          // This is preroll ads when play when ready is set to false, we need to ignore these events
+          dispatchAdPlaybackEvent(AdPauseEvent(null), ad)
         }
         AdEvent.AdEventType.RESUMED ->
           if (missingAdBreakStartEvent) {
@@ -167,7 +170,7 @@ class AdsImaSDKListener private constructor(
    * @param event, to be dispatched.
    * @param ad, ad being processed.
    */
-  private fun dispatchAdPlaybackEvent(event: PlaybackEvent, ad: Ad) {
+  private fun dispatchAdPlaybackEvent(event: PlaybackEvent, ad: Ad?) {
     setupAdViewData(event, ad)
     eventBus.dispatch(event)
   }

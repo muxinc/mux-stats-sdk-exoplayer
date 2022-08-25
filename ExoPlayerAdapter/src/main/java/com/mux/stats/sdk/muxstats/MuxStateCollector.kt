@@ -1,16 +1,17 @@
 package com.mux.stats.sdk.muxstats
 
 import android.util.Log
+import com.google.android.exoplayer2.Timeline
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.events.IEventDispatcher
 import com.mux.stats.sdk.core.events.InternalErrorEvent
 import com.mux.stats.sdk.core.events.playback.*
+import com.mux.stats.sdk.core.model.BandwidthMetricData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
-import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.properties.Delegates
@@ -57,6 +58,9 @@ class MuxStateCollector(
   val muxPlayerState by ::_playerState
   private var _playerState = MuxPlayerState.INIT
 
+  /** Event counter. This is useful to know when the view have started.  */
+  var detectMimeType = false
+
   /**
    * Detected MIME type of the playing media, if applicable
    */
@@ -67,7 +71,10 @@ class MuxStateCollector(
    * This is used to decide how to handle position discontinuities for audio-only streams
    * The default value is true, which might be fine to keep, depending on your player
    */
-  var mediaHasVideoTrack: Boolean = true
+  var mediaHasVideoTrack: Boolean? = true
+
+  /** Store all time detailes of current segment  */
+  var currentTimelineWindow: Timeline.Window = Timeline.Window()
 
   /**
    * Whether or not the MIME type of the playing media can be reported.
@@ -131,6 +138,9 @@ class MuxStateCollector(
 
   private var dead = false
 
+  /** List of available qualities in DASH or HLS stream, currently not used.  */
+  var renditionList: List<BandwidthMetricData.Rendition>? = null
+
   /**
    * Call when the player starts buffering. Buffering events after the player began playing are
    * reported as rebuffering events
@@ -158,32 +168,13 @@ class MuxStateCollector(
    * the caller intends for the video to play
    */
   fun play() {
-    Thread.dumpStack()
-    Log.i(logTag(), "play() called in $_playerState")
-    // Skip during during seeking or buffering,
-    //   unless it's the first play event, which should always be captured
-    // If this is the first play event it may be very important not to be skipped
-    // In all other cases skip this play event
-
-    // Old (negative logic) version
-//    if ((_playerState == MuxPlayerState.REBUFFERING || seekingInProgress
-//              || _playerState == MuxPlayerState.SEEKED) &&
-//      playEventsSent > 0
-//    ) {
-//      // Ignore play event after rebuffering and Seeking
-//      return
-//    }
-//    _playerState = MuxPlayerState.PLAY
-//    dispatch(PlayEvent(null))
-
-    //TODO: See if this can work
     if (playEventsSent <= 0
       || (!seekingInProgress
               && _playerState.noneOf(MuxPlayerState.REBUFFERING, MuxPlayerState.SEEKED))
     ) {
       _playerState = MuxPlayerState.PLAY
       dispatch(PlayEvent(null))
-    } // if (...)
+    }
   }
 
   /**
@@ -194,12 +185,6 @@ class MuxStateCollector(
    * If rebuffering was in progress,
    */
   fun playing() {
-    Thread.dumpStack()
-//    Log.i(logTag(), "playing() called in state $_playerState")
-    Log.i("MuxStats", "playing() called in state $_playerState")
-    // Don't processing playing() while we are seeking. We won't be playing until after seeked()
-    //  then play()/playing()
-
     // Negative Logic Version
     if (seekingInProgress) {
       // We will dispatch playing event after seeked event
@@ -216,23 +201,6 @@ class MuxStateCollector(
 
     _playerState = MuxPlayerState.PLAYING
     dispatch(PlayingEvent(null))
-
-    //TODO: Postivie Logic version
-//    if (!seekingInProgress) {
-//      if (_playerState.oneOf(MuxPlayerState.PAUSED, MuxPlayerState.FINISHED_PLAYING_ADS)) {
-//        Log.w("EventQueue", "Delegate to Play")
-//        play()
-//      } else if (_playerState == MuxPlayerState.REBUFFERING) {
-//        Log.w("EventQueue", "Delegate to RebufferEnd")
-//        rebufferingEnded()
-//      }
-//
-//      _playerState = MuxPlayerState.PLAYING
-//      Log.w("EventQueue", "Dispatch Playing")
-//      dispatch(PlayingEvent(null))
-//    } else {
-//      Log.d(logTag(), "ignored a playing() event")
-//    }
   }
 
   /**
@@ -243,30 +211,20 @@ class MuxStateCollector(
    * Otherwise, we move to the PAUSED state and send a PauseEvent
    */
   fun pause() {
-    Thread.dumpStack()
-    Log.i(logTag(), "pause() in state $_playerState")
     // Process unless we're already paused
-    if (_playerState != MuxPlayerState.PAUSED) {
-      // Ignore pause() if we just seeked, we're in the SEEKED state until something else happens
-      //   (unless there were no prior pause events)
-      if (_playerState != MuxPlayerState.SEEKED || pauseEventsSent <= 0) {
-        // If we were rebuffering and move to PAUSED, the rebuffering is over
-        if (_playerState == MuxPlayerState.REBUFFERING) {
-          Log.w(logTag(), "pause() while rebuffering: rebuffering ended")
-          rebufferingEnded()
-        }
-        // If we were seeking and moved to paused, the then we are in SEEKED until playback starts
-        if (seekingInProgress) {
-          Log.w(logTag(), "pause() while seeking: seeked")
-          seeked(false)
-          return
-        }
-
-        Log.w(logTag(), "pause(): Sending pause Event")
-        _playerState = MuxPlayerState.PAUSED
-        dispatch(PauseEvent(null))
-      }
+    if (_playerState == MuxPlayerState.SEEKED && pauseEventsSent > 0) {
+      // No pause event after seeked
+      return
     }
+    if (_playerState == MuxPlayerState.REBUFFERING) {
+      rebufferingEnded()
+    }
+    if (seekingInProgress) {
+      seeked(false)
+      return
+    }
+    _playerState = MuxPlayerState.PAUSED
+    dispatch(PauseEvent(null))
   }
 
   /**
@@ -277,23 +235,11 @@ class MuxStateCollector(
    */
   fun seeked(inferPlayingState: Boolean) {
     // Only handle if we were previously seeking
-//    if (seekingInProgress) {
-//      seekingInProgress = false
-//
-//      // Infer the Playing state if we have enough info, and were asked to
-//      if (inferPlayingState && firstFrameRendered()) {
-//        dispatch(SeekedEvent(null))
-//        playing()
-//      } else {
-//        // If we haven't rendered any frames yet, go to seeked state
-//        _playerState = MuxPlayerState.SEEKED
-//        dispatch(SeekedEvent(null))
-//      }
-//    }
     if (seekingInProgress) {
       if (inferPlayingState) {
-        if ((System.currentTimeMillis() - firstFrameRenderedAtMillis
-                  > timeToWaitAfterFirstFrameReceived) && firstFrameReceived
+        if (
+          (((System.currentTimeMillis() - firstFrameRenderedAtMillis
+                  > timeToWaitAfterFirstFrameReceived) && firstFrameReceived) || !mediaHasVideoTrack!!)
           && seekingEventsSent > 0
         ) {
           // This is a playback !!!
@@ -303,6 +249,7 @@ class MuxStateCollector(
           playing()
         } else {
           // No playback yet.
+          Log.v("MuxStats", "WHY !!!!");
         }
       } else {
         // the player was seeking while paused
@@ -310,9 +257,13 @@ class MuxStateCollector(
         seekingInProgress = false
         _playerState= MuxPlayerState.SEEKED
       }
+
+
       if (seekingEventsSent == 0) {
         seekingInProgress = false
       }
+    } else {
+      Log.v("MuxStats", "WHY !!!!");
     }
   }
 
@@ -326,6 +277,11 @@ class MuxStateCollector(
     //  This (I think?) causes state handling for another event to call seeked()
     //  We should eliminate the improper seeking() call, or find good criteria to ignore it,
     //  or reset seeking state (possibly other state data too) when ViewStart is dispatched (use an IEventListener I guess)
+    if (playEventsSent == 0) {
+      // Ignore this, we have received a seek event before we have received playerready event,
+      // so this event should be ignored.
+      return;
+    }
     if (muxPlayerState == MuxPlayerState.PLAYING) {
       dispatch(PauseEvent(null))
     }
@@ -471,9 +427,11 @@ class MuxStateCollector(
     seekedEventsSent = 0
     firstFrameReceived = false
     firstFrameRenderedAtMillis = FIRST_FRAME_NOT_RENDERED
+    currentTimelineWindow = Timeline.Window()
   }
 
-  private fun dispatch(event: IEvent) {
+  // TODO see how to avoid making this public
+  public fun dispatch(event: IEvent) {
     // TODO: State collector holds onto nothing, no need to make it dead()
 //    if (dead) {
 //      MuxLogger.w(logTag(), "event sent after release: ${event.debugString}")
@@ -488,19 +446,7 @@ class MuxStateCollector(
         pauseEventsSent++
       }
       SeekingEvent.TYPE -> {
-        if (playEventsSent == 0) {
-          // Ignore this, we have received a seek event before we have received playerready event,
-          // so this event should be ignored.
-          return;
-        }
         seekingEventsSent++
-      }
-      SeekedEvent.TYPE -> {
-        if (seekingEventsSent == 0) {
-          // Skip this, for some reason we recewioved SeekingEvent before playerready event, this
-          // should be ignored
-          return;
-        }
       }
     }
     dispatcher.dispatch(event)
