@@ -20,11 +20,13 @@ buildscript {
     google()
     mavenCentral()
     mavenLocal()
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-local' }
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.0.4'
-    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+    classpath 'com.android.tools.build:gradle:7.2.2'
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0"
+    classpath 'com.mux.gradle.android:mux-android-distribution:0.0.10'
   }
 }
 
@@ -59,9 +61,10 @@ allprojects {
     minSdkVersion = 16
     compileSdkVersion = 31
     targetSdkVersion = 31
-
+    
     muxCoreVersion = "7.3.1"
   }
+
 }
 
-apply from: 'MuxAndroidSDKPublishing/publishing.gradle'
+//apply from: 'MuxAndroidSDKPublishing/publishing.gradle'

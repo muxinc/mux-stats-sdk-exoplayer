@@ -2,6 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: "com.jfrog.artifactory"
+apply plugin: 'com.mux.gradle.android.mux-android-distribution'
 
 checkstyle {
   configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
@@ -30,7 +32,6 @@ android {
     minSdkVersion project.ext.minSdkVersion
     targetSdkVersion project.ext.targetSdkVersion
     versionCode 41
-    versionName project.ext.versionName
     multiDexEnabled true
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -151,33 +152,18 @@ android {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
-
-  build {
-    doLast {
-      productFlavors.each {
-        flavor ->
-          def versionName = flavor.name.replaceAll(/_/, ".")
-          if (!versionName.endsWith(".ads")) {
-            copy {
-              from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
-              into "${buildDir}/outputs/artifacts/"
-              rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
-              rename("mapping.txt", "mapping-${versionName}.txt")
-              File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
-              println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}"
-              if (aarFile.length() > 120000) {
-                // Fail
-                throw new GradleException(
-                        "${project.name}-${flavor.name}-release.aar exceed 120KB!")
-              }
-            }
-          }
-      }
-    }
-  }
 }
 
-apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
+muxDistribution {
+  // All projects are versioned the same way, based on the version name calculated by the plugin
+  devVersion versionFromCommitHash("dev-")
+  releaseVersion versionFromHeadCommit()
+  artifactIds artifactFromFlavorValue('api')
+  groupIds just("com.mux.stats.sdk.muxstats")
+
+  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
+  useArtifactory = true
+}
 
 dependencies {
   api 'org.checkerframework:checker-qual:2.5.0'
