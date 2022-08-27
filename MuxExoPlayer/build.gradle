@@ -155,7 +155,6 @@ android {
 }
 
 muxDistribution {
-  // All projects are versioned the same way, based on the version name calculated by the plugin
   devVersion versionFromCommitHash("dev-")
   releaseVersion versionFromHeadCommit()
   artifactIds artifactFromFlavorValue('api')
