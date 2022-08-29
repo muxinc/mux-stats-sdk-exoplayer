@@ -134,6 +134,16 @@ android {
       res.srcDirs = ['./src/r2_17_1_ads/res']
       assets.srcDirs = ['./src/r2_17_1_ads/assets']
     }
+    r2_18_1 {
+      java.srcDirs = ['./src/r2_18_1/java']
+      res.srcDirs = ['./src/r2_18_1/res']
+      assets.srcDirs = ['./src/r2_18_1/assets']
+    }
+    r2_18_1_ads {
+      java.srcDirs = ['./src/r2_18_1_ads/java']
+      res.srcDirs = ['./src/r2_18_1_ads/res']
+      assets.srcDirs = ['./src/r2_18_1_ads/assets']
+    }
     amznPort {
       java.srcDirs = ['./src/amznPort/java']
       res.srcDirs = ['./src/amznPort/res']
