@@ -154,66 +154,77 @@ android {
     }
     r2_9_6_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_9_6'
     }
     r2_10_6 {
       dimension 'api'
     }
     r2_10_6_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_10_6'
     }
     r2_11_1 {
       dimension 'api'
     }
     r2_11_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_11_1'
     }
     r2_12_1 {
       dimension 'api'
     }
     r2_12_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_12_1'
     }
     r2_13_1 {
       dimension 'api'
     }
     r2_13_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_13_1'
     }
     r2_14_1 {
       dimension 'api'
     }
     r2_14_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_14_1'
     }
     r2_15_1 {
       dimension 'api'
     }
     r2_15_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_15_1'
     }
     r2_16_1 {
       dimension 'api'
     }
     r2_16_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_16_1'
     }
     r2_17_1 {
       dimension 'api'
     }
     r2_17_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_17_1'
     }
     r2_18_1 {
       dimension 'api'
     }
     r2_18_1_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'r2_18_q'
     }
     amznPort {
       dimension 'api'
     }
     amznPort_ads {
       dimension 'api'
+      missingDimensionStrategy 'api', 'amznPort'
     }
   }
 
