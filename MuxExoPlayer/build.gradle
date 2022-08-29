@@ -136,21 +136,23 @@ android {
     }
   }
 
-  // Attach the java src directory relevant for each flavor created
-  afterEvaluate {
-    android.libraryVariants.each { variant ->
+  compileOptions {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
+}
+
+// Attach the java src directory relevant for each flavor created
+androidComponents {
+  finalizeDsl() { ext ->
+    ext.productFlavors.each { variant ->
       def matcher = variant.name =~ /(r\d+_\d+_\d+).*/
       if (matcher.find()) {
         def strippedExoPlayerVersion = matcher.group(1)
         def sourceSet = sourceSets.findByName(variant.name)
-        sourceSet.java.srcDirs += ['./src/' + strippedExoPlayerVersion + '/java']
+        sourceSet.java.srcDirs += "./src/$strippedExoPlayerVersion/java"
       }
     }
-  }
-
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
   }
 }
 
