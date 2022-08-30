@@ -66,5 +66,3 @@ allprojects {
   }
 
 }
-
-//apply from: 'MuxAndroidSDKPublishing/publishing.gradle'
