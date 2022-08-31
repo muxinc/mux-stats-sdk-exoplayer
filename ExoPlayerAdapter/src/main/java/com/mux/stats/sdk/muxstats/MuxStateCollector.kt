@@ -10,6 +10,7 @@ import com.mux.stats.sdk.core.model.BandwidthMetricData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
+import com.mux.stats.sdk.muxstats.internal.BandwidthMetricDispatcher
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
 import kotlinx.coroutines.*
@@ -59,7 +60,7 @@ class MuxStateCollector(
   private var _playerState = MuxPlayerState.INIT
 
   /** Event counter. This is useful to know when the view have started.  */
-  var detectMimeType = false
+  var detectMimeType = true
 
   /**
    * Detected MIME type of the playing media, if applicable
@@ -75,13 +76,6 @@ class MuxStateCollector(
 
   /** Store all time detailes of current segment  */
   var currentTimelineWindow: Timeline.Window = Timeline.Window()
-
-  /**
-   * Whether or not the MIME type of the playing media can be reported.
-   * If playing DASH or HLS, this should be set to false, as the MIME type may vary according to
-   * the segments.
-   */
-  var reportMimeType = true
 
   /**
    * Total duration of the media being played, in milliseconds
@@ -140,6 +134,25 @@ class MuxStateCollector(
 
   /** List of available qualities in DASH or HLS stream, currently not used.  */
   var renditionList: List<BandwidthMetricData.Rendition>? = null
+
+  /**
+   *  List of string patterns that will be used to determine if certain HTTP header will be
+   *  reported to the backend.
+   *  */
+  var allowedHeaders = ArrayList<String>()
+
+  /**
+   * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
+   * headers that are not in the [BandwidthMetricDispatcher.allowedHeaders] list.
+   * This is used in automated tests and is not intended to be used from the application layer.
+   *
+   * @param headerName name of the header to send to the backend.
+   */
+  fun allowHeaderToBeSentToBackend(headerName: String?) {
+    if (headerName != null) {
+      allowedHeaders.add(headerName)
+    }
+  }
 
   /**
    * Call when the player starts buffering. Buffering events after the player began playing are
@@ -419,7 +432,6 @@ class MuxStateCollector(
 
   private fun reset() {
     mimeType = null
-    reportMimeType = true
     playEventsSent = 0
     pauseEventsSent = 0
     totalEventsSent = 0
@@ -428,6 +440,7 @@ class MuxStateCollector(
     firstFrameReceived = false
     firstFrameRenderedAtMillis = FIRST_FRAME_NOT_RENDERED
     currentTimelineWindow = Timeline.Window()
+    allowedHeaders.clear()
   }
 
   // TODO see how to avoid making this public

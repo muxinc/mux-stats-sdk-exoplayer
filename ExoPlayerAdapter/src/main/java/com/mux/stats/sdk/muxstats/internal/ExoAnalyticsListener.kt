@@ -11,6 +11,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.google.android.exoplayer2.video.VideoSize
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 
@@ -29,7 +30,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     eventTime: AnalyticsListener.EventTime,
     mediaLoadData: MediaLoadData
   ) {
-    if (collector.reportMimeType) {
+    if (collector.detectMimeType) {
       mediaLoadData.trackFormat?.containerMimeType?.let { collector.mimeType = it }
     }
   }
@@ -118,6 +119,11 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     bandwidthMetricCollector.onTracksChanged(trackGroups)
   }
 
+  override fun onVideoSizeChanged(eventTime: EventTime, videoSize: VideoSize) {
+    collector.sourceWidth = videoSize.width
+    collector.sourceHeight = videoSize.height
+  }
+
   override fun onLoadCanceled(
     eventTime: EventTime,
     loadEventInfo: LoadEventInfo,
@@ -166,14 +172,20 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   ) {
     if (loadEventInfo.uri != null) {
       var segmentMimeType: String? = "unknown"
+      var segmentWidth = 0;
+      var segmentHeight = 0;
       if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat!!.sampleMimeType != null) {
         segmentMimeType = mediaLoadData.trackFormat!!.sampleMimeType
+      }
+      if (mediaLoadData.trackFormat != null) {
+        segmentWidth = mediaLoadData.trackFormat!!.width;
+        segmentHeight = mediaLoadData.trackFormat!!.height;
       }
       bandwidthMetricCollector
         .onLoadStarted(
           loadEventInfo.loadTaskId, mediaLoadData.mediaStartTimeMs,
           mediaLoadData.mediaEndTimeMs, loadEventInfo.uri.path, mediaLoadData.dataType,
-          loadEventInfo.uri.host, segmentMimeType
+          loadEventInfo.uri.host, segmentMimeType, segmentWidth, segmentHeight
         )
     }
   }

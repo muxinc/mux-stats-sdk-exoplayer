@@ -75,7 +75,8 @@ open class BandwidthMetric(val player: ExoPlayer, val collector:MuxStateCollecto
     }
 
     open fun onLoad(loadTaskId:Long, mediaStartTimeMs:Long, mediaEndTimeMs:Long,
-               segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?
+                    segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?,
+                    segmentWidth:Int, segmentHeight:Int
     ) : BandwidthMetricData {
         // Populate segment time details.
         if (player != null) {
@@ -92,21 +93,25 @@ open class BandwidthMetric(val player: ExoPlayer, val collector:MuxStateCollecto
         // TODO RequestStart timestamp is currently not available from ExoPlayer
         segmentData.requestResponseStart = System.currentTimeMillis()
         segmentData.requestMediaStartTime = mediaStartTimeMs
-        segmentData.requestVideoWidth =  collector.sourceWidth
-        segmentData.requestVideoHeight = collector.sourceHeight
+        if (segmentWidth != 0 && segmentHeight != 0) {
+            segmentData.requestVideoWidth = segmentWidth
+            segmentData.requestVideoHeight = segmentHeight
+        } else {
+            segmentData.requestVideoWidth = collector.sourceWidth
+            segmentData.requestVideoHeight = collector.sourceHeight
+        }
         segmentData.requestUrl = segmentUrl
         if (segmentMimeType != null) {
             when (dataType) {
                 C.DATA_TYPE_MANIFEST -> {
                     collector.detectMimeType = false
+                    segmentData.setRequestType("manifest")
                 }
                 C.DATA_TYPE_MEDIA_INITIALIZATION -> {
                     if (segmentMimeType.contains("video")) {
                         segmentData.setRequestType("video_init")
                     } else if (segmentMimeType.contains("audio")) {
                         segmentData.setRequestType("audio_init")
-                    } else {
-                        segmentData.setRequestType("manifest")
                     }
                 }
                 C.DATA_TYPE_MEDIA -> {
@@ -144,10 +149,11 @@ open class BandwidthMetric(val player: ExoPlayer, val collector:MuxStateCollecto
      * @return new segment.
      */
     open fun onLoadStarted(loadTaskId:Long, mediaStartTimeMs:Long, mediaEndTimeMs:Long,
-                      segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?)
+                           segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?,
+                           segmentWidth:Int, segmentHeight:Int)
             : BandwidthMetricData {
         var loadData:BandwidthMetricData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
-            , segmentUrl, dataType, host, segmentMimeType)
+            , segmentUrl, dataType, host, segmentMimeType, segmentWidth, segmentHeight)
         if (loadData != null) {
             loadData.setRequestResponseStart(System.currentTimeMillis())
         }
@@ -206,7 +212,7 @@ class BandwidthMetricHls(player: ExoPlayer,
     }
 
     override fun onLoadCompleted(loadTaskId: Long, segmentUrl: String?, bytesLoaded: Long,
-                                  trackFormat: Format?
+                                 trackFormat: Format?
     ) : BandwidthMetricData? {
         var loadData: BandwidthMetricData? =
             super.onLoadCompleted(loadTaskId, segmentUrl, bytesLoaded, trackFormat)
@@ -232,7 +238,6 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
     private val player: ExoPlayer? by weak(player)
     private val collector: MuxStateCollector? by weak(collector)
     protected var bandwidthMetricHls:BandwidthMetric = BandwidthMetricHls(player, collector)
-    protected var allowedHeaders:ArrayList<String> = ArrayList()
     protected var debugModeOn:Boolean = false
     protected var requestSegmentDuration:Long = 1000
     protected var lastRequestSentAt:Long = -1
@@ -241,10 +246,6 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
     protected var numberOfRequestCancelBeaconsSentPerSegment:Int = 0
     protected var numberOfRequestFailedBeaconsSentPerSegment:Int = 0
 
-    init {
-        allowedHeaders.add("x-cdn")
-        allowedHeaders.add("content-type")
-    }
 
     fun currentBandwidthMetric(): BandwidthMetric {
         /**
@@ -274,18 +275,18 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
     }
 
     fun onLoadStarted(loadTaskId:Long, mediaStartTimeMs:Long, mediaEndTimeMs:Long, segmentUrl:String?,
-     dataType:Int, host:String?, segmentMimeType:String?) {
+                      dataType:Int, host:String?, segmentMimeType:String?, segmentWidth:Int, segmentHeight:Int) {
         if (player == null  || collector == null
             || currentBandwidthMetric() == null) {
             return
         }
         currentBandwidthMetric().onLoadStarted(loadTaskId, mediaStartTimeMs, mediaEndTimeMs, segmentUrl
-            , dataType, host, segmentMimeType);
+            , dataType, host, segmentMimeType, segmentWidth, segmentHeight);
     }
 
     fun onLoadCompleted(
-     loadTaskId:Long, segmentUrl:String?, bytesLoaded:Long, trackFormat:Format?,
-     responseHeaders:Map<String, List<String>>) {
+        loadTaskId:Long, segmentUrl:String?, bytesLoaded:Long, trackFormat:Format?,
+        responseHeaders:Map<String, List<String>>) {
         if (player == null  || collector == null
             || currentBandwidthMetric() == null) {
             return
@@ -325,7 +326,7 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
                         for (i in 0 until trackGroup.length) {
                             trackFormat = trackGroup.getFormat(i)
                             var rendition:BandwidthMetricData.Rendition
-                                = BandwidthMetricData.Rendition();
+                                    = BandwidthMetricData.Rendition();
                             rendition.bitrate = trackFormat.bitrate.toLong()
                             rendition.width = trackFormat.width
                             rendition.height = trackFormat.height
@@ -354,11 +355,11 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
         for (headerName in responseHeaders.keys ) {
             var headerAllowed:Boolean = false
             synchronized (this) {
-                for (allowedHeader in allowedHeaders) {
-                if (allowedHeader.contentEquals(headerName, true)) {
-                    headerAllowed = true
+                for (allowedHeader in collector!!.allowedHeaders) {
+                    if (allowedHeader.contentEquals(headerName, true)) {
+                        headerAllowed = true
+                    }
                 }
-            }
             }
             if (!headerAllowed) {
                 // Pass this header, we do not need it
