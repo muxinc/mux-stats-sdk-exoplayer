@@ -157,7 +157,12 @@ androidComponents {
 }
 
 muxDistribution {
-  devVersion versionFromCommitHash("dev-")
+  def buildKite = System.getenv("BUILDKITE_BRANCH") != null
+  if (buildKite) {
+    devVersion versionFromCommitHash("dev-")
+  } else {
+    devVersion versionFromCommitHash('dev-', System.getenv("BUILDKITE_BRANCH"))
+  }
   releaseVersion versionFromHeadCommit()
   artifactIds artifactFromFlavorValue('api')
   groupIds just("com.mux.stats.sdk.muxstats")
