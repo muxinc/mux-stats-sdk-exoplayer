@@ -119,10 +119,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     bandwidthMetricCollector.onTracksChanged(trackGroups)
   }
 
-  override fun onVideoSizeChanged(eventTime: EventTime, videoSize: VideoSize) {
-    collector.sourceWidth = videoSize.width
-    collector.sourceHeight = videoSize.height
-  }
+
 
   override fun onLoadCanceled(
     eventTime: EventTime,

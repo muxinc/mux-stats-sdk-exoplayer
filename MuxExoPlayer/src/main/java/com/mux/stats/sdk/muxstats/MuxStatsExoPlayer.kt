@@ -6,7 +6,6 @@ import com.google.ads.interactivemedia.v3.api.AdsLoader
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.ui.PlayerView
-import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.mux.stats.sdk.core.Core
 import com.mux.stats.sdk.core.CustomOptions
 import com.mux.stats.sdk.core.MuxSDKViewOrientation
@@ -71,7 +70,8 @@ class MuxStatsExoPlayer(
    * The view being used by the player that is being monitored, safely cast as a StyledPlayerView if
    * possible. Null if there is no view or the view is not the right type
    */
-  var styledPlayerView: StyledPlayerView? by downcast(::_playerView)
+  // TODO need to be splitted by Exo variants
+//  var styledPlayerView: StyledPlayerView? by downcast(::_playerView)
 
   init {
     // Init MuxStats (muxStats must be created last)
@@ -229,29 +229,29 @@ class MuxStatsExoPlayer(
     }
 
     override fun getPlayerManifestNewestTime(): Long? {
-      return if (collector.currentTimelineWindow.isLive()) {
+      return if (collector.isLivePlayback()) {
         collector.currentTimelineWindow.windowStartTimeMs
       } else -1L
     }
 
     override fun getVideoHoldback(): Long? {
-      return if (collector.currentTimelineWindow.isLive())
-        collector.parseHlsManifestTagLong("HOLD-BACK") else -1
+      return if (collector.isLivePlayback())
+        collector.parseManifestTagL("HOLD-BACK") else -1
     }
 
     override fun getVideoPartHoldback(): Long? {
-      return if (collector.currentTimelineWindow.isLive())
-        collector.parseHlsManifestTagLong("PART-HOLD-BACK") else -1
+      return if (collector.isLivePlayback())
+        collector.parseManifestTagL("PART-HOLD-BACK") else -1
     }
 
     override fun getVideoPartTargetDuration(): Long? {
-      return if (collector.currentTimelineWindow.isLive())
-        collector.parseHlsManifestTagLong("PART-TARGET") else -1
+      return if (collector.isLivePlayback())
+        collector.parseManifestTagL("PART-TARGET") else -1
     }
 
     override fun getVideoTargetDuration(): Long? {
-      return if (collector.currentTimelineWindow.isLive())
-        collector.parseHlsManifestTagLong("EXT-X-TARGETDURATION") else -1
+      return if (collector.isLivePlayback())
+        collector.parseManifestTagL("EXT-X-TARGETDURATION") else -1
     }
   }
 }

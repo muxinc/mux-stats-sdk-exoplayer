@@ -3,10 +3,7 @@ package com.mux.stats.sdk.muxstats
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.exoAnalyticsListener
-import com.mux.stats.sdk.muxstats.internal.logTag
-import com.mux.stats.sdk.muxstats.internal.watchContentPosition
-import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.internal.*
 
 private class AnalyticsListenerBindingUpTo16 : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> {
 
@@ -27,6 +24,20 @@ private class AnalyticsListenerBindingUpTo16 : MuxPlayerAdapter.PlayerBinding<Si
     listener?.let { player.removeAnalyticsListener(it) }
     collector.positionWatcher?.stop("unbound")
     listener = null
+  }
+
+//  override fun onVideoSizeChanged(eventTime: AnalyticsListener.EventTime, videoSize: VideoSize) {
+//    collector.sourceWidth = videoSize.width
+//    collector.sourceHeight = videoSize.height
+//  }
+
+  override fun onVideoSizeChanged(
+    eventTime: AnalyticsListener.EventTime,
+    width: Int,
+    height: Int,
+    unappliedRotationDegrees: Int,
+    pixelWidthHeightRatio: Float
+  ) {
   }
 }
 

@@ -24,7 +24,8 @@ android {
   flavorDimensions 'exoplayer', 'source'
   productFlavors {
     // Source Set with ExoPlayer bindings
-    upto2_13 { dimension 'source' }
+    upto2_10 { dimension 'source' }
+    from2_10to2_13 { dimension 'source' }
     just2_14 { dimension 'source' }
     just2_15 { dimension 'source' }
     from2_16toNow { dimension 'source' }
@@ -42,7 +43,8 @@ android {
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
-          "upto2_13": ["r2_9_6", "r2_10_6", "r2_11_1", "r2_12_1", "r2_13_1"],
+          "upto2_10": ["r2_9_6", "r2_10_6"],
+          "from2_10to2_13": ["r2_11_1", "r2_12_1", "r2_13_1"],
           "just2_14": ["r2_14_1"],
           "just2_15": ["r2_15_1"],
           "from2_16toNow": ["r2_16_1", "r2_17_1"],
@@ -53,25 +55,36 @@ android {
     setIgnore(!(realVariants.get(sourceFlavor.name).contains(exoPlayerFlavor.name)))
   }
   sourceSets {
-    upto2_13 {
+    upto2_10 {
+      java.srcDirs += 'src/exo-collector-upto-2_10'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-upto-2_13/java'
+      java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    from2_10to2_13 {
+      java.srcDirs += 'src/exo-collector-2_10-now'
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_14 {
+      java.srcDirs += 'src/exo-collector-2_10-now'
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-just-2_14/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_15 {
+      java.srcDirs += 'src/exo-collector-2_10-now'
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     from2_16toNow {
+      java.srcDirs += 'src/exo-collector-2_10-now'
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
@@ -93,9 +106,10 @@ dependencies {
   implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
   //noinspection GradleDynamicVersion
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.+'
-
   //noinspection GradleDynamicVersion,GradleDependency
-  upto2_13Implementation 'com.google.android.exoplayer:exoplayer:[2.9.6, 2.13.+]'
+  upto2_10Implementation 'com.google.android.exoplayer:exoplayer:[2.9.6, 2.10.+]'
+  //noinspection GradleDynamicVersion,GradleDependency
+  from2_10to2_13Implementation 'com.google.android.exoplayer:exoplayer:[2.11.1, 2.13.+]'
   //noinspection GradleDynamicVersion,GradleDependency
   just2_14Implementation 'com.google.android.exoplayer:exoplayer:2.14.+'
   //noinspection GradleDynamicVersion,GradleDependency

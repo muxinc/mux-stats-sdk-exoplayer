@@ -4,7 +4,6 @@ import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.source.TrackGroup
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.mux.stats.sdk.core.events.playback.PlaybackEvent
@@ -12,7 +11,6 @@ import com.mux.stats.sdk.core.events.playback.RequestCanceled
 import com.mux.stats.sdk.core.events.playback.RequestCompleted
 import com.mux.stats.sdk.core.events.playback.RequestFailed
 import com.mux.stats.sdk.core.model.BandwidthMetricData
-import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -237,7 +235,7 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
 ) {
     private val player: ExoPlayer? by weak(player)
     private val collector: MuxStateCollector? by weak(collector)
-    protected var bandwidthMetricHls:BandwidthMetric = BandwidthMetricHls(player, collector)
+    protected var bandwidthMetricHls:BandwidthMetricHls = BandwidthMetricHls(player, collector)
     protected var debugModeOn:Boolean = false
     protected var requestSegmentDuration:Long = 1000
     protected var lastRequestSentAt:Long = -1
@@ -247,7 +245,7 @@ class BandwidthMetricDispatcher(player: ExoPlayer,
     protected var numberOfRequestFailedBeaconsSentPerSegment:Int = 0
 
 
-    fun currentBandwidthMetric(): BandwidthMetric {
+    fun currentBandwidthMetric(): BandwidthMetricHls {
         /**
          * TODO in the future if bandwith metyrics for dash required a different logic we will
          * implement it here

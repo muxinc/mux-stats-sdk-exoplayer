@@ -3,10 +3,10 @@ package com.mux.stats.sdk.muxstats
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.mux.stats.sdk.core.util.MuxLogger
+import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.exoAnalyticsListener
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.watchContentPosition
-import com.mux.stats.sdk.muxstats.internal.weak
 
 /**
  * Binding to an ExoPlayer using AnalyticsListener

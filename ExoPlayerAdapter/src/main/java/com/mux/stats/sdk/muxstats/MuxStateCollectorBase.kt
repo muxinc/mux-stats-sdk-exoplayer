@@ -25,7 +25,7 @@ import kotlin.properties.Delegates
  * You should supply one of these to [MuxPlayerAdapter], and call is methods from your
  * [MuxPlayerAdapter.PlayerBinding]
  */
-class MuxStateCollector(
+abstract class MuxStateCollectorBase(
   // TODO em: if MuxStateCollector is in MuxStats, don't need this janky block
   val muxStats: () -> MuxStats,
   val dispatcher: IEventDispatcher,
@@ -140,6 +140,31 @@ class MuxStateCollector(
    *  reported to the backend.
    *  */
   var allowedHeaders = ArrayList<String>()
+
+
+  /**
+   * Return true if DASH or HLS content being played is live.
+   */
+  abstract fun isLivePlayback(): Boolean
+
+  /**
+   * Extracts the tag value from live HLS/dash segment, returns -1 if the header ios not present.
+   *
+   * @param tagName name of the tag to extract from the manifest.
+   * @return tag value if tag is found and we are playing live stream, -1 string otherwise.
+   */
+  abstract fun parseManifestTag(tagName:String):String
+
+  fun parseManifestTagL(tagName: String): Long {
+    var value: String = parseManifestTag(tagName)
+    value = value.replace(".", "")
+    try {
+      return value.toLong()
+    } catch (e: NumberFormatException) {
+      Log.d("Manifest Parsing", "Bad number format for value: $value")
+    }
+    return -1L
+  }
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
@@ -479,7 +504,7 @@ class MuxStateCollector(
    */
   abstract class PositionWatcher(
     val updateIntervalMillis: Long,
-    val stateCollector: MuxStateCollector
+    val stateCollector: MuxStateCollectorBase
   ) {
     private val timerScope: CoroutineScope = CoroutineScope(Dispatchers.Default)
 
