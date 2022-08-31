@@ -13,20 +13,19 @@
 // limitations under the License.
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-
 buildscript {
   repositories {
     google()
     mavenCentral()
     mavenLocal()
+    //maven { url 'https://maven.pkg.github.com/muxinc/mux-android-distribution' }
     maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-local' }
   }
 
   dependencies {
     classpath 'com.android.tools.build:gradle:7.2.2'
     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0"
-    classpath 'com.mux.gradle.android:mux-android-distribution:0.0.11'
+    classpath 'com.mux.gradle.android:mux-android-distribution:0.1.2'
   }
 }
 
