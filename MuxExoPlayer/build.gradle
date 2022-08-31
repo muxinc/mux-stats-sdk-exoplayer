@@ -159,9 +159,9 @@ androidComponents {
 muxDistribution {
   def buildKite = System.getenv("BUILDKITE_BRANCH") != null
   if (buildKite) {
-    devVersion versionFromCommitHash("dev-")
-  } else {
     devVersion versionFromCommitHash('dev-', System.getenv("BUILDKITE_BRANCH"))
+  } else {
+    devVersion versionFromCommitHash('dev-')
   }
   releaseVersion versionFromHeadCommit()
   artifactIds artifactFromFlavorValue('api')
