@@ -1370,7 +1370,7 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
     @Override
     public String getPluginVersion() {
-      return BuildConfig.MUX_PLUGIN_VERSION;
+      return BuildConfig.LIB_VERSION;
     }
 
     @Override
