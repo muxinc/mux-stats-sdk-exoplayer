@@ -8,7 +8,6 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.core.model.ViewData
-import com.mux.stats.sdk.muxstats.internal.MuxStateCollector
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.muxstats.internal.weak
 

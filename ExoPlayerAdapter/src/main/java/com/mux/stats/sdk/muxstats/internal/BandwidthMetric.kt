@@ -11,6 +11,7 @@ import com.mux.stats.sdk.core.events.playback.RequestCanceled
 import com.mux.stats.sdk.core.events.playback.RequestCompleted
 import com.mux.stats.sdk.core.events.playback.RequestFailed
 import com.mux.stats.sdk.core.model.BandwidthMetricData
+import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList
@@ -21,7 +22,7 @@ import kotlin.collections.HashMap
  * these events in {@link MuxStatsExoPlayer} and will be propagated here for processing, at this
  * point both HLS and DASH segments are processed in same way so all metrics are collected here.
  */
-open class BandwidthMetric(val player: ExoPlayer, val collector:MuxStateCollector) {
+open class BandwidthMetric(val player: ExoPlayer, val collector: MuxStateCollector) {
     /** Available qualities. */
     var availableTracks: TrackGroupArray? = null
 
