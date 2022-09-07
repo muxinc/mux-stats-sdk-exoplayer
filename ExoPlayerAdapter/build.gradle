@@ -40,8 +40,8 @@ android {
     r2_14_1 { dimension 'exoplayer' }
     r2_15_1 { dimension 'exoplayer' }
     r2_16_1 { dimension 'exoplayer' }
-    r2_17_1 { dimension 'exoplayer' }
     amznPort { dimension 'exoplayer' }
+    r2_17_1 { dimension 'exoplayer' }
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
@@ -50,7 +50,7 @@ android {
           "from2_12to2_13": ["r2_12_1", "r2_13_1"],
           "just2_14": ["r2_14_1"],
           "just2_15": ["r2_15_1"],
-          "just2_16": ["r2_16_1"],
+          "just2_16": ["r2_16_1", "amznPort"],
           "from2_17toNow": ["r2_17_1"],
   ]
   variantFilter { variant ->
