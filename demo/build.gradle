@@ -223,11 +223,11 @@ android {
     }
     r2_17_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
+      matchingFallbacks = ['just2_17']
     }
     r2_17_1_ads {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
+      matchingFallbacks = ['just2_17']
       missingDimensionStrategy 'exoplayer', 'r2_17_1'
     }
     amznPort {
@@ -241,11 +241,11 @@ android {
     }
     r2_18_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
+      matchingFallbacks = ['from2_18toNow']
     }
     r2_18_1_ads {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
+      matchingFallbacks = ['from2_18toNow']
       missingDimensionStrategy 'exoplayer', 'r2_18_1'
     }
   }
