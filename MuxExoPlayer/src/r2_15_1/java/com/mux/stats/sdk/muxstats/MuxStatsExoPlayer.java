@@ -198,6 +198,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     return false;
   }
 
+  /**
+   * Releases this object, removing all listeners from the player, halting all monitoring, and
+   * preventing further player event collection
+   */
   @Override
   public void release() {
     if (this.player != null && this.player.get() != null) {
