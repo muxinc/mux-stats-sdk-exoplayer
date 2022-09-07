@@ -107,11 +107,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    *
    * @return the IMA SDK Listener
    */
-  @Deprecated(
-    """This method is no longer the preferred method to track Ad performance with Google's
-    IMA SDK.
-    <p> Use {@link MuxBaseExoPlayer#monitorImaAdsLoader(AdsLoader)} instead."""
-  )
   fun getAdsImaSdkListener(): AdsImaSDKListener? = imaSdkListener
 
   /**
