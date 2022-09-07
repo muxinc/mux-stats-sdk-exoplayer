@@ -172,15 +172,13 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   ) {
     @Suppress("SENSELESS_COMPARISON")
     if (loadEventInfo.uri != null) {
-      var segmentMimeType: String? = "unknown"
+      var segmentMimeType = "unknown"
       var segmentWidth = 0
       var segmentHeight = 0
-      if (mediaLoadData.trackFormat != null && mediaLoadData.trackFormat!!.sampleMimeType != null) {
-        segmentMimeType = mediaLoadData.trackFormat!!.sampleMimeType
-      }
-      if (mediaLoadData.trackFormat != null) {
-        segmentWidth = mediaLoadData.trackFormat!!.width
-        segmentHeight = mediaLoadData.trackFormat!!.height
+      mediaLoadData.trackFormat?.let { format ->
+        format.sampleMimeType?.let { segmentMimeType = it }
+        segmentWidth = format.width
+        segmentHeight = format.height
       }
       bandwidthMetricCollector
         .onLoadStarted(
