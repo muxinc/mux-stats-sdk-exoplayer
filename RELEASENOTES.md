@@ -1,4 +1,43 @@
 # Release notes
+## 2.10.0
+## Fixes
+* Fix setPlayerSize to treat input as physical pixels, as documented (#221)
+
+## 2.9.1
+### Improvements
+* Support for ExoPlayer `v2.18.1` (#219)
+* Fix crashes in rare cases where the player is released asynchronously (#218)
+* Update MuxCore to `v7.3.1`
+
+### MuxCore Changes
+* Split views with long periods of inactivity into multiple views
+
+## 2.9.0
+### Improvements
+* Allow ability to override OS data values. (#216)
+* Update to MuxCore `7.3.0`
+
+### MuxCore Changes
+* Support for overriding OS data values
+
+## v2.8.0
+### Improvements
+* Add support for Custom Data Domains
+* Add support for manually tracking if a view was played automatically
+* Update to MuxCore `v7.2.0` (#211)
+
+### Fixes
+* Fix Issue with HLS/DASH CDN tracking (#211)
+
+### MuxCore Changes
+* Custom Beacon Collection Domains
+* Add Autoplay flag on CustomerPlayerData
+* Fix serialization strategy for complex objects in beacons
+ 
+## 2.7.2
+### Fixes
+* Fix Build/Crash Issues When Used With Minimal/Custom ExoPlayers (#208)
+ 
 ## 2.7.1
 ### Fixes
 Fix Customer Issue #202: MuxCore classes not available to callers (#204)

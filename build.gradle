@@ -13,61 +13,55 @@
 // limitations under the License.
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-
 buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
-    }
+  repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }
+  }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.3'
-        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10'
-    }
+  dependencies {
+    classpath 'com.android.tools.build:gradle:7.2.2'
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
+    classpath 'com.mux.gradle.android:mux-android-distribution:0.2.3'
+  }
 }
 
 allprojects {
-    apply plugin: "com.jfrog.artifactory"
-    apply plugin: 'maven-publish'
+  apply plugin: "com.jfrog.artifactory"
+  apply plugin: 'maven-publish'
 
-    repositories {
-        google()
-        mavenCentral()
-        mavenLocal()
+  repositories {
+    google()
+    mavenCentral()
+    mavenLocal()
 
-        maven {
-            url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
-        }
-
-        // Both our release and dev repos are imported
-        maven {
-            url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
-        }
-
-        maven {
-            url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
-        }
+    maven {
+      url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
     }
 
-    tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    // Both our release and dev repos are imported
+    maven {
+      url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
     }
 
-    project.ext {
-        minSdkVersion=16
-        compileSdkVersion=31
-        targetSdkVersion=31
-        releaseRepoName = 'exoplayer'
-        releaseUserOrg = 'google'
-        releaseGroupId = 'com.google.android.exoplayer'
-        releaseVersion = 'r2.1.1'
-        releaseWebsite = 'https://github.com/google/ExoPlayer'
-
-        muxCoreVersion = "7.0.11"
+    maven {
+      url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
     }
+  }
+
+  tasks.withType(JavaCompile) {
+    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+  }
+
+  project.ext {
+    minSdkVersion = 16
+    compileSdkVersion = 31
+    targetSdkVersion = 31
+    
+    muxCoreVersion = "7.3.1"
+  }
+
 }
-
-apply from: 'MuxAndroidSDKPublishing/publishing.gradle'

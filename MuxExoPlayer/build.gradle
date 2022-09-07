@@ -154,8 +154,6 @@ android {
 
 } //android
 
-apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
-
 dependencies {
   api 'org.checkerframework:checker-qual:2.5.0'
 
