@@ -351,6 +351,7 @@ dependencies {
   r2_18_1Api 'com.google.android.exoplayer:exoplayer-common:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer-core:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
+  r2_18_1Api 'org.checkerframework:checker-qual:3.13.0'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
   r2_18_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.18.1'
   r2_18_1_adsApi 'com.google.android.exoplayer:extension-ima:2.18.1'

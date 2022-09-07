@@ -92,11 +92,11 @@ android {
     }
     r2_17_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
+      matchingFallbacks = ['just2_17']
     }
     r2_18_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
+      matchingFallbacks = ['from2_18toNow']
     }
   }
 
@@ -135,6 +135,7 @@ dependencies {
   androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
   api 'org.checkerframework:checker-qual:2.5.2'
 
