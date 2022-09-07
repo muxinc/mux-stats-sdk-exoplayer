@@ -45,6 +45,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
 
   static final String TAG = "MuxStatsEventQueue";
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -53,6 +57,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerVideoData, null, true);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -62,6 +70,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData, true);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -71,6 +83,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         null, unused);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -80,6 +96,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData), unused, new MuxNetworkRequests());
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -89,6 +109,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData), unused, networkRequests);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data,
