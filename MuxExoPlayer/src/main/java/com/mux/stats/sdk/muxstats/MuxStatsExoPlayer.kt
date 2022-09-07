@@ -153,9 +153,9 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     playerAdapter.playerView = view
   }
 
-  fun setPlayerSize(width: Int, height: Int) = muxStats.setPlayerSize(width, height)
+  fun setPlayerSize(width: Int, height: Int) = muxStats.setPlayerSize(pxToDp(width), pxToDp(height))
 
-  fun setScreenSize(width: Int, height: Int) = muxStats.setScreenSize(width, height)
+  fun setScreenSize(width: Int, height: Int) = muxStats.setScreenSize(pxToDp(width), pxToDp(height))
 
   fun videoChange(videoData: CustomerVideoData) {
     collector.videoChange(videoData)
