@@ -31,6 +31,12 @@ import com.mux.stats.sdk.core.model.CustomerViewData;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import java.io.IOException;
 
+/**
+ * Mux Data SDK for ExoPlayer. Supply your ExoPlayer object by constructor, and {@link #release()}
+ * this object before releasing your ExoPlayer.
+ *
+ * For Google IMA ads integration, supply your AdLoader to {@link #monitorImaAdsLoader(AdsLoader)}
+ */
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
     Player.Listener {
 
