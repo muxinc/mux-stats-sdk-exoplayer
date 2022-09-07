@@ -133,19 +133,23 @@ dependencies {
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.+'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_15_1Implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_16_1Implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+  amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  //noinspection GradleDynamicVersion,GradleDependency
-  //noinspection GradleDynamicVersion,GradleDependency
-  //noinspection GradleDynamicVersion,GradleDependency
-  //from2_16toNowImplementation 'com.google.android.exoplayer:exoplayer:2.16.+'
 
   testImplementation 'junit:junit:4.13.2'
   testImplementation 'androidx.test.ext:junit:1.1.3'
