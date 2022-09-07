@@ -115,6 +115,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         , networkRequests);
   }
 
+  /**
+   * Construct a new instance of the object and begin monitoring the supplied Player
+   * @param ctx A Context. For Video, this should be the Activity playing the video
+   * @param player An ExoPlayer. This player will be monitored by Mux Data
+   * @param playerName A human-readable name for this player. It's searchable on the data dashboard
+   * @param data Data about you, your player, and your video.
+   *
+   * @see CustomerData
+   */
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data) {
     this(ctx, player, playerName, data, new CustomOptions(), new MuxNetworkRequests());
