@@ -72,6 +72,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * If you just want to use the SDK, You may be looking for {@link MuxStatsExoPlayer} instead
+ *
  * This class connects the {@link ExoPlayer}, {@link MuxStats} and
  * {@link com.google.ads.interactivemedia.v3.api}.
  *
