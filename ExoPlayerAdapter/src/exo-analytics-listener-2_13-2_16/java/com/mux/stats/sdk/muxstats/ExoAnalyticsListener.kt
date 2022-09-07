@@ -1,7 +1,6 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats
 
 import android.util.Log
-import android.view.Surface
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.PlaybackParameters
@@ -12,6 +11,9 @@ import com.google.android.exoplayer2.source.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.mux.stats.sdk.muxstats.internal.*
+import com.mux.stats.sdk.muxstats.internal.logTag
+import com.mux.stats.sdk.muxstats.internal.weak
 import java.io.IOException
 
 /**

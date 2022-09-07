@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats
 
+import com.mux.stats.sdk.muxstats.internal.MuxStateCollector
 import com.mux.stats.sdk.muxstats.internal.observableWeak
 import com.mux.stats.sdk.muxstats.internal.weak
 

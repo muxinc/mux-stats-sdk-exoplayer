@@ -12,7 +12,6 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventIn
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 
 /**
@@ -43,7 +42,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   }
 
   override fun onPlayerStateChanged(
-    eventTime: EventTime, playWhenReady: Boolean, @Player.State playbackState: Int
+    eventTime: EventTime, playWhenReady: Boolean, playbackState: Int
   ) {
     player?.let {
       Log.d(logTag(), "Playback State(from player): ${it.playbackState}, ")
@@ -56,7 +55,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   @Suppress("OVERRIDE_DEPRECATION") // The extra info is not required for our metrics
   override fun onPositionDiscontinuity(
-    eventTime: AnalyticsListener.EventTime,
+    eventTime: EventTime,
     reason: Int
   ) {
     collector.handlePositionDiscontinuity(reason)

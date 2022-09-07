@@ -13,7 +13,6 @@ import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxErrorException
 import com.mux.stats.sdk.muxstats.MuxPlayerState
-import com.mux.stats.sdk.muxstats.MuxStateCollector
 import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 
 // -- General Utils --
