@@ -446,6 +446,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
 
   /**
    * For ExoPlayer 2.12+. Use the returned object with your ExoPlayer to monitor ad playback events
+   *
+   * See https://docs.mux.com/guides/data/monitor-exoplayer#4-advanced for more information
    */
   public AdsImaSDKListener getAdsImaSdkListener() {
     return adsImaSdkListener;
