@@ -4,7 +4,7 @@
 
 set -e
 
-docker run -it -v --rm  \
+docker run -it --rm  \
     -v $(pwd):/data \
     -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
     -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
@@ -13,10 +13,10 @@ docker run -it -v --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_user=$ORG_GRADLE_PROJECT_artifactory_user \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
-    muxinc/mux-exoplayer:20220112 \
+    docker.io/muxinc/mux-exoplayer:20220112 \
     bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:assemble MuxExoPlayer:artifactoryPublish"
 
-docker run -it -v --rm  \
+docker run -it --rm  \
     -v $(pwd):/data \
     -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
     -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
@@ -25,5 +25,5 @@ docker run -it -v --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_user=$ORG_GRADLE_PROJECT_artifactory_user \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
-    muxinc/mux-exoplayer:20220112 \
+    docker.io/muxinc/mux-exoplayer:20220112 \
     bash -c "./gradlew --info automatedtests:assemble automatedtests:assembleAndroidTest"
