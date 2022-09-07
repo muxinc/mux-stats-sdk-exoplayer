@@ -75,12 +75,12 @@ public class LatencyTests extends TestBase {
       Thread.sleep(PLAY_PERIOD_IN_MS);
       if (!isLatencyMetricsPresent()) {
         fail("Latency metrics not found on live stream:\n"
-            + "playerProgramTimeFound: " + playerProgramTiomeFound
-            + "playerManifestNewestTimeFound: " + playerManifestNewestTimeFound
-            + "videoHoldbackFound: " + videoHoldbackFound
-            + "videoPartHoldbackFound: " + videoPartHoldbackFound
-            + "videoTargetDurationFound: " + videoTargetDurationFound
-            + "videoPartTargetHoldbackFound: " + videoPartTargetHoldbackFound
+            + " playerProgramTimeFound: " + playerProgramTiomeFound
+            + " playerManifestNewestTimeFound: " + playerManifestNewestTimeFound
+            + " videoHoldbackFound: " + videoHoldbackFound
+            + " videoPartHoldbackFound: " + videoPartHoldbackFound
+            + " videoTargetDurationFound: " + videoTargetDurationFound
+            + " videoPartTargetHoldbackFound: " + videoPartTargetHoldbackFound
         );
       }
     } catch (Exception e) {

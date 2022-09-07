@@ -12,7 +12,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;

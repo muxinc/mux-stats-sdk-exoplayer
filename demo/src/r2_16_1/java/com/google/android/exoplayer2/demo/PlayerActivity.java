@@ -65,10 +65,9 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.util.MuxLogger;
-import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -317,8 +316,9 @@ public class PlayerActivity extends AppCompatActivity
       customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
       CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
       customerData.setCustomData(customData);
+      //TODO: Really need those ctor overloads
       muxStats = new MuxStatsExoPlayer(
-          this, player, "demo-player", customerData);
+          this, player, playerView, "demo-player", customerData, null, null);
       Point size = new Point();
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         getWindowManager().getDefaultDisplay().getSize(size);

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
@@ -67,49 +68,25 @@ android {
   productFlavors {
     r2_9_6 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
-    }
-    r2_9_6_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['upto2_10']
     }
     r2_10_6 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
-    }
-    r2_10_6_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['upto2_10']
     }
     r2_11_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
-    }
-    r2_11_1_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['just2_11']
     }
     r2_12_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
-    }
-    r2_12_1_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_13_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
-    }
-    r2_13_1_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_14_1 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['just2_14']
-    }
-    r2_14_1_ads {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_14']
     }
@@ -117,33 +94,17 @@ android {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_15']
     }
-    r2_15_1_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['just2_15']
-    }
     r2_16_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
-    }
-    r2_16_1_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
+      matchingFallbacks = ['just2_16']
     }
     r2_17_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
-    }
-    r2_17_1_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
+      matchingFallbacks = ['from2_17toNow']
     }
     amznPort {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
-    }
-    amznPort_ads {
-      dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
+      matchingFallbacks = ['just_2_16']
     }
   } //productFlavors
 
@@ -162,6 +123,9 @@ android {
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = '1.8'
   }
 
   build {
@@ -198,53 +162,24 @@ dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_9_6_adsImplementation 'com.google.android.exoplayer:exoplayer:2.9.6'
-
-  //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_10_6_adsImplementation 'com.google.android.exoplayer:exoplayer:2.10.6'
-
   //noinspection GradleDynamicVersion,GradleDependency
   r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_11_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.11.1'
-
-  //noinspection GradleDynamicVersion,GradleDependency
   r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_12_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.12.1'
-
   //noinspection GradleDynamicVersion,GradleDependency
   r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_13_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.13.1'
-
-  //noinspection GradleDynamicVersion,GradleDependency
   r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_14_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.14.1'
-
   //noinspection GradleDynamicVersion,GradleDependency
   r2_15_1Implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_15_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.15.1'
-
-  //noinspection GradleDynamicVersion,GradleDependency
   r2_16_1Implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_16_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.16.1'
-
   // Amazon's port doesn't delete any symbols (ever), so we only need one version
   //noinspection GradleDynamicVersion,GradleDependency
   amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
-  amznPort_adsImplementation "com.amazon.android:exoplayer:2.16.1"
-
   r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-  r2_17_1Implementation 'org.checkerframework:checker-qual:2.5.2'
-  r2_17_1_adsImplementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-  r2_17_1_adsImplementation 'org.checkerframework:checker-qual:2.5.2'
 
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
@@ -253,7 +188,6 @@ dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-  api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
   implementation project(':ExoPlayerAdapter')
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 }

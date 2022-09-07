@@ -1,9 +1,9 @@
 package com.mux.stats.sdk.muxstats.internal
 
 import android.app.Activity
+import android.content.Context
 import android.view.View
 import com.google.android.exoplayer2.ExoPlayer
-import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.muxstats.*
 
 /**
@@ -28,18 +28,27 @@ private class BasicExoPlayerBindings : MuxPlayerAdapter.PlayerBinding<ExoPlayer>
  * Creates a new PlayerAdapter that monitors an ExoPlayer
  */
 @Suppress("unused")
-fun MuxStats.createExoPlayerAdapter(
-  activity: Activity,
+fun MuxStateCollector.createExoPlayerAdapter(
+  context: Context,
   playerView: View?,
   player: ExoPlayer,
-  eventBus: EventBus
 ): MuxPlayerAdapter<View, ExoPlayer, ExoPlayer> = MuxPlayerAdapter(
   player = player,
-  uiDelegate = playerView.muxUiDelegate(activity),
+  uiDelegate = uiDelegate(context, playerView),
   basicMetrics = BasicExoPlayerBindings(),
-  collector = MuxStateCollector(
-    muxStats = this,
-    dispatcher = eventBus
+  collector = this,
+  extraMetrics = MuxPlayerAdapter.ExtraPlayerBindings(
+    player,
+    listOf(
+      createExoSessionDataBinding()
+    )
   )
 )
 
+private fun uiDelegate(context: Context, playerView: View?): MuxUiDelegate<View> {
+  return if (context is Activity) {
+    playerView.muxUiDelegate(context)
+  } else {
+    noUiDelegate()
+  }
+}

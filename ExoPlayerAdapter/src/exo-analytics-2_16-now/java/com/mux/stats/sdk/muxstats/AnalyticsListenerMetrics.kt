@@ -5,14 +5,14 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.exoAnalyticsListener
 import com.mux.stats.sdk.muxstats.internal.logTag
-import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.internal.watchContentPosition
 
 /**
  * Binding to an ExoPlayer using AnalyticsListener
  */
 private class AnalyticsListenerBinding216ToNow : MuxPlayerAdapter.PlayerBinding<ExoPlayer> {
 
-  private var listener: AnalyticsListener? by weak(null)
+  private var listener: AnalyticsListener? = null//by weak(null)
 
   init {
     MuxLogger.d(logTag(), "created");
@@ -21,11 +21,13 @@ private class AnalyticsListenerBinding216ToNow : MuxPlayerAdapter.PlayerBinding<
   override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     listener = exoAnalyticsListener(player, collector).also {
       player.addAnalyticsListener(it)
+      player.watchContentPosition(collector)
     }
   }
 
   override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
     listener?.let { player.removeAnalyticsListener(it) }
+    collector.positionWatcher?.stop("unbound")
   }
 
 }

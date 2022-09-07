@@ -21,15 +21,11 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.google.android.exoplayer2.ExoPlayer;
-import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
-import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.source.TrackGroupArray;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
-import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.model.CustomerData;
@@ -212,8 +208,9 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     mockNetwork = new MockNetworkRequest();
     CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
     muxStats = new MuxStatsExoPlayer(
-        this, (ExoPlayer) player, "demo-player", customerData, true, mockNetwork);
+        this, (ExoPlayer) player, playerView, "demo-player", customerData, null, mockNetwork);
     Point size = new Point();
+    // These need to be set in order to calculate if the app is in the full screen mode.
     getWindowManager().getDefaultDisplay().getSize(size);
     muxStats.setScreenSize(size.x, size.y);
     muxStats.setPlayerView(playerView);
