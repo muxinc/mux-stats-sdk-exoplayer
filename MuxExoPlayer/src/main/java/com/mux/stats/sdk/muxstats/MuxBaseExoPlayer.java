@@ -72,6 +72,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * If you just want to use the SDK, You may be looking for {@link MuxStatsExoPlayer} instead
+ *
  * This class connects the {@link ExoPlayer}, {@link MuxStats} and
  * {@link com.google.ads.interactivemedia.v3.api}.
  *
@@ -305,7 +307,10 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * Monitor an instance of Google IMA SDK's AdsLoader
+   * Monitor an instance of Google IMA SDK's AdsLoader. This method should only be used with
+   * ExoPlayer 2.12 and below
+   *
+   * See https://docs.mux.com/guides/data/monitor-exoplayer#4-advanced for more information
    *
    * @param adsLoader For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested,
    *                  this makes this method impossible to use.
@@ -440,17 +445,26 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * ExoPlayer 2.12+ need this to hook add events.
+   * For ExoPlayer 2.12+. Use the returned object with your ExoPlayer to monitor ad playback events
+   *
+   * See https://docs.mux.com/guides/data/monitor-exoplayer#4-advanced for more information
    */
   public AdsImaSDKListener getAdsImaSdkListener() {
     return adsImaSdkListener;
   }
 
+  /**
+   * @deprecated just use {@link #getAdsImaSdkListener()}
+   */
   @Deprecated
   public AdsImaSDKListener getAdErrorEventListener() {
     return adsImaSdkListener;
   }
 
+  /**
+   * @deprecated just use {@link #getAdsImaSdkListener()}
+   * @return
+   */
   @Deprecated
   public AdsImaSDKListener getAdEventListener() {
     return adsImaSdkListener;

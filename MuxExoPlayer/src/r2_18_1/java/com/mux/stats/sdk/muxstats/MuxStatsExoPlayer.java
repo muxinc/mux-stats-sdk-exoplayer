@@ -34,11 +34,21 @@ import com.mux.stats.sdk.core.util.MuxLogger;
 
 import java.io.IOException;
 
+/**
+ * Mux Data SDK for ExoPlayer. Supply your ExoPlayer object by constructor, and {@link #release()}
+ * this object before releasing your ExoPlayer.
+ *
+ * For Google IMA ads integration, supply your AdLoader to {@link #monitorImaAdsLoader(AdsLoader)}
+ */
 public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsListener,
     Player.Listener {
 
   static final String TAG = "MuxStatsEventQueue";
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -47,6 +57,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerVideoData, null, true);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -56,6 +70,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData, true);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -65,6 +83,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         null, unused);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -74,6 +96,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData), unused, new MuxNetworkRequests());
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerPlayerData customerPlayerData,
@@ -83,6 +109,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         customerViewData), unused, networkRequests);
   }
 
+  /**
+   * @deprecated Please prefer to add your player and video data to a {@link CustomerData} and use
+   *  {@link #MuxStatsExoPlayer(Context, ExoPlayer, String, CustomerData)}
+   */
   @Deprecated
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data,
@@ -92,6 +122,15 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
         , networkRequests);
   }
 
+  /**
+   * Construct a new instance of the object and begin monitoring the supplied Player
+   * @param ctx A Context. For Video, this should be the Activity playing the video
+   * @param player An ExoPlayer. This player will be monitored by Mux Data
+   * @param playerName A human-readable name for this player. It's searchable on the data dashboard
+   * @param data Data about you, your player, and your video.
+   *
+   * @see CustomerData
+   */
   public MuxStatsExoPlayer(Context ctx, ExoPlayer player, String playerName,
       CustomerData data) {
     this(ctx, player, playerName, data, new CustomOptions(), new MuxNetworkRequests());
@@ -158,6 +197,10 @@ public class MuxStatsExoPlayer extends MuxBaseExoPlayer implements AnalyticsList
     return false;
   }
 
+  /**
+   * Releases this object, removing all listeners from the player, halting all monitoring, and
+   * preventing further player event collection
+   */
   @Override
   public void release() {
     if (this.player != null && this.player.get() != null) {
