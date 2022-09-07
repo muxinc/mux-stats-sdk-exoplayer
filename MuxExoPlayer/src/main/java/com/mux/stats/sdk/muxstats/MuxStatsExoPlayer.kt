@@ -128,6 +128,22 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     }
   }
 
+  fun overwriteOsVersion(osVersion: String) {
+    singletonDevice()?.overwrittenOsVersion = osVersion
+  }
+
+  fun overwriteDeviceName(deviceName: String) {
+    singletonDevice()?.overwrittenDeviceName = deviceName
+  }
+
+  fun overwriteOsFamily(osFamily: String) {
+    singletonDevice()?.overwrittenOsFamilyName = osFamily
+  }
+
+  fun overwriteManufacturer(manufacturer: String) {
+    singletonDevice()?.overwrittenManufacturer = manufacturer
+  }
+
   fun isPaused() = playerAdapter.collector.isPaused()
 
   fun setAutomaticErrorTracking(enabled: Boolean) = muxStats.setAutomaticErrorTracking(enabled)
