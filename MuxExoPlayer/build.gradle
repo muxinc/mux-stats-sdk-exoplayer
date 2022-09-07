@@ -3,6 +3,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'com.mux.gradle.android.mux-android-distribution'
 
 checkstyle {
   configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
@@ -153,6 +154,21 @@ android {
   }
 
 } //android
+
+muxDistribution {
+  def buildKite = System.getenv("BUILDKITE_BRANCH") != null
+  if (buildKite) {
+    devVersion versionFromCommitHash('dev-', System.getenv("BUILDKITE_BRANCH"))
+  } else {
+    devVersion versionFromCommitHash('dev-')
+  }
+  releaseVersion versionFromHeadCommit()
+  artifactIds artifactFromFlavorValue('exoplayer')
+  groupIds just("com.mux.stats.sdk.muxstats")
+
+  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
+  useArtifactory = true
+}
 
 dependencies {
   api 'org.checkerframework:checker-qual:2.5.0'
