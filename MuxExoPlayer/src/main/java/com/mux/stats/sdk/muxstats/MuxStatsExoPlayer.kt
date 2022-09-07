@@ -75,7 +75,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
 
   init {
     // Init MuxStats (muxStats must be created last)
-    MuxStats.setHostDevice(MuxBaseExoPlayer.MuxDevice(context))
+    MuxStats.setHostDevice(MuxDevice(context))
     MuxStats.setHostNetworkApi(network)
     muxStats =
       MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
