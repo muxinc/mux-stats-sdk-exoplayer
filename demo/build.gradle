@@ -223,11 +223,11 @@ android {
         }
         amznPort {
             dimension 'exoplayer'
-          matchingFallbacks = ['from2_17toNow']
+          matchingFallbacks = ['just2_16']
         }
         amznPort_ads {
             dimension 'exoplayer'
-          matchingFallbacks = ['from2_17toNow']
+          matchingFallbacks = ['just_2_16']
         }
     }
 
