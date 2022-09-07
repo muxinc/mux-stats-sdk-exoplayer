@@ -60,23 +60,23 @@ android {
   productFlavors {
     r2_9_6 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['upto2_10']
     }
     r2_10_6 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['upto2_10']
     }
     r2_11_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['just2_11']
     }
     r2_12_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_13_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['upto2_13']
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_14_1 {
       dimension 'exoplayer'
@@ -88,11 +88,11 @@ android {
     }
     r2_16_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
+      matchingFallbacks = ['just2_16']
     }
     r2_17_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_16toNow']
+      matchingFallbacks = ['from2_17toNow']
     }
   }
 
