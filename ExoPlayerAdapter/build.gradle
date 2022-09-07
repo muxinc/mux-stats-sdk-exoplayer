@@ -45,17 +45,17 @@ android {
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
-          "upto2_10": ["r2_9_6", "r2_10_6"],
-          "just2_11": ["r2_11_1"],
+          "upto2_10"      : ["r2_9_6", "r2_10_6"],
+          "just2_11"      : ["r2_11_1"],
           "from2_12to2_13": ["r2_12_1", "r2_13_1"],
-          "just2_14": ["r2_14_1"],
-          "just2_15": ["r2_15_1"],
-          "just2_16": ["r2_16_1", "amznPort"],
-          "from2_17toNow": ["r2_17_1"],
+          "just2_14"      : ["r2_14_1"],
+          "just2_15"      : ["r2_15_1"],
+          "just2_16"      : ["r2_16_1", "amznPort"],
+          "from2_17toNow" : ["r2_17_1"],
   ]
   variantFilter { variant ->
-    def exoPlayerFlavor = variant.flavors.findAll { it.dimension == "exoplayer"}[0]
-    def sourceFlavor = variant.flavors.findAll { it.dimension == "source"}[0]
+    def exoPlayerFlavor = variant.flavors.findAll { it.dimension == "exoplayer" }[0]
+    def sourceFlavor = variant.flavors.findAll { it.dimension == "source" }[0]
     setIgnore(!(realVariants.get(sourceFlavor.name).contains(exoPlayerFlavor.name)))
   }
   sourceSets {
