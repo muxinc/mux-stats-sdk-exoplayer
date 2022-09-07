@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.view.View
 import com.google.android.exoplayer2.ExoPlayer
-import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.muxstats.*
 
 /**

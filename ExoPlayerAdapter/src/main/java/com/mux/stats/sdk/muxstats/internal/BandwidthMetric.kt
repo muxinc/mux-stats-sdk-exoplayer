@@ -11,6 +11,7 @@ import com.mux.stats.sdk.core.events.playback.RequestCanceled
 import com.mux.stats.sdk.core.events.playback.RequestCompleted
 import com.mux.stats.sdk.core.events.playback.RequestFailed
 import com.mux.stats.sdk.core.model.BandwidthMetricData
+import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 import java.util.*
 import kotlin.collections.ArrayList

@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats
 
 import com.mux.stats.sdk.core.events.IEventDispatcher
 import com.mux.stats.sdk.muxstats.MuxStateCollectorBase

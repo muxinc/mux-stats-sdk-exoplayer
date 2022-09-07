@@ -18,7 +18,7 @@ import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.weak
 
 @Suppress("unused")
-class MuxStatsExoPlayer(
+class MuxStatsExoPlayer @JvmOverloads constructor(
   val context: Context,
   player: ExoPlayer,
   playerView: View? = null,

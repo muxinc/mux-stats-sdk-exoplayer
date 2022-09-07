@@ -4,7 +4,6 @@ import android.util.Log
 import android.view.Surface
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
@@ -12,6 +11,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventIn
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 
 /**

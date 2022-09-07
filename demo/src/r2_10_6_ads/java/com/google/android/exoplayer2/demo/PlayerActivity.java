@@ -515,7 +515,6 @@ public class PlayerActivity extends AppCompatActivity
       return DownloadHelper.createMediaSource(downloadRequest, dataSourceFactory);
     }
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
-    muxStats.setStreamType(type);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory).createMediaSource(uri);
