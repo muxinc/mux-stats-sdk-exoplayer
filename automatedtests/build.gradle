@@ -94,6 +94,10 @@ android {
       dimension 'exoplayer'
       matchingFallbacks = ['from2_17toNow']
     }
+    r2_18_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_17toNow']
+    }
   }
 
   compileOptions {

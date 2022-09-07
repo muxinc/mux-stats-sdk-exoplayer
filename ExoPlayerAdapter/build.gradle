@@ -30,7 +30,8 @@ android {
     just2_14 { dimension 'source' }
     just2_15 { dimension 'source' }
     just2_16 { dimension 'source' }
-    from2_17toNow { dimension 'source' }
+    just2_17 { dimension 'source' }
+    from2_18toNow { dimension 'source' }
     // Exoplayer version for testing/variant matching
     r2_9_6 { dimension 'exoplayer' }
     r2_10_6 { dimension 'exoplayer' }
@@ -42,6 +43,7 @@ android {
     r2_16_1 { dimension 'exoplayer' }
     amznPort { dimension 'exoplayer' }
     r2_17_1 { dimension 'exoplayer' }
+    r2_18_1 { dimension 'exoplayer' }
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
@@ -51,7 +53,8 @@ android {
           "just2_14"      : ["r2_14_1"],
           "just2_15"      : ["r2_15_1"],
           "just2_16"      : ["r2_16_1", "amznPort"],
-          "from2_17toNow" : ["r2_17_1"],
+          "just2_17"      : ["r2_17_1"],
+          "from2_18toNow" : ["r2_18_1"]
   ]
   variantFilter { variant ->
     def exoPlayerFlavor = variant.flavors.findAll { it.dimension == "exoplayer" }[0]
@@ -107,8 +110,16 @@ android {
       java.srcDirs += 'src/exo-player-2_16-now/java'
       // From 2.16 onward, we don't need exo-event
     }
-    from2_17toNow {
-      java.srcDirs += 'src/exo-analytics-listener-2_16-now/java'
+    just2_17 {
+      java.srcDirs += 'src/exo-analytics-listener-just-2_17/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
+      // From 2.16 onward, we don't need exo-event
+    }
+    from2_18toNow {
+      java.srcDirs += 'src/exo-analytics-listener-2_18-now/java'
       java.srcDirs += 'src/exo-collector-2_10-now/java'
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
@@ -150,6 +161,7 @@ dependencies {
   amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_18_1Implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   testImplementation 'junit:junit:4.13.2'
   testImplementation 'androidx.test.ext:junit:1.1.3'

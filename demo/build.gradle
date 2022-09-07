@@ -239,6 +239,15 @@ android {
       matchingFallbacks = ['just_2_16']
       missingDimensionStrategy 'exoplayer', 'amznPort'
     }
+    r2_18_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_17toNow']
+    }
+    r2_18_1_ads {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_17toNow']
+      missingDimensionStrategy 'exoplayer', 'r2_18_1'
+    }
   }
 
   compileOptions {
