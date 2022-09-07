@@ -307,7 +307,8 @@ public abstract class MuxBaseExoPlayer extends EventBus implements IPlayerListen
   }
 
   /**
-   * Monitor an instance of Google IMA SDK's AdsLoader
+   * Monitor an instance of Google IMA SDK's AdsLoader. This method should only be used with
+   * ExoPlayer 2.12 and below
    *
    * @param adsLoader For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested,
    *                  this makes this method impossible to use.
