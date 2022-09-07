@@ -16,6 +16,7 @@ import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.weak
+import kotlin.math.ceil
 
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
@@ -177,6 +178,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    *
    * @param headerName name of the header to send to the backend.
    */
+  @Suppress("ProtectedInFinal")
   protected fun allowHeaderToBeSentToBackend(headerName: String?) {
     collector.allowHeaderToBeSentToBackend(headerName)
   }
@@ -200,7 +202,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    */
   fun pxToDp(px: Int): Int {
     val displayMetrics = context.resources.displayMetrics
-    return Math.ceil((px / displayMetrics.density).toDouble()).toInt()
+    return ceil((px / displayMetrics.density).toDouble()).toInt()
   }
 
   private inner class ExoPlayerDelegate : IPlayerListener {
