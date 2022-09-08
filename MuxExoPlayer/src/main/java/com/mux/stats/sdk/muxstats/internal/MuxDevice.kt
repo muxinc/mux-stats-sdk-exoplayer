@@ -31,11 +31,6 @@ class MuxDevice(ctx: Context) : IDevice {
   var overwrittenOsVersion: String? = null
   var overwrittenManufacturer: String? = null
 
-  /**
-   * Use this value instead of auto detected name in case the value is different then null.
-   */
-  protected var metadataDeviceName: String? = null
-
   override fun getHardwareArchitecture(): String {
     return Build.HARDWARE
   }
@@ -60,7 +55,7 @@ class MuxDevice(ctx: Context) : IDevice {
   override fun getMuxManufacturer(): String? = overwrittenManufacturer
 
   override fun getModelName(): String {
-    return metadataDeviceName ?: Build.MODEL
+    return Build.MODEL
   }
 
   override fun getMuxModelName(): String? = overwrittenDeviceName

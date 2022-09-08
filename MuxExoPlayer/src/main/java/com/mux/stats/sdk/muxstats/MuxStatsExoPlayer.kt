@@ -17,7 +17,22 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.weak
 import kotlin.math.ceil
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent
+import com.google.ads.interactivemedia.v3.api.AdEvent
 
+/**
+ * Mux Data SDK for ExoPlayer. Create an instance of this object with your [ExoPlayer] to monitor
+ * and record its state. When you clean up your player, make sure to call [release] to ensure all
+ * player-related resources are released
+ *
+ * If you are using Google IMA Ads, you must add our listener to your [AdsLoader] in order for the
+ * Mux Data SDK to monitor ad-related events, using [getAdsImaSdkListener]:
+ * AdsLoader.Builder(this)
+ *    .setAdErrorListener(muxStats.getAdsImaSdkListener())
+ *    .setAdEventListener(muxStats.getAdsImaSdkListener())
+ *    //...
+ *    build()
+ */
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
   val context: Context,
@@ -46,6 +61,11 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   )
   private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
 
+  /**
+   * An [AdErrorEvent.AdErrorListener] and [AdEvent.AdEventListener] that can be used with an IMA
+   * [AdsLoader] to monitor ad-related events with Mux Data
+   */
+  @Suppress("MemberVisibilityCanBePrivate")
   val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
       player,
@@ -96,19 +116,34 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   /**
-   * Get the instance of the IMA SDK Listener for tracking ads running through Google's IMA SDK
-   * within your application.
+   * Gets a Listener for google IMA ads events. You can add this listener to your [AdsLoader] and
+   * Mux Data will monitor ad-related events
+   *
+   * For example:
+   *  AdsLoader.Builder(this)
+   *    .setAdErrorListener(muxStats.getAdsImaSdkListener())
+   *    .setAdEventListener(muxStats.getAdsImaSdkListener())
+   *    //...
+   *    build()
    *
    * @return the IMA SDK Listener
    */
   fun getAdsImaSdkListener(): AdsImaSDKListener? = imaSdkListener
 
   /**
-   * Monitor an instance of Google IMA SDK's AdsLoader
+   * Monitor an instance of Google IMA SDK's AdsLoader. This method should only be used with
+   * ExoPlayer 2.11 and below
    *
-   * @param adsLoader For ExoPlayer 2.12 AdsLoader is initialized only when the add is requested,
-   * this makes this method impossible to use.
+   * See https://docs.mux.com/guides/data/monitor-exoplayer#4-advanced for more information
+   *
+   * @param adsLoader The AdsLoader to monitor. This method shouldn't be used on ExoPlayer 2.12 and
+   *    up
    */
+  @Deprecated(
+    message = "This method should only be used with ExoPlayer versions 2.11 and below. If you are "
+            + "still on that version, this warning can be suppressed",
+    replaceWith = ReplaceWith("getAdsImaSdkListener")
+  )
   fun monitorImaAdsLoader(adsLoader: AdsLoader?) {
     if (adsLoader == null) {
       MuxLogger.d(logTag(), "Null AdsLoader provided to monitorImaAdsLoader")
@@ -173,7 +208,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
-   * headers that are not in the [BandwidthMetricDispatcher.allowedHeaders] list.
+   * headers that are not in the [MuxStateCollectorBase.allowedHeaders] list.
    * This is used in automated tests and is not intended to be used from the application layer.
    *
    * @param headerName name of the header to send to the backend.
@@ -183,6 +218,11 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     collector.allowHeaderToBeSentToBackend(headerName)
   }
 
+  /**
+   * Enables ADB logging for this SDK
+   * @param enable If true, enables logging. If false, disables logging
+   * @param verbose If true, enables verbose logging. If false, disables it
+   */
   fun enableMuxCoreDebug(enable: Boolean, verbose: Boolean) =
     muxStats.allowLogcatOutput(enable, verbose)
 
@@ -200,7 +240,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    * @param px physical pixels to be converted.
    * @return number of density pixels calculated.
    */
-  fun pxToDp(px: Int): Int {
+  private fun pxToDp(px: Int): Int {
     val displayMetrics = context.resources.displayMetrics
     return ceil((px / displayMetrics.density).toDouble()).toInt()
   }
