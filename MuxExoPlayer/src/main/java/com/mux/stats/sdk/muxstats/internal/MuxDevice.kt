@@ -22,7 +22,7 @@ import java.util.*
  */
 class MuxDevice(ctx: Context) : IDevice {
   private var contextRef: WeakReference<Context>
-  private var deviceId: String
+  private var deviceId: String?
   private var appName = ""
   private var appVersion = ""
 
@@ -35,6 +35,7 @@ class MuxDevice(ctx: Context) : IDevice {
    * Use this value instead of auto detected name in case the value is different then null.
    */
   protected var metadataDeviceName: String? = null
+
   override fun getHardwareArchitecture(): String {
     return Build.HARDWARE
   }
@@ -69,7 +70,7 @@ class MuxDevice(ctx: Context) : IDevice {
   }
 
   override fun getDeviceId(): String {
-    return deviceId
+    return deviceId ?: "unknown"
   }
 
   override fun getAppName(): String {
@@ -184,7 +185,7 @@ class MuxDevice(ctx: Context) : IDevice {
   init {
     val sharedPreferences = ctx
       .getSharedPreferences(MUX_DEVICE_ID, Context.MODE_PRIVATE)
-    deviceId = sharedPreferences.getString(MUX_DEVICE_ID, null)!!
+    deviceId = sharedPreferences.getString(MUX_DEVICE_ID, null)
     if (deviceId == null) {
       deviceId = UUID.randomUUID().toString()
       val editor = sharedPreferences.edit()
