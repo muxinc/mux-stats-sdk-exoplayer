@@ -7,7 +7,6 @@ import com.mux.stats.sdk.core.events.playback.RequestCompleted;
 import com.mux.stats.sdk.core.events.playback.RequestFailed;
 import com.mux.stats.sdk.core.model.BandwidthMetricData;
 import com.mux.stats.sdk.core.model.VideoData;
-import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
