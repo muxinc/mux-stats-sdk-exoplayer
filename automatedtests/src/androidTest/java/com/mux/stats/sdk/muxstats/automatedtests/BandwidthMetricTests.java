@@ -422,21 +422,24 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   }
 
   private void checkHeaders(int requestCompletedEventIndex,
-      JSONObject requestCompletedJson, String expectedContentType)
-      throws Exception {
-    String headerString = requestCompletedJson
-        .getString(BandwidthMetricData.REQUEST_RESPONSE_HEADERS);
-    JSONObject headersJsonObject = new JSONObject(headerString);
-    String xCdnHeader = headersJsonObject.getString(SimpleHTTPServer.X_CDN_RESPONSE_HEADER);
-    String contentTypeHeader = headersJsonObject
-        .getString(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER);
-    if (!xCdnHeader.equalsIgnoreCase(X_CDN_HEADER_VALUE)) {
-      failOnHeaderValue(SimpleHTTPServer.X_CDN_RESPONSE_HEADER, xCdnHeader, X_CDN_HEADER_VALUE,
-          requestCompletedEventIndex, requestCompletedJson.toString());
-    }
-    if (!contentTypeHeader.equalsIgnoreCase(expectedContentType)) {
-      failOnHeaderValue(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER, contentTypeHeader,
-          expectedContentType, requestCompletedEventIndex, requestCompletedJson.toString());
+      JSONObject requestCompletedJson, String expectedContentType) {
+    try {
+      JSONObject headersJsonObject = requestCompletedJson
+          .getJSONObject(BandwidthMetricData.REQUEST_RESPONSE_HEADERS);
+      String xCdnHeader = headersJsonObject.getString(SimpleHTTPServer.X_CDN_RESPONSE_HEADER);
+      String contentTypeHeader = headersJsonObject
+          .getString(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER);
+      if (!xCdnHeader.equalsIgnoreCase(X_CDN_HEADER_VALUE)) {
+        failOnHeaderValue(SimpleHTTPServer.X_CDN_RESPONSE_HEADER, xCdnHeader, X_CDN_HEADER_VALUE,
+            requestCompletedEventIndex, requestCompletedJson.toString());
+      }
+      if (!contentTypeHeader.equalsIgnoreCase(expectedContentType)) {
+        failOnHeaderValue(SimpleHTTPServer.CONTENT_TYPE_RESPONSE_HEADER, contentTypeHeader,
+            expectedContentType, requestCompletedEventIndex, requestCompletedJson.toString());
+      }
+    } catch (JSONException e) {
+      fail("Request complete event not serialized to JSON correctly !\n"
+        + "Json object: \n" + requestCompletedJson.toString());
     }
   }
 

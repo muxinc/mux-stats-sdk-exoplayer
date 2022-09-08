@@ -37,6 +37,23 @@ import java.util.List;
     return out;
   }
 
+  /**
+   * Maps the given function over the given input and returns the given output, populated with the
+   * result of the mapping
+   * @param src
+   * @param dest
+   * @param mapper
+   * @param <T>
+   * @param <R>
+   * @return
+   */
+  public static <T, R> List<R> map(Iterable<T> src, List<R> dest, Function<T, R> mapper) {
+    for (T t : src) {
+      dest.add(mapper.apply(t));
+    }
+    return dest;
+  }
+
   /*package*/ interface Function<T, R> {
     R apply(T t);
   }

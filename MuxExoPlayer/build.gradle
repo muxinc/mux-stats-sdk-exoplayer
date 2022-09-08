@@ -3,6 +3,7 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
+apply plugin: 'com.mux.gradle.android.mux-android-distribution'
 
 checkstyle {
   configFile = file("${rootDir}/.checkstyle/checkstyle.xml")
@@ -98,27 +99,19 @@ android {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_16']
     }
-    r2_17_1 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['from2_17toNow']
-    }
     amznPort {
       dimension 'exoplayer'
       matchingFallbacks = ['just_2_16']
     }
-  } //productFlavors
-
-  // Attach the java src directory relevant for each flavor created
-  afterEvaluate {
-    android.libraryVariants.each { variant ->
-      def matcher = variant.name =~ /(r\d+_\d+_\d+).*/
-      if (matcher.find()) {
-        def strippedExoPlayerVersion = matcher.group(1)
-        def sourceSet = sourceSets.findByName(variant.name)
-        sourceSet.java.srcDirs = ['./src/' + strippedExoPlayerVersion + '/java']
-      }
+    r2_17_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_17']
     }
-  }
+    r2_18_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_18toNow']
+    }
+  } //productFlavors
 
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
@@ -127,38 +120,24 @@ android {
   kotlinOptions {
     jvmTarget = '1.8'
   }
-
-  build {
-    doLast {
-      productFlavors.each {
-        flavor ->
-          def versionName = flavor.name.replaceAll(/_/, ".")
-          if (!versionName.endsWith(".ads")) {
-            copy {
-              from "${buildDir}/outputs/aar/${project.name}-${flavor.name}-release.aar", "${buildDir}/outputs/mapping/${flavor.name}Release/mapping.txt"
-              into "${buildDir}/outputs/artifacts/"
-              rename("${project.name}-${flavor.name}-release.aar", "mux-${versionName}.aar")
-              rename("mapping.txt", "mapping-${versionName}.txt")
-              File aarFile = new File("${buildDir}/outputs/artifacts/mux-${versionName}.aar")
-              println "===++++ >>>>> ${aarFile.name} size = ${aarFile.size()}, exists ${aarFile.exists()}";
-              if (aarFile.length() > 120000) {
-                // Fail
-                throw new GradleException(
-                        "${project.name}-${flavor.name}-release.aar exceed 120KB!");
-              }
-            }
-          }
-      }
-    }
-  }
-
 } //android
 
-apply from: '../MuxAndroidSDKPublishing/declare_publication.gradle'
+muxDistribution {
+  def buildKite = System.getenv("BUILDKITE_BRANCH") != null
+  if (buildKite) {
+    devVersion versionFromCommitHash('dev-', System.getenv("BUILDKITE_BRANCH"))
+  } else {
+    devVersion versionFromCommitHash('dev-')
+  }
+  releaseVersion versionFromHeadCommit()
+  artifactIds artifactFromFlavorValue('exoplayer')
+  groupIds just("com.mux.stats.sdk.muxstats")
+
+  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
+  useArtifactory = true
+}
 
 dependencies {
-  api 'org.checkerframework:checker-qual:2.5.0'
-
   //noinspection GradleDynamicVersion,GradleDependency
   r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
   //noinspection GradleDynamicVersion,GradleDependency
@@ -180,6 +159,7 @@ dependencies {
   amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_18_1Implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
