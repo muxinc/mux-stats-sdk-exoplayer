@@ -24,8 +24,7 @@ import org.json.JSONObject;
  * with {@link MuxStats} object as a static variable set by {@link MuxStats#setHostNetworkApi}
  * method, in this way it is only possible to have single MuxNetworkRequests instance at a time.
  */
-// TODO: Convert to Kotlin, make private in MSEP again
-/*package*/ class MuxNetworkRequests implements INetworkRequest {
+public class MuxNetworkRequests implements INetworkRequest {
 
   private static final String TAG = "MuxNetworkRequests";
 
