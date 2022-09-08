@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
+import com.mux.stats.sdk.muxstats.SimplePlayerBaseActivity;
 import java.lang.reflect.Constructor;
 
 public class SimplePlayerTestActivity extends SimplePlayerBaseActivity

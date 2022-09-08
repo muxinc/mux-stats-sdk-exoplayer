@@ -359,7 +359,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
   }
 
-  class MDAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
+  public class MDAdapter implements PlayerNotificationManager.MediaDescriptionAdapter {
 
     @Override
     public String getCurrentContentTitle(Player player) {

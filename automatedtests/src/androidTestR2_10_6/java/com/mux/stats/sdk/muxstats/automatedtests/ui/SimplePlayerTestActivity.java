@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.ui.PlayerNotificationManager;
 import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.mux.stats.sdk.muxstats.SimplePlayerBaseActivity;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import java.lang.reflect.Constructor;
 
