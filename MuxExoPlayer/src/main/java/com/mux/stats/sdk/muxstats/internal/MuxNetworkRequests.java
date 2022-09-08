@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import com.mux.stats.sdk.core.util.MuxLogger;
 import com.mux.stats.sdk.muxstats.INetworkRequest;
 import com.mux.stats.sdk.muxstats.MuxStats;
-import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 import com.mux.stats.sdk.muxstats.compat.AsyncTaskCompat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

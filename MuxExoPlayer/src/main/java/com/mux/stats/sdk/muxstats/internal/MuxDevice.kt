@@ -81,7 +81,7 @@ class MuxDevice(ctx: Context) : IDevice {
   }
 
   override fun getPluginVersion(): String {
-    return BuildConfig.MUX_PLUGIN_VERSION
+    return BuildConfig.LIB_VERSION
   }
 
   override fun getPlayerSoftware(): String {
