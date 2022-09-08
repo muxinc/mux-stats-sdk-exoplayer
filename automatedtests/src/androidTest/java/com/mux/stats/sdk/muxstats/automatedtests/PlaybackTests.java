@@ -17,6 +17,7 @@ import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.PlayerData;
+import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
