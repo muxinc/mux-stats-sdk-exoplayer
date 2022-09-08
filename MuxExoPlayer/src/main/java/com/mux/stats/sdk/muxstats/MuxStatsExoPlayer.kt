@@ -32,6 +32,16 @@ import com.google.ads.interactivemedia.v3.api.AdEvent
  *    .setAdEventListener(muxStats.getAdsImaSdkListener())
  *    //...
  *    build()
+ *
+ * Check out our full integration instructions for more information:
+ * https://docs.mux.com/guides/data/monitor-exoplayer
+ *
+ * @param context The context you're playing in. Screen size will be detected if this is an Activity
+ * @param player The player you wish to monitor
+ * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null
+ * @param customerData Data about you, your video, and your player.
+ * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
+ *    this can be left null/omitted
  */
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
