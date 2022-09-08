@@ -7,6 +7,7 @@ import com.google.ads.interactivemedia.v3.api.AdErrorEvent
 import com.google.ads.interactivemedia.v3.api.AdEvent
 import com.google.ads.interactivemedia.v3.api.AdsLoader
 import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
 import com.mux.stats.sdk.core.Core
 import com.mux.stats.sdk.core.CustomOptions
@@ -39,7 +40,7 @@ import kotlin.math.ceil
  * @param context The context you're playing in. Screen size will be detected if this is an Activity
  * @param player The player you wish to monitor
  * @param playerName A human-readable name for your player. It will be searchable on the dashboard
- * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null
+ * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null.
  * @param customerData Data about you, your video, and your player.
  * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
  *    this can be left null/omitted
@@ -207,28 +208,69 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     singletonDevice()?.overwrittenManufacturer = manufacturer
   }
 
+  /**
+   * If true, this object will automatically track fatal playback errors, eventually showing the
+   * errors on the dashboard. If false, only errors reported via [error] will show up on the
+   * dashboard
+   */
   fun setAutomaticErrorTracking(enabled: Boolean) = muxStats.setAutomaticErrorTracking(enabled)
 
+  /**
+   * Report a fatal error to the dashboard for this view. This is normally tracked automatically,
+   * but if you are reporting errors yourself, you can do so with this method
+   */
+  fun error(exception: MuxErrorException) = muxStats.error(exception)
+
+  /**
+   * Change the player [View] this object observes.
+   * @see [getExoPlayerView]
+   */
   fun setPlayerView(view: View?) {
     playerAdapter.playerView = view
   }
 
-  fun setPlayerSize(width: Int, height: Int) = muxStats.setPlayerSize(pxToDp(width), pxToDp(height))
+  /**
+   * Manually set the size of the player view. This overrides the normal auto-detection. The
+   * dimensions should be in physical pixels
+   */
+  fun setPlayerSize(widthPx: Int, heightPx: Int) = muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
 
-  fun setScreenSize(width: Int, height: Int) = muxStats.setScreenSize(pxToDp(width), pxToDp(height))
+  /**
+   * Manually set the size of the screen. This overrides the normal auto-detection. The dimensions
+   * should be in physical pixels
+   */
+  fun setScreenSize(widthPx: Int, heightPx: Int) = muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
 
+  /**
+   * Call when a new [MediaItem] is being played in a player. This will start a new View to
+   * represent the new video being consumed
+   */
   fun videoChange(videoData: CustomerVideoData) {
     collector.videoChange(videoData)
   }
 
+  /**
+   * Call when new content is being served over the same URL, such as during a live stream. This
+   * method will start a new view to represent the new content being consumed
+   */
   fun programChange(videoData: CustomerVideoData) = collector.programChange(videoData)
 
+  /**
+   * Call when the device changes physical orientation, such as moving from portrait to landscape
+   */
   fun orientationChange(orientation: MuxSDKViewOrientation) =
     muxStats.orientationChange(orientation)
 
+  /**
+   * Call when the presentation of the video changes, ie Fullscreen vs Normal, etc
+   */
   fun presentationChange(presentation: MuxSDKViewPresentation) =
     muxStats.presentationChange(presentation)
 
+  /**
+   * Dispatch a raw event to the View. Please use this method with caution, as unexpected events can
+   * lead to broken views
+   */
   fun dispatch(event: IEvent?) = eventBus.dispatch(event)
 
   /**
