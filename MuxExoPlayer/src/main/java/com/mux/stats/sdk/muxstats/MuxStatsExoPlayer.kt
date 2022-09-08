@@ -38,6 +38,7 @@ import com.google.ads.interactivemedia.v3.api.AdEvent
  *
  * @param context The context you're playing in. Screen size will be detected if this is an Activity
  * @param player The player you wish to monitor
+ * @param playerName A human-readable name for your player. It will be searchable on the dashboard
  * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null
  * @param customerData Data about you, your video, and your player.
  * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
@@ -62,7 +63,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   private var _player by weak(player)
   private var _playerView by weak(playerView)
 
-  private val eventBus = EventBus()//.apply { addListener(muxStats) }
+  private val eventBus = EventBus()
   private val collector = MuxStateCollector({ muxStats }, eventBus)
   private val playerAdapter = collector.createExoPlayerAdapter(
     context = context,
