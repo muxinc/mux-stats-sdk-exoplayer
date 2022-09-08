@@ -86,12 +86,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   /**
-   * The view being used by the player that is being monitored, safely cast as a PlayerView if
-   * possible. Null if there is no view or the view is not the right type
-   */
-  var exoPlayerView: PlayerView? by downcast(::_playerView)
-
-  /**
    * The view being used by the player that is being monitored, safely cast as a StyledPlayerView if
    * possible. Null if there is no view or the view is not the right type
    */
@@ -129,6 +123,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   /**
    * Gets a Listener for google IMA ads events. You can add this listener to your [AdsLoader] and
    * Mux Data will monitor ad-related events
+   *
+   * See https://docs.mux.com/guides/data/monitor-exoplayer#4-advanced for more information
    *
    * For example:
    *  AdsLoader.Builder(this)
@@ -174,6 +170,12 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
       return
     }
   }
+
+  /**
+   * Gets the PlayerView casted as a View with the type of the receiving object. If the types don't
+   * match at runtime, or if [playerView] is null, this will return null
+   */
+  inline fun <reified T : View> getExoPlayerView(): T? = playerView as? T
 
   fun overwriteOsVersion(osVersion: String) {
     singletonDevice()?.overwrittenOsVersion = osVersion
