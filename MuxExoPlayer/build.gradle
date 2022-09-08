@@ -34,7 +34,6 @@ android {
     multiDexEnabled true
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-    buildConfigField("String", "MUX_PLUGIN_VERSION", "\"${versionName}\"")
     buildConfigField("String", "MUX_PLUGIN_NAME", "\"android-exoplayer-mux\"")
   }
 

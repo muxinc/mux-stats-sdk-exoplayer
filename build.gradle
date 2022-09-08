@@ -60,8 +60,15 @@ allprojects {
     minSdkVersion = 16
     compileSdkVersion = 31
     targetSdkVersion = 31
+<<<<<<< HEAD
 
     muxCoreVersion = "7.3.1"
   }
 
+=======
+    
+    muxCoreVersion = "7.3.1"
+  }
+
+>>>>>>> origin/master
 }
