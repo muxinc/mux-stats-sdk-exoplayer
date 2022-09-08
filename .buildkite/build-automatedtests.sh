@@ -14,4 +14,4 @@ docker run -it --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
     docker.io/muxinc/mux-exoplayer:20220112 \
-    bash -c "./gradlew --stacktrace automatedtests:assemble automatedtests:assembleAndroidTest"
+    bash -c "./gradlew --info automatedtests:assemble automatedtests:assembleAndroidTest"
