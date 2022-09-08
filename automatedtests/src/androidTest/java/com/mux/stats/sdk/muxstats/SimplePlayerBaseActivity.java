@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.automatedtests.ui;
+package com.mux.stats.sdk.muxstats;
 
 import android.app.PendingIntent;
 import android.content.Intent;
@@ -31,8 +31,6 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
-import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-import com.mux.stats.sdk.muxstats.MuxStatsHelper;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
@@ -46,7 +44,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
 
-  static final String TAG = "SimplePlayerActivity";
+  public static final String TAG = "SimplePlayerActivity";
 
   protected static final String PLAYBACK_CHANNEL_ID = "playback_channel";
   protected static final int PLAYBACK_NOTIFICATION_ID = 1;
@@ -54,32 +52,32 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
   protected static final String ARG_TITLE = "title";
   protected static final String ARG_START_POSITION = "start_position";
 
-  String videoTitle = "Test Video";
-  String urlToPlay;
-  PlayerView playerView;
-  ExoPlayer player;
-  DefaultTrackSelector trackSelector;
-  MediaSource testMediaSource;
-  MuxStatsExoPlayer muxStats;
-  AdsLoader adsLoader;
-  Uri loadedAdTagUri;
-  boolean playWhenReady = true;
-  MockNetworkRequest mockNetwork;
-  AtomicBoolean onResumedCalled = new AtomicBoolean(false);
-  PlayerNotificationManager notificationManager;
-  MediaSessionCompat mediaSessionCompat;
-  MediaSessionConnector mediaSessionConnector;
-  long playbackStartPosition = 0;
+  public String videoTitle = "Test Video";
+  public String urlToPlay;
+  public PlayerView playerView;
+  public ExoPlayer player;
+  public DefaultTrackSelector trackSelector;
+  public MediaSource testMediaSource;
+  public MuxStatsExoPlayer muxStats;
+  public AdsLoader adsLoader;
+  public Uri loadedAdTagUri;
+  public boolean playWhenReady = true;
+  public MockNetworkRequest mockNetwork;
+  public AtomicBoolean onResumedCalled = new AtomicBoolean(false);
+  public PlayerNotificationManager notificationManager;
+  public MediaSessionCompat mediaSessionCompat;
+  public MediaSessionConnector mediaSessionConnector;
+  public long playbackStartPosition = 0;
 
-  Lock activityLock = new ReentrantLock();
-  Condition playbackEnded = activityLock.newCondition();
-  Condition playbackStopped = activityLock.newCondition();
-  Condition seekEnded = activityLock.newCondition();
-  Condition playbackStarted = activityLock.newCondition();
-  Condition playbackBuffering = activityLock.newCondition();
-  Condition activityClosed = activityLock.newCondition();
-  Condition activityInitialized = activityLock.newCondition();
-  ArrayList<String> addAllowedHeaders = new ArrayList<>();
+  public Lock activityLock = new ReentrantLock();
+  public Condition playbackEnded = activityLock.newCondition();
+  public Condition playbackStopped = activityLock.newCondition();
+  public Condition seekEnded = activityLock.newCondition();
+  public Condition playbackStarted = activityLock.newCondition();
+  public Condition playbackBuffering = activityLock.newCondition();
+  public Condition activityClosed = activityLock.newCondition();
+  public Condition activityInitialized = activityLock.newCondition();
+  public ArrayList<String> addAllowedHeaders = new ArrayList<>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
