@@ -2,10 +2,12 @@ package com.mux.stats.sdk.muxstats
 
 import android.content.Context
 import android.view.View
+import androidx.annotation.VisibleForTesting
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent
+import com.google.ads.interactivemedia.v3.api.AdEvent
 import com.google.ads.interactivemedia.v3.api.AdsLoader
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Player
-import com.google.android.exoplayer2.ui.PlayerView
 import com.mux.stats.sdk.core.Core
 import com.mux.stats.sdk.core.CustomOptions
 import com.mux.stats.sdk.core.MuxSDKViewOrientation
@@ -17,8 +19,6 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.weak
 import kotlin.math.ceil
-import com.google.ads.interactivemedia.v3.api.AdErrorEvent
-import com.google.ads.interactivemedia.v3.api.AdEvent
 
 /**
  * Mux Data SDK for ExoPlayer. Create an instance of this object with your [ExoPlayer] to monitor
@@ -177,23 +177,35 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    */
   inline fun <reified T : View> getExoPlayerView(): T? = playerView as? T
 
+  /**
+   * Overwrite the OS version reported on the Mux Data dashboard for views recorded with this object
+   */
   fun overwriteOsVersion(osVersion: String) {
     singletonDevice()?.overwrittenOsVersion = osVersion
   }
 
+  /**
+   * Overwrite the device name reported on the Mux Data dashboard for views recorded with this object
+   */
   fun overwriteDeviceName(deviceName: String) {
     singletonDevice()?.overwrittenDeviceName = deviceName
   }
 
+  /**
+   * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
+   * recorded with this object
+   */
   fun overwriteOsFamily(osFamily: String) {
     singletonDevice()?.overwrittenOsFamilyName = osFamily
   }
 
+  /**
+   * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
+   * recorded with this object
+   */
   fun overwriteManufacturer(manufacturer: String) {
     singletonDevice()?.overwrittenManufacturer = manufacturer
   }
-
-  fun isPaused() = playerAdapter.collector.isPaused()
 
   fun setAutomaticErrorTracking(enabled: Boolean) = muxStats.setAutomaticErrorTracking(enabled)
 
@@ -220,18 +232,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   fun dispatch(event: IEvent?) = eventBus.dispatch(event)
 
   /**
-   * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
-   * headers that are not in the [MuxStateCollectorBase.allowedHeaders] list.
-   * This is used in automated tests and is not intended to be used from the application layer.
-   *
-   * @param headerName name of the header to send to the backend.
-   */
-  @Suppress("ProtectedInFinal")
-  protected fun allowHeaderToBeSentToBackend(headerName: String?) {
-    collector.allowHeaderToBeSentToBackend(headerName)
-  }
-
-  /**
    * Enables ADB logging for this SDK
    * @param enable If true, enables logging. If false, disables logging
    * @param verbose If true, enables verbose logging. If false, disables it
@@ -246,6 +246,27 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     playerAdapter.unbindEverything()
     muxStats.release()
   }
+
+  /**
+   * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
+   * headers that are not in the [MuxStateCollectorBase.allowedHeaders] list.
+   * This is used in automated tests and is not intended to be used from the application layer.
+   *
+   * @param headerName name of the header to send to the backend.
+   */
+  @Suppress("ProtectedInFinal")
+  @VisibleForTesting
+  protected fun allowHeaderToBeSentToBackend(headerName: String?) {
+    collector.allowHeaderToBeSentToBackend(headerName)
+  }
+
+  /**
+   * Returns whether or not the state collector thinks the player is paused. This method is used in
+   * automated tests and is not intended for use at the application layer
+   */
+  @Suppress("ProtectedInFinal")
+  @VisibleForTesting
+  protected fun isPaused() = playerAdapter.collector.isPaused()
 
   /**
    * Convert physical pixels to device density independent pixels.
