@@ -12,7 +12,7 @@ steps:
           - "MuxExoPlayer/buildout/reports/*/*.*"
           - "automatedtests/buildout/outputs/apk/androidTest/**/*.apk"
           - "automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk"
-- wait
+
 - command: ./.buildkite/build-demos.sh
   label: Verify Demo Build
 - wait
