@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal;
+package com.mux.stats.sdk.muxstats;
 
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -24,7 +24,8 @@ import org.json.JSONObject;
  * with {@link MuxStats} object as a static variable set by {@link MuxStats#setHostNetworkApi}
  * method, in this way it is only possible to have single MuxNetworkRequests instance at a time.
  */
-public class MuxNetworkRequests implements INetworkRequest {
+// TODO: Convert to Kotlin, make internal
+/*package*/ class MuxNetworkRequests implements INetworkRequest {
 
   private static final String TAG = "MuxNetworkRequests";
 

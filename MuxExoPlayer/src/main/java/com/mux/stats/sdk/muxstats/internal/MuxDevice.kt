@@ -20,7 +20,7 @@ import java.util.*
  * Basic device details such as OS version, vendor name and etc. Instances of this class
  * are used by [MuxStats] to interface with the device.
  */
-class MuxDevice(ctx: Context) : IDevice {
+internal class MuxDevice(ctx: Context) : IDevice {
   private var contextRef: WeakReference<Context>
   private var deviceId: String?
   private var appName = ""

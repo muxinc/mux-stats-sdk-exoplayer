@@ -19,3 +19,17 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-keep public class com.mux.** {
+  public * ;
+  protected * ;
+  interface * ;
+}
+
+-repackageclasses com.mux.stats.sdk
+
+-keepattributes Exceptions,Deprecated,*Annotation*,Signature,InnerClasses,EnclosingMethod
+
+-keeppackagenames com.mux.**
+
+-dontoptimize

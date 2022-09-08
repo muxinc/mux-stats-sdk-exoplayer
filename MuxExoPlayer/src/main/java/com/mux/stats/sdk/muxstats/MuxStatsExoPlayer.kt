@@ -55,7 +55,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
-  // TODO: Add Extensions somewhere so in Kotlin you can go exoPlayer.monitorWithMuxData(view = player.getView())
 
   companion object {
     const val TAG = "MuxStatsExoPlayer"
@@ -73,25 +72,13 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   )
   private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
 
-  /**
-   * An [AdErrorEvent.AdErrorListener] and [AdEvent.AdEventListener] that can be used with an IMA
-   * [AdsLoader] to monitor ad-related events with Mux Data
-   */
-  @Suppress("MemberVisibilityCanBePrivate")
-  val imaSdkListener: AdsImaSDKListener? by lazy {
+  private val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
       player,
       collector,
       eventBus
     )
   }
-
-  /**
-   * The view being used by the player that is being monitored, safely cast as a StyledPlayerView if
-   * possible. Null if there is no view or the view is not the right type
-   */
-  // TODO need to be splitted by Exo variants
-//  var styledPlayerView: StyledPlayerView? by downcast(::_playerView)
 
   init {
     // Init MuxStats (muxStats must be created last)

@@ -22,7 +22,7 @@ import kotlin.collections.HashMap
  * these events in {@link MuxStatsExoPlayer} and will be propagated here for processing, at this
  * point both HLS and DASH segments are processed in same way so all metrics are collected here.
  */
-open class BandwidthMetric(val player: ExoPlayer, val collector: MuxStateCollector) {
+internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxStateCollector) {
     /** Available qualities. */
     var availableTracks: TrackGroupArray? = null
 
@@ -195,7 +195,7 @@ open class BandwidthMetric(val player: ExoPlayer, val collector: MuxStateCollect
     }
 }
 
-class BandwidthMetricHls(player: ExoPlayer,
+internal class BandwidthMetricHls(player: ExoPlayer,
                          collector: MuxStateCollector
 ) : BandwidthMetric(player, collector) {
 
@@ -231,7 +231,7 @@ class BandwidthMetricHls(player: ExoPlayer,
  * Luckily logic for HLS parsing is same as logic for DASH parsing so for both streams we use
  * {@link BandwidthMetricHls}.
  */
-class BandwidthMetricDispatcher(player: ExoPlayer,
+internal class BandwidthMetricDispatcher(player: ExoPlayer,
                                 collector: MuxStateCollector
 ) {
     private val player: ExoPlayer? by weak(player)
