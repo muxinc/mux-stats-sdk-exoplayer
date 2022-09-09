@@ -1,10 +1,15 @@
 package com.mux.stats.sdk.muxstats
 
+import android.annotation.TargetApi
 import android.app.Activity
-import android.content.Context
 import android.graphics.Point
+import android.os.Build
+import android.util.Log
 import android.view.View
+import android.view.WindowInsets
+import com.google.android.exoplayer2.ui.PlayerView
 import com.mux.stats.sdk.muxstats.internal.weak
+
 
 /**
  * Allows implementers to supply data about the view and screen being used for playback
@@ -32,11 +37,7 @@ abstract class MuxUiDelegate<PlayerView>(view: PlayerView?) {
 private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: PlayerView?) :
   MuxUiDelegate<PlayerView>(view) {
 
-  private val _screenSize: Point = Point().let { size ->
-    @Suppress("DEPRECATION")  // probably we're in the same context as the player window
-    activity?.windowManager?.defaultDisplay?.getSize(size) // TODO: we can use getSizeRange(), not sure why we're not
-    size
-  }
+  private val _screenSize: Point = activity?.let { screenSize(it) } ?: Point()
 
   override fun getPlayerViewSize(): Point = view?.let { view ->
     Point().apply {
@@ -46,6 +47,38 @@ private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: Pl
   } ?: Point()
 
   override fun getScreenSize(): Point = _screenSize
+
+  private fun screenSize(activity: Activity): Point {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+      screenSizeApiR(activity)
+    } else {
+      screenSizeLegacy(activity)
+    }
+  }
+
+  @TargetApi(Build.VERSION_CODES.R)
+  private fun screenSizeApiR(activity: Activity): Point {
+    val windowBounds = activity.windowManager.currentWindowMetrics.bounds
+      .let { Point(it.width(), it.height()) }
+    val windowInsets = activity.windowManager.currentWindowMetrics.windowInsets
+      .getInsetsIgnoringVisibility(
+        WindowInsets.Type.navigationBars() or WindowInsets.Type.displayCutout()
+      )
+
+    // Return a minimum-size for fullscreen, as not all apps hide system UI
+    return Point().apply {
+      x = windowBounds.x - (windowInsets.right + windowInsets.left)
+      y = windowBounds.y - (windowInsets.top + windowInsets.bottom)
+    }
+  }
+
+  private fun screenSizeLegacy(activity: Activity): Point {
+    return Point().let { size ->
+      @Suppress("DEPRECATION") // bounds - insets method is used on API 30+
+      activity.windowManager?.defaultDisplay?.getSize(size)
+      size
+    }.also { size -> Log.d(javaClass.simpleName, "displayStuffLegacy: One Size: $size") }
+  }
 }
 
 /**
@@ -60,4 +93,4 @@ internal fun <V : View> V?.muxUiDelegate(activity: Activity)
  * not able to get a Display from a non-activity context
  */
 @JvmSynthetic
-internal fun noUiDelegate() : MuxUiDelegate<View> = AndroidUiDelegate(null, null)
+internal fun noUiDelegate(): MuxUiDelegate<View> = AndroidUiDelegate(null, null)

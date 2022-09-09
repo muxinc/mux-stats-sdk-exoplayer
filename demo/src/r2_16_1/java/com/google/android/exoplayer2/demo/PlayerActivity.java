@@ -24,6 +24,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -316,9 +317,8 @@ public class PlayerActivity extends AppCompatActivity
       customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
       CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
       customerData.setCustomData(customData);
-      //TODO: Really need those ctor overloads
       muxStats = new MuxStatsExoPlayer(
-          this, player, playerView, "demo-player", customerData, null, null);
+          this, player, playerView, "demo-player", customerData);
       Point size = new Point();
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         getWindowManager().getDefaultDisplay().getSize(size);
