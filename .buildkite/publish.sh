@@ -14,16 +14,16 @@ docker run -it --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
     docker.io/muxinc/mux-exoplayer:20220112 \
-    bash -c "./gradlew --info  ExoPlayerAdapter:assemble ExoPlayerAdapter:artifactoryPublish MuxExoPlayer:assemble MuxExoPlayer:artifactoryPublish automatedtests:assemble automatedtests:assembleAndroidTest"
+    bash -c "./gradlew --info  ExoPlayerAdapter:assemble ExoPlayerAdapter:artifactoryPublish MuxExoPlayer:assemble MuxExoPlayer:artifactoryPublish"
 
-#docker run -it --rm  \
-#    -v $(pwd):/data \
-#    -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
-#    -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
-#    -e ORG_GRADLE_PROJECT_signingPassword="$ORG_GRADLE_PROJECT_signingPassword" \
-#    -e ORG_GRADLE_PROJECT_signingKey="$ORG_GRADLE_PROJECT_signingKey" \
-#    -e ORG_GRADLE_PROJECT_artifactory_user=$ORG_GRADLE_PROJECT_artifactory_user \
-#    -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
-#    -w /data \
-#    docker.io/muxinc/mux-exoplayer:20220112 \
-#    bash -c "./gradlew --info"
+docker run -it --rm  \
+    -v $(pwd):/data \
+    -e BUILDKITE_BRANCH="$BUILDKITE_BRANCH" \
+    -e ORG_GRADLE_PROJECT_signingKeyId="$ORG_GRADLE_PROJECT_signingKeyId" \
+    -e ORG_GRADLE_PROJECT_signingPassword="$ORG_GRADLE_PROJECT_signingPassword" \
+    -e ORG_GRADLE_PROJECT_signingKey="$ORG_GRADLE_PROJECT_signingKey" \
+    -e ORG_GRADLE_PROJECT_artifactory_user=$ORG_GRADLE_PROJECT_artifactory_user \
+    -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
+    -w /data \
+    docker.io/muxinc/mux-exoplayer:20220112 \
+    bash -c "./gradlew --info automatedtests:assemble automatedtests:assembleAndroidTest"
