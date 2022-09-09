@@ -275,6 +275,8 @@ abstract class MuxStateCollectorBase(
     // Only handle if we were previously seeking
     if (seekingInProgress) {
       if (inferPlayingState) {
+        // If inferring playing state, we may also assume the player is playing based on
+        // collected state data
         if (
           (((System.currentTimeMillis() - firstFrameRenderedAtMillis
                   > timeToWaitAfterFirstFrameReceived) && firstFrameReceived) || !mediaHasVideoTrack!!)
@@ -283,14 +285,14 @@ abstract class MuxStateCollectorBase(
           // This is a playback !!!
           dispatch(SeekedEvent(null))
           seekingInProgress = false
-          Log.e("MuxStats", "Playing called from seeked event !!!")
+          MuxLogger.d("MuxStats", "Playing called from seeked event !!!")
           playing()
         } else {
           // No playback yet.
-          Log.v("MuxStats", "WHY !!!!");
+          MuxLogger.d("MuxStats", "Seeked before playback started");
         }
       } else {
-        // the player was seeking while paused
+        // If not inferring player state, just dispatch the event
         dispatch(SeekedEvent(null))
         seekingInProgress = false
         _playerState= MuxPlayerState.SEEKED

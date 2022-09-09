@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-  compileSdk 32
+  compileSdk project.ext.compileSdkVersion
 
   defaultConfig {
-    minSdk 16
-    targetSdk 32
+    minSdk project.ext.minSdkVersion
+    targetSdk project.ext.targetSdkVersion
 
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     consumerProguardFiles "consumer-rules.pro"

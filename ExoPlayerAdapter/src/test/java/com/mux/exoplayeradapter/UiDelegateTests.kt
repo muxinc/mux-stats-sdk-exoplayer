@@ -84,8 +84,7 @@ class UiDelegateTests : AbsRobolectricTest() {
 
   @Test
   fun testNoUi() {
-    val context = mockk<Context> {}
-    val uiDelegate = context.noUiDelegate()
+    val uiDelegate = noUiDelegate()
 
     val screenSize = uiDelegate.getScreenSize()
     assertEquals(

@@ -22,7 +22,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   fun setUpCollector() {
     eventDispatcher = FakeEventDispatcher()
     val stats = mockk<MuxStats>(relaxed = true)
-    stateCollector = MuxStateCollector(stats, eventDispatcher)
+    stateCollector = MuxStateCollector({ stats }, eventDispatcher)
   }
 
   @Test
@@ -140,8 +140,9 @@ class StateCollectorTests : AbsRobolectricTest() {
 
   @Test
   fun testPlayingWhileSeeking() {
-    // playing() ignored if seeking.
+    stateCollector.play() // Seek events are ignored before play()
     stateCollector.seeking()
+    // playing() ignored if seeking.
     stateCollector.playing()
     assertNotEquals(
       "seeking -> playing => seeking",
@@ -183,14 +184,6 @@ class StateCollectorTests : AbsRobolectricTest() {
   }
 
   @Test
-  fun testPauseWhilePaused() {
-    // if already paused, skip
-    stateCollector.pause()
-    stateCollector.pause()
-    eventDispatcher.assertHasOneOf(PauseEvent(null))
-  }
-
-  @Test
   fun testFirstPauseWhileSeeked() {
     // if seeked, and this is the first pause event, process as paused
     stateCollector.seeking()
@@ -208,6 +201,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   fun testPauseWhileSeeked() {
     // SEEKED is the state of being paused after seeking, so ignore pause() in this state unless it's the 1st
     stateCollector.pause()
+    stateCollector.play()
     stateCollector.seeking()
     stateCollector.seeked(false)
     stateCollector.pause()
@@ -238,6 +232,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   @Test
   fun testPauseDuringSeeking() {
     // if pause comes during seeking, we are in SEEKED
+    stateCollector.play() //seeks before play are ignored
     stateCollector.seeking()
     stateCollector.pause()
     assertEquals(
@@ -264,6 +259,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   @Test
   fun testSeekedWhileSeeking() {
     // If seeking and not inferring state info, just go to seeked
+    stateCollector.play() // Seek events are ignored before play()
     stateCollector.seeking()
     stateCollector.seeked(false)
     assertEquals(
@@ -278,6 +274,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   @Test
   fun testSeekedInferringPlay() {
     // If seeking and *are* inferring state info, and frames rendered, end up in PLAYING state
+    stateCollector.play() // Seek events are ignored before play()
     stateCollector.seeking()
     stateCollector.onFirstFrameRendered()
     runBlocking { delay(100) } // onFirstFrameRendered is delayed 50ms
@@ -289,6 +286,7 @@ class StateCollectorTests : AbsRobolectricTest() {
     )
     eventDispatcher.assertHasExactlyThese(
       listOf(
+        PlayEvent(null),
         SeekingEvent(null),
         SeekedEvent(null),
         PlayingEvent(null),
