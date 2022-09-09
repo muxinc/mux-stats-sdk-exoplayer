@@ -1,6 +1,7 @@
 plugins {
   id 'com.android.library'
   id 'org.jetbrains.kotlin.android'
+  id 'com.mux.gradle.android.mux-android-distribution'
 }
 
 android {
@@ -135,6 +136,21 @@ android {
   kotlinOptions {
     jvmTarget = '1.8'
   }
+}
+
+muxDistribution {
+  def buildKite = System.getenv("BUILDKITE_BRANCH") != null
+  if (buildKite) {
+    devVersion versionFromCommitHash('dev-', System.getenv("BUILDKITE_BRANCH"))
+  } else {
+    devVersion versionFromCommitHash('dev-')
+  }
+  releaseVersion versionFromHeadCommit()
+  artifactIds artifactFromFlavorValue('exoplayer')
+  groupIds just("com.mux.stats.sdk.muxstats")
+
+  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
+  useArtifactory = true
 }
 
 dependencies {
