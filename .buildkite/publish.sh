@@ -14,7 +14,7 @@ docker run -it --rm  \
     -e ORG_GRADLE_PROJECT_artifactory_password=$ORG_GRADLE_PROJECT_artifactory_password \
     -w /data \
     docker.io/muxinc/mux-exoplayer:20220112 \
-    bash -c "./gradlew --info MuxExoPlayer:clean MuxExoPlayer:assemble MuxExoPlayer:artifactoryPublish"
+    bash -c "./gradlew --info  MuxExoPlayer:assemble MuxExoPlayer:artifactoryPublish ExoPlayerAdapter:assemble ExoPlayerAdapter:artifactoryPublish"
 
 docker run -it --rm  \
     -v $(pwd):/data \
