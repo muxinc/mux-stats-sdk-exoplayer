@@ -3,7 +3,7 @@ package com.mux.stats.sdk.muxstats.automatedtests.mockup;
 import android.util.Log;
 
 import com.mux.stats.sdk.muxstats.INetworkRequest;
-import com.mux.stats.sdk.muxstats.internal.MuxNetworkRequests;
+import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import java.net.URL;
 import java.util.ArrayList;

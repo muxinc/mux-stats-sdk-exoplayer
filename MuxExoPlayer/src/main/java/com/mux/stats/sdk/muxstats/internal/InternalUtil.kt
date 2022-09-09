@@ -16,12 +16,6 @@ internal fun Any.oneOf(vararg accept: Any) = accept.contains(this)
 internal fun Any.noneOf(vararg accept: Any) = !accept.contains(this)
 
 /**
- * Returns the singleton MuxDevice object, appropriately cast
- */
-@JvmSynthetic
-internal fun singletonDevice() = MuxStats.getHostDevice() as? MuxDevice
-
-/**
  * Gets a Log Tag from the name of the calling class. Can be used in any package that isn't
  * obfuscated (such as muxstats)
  */

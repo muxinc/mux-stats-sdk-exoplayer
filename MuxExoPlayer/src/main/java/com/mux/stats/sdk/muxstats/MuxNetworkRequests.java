@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal;
+package com.mux.stats.sdk.muxstats;
 
 import android.net.Uri;
 import android.os.AsyncTask;
