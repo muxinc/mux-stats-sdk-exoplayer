@@ -167,6 +167,21 @@ dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
-  implementation project(':ExoPlayerAdapter')
+  debugImplementation project(':ExoPlayerAdapter')
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+}
+
+afterEvaluate {
+  // Add dependency on ExoPlayerAdapter lib via mvn, which is also variant-aware
+  //  We only want to add this to release builds, and it has to be the same variant to work.
+  //  There's r2_18_1Api '..' and releaseApi '..', but no r2_18_1ReleaseApi '..'
+  android.libraryVariants.findAll { it.buildType.name.contains("release") }
+          .each { variant ->
+            def depNotation =
+                    "com.mux.stats.sdk.muxstats" +
+                            ":ExoPlayerAdapter_${variant.productFlavors.get(0).name}" +
+                            ":${project.version}"
+            project.dependencies.add(variant.runtimeConfiguration.getName(), depNotation)
+            project.dependencies.add(variant.compileConfiguration.getName(), depNotation)
+          }
 }
