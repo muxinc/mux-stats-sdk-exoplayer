@@ -181,7 +181,13 @@ afterEvaluate {
                     "com.mux.stats.sdk.muxstats" +
                             ":ExoPlayerAdapter_${variant.productFlavors.get(0).name}" +
                             ":${project.version}"
-            project.dependencies.add(variant.runtimeConfiguration.getName(), depNotation)
-            project.dependencies.add(variant.compileConfiguration.getName(), depNotation)
+            println("\n\nPROPERTIES OF $variant")
+            variant.properties.sort().each { println("\t{$it.key}")}
+            variant.properties.findAll { it.key == "sourceSets"}.each {
+              println("\tsourceSets (type ${variant.sourceSets.class.simpleName}")
+              it.value.each { println("\t$it, type is ${it.class.simpleName}")}
+            }
+            def mainSourceSet = variant.sourceSets.find {it.name == 'main'}
+            project.dependencies.add(mainSourceSet.apiConfigurationName, depNotation)
           }
 }
