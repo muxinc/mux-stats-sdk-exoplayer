@@ -39,18 +39,11 @@ android {
 
 
   buildTypes {
-    // Due to fun with fat-aar we must switch on build type
-    // This is because fat-aar is confused by multiple flavor dimensions
-    // For consuming libraries this is not a problem and they can support
-    // independent debug/release switching
-
+    // Build types mostly control logging and (devex-improving) minification
     debug {
-      // Note this is NOT a fat aar
       minifyEnabled false
     }
-
     release {
-      // Note this is a fat aar (see dependencies for MuxCore inclusion)
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
