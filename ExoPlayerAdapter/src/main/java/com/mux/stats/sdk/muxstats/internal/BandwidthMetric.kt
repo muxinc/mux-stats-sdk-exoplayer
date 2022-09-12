@@ -78,16 +78,14 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
                     segmentWidth:Int, segmentHeight:Int
     ) : BandwidthMetricData {
         // Populate segment time details.
-        if (player != null) {
-            synchronized (collector.currentTimelineWindow) {
-                try {
-                    player!!.getCurrentTimeline()
-                        .getWindow(player!!.getCurrentWindowIndex(), collector.currentTimelineWindow)
-                } catch (e:Exception) {
-                    // Failed to obtrain data, ignore, we will get it on next call
-                }
-            }
-        }
+      synchronized (collector.currentTimelineWindow) {
+          try {
+              player.getCurrentTimeline()
+                  .getWindow(player.getCurrentWindowIndex(), collector.currentTimelineWindow)
+          } catch (e:Exception) {
+              // Failed to obtrain data, ignore, we will get it on next call
+          }
+      }
         var segmentData:BandwidthMetricData = BandwidthMetricData()
         // TODO RequestStart timestamp is currently not available from ExoPlayer
         segmentData.requestResponseStart = System.currentTimeMillis()

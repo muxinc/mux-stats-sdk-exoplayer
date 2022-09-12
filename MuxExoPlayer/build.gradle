@@ -39,18 +39,11 @@ android {
 
 
   buildTypes {
-    // Due to fun with fat-aar we must switch on build type
-    // This is because fat-aar is confused by multiple flavor dimensions
-    // For consuming libraries this is not a problem and they can support
-    // independent debug/release switching
-
+    // Build types mostly control logging and (devex-improving) minification
     debug {
-      // Note this is NOT a fat aar
       minifyEnabled false
     }
-
     release {
-      // Note this is a fat aar (see dependencies for MuxCore inclusion)
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
@@ -132,6 +125,8 @@ muxDistribution {
   artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
 
+  packageJavadocs = buildKite // This takes a while so don't do it for test builds
+
   publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
   useArtifactory = true
 }
@@ -181,7 +176,8 @@ afterEvaluate {
                     "com.mux.stats.sdk.muxstats" +
                             ":ExoPlayerAdapter_${variant.productFlavors.get(0).name}" +
                             ":${project.version}"
-            project.dependencies.add(variant.runtimeConfiguration.getName(), depNotation)
-            project.dependencies.add(variant.compileConfiguration.getName(), depNotation)
+            def sourceSet = variant.sourceSets.reverse()[0] // Last src set is most specific
+            // would be the same as declaring eg, r2_18_1ReleaseApi
+            project.dependencies.add(sourceSet.apiConfigurationName, depNotation)
           }
 }
