@@ -358,5 +358,4 @@ dependencies {
   r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   implementation project(':MuxExoPlayer')
-  implementation project(':ExoPlayerAdapter')
 }
