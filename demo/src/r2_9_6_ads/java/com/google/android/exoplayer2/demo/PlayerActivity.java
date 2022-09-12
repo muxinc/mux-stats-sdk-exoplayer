@@ -521,7 +521,6 @@ public class PlayerActivity extends Activity
   @SuppressWarnings("unchecked")
   private MediaSource buildMediaSource(Uri uri, @Nullable String overrideExtension) {
     @ContentType int type = Util.inferContentType(uri, overrideExtension);
-    muxStats.setStreamType(type);
     switch (type) {
       case C.TYPE_DASH:
         return new DashMediaSource.Factory(dataSourceFactory)

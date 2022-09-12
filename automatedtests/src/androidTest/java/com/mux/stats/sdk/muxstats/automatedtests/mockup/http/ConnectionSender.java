@@ -167,8 +167,7 @@ public class ConnectionSender extends Thread {
       } catch (InterruptedException e) {
         // Thread killed
       } catch (IOException e) {
-        e.printStackTrace();
-        Log.e(TAG, "Connection closed by the client !!!");
+        Log.e(TAG, "Connection closed by the client !!!", e);
         listener.segmentServed(requestUuid, segmentStat);
         isRunning = false;
       }

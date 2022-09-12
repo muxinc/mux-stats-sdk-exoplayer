@@ -1,6 +1,8 @@
 package com.mux.stats.sdk.muxstats.automatedtests.mockup.http;
 
 
+import android.util.Log;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -12,6 +14,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class SimpleHTTPServer extends Thread implements ConnectionListener {
+
+  private static final String TAG = SimpleHTTPServer.class.getSimpleName();
 
   public static String FILE_NAME_RESPONSE_HEADER = "Automated-Test-File-Name";
   public static String REQUEST_UUID_HEADER = "Request-segment-uuid";
@@ -54,7 +58,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
       serverLock.lock();
       return newMediaSegmentStarted.await(timeoutInMs, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
-      e.printStackTrace();
+      Log.e(TAG, "Interrupted while waiting for next segment", e);
       return false;
     } finally {
       serverLock.unlock();
@@ -101,7 +105,7 @@ public class SimpleHTTPServer extends Thread implements ConnectionListener {
 //                // Ignore, sombody killed the server
       } catch (IOException e) {
         // TODO handle this
-        e.printStackTrace();
+        Log.e(TAG, "thrown while acceptConnection()", e);
       }
     }
     for (ConnectionWorker worker : workers) {

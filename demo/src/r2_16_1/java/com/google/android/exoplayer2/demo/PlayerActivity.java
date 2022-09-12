@@ -24,6 +24,7 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
+import android.view.Display;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -65,10 +66,9 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.util.MuxLogger;
-import com.mux.stats.sdk.muxstats.MuxSDKViewPresentation;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -318,7 +318,7 @@ public class PlayerActivity extends AppCompatActivity
       CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
       customerData.setCustomData(customData);
       muxStats = new MuxStatsExoPlayer(
-          this, player, "demo-player", customerData);
+          this, player, playerView, "demo-player", customerData);
       Point size = new Point();
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         getWindowManager().getDefaultDisplay().getSize(size);

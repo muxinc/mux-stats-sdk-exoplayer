@@ -3,6 +3,8 @@ package com.mux.stats.sdk.muxstats;
 import android.net.Uri;
 import android.os.AsyncTask;
 import com.mux.stats.sdk.core.util.MuxLogger;
+import com.mux.stats.sdk.muxstats.INetworkRequest;
+import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.compat.AsyncTaskCompat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,7 +20,7 @@ import org.json.JSONObject;
 
 /**
  * Network communication wrapper, instance of this class is used to handle all network communication
- * for all {@link MuxBaseExoPlayer} objects in this process. Instance of this class is associated
+ * for all {@link MuxStatsExoPlayer} objects in this process. Instance of this class is associated
  * with {@link MuxStats} object as a static variable set by {@link MuxStats#setHostNetworkApi}
  * method, in this way it is only possible to have single MuxNetworkRequests instance at a time.
  */
