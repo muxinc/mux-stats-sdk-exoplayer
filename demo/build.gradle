@@ -93,6 +93,9 @@ android {
       missingDimensionStrategy 'exoplayer', 'r2_18_1'
     }
   }
+  variantFilter { // this app doesn't need a release build, so save some resources
+    setIgnore(it.buildType.name == 'release')
+  }
 
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
