@@ -26,7 +26,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   private val bandwidthMetricCollector: BandwidthMetricDispatcher = BandwidthMetricDispatcher(player, collector)
 
   override fun onDownstreamFormatChanged(
-    eventTime: AnalyticsListener.EventTime,
+    eventTime: EventTime,
     mediaLoadData: MediaLoadData
   ) {
     if (collector.detectMimeType) {
@@ -35,7 +35,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   }
 
   override fun onPlaybackParametersChanged(
-    eventTime: AnalyticsListener.EventTime,
+    eventTime: EventTime,
     playbackParameters: PlaybackParameters
   ) {
     //todo
@@ -62,19 +62,19 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   }
 
   @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.12)
-  override fun onSeekStarted(eventTime: AnalyticsListener.EventTime) {
+  override fun onSeekStarted(eventTime: EventTime) {
     collector.seeking()
   }
 
   @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.12)
-  override fun onSeekProcessed(eventTime: AnalyticsListener.EventTime) {
+  override fun onSeekProcessed(eventTime: EventTime) {
     // TODO: This the new way (over position discontinuity or guessing) so figure out how to use it
     //collector.seeked(false)
   }
 
-  override fun onTimelineChanged(eventTime: AnalyticsListener.EventTime, reason: Int) {
+  override fun onTimelineChanged(eventTime: EventTime, reason: Int) {
     val player = player // strong reference during the listener call
-    if (player != null) {
+    if (player != null && eventTime.timeline.windowCount > 0) {
       Timeline.Window().apply {
         eventTime.timeline.getWindow(0, this)
         collector.sourceDurationMs = durationMs
