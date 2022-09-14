@@ -34,7 +34,6 @@ android {
     just2_17 { dimension 'source' }
     from2_18toNow { dimension 'source' }
     // Exoplayer version for testing/variant matching
-    r2_9_6 { dimension 'exoplayer' }
     r2_10_6 { dimension 'exoplayer' }
     r2_11_1 { dimension 'exoplayer' }
     r2_12_1 { dimension 'exoplayer' }
@@ -48,7 +47,7 @@ android {
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
-          "upto2_10"      : ["r2_9_6", "r2_10_6"],
+          "upto2_10"      : ["r2_10_6"],
           "just2_11"      : ["r2_11_1"],
           "from2_12to2_13": ["r2_12_1", "r2_13_1"],
           "just2_14"      : ["r2_14_1"],
@@ -160,8 +159,6 @@ dependencies {
   implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
   //noinspection GradleDynamicVersion
   implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.+'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
   //noinspection GradleDynamicVersion,GradleDependency

@@ -59,10 +59,6 @@ android {
   flavorDimensions 'exoplayer'
 
   productFlavors {
-    r2_9_6 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_10']
-    }
     r2_10_6 {
       dimension 'exoplayer'
       matchingFallbacks = ['upto2_10']
@@ -132,8 +128,6 @@ muxDistribution {
 }
 
 dependencies {
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
   //noinspection GradleDynamicVersion,GradleDependency
