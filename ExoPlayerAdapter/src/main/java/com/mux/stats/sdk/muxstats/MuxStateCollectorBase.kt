@@ -13,6 +13,7 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.BandwidthMetricDispatcher
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
+import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.properties.Delegates
@@ -153,7 +154,7 @@ abstract class MuxStateCollectorBase(
    * @param tagName name of the tag to extract from the manifest.
    * @return tag value if tag is found and we are playing live stream, -1 string otherwise.
    */
-  abstract fun parseManifestTag(tagName:String):String
+  abstract fun parseManifestTag(tagName: String): String
 
   fun parseManifestTagL(tagName: String): Long {
     var value: String = parseManifestTag(tagName)
@@ -229,12 +230,13 @@ abstract class MuxStateCollectorBase(
       Log.e("MuxStats", "Ignoring playing event, seeking in progress !!!")
       return
     }
-    if (_playerState == MuxPlayerState.PAUSED
-      || _playerState == MuxPlayerState.FINISHED_PLAYING_ADS) {
+    if (_playerState.oneOf(MuxPlayerState.PAUSED, MuxPlayerState.FINISHED_PLAYING_ADS)) {
       play()
-    }
-    if (_playerState == MuxPlayerState.REBUFFERING) {
+    } else if (_playerState == MuxPlayerState.REBUFFERING) {
       rebufferingEnded()
+    } else if( _playerState == MuxPlayerState.PLAYING) {
+      // No need to re-enter the playing state
+      return
     }
 
     _playerState = MuxPlayerState.PLAYING
@@ -295,7 +297,7 @@ abstract class MuxStateCollectorBase(
         // If not inferring player state, just dispatch the event
         dispatch(SeekedEvent(null))
         seekingInProgress = false
-        _playerState= MuxPlayerState.SEEKED
+        _playerState = MuxPlayerState.SEEKED
       }
 
 
