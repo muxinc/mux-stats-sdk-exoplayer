@@ -155,10 +155,7 @@ muxDistribution {
 }
 
 dependencies {
-
-  implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-  //noinspection GradleDynamicVersion
-  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.+'
+  api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
   //noinspection GradleDynamicVersion,GradleDependency
@@ -177,6 +174,8 @@ dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${project.ext.kotlinxCoroutinesVersion}"
 
   testImplementation 'junit:junit:4.13.2'
   testImplementation 'androidx.test.ext:junit:1.1.3'
