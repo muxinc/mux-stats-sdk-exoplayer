@@ -120,10 +120,9 @@ muxDistribution {
   releaseVersion versionFromHeadCommit()
   artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
+  publishIf { it.containsIgnoreCase("release") }
 
   packageJavadocs = buildKite // This takes a while so don't do it for test builds
-
-  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
   useArtifactory = true
 }
 

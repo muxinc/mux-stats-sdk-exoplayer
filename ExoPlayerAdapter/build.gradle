@@ -150,7 +150,7 @@ muxDistribution {
 
   packageJavadocs = buildKite // This takes a while so don't do it for test builds
 
-  publishIf { it.buildType.name.contains("release") }
+  publishIf { it.containsIgnoreCase("release") }
   useArtifactory = true
 }
 
