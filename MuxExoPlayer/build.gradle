@@ -59,10 +59,6 @@ android {
   flavorDimensions 'exoplayer'
 
   productFlavors {
-    r2_9_6 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_10']
-    }
     r2_10_6 {
       dimension 'exoplayer'
       matchingFallbacks = ['upto2_10']
@@ -124,36 +120,33 @@ muxDistribution {
   releaseVersion versionFromHeadCommit()
   artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
+  publishIf { it.containsIgnoreCase("release") }
 
   packageJavadocs = buildKite // This takes a while so don't do it for test builds
-
-  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
   useArtifactory = true
 }
 
 dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_15_1Implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_16_1Implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
   // Amazon's port doesn't delete any symbols (ever), so we only need one version
   //noinspection GradleDynamicVersion,GradleDependency
-  amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
+  amznPortApi "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-  r2_18_1Implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'

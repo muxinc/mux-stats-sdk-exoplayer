@@ -34,7 +34,6 @@ android {
     just2_17 { dimension 'source' }
     from2_18toNow { dimension 'source' }
     // Exoplayer version for testing/variant matching
-    r2_9_6 { dimension 'exoplayer' }
     r2_10_6 { dimension 'exoplayer' }
     r2_11_1 { dimension 'exoplayer' }
     r2_12_1 { dimension 'exoplayer' }
@@ -48,7 +47,7 @@ android {
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
-          "upto2_10"      : ["r2_9_6", "r2_10_6"],
+          "upto2_10"      : ["r2_10_6"],
           "just2_11"      : ["r2_11_1"],
           "from2_12to2_13": ["r2_12_1", "r2_13_1"],
           "just2_14"      : ["r2_14_1"],
@@ -151,35 +150,32 @@ muxDistribution {
 
   packageJavadocs = buildKite // This takes a while so don't do it for test builds
 
-  publishIf { it.buildType.name.contains("release") }
+  publishIf { it.containsIgnoreCase("release") }
   useArtifactory = true
 }
 
 dependencies {
+  api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+  amznPortApi "com.amazon.android:exoplayer:2.16.1"
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
-  implementation "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-  //noinspection GradleDynamicVersion
-  implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.+'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_15_1Implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_16_1Implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
-  amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-  r2_18_1Implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${project.ext.kotlinxCoroutinesVersion}"
 
   testImplementation 'junit:junit:4.13.2'
   testImplementation 'androidx.test.ext:junit:1.1.3'

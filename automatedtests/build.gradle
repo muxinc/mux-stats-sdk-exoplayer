@@ -53,10 +53,6 @@ android {
 
   flavorDimensions 'exoplayer'
   productFlavors {
-    r2_9_6 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_10']
-    }
     r2_10_6 {
       dimension 'exoplayer'
       matchingFallbacks = ['upto2_10']
@@ -118,8 +114,6 @@ dependencies {
   // Optional -- UI testing with UI Automator
   androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
   androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-  androidTestR2_9_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
-  androidTestR2_9_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
   androidTestR2_10_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
   androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
   androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
@@ -133,9 +127,6 @@ dependencies {
   androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
   api 'org.checkerframework:checker-qual:2.5.2'
-
-  r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
-  r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
 
   r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
   r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
