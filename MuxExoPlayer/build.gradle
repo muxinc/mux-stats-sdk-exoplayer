@@ -117,7 +117,7 @@ muxDistribution {
   groupIds just("com.mux.stats.sdk.muxstats")
   publishIf { it.containsIgnoreCase("release") }
 
-  packageJavadocs = buildKite // This takes a while so don't do it for test builds
+  packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
   useArtifactory = true
 }
 
