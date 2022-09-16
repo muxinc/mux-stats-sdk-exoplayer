@@ -2,7 +2,7 @@ env:
   SAUCECTL_LABEL: "$BUILDKITE_BUILD_NUMBER $BUILDKITE_PIPELINE_SLUG $BUILDKITE_BRANCH $BUILDKITE_COMMIT"
 steps:
 - command: ./.buildkite/publish.sh
-  label: Build AARs and APKs
+  label: Build Automated Tests
   plugins:
     - artifacts#v1.3.0:
        upload:
