@@ -1,4 +1,4 @@
-name: Create Draft Release
+name: Deploy and Create Release
 
 on:
   pull_request:
