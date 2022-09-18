@@ -14,6 +14,6 @@ jobs:
     if: startsWith(github.head_ref, 'releases/v')
 
     steps:
-      - uses: daytime-em/release-notes-on-pr@v0.0.1
+      - uses: daytime-em/release-notes-on-pr@v0.0.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
