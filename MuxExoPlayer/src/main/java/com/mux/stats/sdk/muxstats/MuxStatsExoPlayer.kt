@@ -56,9 +56,9 @@ import kotlin.math.ceil
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
   val context: Context,
+  envKey: String,
   val player: ExoPlayer,
   @Suppress("MemberVisibilityCanBePrivate") val playerView: View? = null,
-  envKey: String,
   playerName: String,
   customerData: CustomerData,
   customOptions: CustomOptions? = null,
@@ -67,14 +67,21 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
 
   constructor(
     context: Context,
-    player: ExoPlayer,
     envKey: String,
+    player: ExoPlayer,
     playerName: String,
     customerData: CustomerData,
     customOptions: CustomOptions? = null,
     network: INetworkRequest = MuxNetworkRequests()
   ) : this(
-    context, player, null, envKey, playerName, customerData, customOptions, network
+    context = context,
+    player = player,
+    playerView = null,
+    envKey = envKey,
+    playerName = playerName,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
   )
 
   @Deprecated(
@@ -90,8 +97,14 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     customOptions: CustomOptions? = null,
     network: INetworkRequest = MuxNetworkRequests()
   ) : this(
-    context, player, playerView, customerData.customerPlayerData.environmentKey,
-    playerName, customerData, customOptions, network
+    context = context,
+    player = player,
+    playerView = playerView,
+    envKey = customerData.customerPlayerData.environmentKey,
+    playerName = playerName,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
   )
 
   companion object {
