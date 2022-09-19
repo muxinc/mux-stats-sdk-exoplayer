@@ -20,6 +20,7 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.model.CustomerData
+import com.mux.stats.sdk.core.model.CustomerPlayerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.*
@@ -55,6 +56,7 @@ import kotlin.math.ceil
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
   val context: Context,
+  envKey: String,
   val player: ExoPlayer,
   @Suppress("MemberVisibilityCanBePrivate") val playerView: View? = null,
   playerName: String,
@@ -62,6 +64,48 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
+
+  constructor(
+    context: Context,
+    envKey: String,
+    player: ExoPlayer,
+    playerName: String,
+    customerData: CustomerData,
+    customOptions: CustomOptions? = null,
+    network: INetworkRequest = MuxNetworkRequests()
+  ) : this(
+    context = context,
+    player = player,
+    playerView = null,
+    envKey = envKey,
+    playerName = playerName,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
+  )
+
+  @Deprecated(
+    message = "This constructor is deprecated. Please prefer to provide your env key by parameter",
+  )
+  @JvmOverloads
+  constructor(
+    context: Context,
+    player: ExoPlayer,
+    @Suppress("MemberVisibilityCanBePrivate") playerView: View? = null,
+    playerName: String,
+    customerData: CustomerData,
+    customOptions: CustomOptions? = null,
+    network: INetworkRequest = MuxNetworkRequests()
+  ) : this(
+    context = context,
+    player = player,
+    playerView = playerView,
+    envKey = customerData.customerPlayerData.environmentKey,
+    playerName = playerName,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
+  )
 
   companion object {
     const val TAG = "MuxStatsExoPlayer"
@@ -88,6 +132,9 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   init {
+    customerData.apply { if (customerPlayerData == null) customerPlayerData = CustomerPlayerData() }
+    customerData.customerPlayerData.environmentKey = envKey
+
     // Init MuxStats (muxStats must be created last)
     MuxStats.setHostDevice(MuxDevice(context))
     MuxStats.setHostNetworkApi(network)
@@ -228,13 +275,15 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    * Manually set the size of the player view. This overrides the normal auto-detection. The
    * dimensions should be in physical pixels
    */
-  fun setPlayerSize(widthPx: Int, heightPx: Int) = muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
+  fun setPlayerSize(widthPx: Int, heightPx: Int) =
+    muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
 
   /**
    * Manually set the size of the screen. This overrides the normal auto-detection. The dimensions
    * should be in physical pixels
    */
-  fun setScreenSize(widthPx: Int, heightPx: Int) = muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
+  fun setScreenSize(widthPx: Int, heightPx: Int) =
+    muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
 
   /**
    * Call when a new [MediaItem] is being played in a player. This will start a new View to
