@@ -329,7 +329,7 @@ public class PlayerActivity extends AppCompatActivity
       CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
       customerData.setCustomData(customData);
       muxStats = new MuxStatsExoPlayer(
-          this, "YOUR_ENV_KEY_HERE", player, "demo-player", customerData);
+          this, "YOUR_ENV_KEY_HERE", player, customerData);
       Point size = new Point();
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         getWindowManager().getDefaultDisplay().getSize(size);
