@@ -20,6 +20,7 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.model.CustomerData
+import com.mux.stats.sdk.core.model.CustomerPlayerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.*
@@ -55,16 +56,57 @@ import kotlin.math.ceil
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
   val context: Context,
+  envKey: String,
   val player: ExoPlayer,
   @Suppress("MemberVisibilityCanBePrivate") val playerView: View? = null,
-  playerName: String,
   customerData: CustomerData,
   customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
 
+  constructor(
+    context: Context,
+    envKey: String,
+    player: ExoPlayer,
+    customerData: CustomerData,
+    customOptions: CustomOptions? = null,
+    network: INetworkRequest = MuxNetworkRequests()
+  ) : this(
+    context = context,
+    player = player,
+    playerView = null,
+    envKey = envKey,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
+  )
+
+  @Deprecated(
+    message = "This constructor is deprecated. Please prefer to provide your env key by parameter",
+  )
+  @JvmOverloads
+  constructor(
+    context: Context,
+    player: ExoPlayer,
+    playerView: View? = null,
+    playerName: String,
+    customerData: CustomerData,
+    customOptions: CustomOptions? = null,
+    network: INetworkRequest = MuxNetworkRequests()
+  ) : this(
+    context = context,
+    player = player,
+    playerView = playerView,
+    envKey = customerData.customerPlayerData.environmentKey,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
+  ) {
+    this.playerId = playerName
+  }
+
   companion object {
-    const val TAG = "MuxStatsExoPlayer"
+    private const val TAG = "MuxStatsExoPlayer"
   }
 
   private var _player by weak(player)
@@ -78,6 +120,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     player = player,
   )
   private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
+  private lateinit var playerId: String // Set by constructor (deprecated) or generated (preferred)
 
   private val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
@@ -88,16 +131,23 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   init {
+    customerData.apply { if (customerPlayerData == null) customerPlayerData = CustomerPlayerData() }
+    customerData.customerPlayerData.environmentKey = envKey
+
     // Init MuxStats (muxStats must be created last)
     MuxStats.setHostDevice(MuxDevice(context))
     MuxStats.setHostNetworkApi(network)
+    // Generate a player ID (for our instance-tracking) unless one was supplied
+    if (!::playerId.isInitialized) {
+      playerId = context.javaClass.canonicalName!! + (playerView?.id ?: "audio")
+    }
     muxStats =
-      MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
+      MuxStats(ExoPlayerDelegate(), playerId, customerData, customOptions ?: CustomOptions())
         .also { eventBus.addListener(it) }
 
     // Setup logging for debug builds of the SDK
     enableMuxCoreDebug(isDebugVariant(), false)
-    Core.allowLogcatOutputForPlayer(playerName, isDebugVariant(), false)
+    Core.allowLogcatOutputForPlayer(playerId, isDebugVariant(), false)
 
     // Catch up to the current playback state if we start monitoring in the middle of play
     if (player.playbackState == Player.STATE_BUFFERING) {
@@ -236,13 +286,15 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    * Manually set the size of the player view. This overrides the normal auto-detection. The
    * dimensions should be in physical pixels
    */
-  fun setPlayerSize(widthPx: Int, heightPx: Int) = muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
+  fun setPlayerSize(widthPx: Int, heightPx: Int) =
+    muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
 
   /**
    * Manually set the size of the screen. This overrides the normal auto-detection. The dimensions
    * should be in physical pixels
    */
-  fun setScreenSize(widthPx: Int, heightPx: Int) = muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
+  fun setScreenSize(widthPx: Int, heightPx: Int) =
+    muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
 
   /**
    * Call when a new [MediaItem] is being played in a player. This will start a new View to
