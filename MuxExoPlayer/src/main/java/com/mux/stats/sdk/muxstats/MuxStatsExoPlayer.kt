@@ -204,6 +204,14 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   /**
+   * Update all Customer Data (custom player, video, and view data) with the data found here
+   * Older values will not be cleared
+   */
+  fun updateCustomerData(customerData: CustomerData) {
+    muxStats.customerData = customerData
+  }
+
+  /**
    * If true, this object will automatically track fatal playback errors, eventually showing the
    * errors on the dashboard. If false, only errors reported via [error] will show up on the
    * dashboard
