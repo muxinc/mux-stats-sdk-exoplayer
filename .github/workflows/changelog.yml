@@ -5,6 +5,7 @@ on:
     types:
       - opened
       - reopened
+      - ready_for_review
   # Also only if the branch is 'releases/v**' but you can't specify multiple event filters
 
 jobs:
