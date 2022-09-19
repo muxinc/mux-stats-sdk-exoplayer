@@ -106,7 +106,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   companion object {
-    const val TAG = "MuxStatsExoPlayer"
+    private const val TAG = "MuxStatsExoPlayer"
   }
 
   private var _player by weak(player)
