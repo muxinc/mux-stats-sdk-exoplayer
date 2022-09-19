@@ -1,4 +1,131 @@
 # Release notes
+## 3.0.0
+## API Changes
+
+### API Improvements
+* Automatic Screen Size Detection: You no longer have to manually input your device's screen size to see fullscreen/screen size metrics. Just pass in your `Activity` and `PlayerView` when you make your `MuxStatsExoPlayer`
+* Supply your player view via constructor parameter
+* Kotlin extension for monitoring ExoPlayer
+* `ENV_KEY` is now a required parameter to create a `MuxStatsExoPlayer`. It's required, so it's been made mandatory. The existing (non-env-key) constructors are now deprecated
+* The SDK now automatically detects the size of the screen. This means you don't have to provide it anymore, unless you find the detection isn't working for your needs
+
+All of this means that, this snippet, plus the `release()` when you're done, is all you need to do to for basic monitoring:
+```kotlin
+// in kotlin
+muxStatsExoPlayer = exoPlayer.monitorWithMuxData(
+      context = requireContext(),
+      envKey = "YOUR_ENV_KEY_HERE",
+      playerView = playerView,
+      customerData = customerData
+    )
+```
+
+For updated usage instructions, check [the dev guide](https://docs.mux.com/guides/data/monitor-exoplayer)
+
+### APIs Removed
+* Removed deprecated constructors of `MuxExoPlayer`. Use `CustomerData` instead
+* Removed `MuxExoPlayer.setStreamType()` as it was no longer used
+* Removed several methods, such as `getPlayerData()`, `getCurrentPosition()`, etc that are not meant for public use
+
+### Complete List
+#### MuxStatsExoPlayer constructors removed
+All of the following were removed. Prefer to pack your `CustomerViewData`, `CustomerVideoData`, and `CustomerPlayerData` into a `CustomerData`, and pass that into a constructor instead
+
+Removed `public MuxStatsExoPlayer(Context , ExoPlayer, String CustomerPlayerData, CustomerVideoData) `
+Removed `public MuxStatsExoPlayer(Context,ExoPlayer String  CustomerPlayerData CustomerVideoData, CustomerViewData) `
+Removed `public MuxStatsExoPlayer(Context , ExoPlayer, String , CustomerPlayerData , CustomerVideoData, @Deprecated boolean)`
+Removed `public MuxStatsExoPlayer(Context , ExoPlayer  String ,CustomerPlayerData, CustomerVideoData, CustomerViewData, @Deprecated boolean)`
+Removed `public MuxStatsExoPlayer(Context , ExoPlayer , String , CustomerPlayerData , CustomerVideoData , CustomerViewData , @Deprecated boolean , INetworkRequest )`
+` public MuxStatsExoPlayer(Context, ExoPlayer, String , CustomerData , @Deprecated boolean , INetworkRequest )`
+
+#### Metadata methods removed
+These methods have been deprecated for more than a year and have been removed. Please prefer using `updateCustomerData(CustomerData)`
+
+updateCustomerData(CustomerPlayerData, CustomerVideoData, CustomerViewData)
+updateCustomerData(CustomerPlayerData, CustomerVideoData)
+getCustomerVideoData
+getCustomerPlayerData
+getCustomerViewData
+
+#### Internal methods removed
+All of these methods are intended for internal use and have been removed.
+onAudioAttributesChanged
+onAudioUnderrun
+onVideoInputFormatChanged
+onDownstreamFormatChanged
+onDrmKeysLoaded
+onDrmKeysRemoved
+onDrmKeysRestored
+onDrmSessionManagerError
+onIsLoadingChanged
+onIsPlayingChanged
+onLoadCanceled
+onLoadCompleted
+onLoadError
+onLoadStarted
+onMetadata
+onPlaybackParametersChanged
+onPlaybackStateChanged
+onPlaybackSuppressionReasonChanged
+onPlayerError
+onPlayWhenReadyChanged
+onPositionDiscontinuity
+onRepeatModeChanged
+onSeekStarted
+onShuffleModeChanged
+onSurfaceSizeChanged
+onTimelineChanged
+onTracksChanged
+onUpstreamDiscarded
+onVideoSizeChanged
+onRenderedFirstFrame
+onVolumeChanged
+onPlaybackParametersChanged
+onPlaybackStateChanged
+onPlayerError
+onPlayWhenReadyChanged
+onPositionDiscontinuity
+onRepeatModeChanged
+onShuffleModeEnabledChanged
+onTimelineChanged
+onTracksChanged
+getCurrentPosition
+getMimeType
+getSourceWidth
+getSourceHeight
+getSourceAdvertisedBitrate
+getSourceAdvertisedFramerate
+getSourceDuration
+getState
+isBuffering
+getPlayerViewWidth
+getPlayerViewHeight
+getPlayerProgramTime
+getPlayerManifestNewestTime
+getVideoHoldback
+getVideoPartHoldback
+getVideoPartTargetDuration
+getVideoTargetDuration
+isPaused
+
+## Changelog
+
+### Breaking
+
+* Remove Support for ExoPlayer 2.9.6 (#234)
+
+### Updates
+
+* API Update: Add Environment Key via Constructor (#237)
+* Deprecate `playerName` in the constructor. It's only used internally in the SDK, and can be generated (#238)
+
+### Improvements
+
+* Convert to Kotlin, Refactor ExoPlayer interaction for maintainability, remove deprecations (#207)
+* Remove non-ads demos, as the difference is not significant. This reduces CI time (#231)
+* Remove Release Variants for test and demo apps. They are not required, and this reduces build/CI time
+* Add GitHub Actions for Basic CI and Release Automation (#235)
+
 ## 2.10.0
 ## Fixes
 * Fix setPlayerSize to treat input as physical pixels, as documented (#221)
