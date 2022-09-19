@@ -59,7 +59,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   envKey: String,
   val player: ExoPlayer,
   @Suppress("MemberVisibilityCanBePrivate") val playerView: View? = null,
-  playerName: String,
   customerData: CustomerData,
   customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
@@ -69,7 +68,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     context: Context,
     envKey: String,
     player: ExoPlayer,
-    playerName: String,
     customerData: CustomerData,
     customOptions: CustomOptions? = null,
     network: INetworkRequest = MuxNetworkRequests()
@@ -78,7 +76,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     player = player,
     playerView = null,
     envKey = envKey,
-    playerName = playerName,
     customerData = customerData,
     customOptions = customOptions,
     network = network
@@ -91,7 +88,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   constructor(
     context: Context,
     player: ExoPlayer,
-    @Suppress("MemberVisibilityCanBePrivate") playerView: View? = null,
+    playerView: View? = null,
     playerName: String,
     customerData: CustomerData,
     customOptions: CustomOptions? = null,
@@ -101,14 +98,15 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     player = player,
     playerView = playerView,
     envKey = customerData.customerPlayerData.environmentKey,
-    playerName = playerName,
     customerData = customerData,
     customOptions = customOptions,
     network = network
-  )
+  ) {
+    this.playerId = playerName
+  }
 
   companion object {
-    const val TAG = "MuxStatsExoPlayer"
+    private const val TAG = "MuxStatsExoPlayer"
   }
 
   private var _player by weak(player)
@@ -122,6 +120,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     player = player,
   )
   private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
+  private lateinit var playerId: String // Set by constructor (deprecated) or generated (preferred)
 
   private val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
@@ -138,13 +137,17 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     // Init MuxStats (muxStats must be created last)
     MuxStats.setHostDevice(MuxDevice(context))
     MuxStats.setHostNetworkApi(network)
+    // Generate a player ID (for our instance-tracking) unless one was supplied
+    if (!::playerId.isInitialized) {
+      playerId = context.javaClass.canonicalName!! + (playerView?.id ?: "audio")
+    }
     muxStats =
-      MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
+      MuxStats(ExoPlayerDelegate(), playerId, customerData, customOptions ?: CustomOptions())
         .also { eventBus.addListener(it) }
 
     // Setup logging for debug builds of the SDK
     enableMuxCoreDebug(isDebugVariant(), false)
-    Core.allowLogcatOutputForPlayer(playerName, isDebugVariant(), false)
+    Core.allowLogcatOutputForPlayer(playerId, isDebugVariant(), false)
 
     // Catch up to the current playback state if we start monitoring in the middle of play
     if (player.playbackState == Player.STATE_BUFFERING) {
