@@ -88,8 +88,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   constructor(
     context: Context,
     player: ExoPlayer,
-    @Suppress("MemberVisibilityCanBePrivate") playerView: View? = null,
-    @Suppress("UNUSED_PARAMETER") playerName: String,
+    playerView: View? = null,
+    playerName: String,
     customerData: CustomerData,
     customOptions: CustomOptions? = null,
     network: INetworkRequest = MuxNetworkRequests()
