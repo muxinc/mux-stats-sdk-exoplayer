@@ -83,6 +83,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
 
   @Deprecated(
     message = "This constructor is deprecated. Please prefer to provide your env key by parameter",
+    replaceWith
+    = ReplaceWith("MuxStatsExoPlayer(context, envKey, player, playerView, customerData)")
   )
   @JvmOverloads
   constructor(
