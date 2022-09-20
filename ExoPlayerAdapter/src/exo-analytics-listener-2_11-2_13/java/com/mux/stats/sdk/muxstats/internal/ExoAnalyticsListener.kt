@@ -49,7 +49,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     reason: Int
   ) {
     player?.let {
-      Log.d(logTag(), "Playback State(from player): ${it.playbackState}, ")
       collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
   }
 

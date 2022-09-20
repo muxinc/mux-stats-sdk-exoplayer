@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import android.util.Log
 import android.view.Surface
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
@@ -46,7 +45,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     eventTime: EventTime, playWhenReady: Boolean, playbackState: Int
   ) {
     player?.let {
-      Log.d(logTag(), "Playback State(from player): ${it.playbackState}, ")
       collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
   }
 

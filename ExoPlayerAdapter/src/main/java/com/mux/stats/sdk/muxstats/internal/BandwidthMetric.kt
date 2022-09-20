@@ -11,6 +11,7 @@ import com.mux.stats.sdk.core.events.playback.RequestCanceled
 import com.mux.stats.sdk.core.events.playback.RequestCompleted
 import com.mux.stats.sdk.core.events.playback.RequestFailed
 import com.mux.stats.sdk.core.model.BandwidthMetricData
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 import java.util.*
@@ -214,7 +215,7 @@ internal class BandwidthMetricHls(player: ExoPlayer,
         var loadData: BandwidthMetricData? =
             super.onLoadCompleted(loadTaskId, segmentUrl, bytesLoaded, trackFormat)
         if (trackFormat != null && loadData != null) {
-            Log.v("BandwidthMetrics",
+            MuxLogger.d("BandwidthMetrics",
                 "\n\nWe got new rendition quality: " + trackFormat.bitrate + "\n\n")
             loadData.setRequestLabeledBitrate(trackFormat.bitrate);
         }
@@ -421,7 +422,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             || numberOfRequestCancelBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration
             || numberOfRequestFailedBeaconsSentPerSegment > maxNumberOfEventsPerSegmentDuration) {
             if (debugModeOn) {
-                Log.v("BandwidthMetrics", "Dropping event: " + event.getType()
+                MuxLogger.d("BandwidthMetrics", "Dropping event: " + event.getType()
                         + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
                         + numberOfRequestCompletedBeaconsSentPerSegment
                         + "\nnumberOfRequestCancelBeaconsSentPerSegment: "
@@ -434,7 +435,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             return false;
         }
         if (debugModeOn) {
-            Log.v("BandwidthMetrics", "All good: " + event.getType()
+            MuxLogger.d("BandwidthMetrics", "All good: " + event.getType()
                     + "\nnumberOfRequestCompletedBeaconsSentPerSegment: "
                     + numberOfRequestCompletedBeaconsSentPerSegment
                     + "\nnumberOfRequestCancelBeaconsSentPerSegment: "

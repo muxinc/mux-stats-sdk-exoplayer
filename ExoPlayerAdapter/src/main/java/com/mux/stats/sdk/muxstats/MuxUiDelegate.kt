@@ -8,6 +8,7 @@ import android.util.Log
 import android.view.View
 import android.view.WindowInsets
 import com.google.android.exoplayer2.ui.PlayerView
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.weak
 
 
@@ -77,7 +78,7 @@ private class AndroidUiDelegate<PlayerView : View>(activity: Activity?, view: Pl
       @Suppress("DEPRECATION") // bounds - insets method is used on API 30+
       activity.windowManager?.defaultDisplay?.getSize(size)
       size
-    }.also { size -> Log.d(javaClass.simpleName, "displayStuffLegacy: One Size: $size") }
+    }.also { size -> MuxLogger.d(javaClass.simpleName, "displayStuffLegacy: One Size: $size") }
   }
 }
 

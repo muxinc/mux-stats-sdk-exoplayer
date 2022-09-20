@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats
 
-import android.util.Log
 import com.google.android.exoplayer2.Timeline
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.events.IEventDispatcher
@@ -29,8 +28,8 @@ import kotlin.properties.Delegates
 abstract class MuxStateCollectorBase(
   // TODO em: if MuxStateCollector is in MuxStats, don't need this janky block
   val muxStats: () -> MuxStats,
-  val dispatcher: IEventDispatcher,
-  val trackFirstFrameRendered: Boolean = true,
+  private val dispatcher: IEventDispatcher,
+  private val trackFirstFrameRendered: Boolean = true,
 ) {
 
   companion object {
@@ -162,7 +161,7 @@ abstract class MuxStateCollectorBase(
     try {
       return value.toLong()
     } catch (e: NumberFormatException) {
-      Log.d("Manifest Parsing", "Bad number format for value: $value")
+      MuxLogger.exception(e, "Manifest Parsing", "Bad number format for value: $value")
     }
     return -1L
   }
@@ -227,7 +226,7 @@ abstract class MuxStateCollectorBase(
     // Negative Logic Version
     if (seekingInProgress) {
       // We will dispatch playing event after seeked event
-      Log.e("MuxStats", "Ignoring playing event, seeking in progress !!!")
+      MuxLogger.d("MuxStats", "Ignoring playing event, seeking in progress !!!")
       return
     }
     if (_playerState.oneOf(MuxPlayerState.PAUSED, MuxPlayerState.FINISHED_PLAYING_ADS)) {
@@ -304,8 +303,6 @@ abstract class MuxStateCollectorBase(
       if (seekingEventsSent == 0) {
         seekingInProgress = false
       }
-    } else {
-      Log.v("MuxStats", "WHY !!!!");
     }
   }
 
@@ -472,13 +469,8 @@ abstract class MuxStateCollectorBase(
     allowedHeaders.clear()
   }
 
-  // TODO see how to avoid making this public
-  public fun dispatch(event: IEvent) {
-    // TODO: State collector holds onto nothing, no need to make it dead()
-//    if (dead) {
-//      MuxLogger.w(logTag(), "event sent after release: ${event.debugString}")
-//      return
-//    }
+  @JvmSynthetic
+  internal fun dispatch(event: IEvent) {
     totalEventsSent++
     when (event.type) {
       PlayEvent.TYPE -> {
