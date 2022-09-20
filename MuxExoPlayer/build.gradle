@@ -112,6 +112,24 @@ android {
     }
   } //productFlavors
 
+  sourceSets {
+    r2_14_1 {
+      java.srcDirs += 'src/r2_15/java'
+    }
+    r2_15_1 {
+      java.srcDirs += 'src/r2_15/java'
+    }
+    r2_16_1 {
+      java.srcDirs += 'src/r2_17/java'
+    }
+    r2_17_1 {
+      java.srcDirs += 'src/r2_17/java'
+    }
+    r2_18_1 {
+      java.srcDirs += 'src/r2_18/java'
+    }
+  }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
@@ -161,7 +179,8 @@ dependencies {
   r2_18_1Implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   //noinspection GradleDynamicVersion,GradleDependency
-  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+//  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+  implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.28.1'
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
   //noinspection GradleDynamicVersion,GradleDependency
