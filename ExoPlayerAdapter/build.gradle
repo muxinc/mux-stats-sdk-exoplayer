@@ -144,7 +144,6 @@ muxDistribution {
   groupIds just("com.mux.stats.sdk.muxstats")
 
   packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
-
   publishIf { it.containsIgnoreCase("release") }
   useArtifactory = true
 }
