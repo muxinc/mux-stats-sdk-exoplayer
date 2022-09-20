@@ -1,3 +1,19 @@
+/*
+ * Copyright 2022 Mux, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.mux.stats.sdk.muxstats
 
 import android.content.Context
@@ -46,8 +62,8 @@ import kotlin.math.ceil
  * https://docs.mux.com/guides/data/monitor-exoplayer
  *
  * @param context The context you're playing in. Screen size will be detected if this is an Activity
+ * @param envKey Your Mux Data Environment Key
  * @param player The player you wish to monitor
- * @param playerName A human-readable name for your player. It will be searchable on the dashboard
  * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null.
  * @param customerData Data about you, your video, and your player.
  * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
@@ -64,6 +80,29 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   network: INetworkRequest = MuxNetworkRequests()
 ) {
 
+  /**
+   * Mux Data SDK for ExoPlayer. Create an instance of this object with your [ExoPlayer] to monitor
+   * and record its state. When you clean up your player, make sure to call [release] to ensure all
+   * player-related resources are released
+   *
+   * If you are using Google IMA Ads, you must add our listener to your [AdsLoader] in order for the
+   * Mux Data SDK to monitor ad-related events, using [getAdsImaSdkListener]:
+   * AdsLoader.Builder(this)
+   *    .setAdErrorListener(muxStats.getAdsImaSdkListener())
+   *    .setAdEventListener(muxStats.getAdsImaSdkListener())
+   *    //...
+   *    build()
+   *
+   * Check out our full integration instructions for more information:
+   * https://docs.mux.com/guides/data/monitor-exoplayer
+   *
+   * @param context The context you're playing in. Screen size will be detected if this is an Activity
+   * @param envKey Your Mux Data Environment Key
+   * @param player The player you wish to monitor
+   * @param customerData Data about you, your video, and your player.
+   * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
+   *    this can be left null/omitted
+   */
   constructor(
     context: Context,
     envKey: String,
