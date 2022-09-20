@@ -1,0 +1,179 @@
+plugins {
+  id 'com.android.library'
+  id 'org.jetbrains.kotlin.android'
+  id 'com.mux.gradle.android.mux-android-distribution'
+}
+
+android {
+  compileSdk project.ext.compileSdkVersion
+
+  defaultConfig {
+    minSdk project.ext.minSdkVersion
+    targetSdk project.ext.targetSdkVersion
+
+    testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    consumerProguardFiles "consumer-rules.pro"
+  }
+
+  buildTypes {
+    release {
+      minifyEnabled false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  flavorDimensions 'exoplayer', 'source'
+  productFlavors {
+    // Source Set with ExoPlayer bindings
+    upto2_10 { dimension 'source' }
+    just2_11 { dimension 'source' }
+    from2_12to2_13 { dimension 'source' }
+    just2_14 { dimension 'source' }
+    just2_15 { dimension 'source' }
+    just2_16 { dimension 'source' }
+    just2_17 { dimension 'source' }
+    from2_18toNow { dimension 'source' }
+    // Exoplayer version for testing/variant matching
+    r2_10_6 { dimension 'exoplayer' }
+    r2_11_1 { dimension 'exoplayer' }
+    r2_12_1 { dimension 'exoplayer' }
+    r2_13_1 { dimension 'exoplayer' }
+    r2_14_1 { dimension 'exoplayer' }
+    r2_15_1 { dimension 'exoplayer' }
+    r2_16_1 { dimension 'exoplayer' }
+    amznPort { dimension 'exoplayer' }
+    r2_17_1 { dimension 'exoplayer' }
+    r2_18_1 { dimension 'exoplayer' }
+  }
+  // We only want the variants where the sourceSet and exoplayer version agree
+  def realVariants = [
+          "upto2_10"      : ["r2_10_6"],
+          "just2_11"      : ["r2_11_1"],
+          "from2_12to2_13": ["r2_12_1", "r2_13_1"],
+          "just2_14"      : ["r2_14_1"],
+          "just2_15"      : ["r2_15_1"],
+          "just2_16"      : ["r2_16_1", "amznPort"],
+          "just2_17"      : ["r2_17_1"],
+          "from2_18toNow" : ["r2_18_1"]
+  ]
+  variantFilter { variant ->
+    def exoPlayerFlavor = variant.flavors.findAll { it.dimension == "exoplayer" }[0]
+    def sourceFlavor = variant.flavors.findAll { it.dimension == "source" }[0]
+    setIgnore(!(realVariants.get(sourceFlavor.name).contains(exoPlayerFlavor.name)))
+  }
+  sourceSets {
+    upto2_10 {
+      java.srcDirs += 'src/exo-analytics-listener-upto-2_11/java'
+      java.srcDirs += 'src/exo-collector-upto-2_10/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-upto-2_13/java'
+      java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    just2_11 {
+      java.srcDirs += 'src/exo-analytics-listener-upto-2_11/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-upto-2_13/java'
+      java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    from2_12to2_13 {
+      java.srcDirs += 'src/exo-analytics-listener-2_11-2_13/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-upto-2_13/java'
+      java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    just2_14 {
+      java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-just-2_14/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    just2_15 {
+      java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-player-upto-2_15/java'
+    }
+    just2_16 {
+      java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
+      // From 2.16 onward, we don't need exo-event
+    }
+    just2_17 {
+      java.srcDirs += 'src/exo-analytics-listener-just-2_17/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
+      // From 2.16 onward, we don't need exo-event
+    }
+    from2_18toNow {
+      java.srcDirs += 'src/exo-analytics-listener-2_18-now/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
+      // From 2.16 onward, we don't need exo-event
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_1_8
+    targetCompatibility JavaVersion.VERSION_1_8
+  }
+  kotlinOptions {
+    jvmTarget = '1.8'
+  }
+}
+
+muxDistribution {
+  devVersion versionFromCommitHash('dev-')
+  releaseVersion versionFromHeadCommit()
+  artifactIds artifactFromFlavorValue('exoplayer')
+  groupIds just("com.mux.stats.sdk.muxstats")
+
+  packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
+
+  publishIf { it.containsIgnoreCase("release") }
+  useArtifactory = true
+}
+
+dependencies {
+  api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+  amznPortApi "com.amazon.android:exoplayer:2.16.1"
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+
+  implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${project.ext.kotlinxCoroutinesVersion}"
+
+  testImplementation 'junit:junit:4.13.2'
+  testImplementation 'androidx.test.ext:junit:1.1.3'
+  testImplementation "io.mockk:mockk:1.12.3"
+  testImplementation 'org.robolectric:robolectric:4.8'
+}

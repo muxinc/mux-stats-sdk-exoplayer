@@ -64,9 +64,10 @@ public class LatencyTests extends TestBase {
   public void testLiveStreamMetrics() {
     try {
       // Test not supported for this flavor
-      if (BuildConfig.FLAVOR.contains("r2_11_1")
+      if (
+          BuildConfig.FLAVOR.contains("r2_11_1")
         || BuildConfig.FLAVOR.contains("r2_10_6")
-        || BuildConfig.FLAVOR.contains("r2_9_6")) {
+        ) {
         return;
       }
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS * 100)) {
@@ -75,12 +76,12 @@ public class LatencyTests extends TestBase {
       Thread.sleep(PLAY_PERIOD_IN_MS);
       if (!isLatencyMetricsPresent()) {
         fail("Latency metrics not found on live stream:\n"
-            + "playerProgramTimeFound: " + playerProgramTiomeFound
-            + "playerManifestNewestTimeFound: " + playerManifestNewestTimeFound
-            + "videoHoldbackFound: " + videoHoldbackFound
-            + "videoPartHoldbackFound: " + videoPartHoldbackFound
-            + "videoTargetDurationFound: " + videoTargetDurationFound
-            + "videoPartTargetHoldbackFound: " + videoPartTargetHoldbackFound
+            + " playerProgramTimeFound: " + playerProgramTiomeFound
+            + " playerManifestNewestTimeFound: " + playerManifestNewestTimeFound
+            + " videoHoldbackFound: " + videoHoldbackFound
+            + " videoPartHoldbackFound: " + videoPartHoldbackFound
+            + " videoTargetDurationFound: " + videoTargetDurationFound
+            + " videoPartTargetHoldbackFound: " + videoPartTargetHoldbackFound
         );
       }
     } catch (Exception e) {
@@ -92,8 +93,7 @@ public class LatencyTests extends TestBase {
   public void testVodStreamMetrics() {
     try {
       // Test not supported for this flavor
-      if (BuildConfig.FLAVOR.contains("r2_10_6")
-          || BuildConfig.FLAVOR.contains("r2_9_6")) {
+      if (BuildConfig.FLAVOR.contains("r2_10_6")) {
         return;
       }
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {

@@ -1,8 +1,8 @@
 apply plugin: 'com.android.library'
+apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'checkstyle'
 apply plugin: 'maven-publish'
 apply plugin: 'signing'
-apply plugin: "com.jfrog.artifactory"
 apply plugin: 'com.mux.gradle.android.mux-android-distribution'
 
 checkstyle {
@@ -31,7 +31,6 @@ android {
   defaultConfig {
     minSdkVersion project.ext.minSdkVersion
     targetSdkVersion project.ext.targetSdkVersion
-    versionCode 41
     multiDexEnabled true
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
@@ -40,18 +39,11 @@ android {
 
 
   buildTypes {
-    // Due to fun with fat-aar we must switch on build type
-    // This is because fat-aar is confused by multiple flavor dimensions
-    // For consuming libraries this is not a problem and they can support
-    // independent debug/release switching
-
+    // Build types mostly control logging and (devex-improving) minification
     debug {
-      // Note this is NOT a fat aar
       minifyEnabled false
     }
-
     release {
-      // Note this is a fat aar (see dependencies for MuxCore inclusion)
       minifyEnabled true
       proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
     }
@@ -64,172 +56,116 @@ android {
     lintConfig file("../checker-framework-lint.xml")
   }
 
-  flavorDimensions('api')
+  flavorDimensions 'exoplayer'
 
   productFlavors {
-    r2_9_6 {
-      dimension 'api'
-    }
-    r2_9_6_ads {
-      dimension 'api'
-    }
     r2_10_6 {
-      dimension 'api'
-    }
-    r2_10_6_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_10']
     }
     r2_11_1 {
-      dimension 'api'
-    }
-    r2_11_1_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_11']
     }
     r2_12_1 {
-      dimension 'api'
-    }
-    r2_12_1_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_13_1 {
-      dimension 'api'
-    }
-    r2_13_1_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_14_1 {
-      dimension 'api'
-    }
-    r2_14_1_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_14']
     }
     r2_15_1 {
-      dimension 'api'
-    }
-    r2_15_1_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_15']
     }
     r2_16_1 {
-      dimension 'api'
-    }
-    r2_16_1_ads {
-      dimension 'api'
-    }
-    r2_17_1 {
-      dimension 'api'
-    }
-    r2_17_1_ads {
-      dimension 'api'
-    }
-    r2_18_1 {
-      dimension 'api'
-    }
-    r2_18_1_ads {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_16']
     }
     amznPort {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just_2_16']
     }
-    amznPort_ads {
-      dimension 'api'
+    r2_17_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_17']
     }
-  }
+    r2_18_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_18toNow']
+    }
+  } //productFlavors
 
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
-}
-
-// Attach the java src directory relevant for each flavor created
-androidComponents {
-  finalizeDsl() { ext ->
-    ext.productFlavors.each { variant ->
-      def matcher = variant.name =~ /(r\d+_\d+_\d+).*/
-      if (matcher.find()) {
-        def strippedExoPlayerVersion = matcher.group(1)
-        def sourceSet = sourceSets.findByName(variant.name)
-        sourceSet.java.srcDirs += "./src/$strippedExoPlayerVersion/java"
-      }
-    }
+  kotlinOptions {
+    jvmTarget = '1.8'
   }
-}
+} //android
 
 muxDistribution {
-  def buildKite = System.getenv("BUILDKITE_BRANCH") != null
-  if (buildKite) {
-    devVersion versionFromCommitHash('dev-', System.getenv("BUILDKITE_BRANCH"))
-  } else {
-    devVersion versionFromCommitHash('dev-')
-  }
+  devVersion versionFromCommitHash('dev-')
   releaseVersion versionFromHeadCommit()
-  artifactIds artifactFromFlavorValue('api')
+  artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
+  publishIf { it.containsIgnoreCase("release") }
 
-  publishIf { !it.productFlavors*.name.contains("ads") && it.buildType.name.contains("release") }
+  packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
   useArtifactory = true
 }
 
 dependencies {
-  api 'org.checkerframework:checker-qual:2.5.0'
-
-  r2_9_6Api 'com.google.android.exoplayer:exoplayer-core:2.9.6'
-  r2_9_6Api 'com.google.android.exoplayer:exoplayer-hls:2.9.6'
-  r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer-core:2.9.6'
-  r2_9_6_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.9.6'
-
-  r2_10_6Api 'com.google.android.exoplayer:exoplayer-core:2.10.6'
-  r2_10_6Api 'com.google.android.exoplayer:exoplayer-hls:2.10.6'
-  r2_10_6_adsApi 'com.google.android.exoplayer:exoplayer-core:2.10.6'
-  r2_10_6_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.10.6'
-
-  r2_11_1Api 'com.google.android.exoplayer:exoplayer-core:2.11.1'
-  r2_11_1Api 'com.google.android.exoplayer:exoplayer-hls:2.11.1'
-  r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.11.1'
-  r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.11.1'
-
-  r2_12_1Api 'com.google.android.exoplayer:exoplayer-core:2.12.1'
-  r2_12_1Api 'com.google.android.exoplayer:exoplayer-hls:2.12.1'
-  r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.12.1'
-  r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.12.1'
-
-  r2_13_1Api 'com.google.android.exoplayer:exoplayer-core:2.13.1'
-  r2_13_1Api 'com.google.android.exoplayer:exoplayer-hls:2.13.1'
-  r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.13.1'
-  r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.13.1'
-
-  r2_14_1Api 'com.google.android.exoplayer:exoplayer-core:2.14.1'
-  r2_14_1Api 'com.google.android.exoplayer:exoplayer-hls:2.14.1'
-  r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.14.1'
-  r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.14.1'
-
-  r2_15_1Api 'com.google.android.exoplayer:exoplayer-core:2.15.1'
-  r2_15_1Api 'com.google.android.exoplayer:exoplayer-hls:2.15.1'
-  r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.15.1'
-  r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.15.1'
-
-  r2_16_1Api 'com.google.android.exoplayer:exoplayer-core:2.16.1'
-  r2_16_1Api 'com.google.android.exoplayer:exoplayer-hls:2.16.1'
-  r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.16.1'
-  r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.16.1'
-
-  // Amazon port doesn't delete any symbols (ever) & has no extensions, so we only need one version
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+  // Amazon's port doesn't delete any symbols (ever), so we only need one version
+  //noinspection GradleDynamicVersion,GradleDependency
   amznPortApi "com.amazon.android:exoplayer:2.16.1"
-  amznPort_adsApi "com.amazon.android:exoplayer:2.16.1"
+  //noinspection GradleDynamicVersion,GradleDependency
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
-  r2_17_1Api 'com.google.android.exoplayer:exoplayer-core:2.17.1'
-  r2_17_1Api 'com.google.android.exoplayer:exoplayer-hls:2.17.1'
-  r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.17.1'
-  r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.17.1'
-
-  r2_18_1Api 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-  r2_18_1Api 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
-  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-hls:2.18.1'
-
+  //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+  //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
 
+  debugImplementation project(':ExoPlayerAdapter')
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
+}
+
+afterEvaluate {
+  // Add dependency on ExoPlayerAdapter lib via mvn, which is also variant-aware
+  //  We only want to add this to release builds, and it has to be the same variant to work.
+  //  There's r2_18_1Api '..' and releaseApi '..', but no r2_18_1ReleaseApi '..'
+  android.libraryVariants.findAll { it.buildType.name.contains("release") }
+          .each { variant ->
+            def depNotation =
+                    "com.mux.stats.sdk.muxstats" +
+                            ":ExoPlayerAdapter_${variant.productFlavors.get(0).name}" +
+                            ":${project.version}"
+            def sourceSet = variant.sourceSets.reverse()[0] // Last src set is most specific
+            // would be the same as declaring eg, r2_18_1ReleaseApi
+            project.dependencies.add(sourceSet.apiConfigurationName, depNotation)
+          }
 }

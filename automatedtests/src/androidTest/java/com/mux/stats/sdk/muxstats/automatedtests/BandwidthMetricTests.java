@@ -12,7 +12,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
-import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -89,9 +89,10 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
 
   public void testBandwidthMetrics() {
     // Test not supported for this flavor
-    if (BuildConfig.FLAVOR.contains("r2_11_1")
+    if (
+        BuildConfig.FLAVOR.contains("r2_11_1")
         || BuildConfig.FLAVOR.contains("r2_10_6")
-        || BuildConfig.FLAVOR.contains("r2_9_6")) {
+        ) {
       return;
     }
     try {

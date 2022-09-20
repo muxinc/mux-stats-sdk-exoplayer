@@ -321,15 +321,15 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper.start();
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
+      customerPlayerData.setPlayerName("YOUR_PLAYER_NAME");
       CustomerVideoData customerVideoData = new CustomerVideoData();
-      customerVideoData.setVideoTitle(intent.getStringExtra("VIDEO_TITLE_EHERE"));
+      customerVideoData.setVideoTitle(intent.getStringExtra("VIDEO_TITLE_HERE"));
       CustomData customData = new CustomData();
       customData.setCustomData1("YOUR_CUSTOM_STRING_HERE");
       CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
       customerData.setCustomData(customData);
       muxStats = new MuxStatsExoPlayer(
-          this, player, "demo-player", customerData);
+          this, "YOUR_ENV_KEY_HERE", player, customerData);
       Point size = new Point();
       if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
         getWindowManager().getDefaultDisplay().getSize(size);

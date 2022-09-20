@@ -9,6 +9,7 @@ import static org.junit.Assert.fail;
 import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
+
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.MotionEvents;
@@ -16,6 +17,7 @@ import androidx.test.rule.ActivityTestRule;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 import androidx.test.uiautomator.UiDevice;
+
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -27,14 +29,17 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
-import java.io.IOException;
-import java.util.Collection;
+
 import org.hamcrest.Matcher;
 import org.json.JSONException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.rules.TestName;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 
 public abstract class TestBase {
 
@@ -155,18 +160,24 @@ public abstract class TestBase {
     int playIndex = networkRequest.getIndexForNextEvent(index, PlayEvent.TYPE);
     int playingIndex = networkRequest.getIndexForNextEvent(index, PlayingEvent.TYPE);
     int pauseIndex = networkRequest.getIndexForNextEvent(index, PauseEvent.TYPE);
+    List<String> eventsFromIndex = networkRequest.getReceivedEventNames();
+    eventsFromIndex = eventsFromIndex.subList(index, eventsFromIndex.size());
     // Play index not necessary
     if (pauseIndex == -1 || playingIndex == -1) {
       fail("Missing basic playback events, playIndex: "
           + playIndex + ", playingIndex: " + playingIndex +
           ", pauseIndex: " + pauseIndex + ", starting at index: " + index +
-          ", availableEvents: " + networkRequest.getReceivedEventNames());
+          ", availableEvents: " + networkRequest.getReceivedEventNames() +
+          "\nevents from index: " + eventsFromIndex
+      );
     }
     if (!((playIndex < playingIndex) && (playingIndex < pauseIndex))) {
       fail("Basic playback events not ordered correctly, playIndex: "
           + playIndex + ", playingIndex: " + playingIndex +
           ", pauseIndex: " + pauseIndex + ", starting at index: " + index +
-          ", availableEvents: " + networkRequest.getReceivedEventNames());
+          ", availableEvents: " + networkRequest.getReceivedEventNames() +
+          "\nevents from index: " + eventsFromIndex
+      );
     }
     long playbackPeriod = networkRequest.getCreationTimeForEvent(pauseIndex) -
         networkRequest.getCreationTimeForEvent(playingIndex);
@@ -174,7 +185,8 @@ public abstract class TestBase {
       fail("Reported play period: " + playbackPeriod + " do not match expected play period: "
           + expectedPlayPeriod + ", playingIndex: " + playingIndex +
           ", pauseIndex: " + pauseIndex + ", starting at event index: " + index +
-          ", availableEvents: " + networkRequest.getReceivedEventNames());
+          ", availableEvents: " + networkRequest.getReceivedEventNames() +
+          "\nevents from index: " + eventsFromIndex);
     }
     result.eventIndex = pauseIndex;
     result.playbackPeriod = playbackPeriod;

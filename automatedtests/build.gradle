@@ -23,11 +23,6 @@ android {
     debug {
       minifyEnabled false
     }
-
-    release {
-      minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-    }
   }
 
   lintOptions {
@@ -49,8 +44,6 @@ android {
     resultsDir "./automated_test_results/results"
   }
 
-  flavorDimensions 'api'
-
   sourceSets {
     androidTest {
       // Important, can't get asset file in instrumentation test without this
@@ -58,37 +51,47 @@ android {
     }
   }
 
+  flavorDimensions 'exoplayer'
   productFlavors {
-    r2_9_6 {
-      dimension 'api'
-    }
     r2_10_6 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['upto2_10']
     }
     r2_11_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_11']
     }
     r2_12_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_13_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_12to2_13']
     }
     r2_14_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_14']
     }
     r2_15_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_15']
     }
     r2_16_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_16']
     }
     r2_17_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_17']
     }
     r2_18_1 {
-      dimension 'api'
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_18toNow']
     }
+  }
+  variantFilter { // this app doesn't need a release build, so save some resources
+    setIgnore(it.buildType.name == 'release')
   }
 
   compileOptions {
@@ -114,8 +117,6 @@ dependencies {
   // Optional -- UI testing with UI Automator
   androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
   androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-  androidTestR2_9_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
-  androidTestR2_9_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
   androidTestR2_10_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
   androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
   androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
@@ -130,47 +131,34 @@ dependencies {
 
   api 'org.checkerframework:checker-qual:2.5.2'
 
-  r2_9_6Api 'com.google.android.exoplayer:exoplayer:2.9.6'
-  r2_9_6Api 'com.google.android.exoplayer:exoplayer-ui:2.9.6'
-  r2_9_6Api 'com.google.android.exoplayer:extension-mediasession:2.9.6'
-
   r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-  r2_10_6Api 'com.google.android.exoplayer:exoplayer-ui:2.10.6'
   r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
 
   r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-  r2_11_1Api 'com.google.android.exoplayer:exoplayer-ui:2.11.1'
   r2_11_1Api 'com.google.android.exoplayer:extension-mediasession:2.11.1'
 
   r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-  r2_12_1Api 'com.google.android.exoplayer:exoplayer-ui:2.12.1'
   r2_12_1Api 'com.google.android.exoplayer:extension-mediasession:2.12.1'
 
-
   r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-  r2_13_1Api 'com.google.android.exoplayer:exoplayer-ui:2.13.1'
   r2_13_1Api 'com.google.android.exoplayer:extension-mediasession:2.13.1'
 
   r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
-  r2_14_1Api 'com.google.android.exoplayer:exoplayer-ui:2.14.1'
   r2_14_1Api 'com.google.android.exoplayer:extension-mediasession:2.14.1'
 
   r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
-  r2_15_1Api 'com.google.android.exoplayer:exoplayer-ui:2.15.1'
   r2_15_1Api 'com.google.android.exoplayer:extension-mediasession:2.15.1'
 
   r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
-  r2_16_1Api 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
   r2_16_1Api 'com.google.android.exoplayer:extension-mediasession:2.16.1'
 
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
-  r2_17_1Api 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
   r2_17_1Api 'com.google.android.exoplayer:extension-mediasession:2.17.1'
 
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
-  r2_18_1Api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
 
   // Automated tests should always test the local module and not the maven dependency.
   implementation project(":MuxExoPlayer")
+  implementation project(':ExoPlayerAdapter')
 }

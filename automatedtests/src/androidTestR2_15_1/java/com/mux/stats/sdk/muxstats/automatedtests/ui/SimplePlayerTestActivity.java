@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
+import com.mux.stats.sdk.muxstats.SimplePlayerBaseActivity;
 
 
 public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implements Player.Listener {
