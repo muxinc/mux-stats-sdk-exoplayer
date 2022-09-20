@@ -308,6 +308,12 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   /**
+   * Gets the [CustomerData] object containing the player, video, and view data you want to attach
+   * to the current view
+   */
+  fun getCustomerData(): CustomerData = muxStats.customerData
+
+  /**
    * If true, this object will automatically track fatal playback errors, eventually showing the
    * errors on the dashboard. If false, only errors reported via [error] will show up on the
    * dashboard
