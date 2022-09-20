@@ -55,7 +55,7 @@ import kotlin.math.ceil
  */
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
-  val context: Context,
+  context: Context,
   envKey: String,
   val player: ExoPlayer,
   @Suppress("MemberVisibilityCanBePrivate") val playerView: View? = null,
@@ -124,6 +124,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
   private lateinit var playerId: String // Set by constructor (deprecated) or generated (preferred)
 
+  private val displayDensity: Float
+
   private val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
       player,
@@ -135,6 +137,9 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   init {
     customerData.apply { if (customerPlayerData == null) customerPlayerData = CustomerPlayerData() }
     customerData.customerPlayerData.environmentKey = envKey
+
+    // Needed for later calculations
+    displayDensity = context.resources.displayMetrics.density
 
     // Init MuxStats (muxStats must be created last)
     MuxStats.setHostDevice(MuxDevice(context))
@@ -375,8 +380,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    * @return number of density pixels calculated.
    */
   private fun pxToDp(px: Int): Int {
-    val displayMetrics = context.resources.displayMetrics
-    return ceil((px / displayMetrics.density).toDouble()).toInt()
+    return ceil((px / displayDensity).toDouble()).toInt()
   }
 
   @Suppress("RedundantNullableReturnType") // Lots of java interaction here
