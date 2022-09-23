@@ -139,9 +139,10 @@ android {
 
 muxDistribution {
   devVersion versionFromCommitHash('dev-')
-  releaseVersion versionFromHeadCommit()
+  releaseVersion versionFromTag()
   artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
+  publicReleaseIf releaseOnTag()
 
   packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
   publishIf { it.containsIgnoreCase("release") }
