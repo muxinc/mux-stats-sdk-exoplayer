@@ -112,7 +112,7 @@ android {
 
 muxDistribution {
   devVersion versionFromCommitHash('dev-')
-  releaseVersion versionFromHeadCommit()
+  releaseVersion versionFromTag()
   artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
   publishIf { it.containsIgnoreCase("release") }
