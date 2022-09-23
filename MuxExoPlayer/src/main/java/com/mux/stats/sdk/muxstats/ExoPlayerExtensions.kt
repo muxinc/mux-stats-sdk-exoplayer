@@ -23,14 +23,34 @@ import com.mux.stats.sdk.core.model.CustomerData
  * https://docs.mux.com/guides/data/monitor-exoplayer
  *
  * @param context The context you're playing in. Screen size will be detected if this is an Activity
- * @param player The player you wish to monitor
- * @param playerName A human-readable name for your player. It will be searchable on the dashboard
  * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null
  * @param customerData Data about you, your video, and your player.
  * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
  *    this can be left null/omitted
  */
-@JvmOverloads
+@Suppress("unused")
+fun ExoPlayer.monitorWithMuxData(
+  context: Context,
+  envKey: String,
+  playerView: View? = null,
+  customerData: CustomerData,
+  customOptions: CustomOptions = CustomOptions()
+): MuxStatsExoPlayer = MuxStatsExoPlayer(
+  context = context,
+  envKey = envKey,
+  player = this,
+  playerView = playerView,
+  customerData = customerData,
+  customOptions = customOptions
+)
+
+/**
+ * @deprecated Please prefer [monitorWithMuxData].
+ */
+@Deprecated(
+  message = "Please prefer providing your env key via this method",
+  replaceWith = ReplaceWith("monitorWithMuxData(context, ENV_KEY, exoPlayer, playerView, customerData")
+)
 fun ExoPlayer.monitorWithMuxData(
   context: Context,
   playerView: View? = null,
