@@ -116,6 +116,7 @@ muxDistribution {
   artifactIds artifactFromFlavorValue('exoplayer')
   groupIds just("com.mux.stats.sdk.muxstats")
   publishIf { it.containsIgnoreCase("release") }
+  publicReleaseIf releaseOnTag()
 
   packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
   useArtifactory = true
