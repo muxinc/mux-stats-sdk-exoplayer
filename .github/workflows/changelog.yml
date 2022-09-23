@@ -18,4 +18,4 @@ jobs:
       - uses: daytime-em/changelog-on-release-pr@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          labels: breaking,updates,fixes
+          labels: breaking,updates,fixes,deprecated
