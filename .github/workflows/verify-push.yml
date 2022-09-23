@@ -15,11 +15,7 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-    - name: Build ExoPlayerAdapter
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: :ExoPlayerAdapter:assemble
-    - name: Publish ExoPlayerAdapter to the Dev repo
+    - name: Build/Publish ExoPlayerAdapter to the Dev repo
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: :ExoPlayerAdapter:artifactoryPublish
@@ -28,11 +24,7 @@ jobs:
         ORG_GRADLE_PROJECT_artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
         GH_USER: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Build MuxExoPlayer
-      uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
-      with:
-        arguments: :MuxExoPlayer:assemble
-    - name: Publish MuxExoPlayer to the Dev repo
+    - name: Build/Publish MuxExoPlayer to the Dev repo
       uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
       with:
         arguments: :MuxExoPlayer:artifactoryPublish
