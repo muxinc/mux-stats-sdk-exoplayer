@@ -1,4 +1,11 @@
 # Release notes
+## 3.0.1
+### Updates
+* Fix the Kotlin extension for MuxStatsExoPlayer to require envKey (#240)
+
+### Improvements
+* Update the Build/Deploy Workflow (#239)
+
 ## 3.0.0
 ## API Changes
 
