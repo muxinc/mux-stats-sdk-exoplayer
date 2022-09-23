@@ -33,7 +33,6 @@ jobs:
         ORG_GRADLE_PROJECT_artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
         GH_USER: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    # TODO: This isn't enough info for Gradle to reuse anything in subsequent build jobs
     - name: Upload SDK Artifacts
       uses: actions/upload-artifact@v2
       with:
