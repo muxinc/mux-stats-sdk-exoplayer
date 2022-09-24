@@ -146,7 +146,11 @@ muxDistribution {
 
   packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
   publishIf { it.containsIgnoreCase("release") }
-  useArtifactory = true
+  artifactoryConfig {
+    contextUrl = "https://muxinc.jfrog.io/artifactory/"
+    releaseRepoKey = 'default-maven-release-local'
+    devRepoKey = 'default-maven-local'
+  }
 }
 
 dependencies {
