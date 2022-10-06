@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
@@ -150,11 +149,9 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
                            segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?,
                            segmentWidth:Int, segmentHeight:Int)
             : BandwidthMetricData {
-        val loadData:BandwidthMetricData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
+        val loadData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
             , segmentUrl, dataType, host, segmentMimeType, segmentWidth, segmentHeight)
-        if (loadData != null) {
-            loadData.setRequestResponseStart(System.currentTimeMillis())
-        }
+        loadData.requestResponseStart = System.currentTimeMillis()
         return loadData
     }
 
