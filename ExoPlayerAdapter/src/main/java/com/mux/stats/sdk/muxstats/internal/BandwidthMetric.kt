@@ -331,12 +331,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
     fun dispatch(data: BandwidthMetricData, event: PlaybackEvent) {
         if (shouldDispatchEvent(data, event)) {
             event.bandwidthMetricData = data
-
-            data.requestResponseHeaders?.let { headers ->
-                headers["x-request-id"]?.let {
-                  // TODO: Add to BandwidthMetricData
-                }
-            }
+            data.requestId = data.requestResponseHeaders?.get("x-request-id")
 
             collector?.dispatch(event)
         }
