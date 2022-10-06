@@ -252,7 +252,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             return;
         }
         var loadData:BandwidthMetricData = currentBandwidthMetric().onLoadError(loadTaskId, e)
-        dispatch(loadData, RequestFailed(null))
+        dispatch(data = loadData, event = RequestFailed(null))
     }
 
     fun onLoadCanceled(loadTaskId: Long, segmentUrl: String?, headers: Map<String, List<String>>) {
@@ -260,7 +260,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             || currentBandwidthMetric() == null) {
             return
         }
-        var loadData:BandwidthMetricData = currentBandwidthMetric().onLoadCanceled(loadTaskId)
+        val loadData:BandwidthMetricData = currentBandwidthMetric().onLoadCanceled(loadTaskId)
         parseHeaders(loadData, headers)
         dispatch(loadData, RequestCanceled(null))
     }
@@ -278,16 +278,16 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
     fun onLoadCompleted(
         loadTaskId:Long, segmentUrl:String?, bytesLoaded:Long, trackFormat:Format?,
         responseHeaders:Map<String, List<String>>) {
-        if (player == null  || collector == null
-            || currentBandwidthMetric() == null) {
+        if (player == null  || collector == null) {
             return
         }
-        var loadData:BandwidthMetricData? = currentBandwidthMetric().onLoadCompleted(
-            loadTaskId, segmentUrl, bytesLoaded, trackFormat);
+        val loadData:BandwidthMetricData? = currentBandwidthMetric().onLoadCompleted(
+            loadTaskId, segmentUrl, bytesLoaded, trackFormat)
         if (loadData != null) {
-            parseHeaders(loadData, responseHeaders);
-            // TODO: Some response headers go on the Event. Will this happen enough to warrant some code?
-            dispatch(loadData, RequestCompleted(null));
+            parseHeaders(loadData, responseHeaders)
+            // TODO: Some response headers go on the Event. Will this happen enough to warrant some higher-level config?
+            //  No! it will not. Just put it on BandwidthMetricData
+            dispatch(loadData, RequestCompleted(null))
         }
     }
 
@@ -328,9 +328,16 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
         }
     }
 
-    fun dispatch(data:BandwidthMetricData, event: PlaybackEvent) {
-        if (data != null && shouldDispatchEvent(data, event)) {
-            event.setBandwidthMetricData(data)
+    fun dispatch(data: BandwidthMetricData, event: PlaybackEvent) {
+        if (shouldDispatchEvent(data, event)) {
+            event.bandwidthMetricData = data
+
+            data.requestResponseHeaders?.let { headers ->
+                headers["x-request-id"]?.let {
+                  // TODO: Add to BandwidthMetricData
+                }
+            }
+
             collector?.dispatch(event)
         }
     }
