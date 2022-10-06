@@ -209,6 +209,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     // We always need these two values.
     collector.allowHeaderToBeSentToBackend("x-cdn")
     collector.allowHeaderToBeSentToBackend("content-type")
+    collector.allowHeaderToBeSentToBackend("x-request-id")
   }
 
   /**
