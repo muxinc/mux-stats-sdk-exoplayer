@@ -42,14 +42,14 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
      * @return segment that failed to load.
      */
     open fun onLoadError(loadTaskId: Long, e: IOException): BandwidthMetricData {
-        var segmentData: BandwidthMetricData? = loadedSegments.get(loadTaskId)
+        var segmentData: BandwidthMetricData? = loadedSegments[loadTaskId]
         if (segmentData == null) {
             segmentData = BandwidthMetricData()
             // TODO We should see how to put minimal stats here !!!
         }
-        segmentData.setRequestError(e.toString())
+        segmentData.requestError = e.toString()
         // TODO see what error codes are
-        segmentData.requestErrorCode == -1
+        segmentData.requestErrorCode = -1
         segmentData.requestErrorText = e.message
         segmentData.requestResponseEnd = System.currentTimeMillis()
         return segmentData
@@ -87,7 +87,7 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
               // Failed to obtrain data, ignore, we will get it on next call
           }
       }
-        var segmentData:BandwidthMetricData = BandwidthMetricData()
+        val segmentData = BandwidthMetricData()
         // TODO RequestStart timestamp is currently not available from ExoPlayer
         segmentData.requestResponseStart = System.currentTimeMillis()
         segmentData.requestMediaStartTime = mediaStartTimeMs
@@ -123,8 +123,8 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
         }
         segmentData.requestResponseHeaders = null
         segmentData.requestHostName = host
-        segmentData.requestRenditionLists = collector!!.renditionList
-        loadedSegments.put(loadTaskId, segmentData)
+        segmentData.requestRenditionLists = collector.renditionList
+        loadedSegments[loadTaskId] = segmentData
         return segmentData
     }
 
@@ -150,7 +150,7 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
                            segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?,
                            segmentWidth:Int, segmentHeight:Int)
             : BandwidthMetricData {
-        var loadData:BandwidthMetricData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
+        val loadData:BandwidthMetricData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
             , segmentUrl, dataType, host, segmentMimeType, segmentWidth, segmentHeight)
         if (loadData != null) {
             loadData.setRequestResponseStart(System.currentTimeMillis())
@@ -170,11 +170,9 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
      */
     open fun onLoadCompleted(loadTaskId:Long, segmentUrl:String?, bytesLoaded:Long, trackFormat:Format?)
             : BandwidthMetricData? {
-        var segmentData:BandwidthMetricData? = loadedSegments.get(loadTaskId)
-        if (segmentData == null) {
-            return null
-        }
-        segmentData.setRequestBytesLoaded(bytesLoaded);
+        val segmentData:BandwidthMetricData = loadedSegments[loadTaskId] ?: return null
+      
+      segmentData.setRequestBytesLoaded(bytesLoaded);
         segmentData.setRequestResponseEnd(System.currentTimeMillis());
         if (trackFormat != null && availableTracks != null) {
             for (i  in 0 until availableTracks!!.length) {
@@ -395,13 +393,13 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
      */
     fun shouldDispatchEvent(data:BandwidthMetricData, event:PlaybackEvent): Boolean {
         if (data != null) {
-            if (data.getRequestMediaDuration() == null || data.getRequestMediaDuration() < 1000) {
-                requestSegmentDuration = 1000;
-            } else {
-                requestSegmentDuration = data.getRequestMediaDuration();
-            }
+          requestSegmentDuration = if (data.requestMediaDuration == null || data.requestMediaDuration < 1000) {
+            1000;
+          } else {
+            data.requestMediaDuration;
+          }
         }
-        var timeDiff:Long = System.currentTimeMillis() - lastRequestSentAt;
+        val timeDiff:Long = System.currentTimeMillis() - lastRequestSentAt;
         if (timeDiff > requestSegmentDuration) {
             // Reset all stats
             lastRequestSentAt = System.currentTimeMillis();
