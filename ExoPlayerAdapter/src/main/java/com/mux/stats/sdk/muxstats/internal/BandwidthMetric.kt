@@ -14,8 +14,6 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 /**
  * Calculate Bandwidth metrics of an HLS or DASH segment. {@link ExoPlayer} will trigger
@@ -288,18 +286,16 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             loadTaskId, segmentUrl, bytesLoaded, trackFormat);
         if (loadData != null) {
             parseHeaders(loadData, responseHeaders);
+            // TODO: Some response headers go on the Event. Will this happen enough to warrant some code?
             dispatch(loadData, RequestCompleted(null));
         }
     }
 
     fun parseHeaders(loadData:BandwidthMetricData, responseHeaders:Map<String, List<String>>) {
-        if (responseHeaders != null) {
-            var headers: Hashtable<String, String>? = parseHeaders(responseHeaders)
-
-            if (headers != null) {
-                loadData.setRequestResponseHeaders(headers)
-            }
-        }
+      val headers: Hashtable<String, String>? = parseHeaders(responseHeaders)
+      if (headers != null) {
+          loadData.setRequestResponseHeaders(headers)
+      }
     }
 
     fun onTracksChanged(trackGroups:TrackGroupArray) {
@@ -340,13 +336,13 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
     }
 
     fun parseHeaders(responseHeaders:Map<String, List<String>>): Hashtable<String, String>? {
-        if (responseHeaders == null || responseHeaders.size == 0) {
+        if (responseHeaders.isEmpty()) {
             return null
         }
 
-        var headers:Hashtable<String, String> = Hashtable<String, String>()
+        val headers:Hashtable<String, String> = Hashtable<String, String>()
         for (headerName in responseHeaders.keys ) {
-            var headerAllowed:Boolean = false
+            var headerAllowed = false
             synchronized (this) {
                 for (allowedHeader in collector!!.allowedHeaders) {
                     if (allowedHeader.contentEquals(headerName, true)) {
@@ -359,21 +355,18 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
                 continue
             }
 
-            if (headerName == null) {
-                continue
-            }
-            var headerValues:List<String> = responseHeaders.get(headerName)!!
+            val headerValues:List<String> = responseHeaders[headerName]!!
             if (headerValues.size == 1) {
-                headers.put(headerName, headerValues.get(0));
+              headers[headerName] = headerValues[0];
             } else if (headerValues.size > 1) {
                 // In the case that there is more than one header, we squash
                 // it down to a single comma-separated value per RFC 2616
                 // https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
-                var headerValue:String = headerValues.get(0)
+                var headerValue:String = headerValues[0]
                 for (i in 1 until  headerValues.size) {
                     headerValue = headerValue + ", " + headerValues.get(i);
                 }
-                headers.put(headerName, headerValue);
+                headers[headerName] = headerValue;
             }
         }
         return headers;
