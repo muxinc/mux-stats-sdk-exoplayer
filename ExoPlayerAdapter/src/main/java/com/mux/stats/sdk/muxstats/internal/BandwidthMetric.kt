@@ -285,8 +285,6 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             loadTaskId, segmentUrl, bytesLoaded, trackFormat)
         if (loadData != null) {
             parseHeaders(loadData, responseHeaders)
-            // TODO: Some response headers go on the Event. Will this happen enough to warrant some higher-level config?
-            //  No! it will not. Just put it on BandwidthMetricData
             dispatch(loadData, RequestCompleted(null))
         }
     }
