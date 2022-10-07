@@ -4,13 +4,14 @@ package com.mux.stats.sdk.muxstats.automatedtests.ui;
 import android.net.Uri;
 import android.support.v4.media.session.MediaSessionCompat;
 import androidx.annotation.Nullable;
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
+import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -27,6 +28,8 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
+import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
+import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader.Builder;
 import java.lang.reflect.Constructor;
 import com.mux.stats.sdk.muxstats.SimplePlayerBaseActivity;
 
@@ -97,21 +100,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity
    */
   public @Nullable
   MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
-    // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
-      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-      if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
-      }
-      adsLoader.setPlayer(player);
       AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
           new AdsMediaSource.MediaSourceFactory() {
             @Override
@@ -124,15 +113,19 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity
               return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
             }
           };
-
-      // Because of how this is loaded via reflection, we know that this will be
-      // a ImaAdsLoader, so cast it over so that we can get a reference to the
-      // real IMA AdsLoader instance.
-      muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
+      MuxImaAdsLoader.Builder adsBuilder = new Builder(this)
+          .setAdTagUri(adTagUri)
+          .addAdEventListener(muxStats.getAdsImaSdkListener())
+          .addAdErrorListener(muxStats.getAdsImaSdkListener());
+      for (AdEventListener l : additionalAdEventListeners) {
+        adsBuilder.addAdEventListener(l);
+      }
+      for (AdErrorListener l : additionalAdErrorListeners) {
+        adsBuilder.addAdErrorListener(l);
+      }
+      adsLoader = adsBuilder.build();
+      adsLoader.setPlayer(player);
       return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
-    } catch (ClassNotFoundException e) {
-      // IMA extension not loaded.
-      return null;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

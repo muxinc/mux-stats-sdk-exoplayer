@@ -55,8 +55,6 @@ import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
-import com.google.android.exoplayer2.source.ads.AdsMediaSource;
 import com.google.android.exoplayer2.source.dash.DashMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 import com.google.android.exoplayer2.source.smoothstreaming.SsMediaSource;
@@ -81,7 +79,6 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-import java.lang.reflect.Constructor;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -157,8 +154,6 @@ public class PlayerActivity extends AppCompatActivity
   // Fields used only for ad playback. The ads loader is loaded via reflection.
 
   private MuxStatsExoPlayer muxStats;
-  private AdsLoader adsLoader;
-  private Uri loadedAdTagUri;
 
   // Activity lifecycle
 
@@ -230,7 +225,6 @@ public class PlayerActivity extends AppCompatActivity
   public void onNewIntent(Intent intent) {
     super.onNewIntent(intent);
     releasePlayer();
-    releaseAdsLoader();
     clearStartPosition();
     setIntent(intent);
   }
@@ -282,7 +276,6 @@ public class PlayerActivity extends AppCompatActivity
   @Override
   public void onDestroy() {
     super.onDestroy();
-    releaseAdsLoader();
   }
 
   @Override
@@ -478,22 +471,6 @@ public class PlayerActivity extends AppCompatActivity
       }
       mediaSource =
           mediaSources.length == 1 ? mediaSources[0] : new ConcatenatingMediaSource(mediaSources);
-      String adTagUriString = intent.getStringExtra(AD_TAG_URI_EXTRA);
-      if (adTagUriString != null) {
-        Uri adTagUri = Uri.parse(adTagUriString);
-        if (!adTagUri.equals(loadedAdTagUri)) {
-          releaseAdsLoader();
-          loadedAdTagUri = adTagUri;
-        }
-        MediaSource adsMediaSource = createAdsMediaSource(mediaSource, Uri.parse(adTagUriString));
-        if (adsMediaSource != null) {
-          mediaSource = adsMediaSource;
-        } else {
-          showToast(R.string.ima_not_loaded);
-        }
-      } else {
-        releaseAdsLoader();
-      }
     }
     boolean haveStartPosition = startWindow != C.INDEX_UNSET;
     if (haveStartPosition) {
@@ -558,9 +535,6 @@ public class PlayerActivity extends AppCompatActivity
       mediaSource = null;
       trackSelector = null;
     }
-    if (adsLoader != null) {
-      adsLoader.setPlayer(null);
-    }
     releaseMediaDrm();
   }
 
@@ -568,15 +542,6 @@ public class PlayerActivity extends AppCompatActivity
     if (mediaDrm != null) {
       mediaDrm.release();
       mediaDrm = null;
-    }
-  }
-
-  private void releaseAdsLoader() {
-    if (adsLoader != null) {
-      adsLoader.release();
-      adsLoader = null;
-      loadedAdTagUri = null;
-      playerView.getOverlayFrameLayout().removeAllViews();
     }
   }
 
@@ -605,47 +570,6 @@ public class PlayerActivity extends AppCompatActivity
    */
   private DataSource.Factory buildDataSourceFactory() {
     return ((DemoApplication) getApplication()).buildDataSourceFactory();
-  }
-
-  /**
-   * Returns an ads media source, reusing the ads loader if one exists.
-   */
-  private @Nullable
-  MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
-    // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
-    try {
-      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-      if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
-      }
-      adsLoader.setPlayer(player);
-      AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
-          new AdsMediaSource.MediaSourceFactory() {
-            @Override
-            public MediaSource createMediaSource(Uri uri) {
-              return PlayerActivity.this.buildMediaSource(uri);
-            }
-
-            @Override
-            public int[] getSupportedTypes() {
-              return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
-            }
-          };
-      return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
-    } catch (ClassNotFoundException e) {
-      // IMA extension not loaded.
-      return null;
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
   }
 
   // User controls

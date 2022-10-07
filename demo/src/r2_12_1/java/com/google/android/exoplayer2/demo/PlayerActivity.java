@@ -21,7 +21,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Point;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Pair;
@@ -51,7 +50,6 @@ import com.google.android.exoplayer2.source.BehindLiveWindowException;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
@@ -117,8 +115,6 @@ public class PlayerActivity extends AppCompatActivity
   // Fields used only for ad playback.
 
   private MuxStatsExoPlayer muxStats;
-  private AdsLoader adsLoader;
-  private Uri loadedAdTagUri;
 
   // Activity lifecycle
 
@@ -346,11 +342,6 @@ public class PlayerActivity extends AppCompatActivity
       muxStats = new MuxStatsExoPlayer(
           this, player, "demo-player", customerData);
       Point size = new Point();
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-        getWindowManager().getDefaultDisplay().getSize(size);
-      } else {
-        getApplication().getApplicationContext().getDisplay().getSize(size);
-      }
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
@@ -418,9 +409,6 @@ public class PlayerActivity extends AppCompatActivity
       player = null;
       mediaItems = Collections.emptyList();
       trackSelector = null;
-    }
-    if (adsLoader != null) {
-      adsLoader.setPlayer(null);
     }
   }
 

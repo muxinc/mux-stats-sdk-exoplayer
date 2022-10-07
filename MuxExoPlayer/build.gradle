@@ -113,14 +113,29 @@ android {
   } //productFlavors
 
   sourceSets {
+    r2_9_6 {
+      java.srcDirs += 'src/r2_9/java'
+    }
+    r2_10_6 {
+      java.srcDirs += 'src/r2_10/java'
+    }
+    r2_11_1 {
+      java.srcDirs += 'src/r2_11/java'
+    }
+    r2_12_1 {
+      java.srcDirs += 'src/r2_12/java'
+    }
+    r2_13_1 {
+      java.srcDirs += 'src/r2_13/java'
+    }
     r2_14_1 {
-      java.srcDirs += 'src/r2_15/java'
+      java.srcDirs += 'src/r2_13/java'
     }
     r2_15_1 {
       java.srcDirs += 'src/r2_15/java'
     }
     r2_16_1 {
-      java.srcDirs += 'src/r2_17/java'
+      java.srcDirs += 'src/r2_16/java'
     }
     r2_17_1 {
       java.srcDirs += 'src/r2_17/java'
@@ -157,14 +172,20 @@ muxDistribution {
 dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   r2_9_6Implementation 'com.google.android.exoplayer:exoplayer:2.9.6'
+  r2_9_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
+  r2_9_6Implementation 'com.android.support:support-annotations:+'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
+  r2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
+  r2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
+  r2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
+  r2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.0'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
   //noinspection GradleDynamicVersion,GradleDependency
@@ -180,7 +201,6 @@ dependencies {
 
   //noinspection GradleDynamicVersion,GradleDependency
 //  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
-  implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.28.1'
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
   //noinspection GradleDynamicVersion,GradleDependency

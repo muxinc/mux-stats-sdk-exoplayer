@@ -46,7 +46,6 @@ import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.google.android.exoplayer2.drm.HttpMediaDrmCallback;
 import com.google.android.exoplayer2.drm.UnsupportedDrmException;
-import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.FilteringManifestParser;
@@ -86,7 +85,8 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-import java.lang.reflect.Constructor;
+import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
+import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader.Builder;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -633,21 +633,7 @@ public class PlayerActivity extends Activity
    */
   private @Nullable
   MediaSource createAdsMediaSource(MediaSource mediaSource, Uri adTagUri) {
-    // Load the extension source using reflection so the demo app doesn't have to depend on it.
-    // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     try {
-      Class<?> loaderClass = Class.forName("com.google.android.exoplayer2.ext.ima.ImaAdsLoader");
-      if (adsLoader == null) {
-        // Full class names used so the LINT.IfChange rule triggers should any of the classes move.
-        // LINT.IfChange
-        Constructor<? extends AdsLoader> loaderConstructor =
-            loaderClass
-                .asSubclass(AdsLoader.class)
-                .getConstructor(android.content.Context.class, android.net.Uri.class);
-        // LINT.ThenChange(../../../../../../../../proguard-rules.txt)
-        adsLoader = loaderConstructor.newInstance(this, adTagUri);
-      }
-      adsLoader.setPlayer(player);
       AdsMediaSource.MediaSourceFactory adMediaSourceFactory =
           new AdsMediaSource.MediaSourceFactory() {
             @Override
@@ -660,15 +646,13 @@ public class PlayerActivity extends Activity
               return new int[]{C.TYPE_DASH, C.TYPE_SS, C.TYPE_HLS, C.TYPE_OTHER};
             }
           };
-
-      // Because of how this is loaded via reflection, we know that this will be
-      // a ImaAdsLoader, so cast it over so that we can get a reference to the
-      // real IMA AdsLoader instance.
-      muxStats.monitorImaAdsLoader(((ImaAdsLoader) adsLoader).getAdsLoader());
+      MuxImaAdsLoader.Builder adsBuilder = new Builder(this)
+          .setAdTagUri(adTagUri)
+          .addAdEventListener(muxStats.getAdsImaSdkListener())
+          .addAdErrorListener(muxStats.getAdsImaSdkListener());
+      adsLoader = adsBuilder.build();
+      adsLoader.setPlayer(player);
       return new AdsMediaSource(mediaSource, adMediaSourceFactory, adsLoader, playerView);
-    } catch (ClassNotFoundException e) {
-      // IMA extension not loaded.
-      return null;
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
