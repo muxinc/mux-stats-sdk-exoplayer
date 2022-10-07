@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import android.util.Log
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
@@ -15,8 +14,6 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 import java.util.*
-import kotlin.collections.ArrayList
-import kotlin.collections.HashMap
 
 /**
  * Calculate Bandwidth metrics of an HLS or DASH segment. {@link ExoPlayer} will trigger
@@ -42,14 +39,14 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
      * @return segment that failed to load.
      */
     open fun onLoadError(loadTaskId: Long, e: IOException): BandwidthMetricData {
-        var segmentData: BandwidthMetricData? = loadedSegments.get(loadTaskId)
+        var segmentData: BandwidthMetricData? = loadedSegments[loadTaskId]
         if (segmentData == null) {
             segmentData = BandwidthMetricData()
             // TODO We should see how to put minimal stats here !!!
         }
-        segmentData.setRequestError(e.toString())
+        segmentData.requestError = e.toString()
         // TODO see what error codes are
-        segmentData.requestErrorCode == -1
+        segmentData.requestErrorCode = -1
         segmentData.requestErrorText = e.message
         segmentData.requestResponseEnd = System.currentTimeMillis()
         return segmentData
@@ -87,7 +84,7 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
               // Failed to obtrain data, ignore, we will get it on next call
           }
       }
-        var segmentData:BandwidthMetricData = BandwidthMetricData()
+        val segmentData = BandwidthMetricData()
         // TODO RequestStart timestamp is currently not available from ExoPlayer
         segmentData.requestResponseStart = System.currentTimeMillis()
         segmentData.requestMediaStartTime = mediaStartTimeMs
@@ -123,8 +120,8 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
         }
         segmentData.requestResponseHeaders = null
         segmentData.requestHostName = host
-        segmentData.requestRenditionLists = collector!!.renditionList
-        loadedSegments.put(loadTaskId, segmentData)
+        segmentData.requestRenditionLists = collector.renditionList
+        loadedSegments[loadTaskId] = segmentData
         return segmentData
     }
 
@@ -150,11 +147,9 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
                            segmentUrl:String?, dataType:Int, host:String?, segmentMimeType:String?,
                            segmentWidth:Int, segmentHeight:Int)
             : BandwidthMetricData {
-        var loadData:BandwidthMetricData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
+        val loadData = onLoad(loadTaskId, mediaStartTimeMs, mediaEndTimeMs
             , segmentUrl, dataType, host, segmentMimeType, segmentWidth, segmentHeight)
-        if (loadData != null) {
-            loadData.setRequestResponseStart(System.currentTimeMillis())
-        }
+        loadData.requestResponseStart = System.currentTimeMillis()
         return loadData
     }
 
@@ -170,11 +165,9 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
      */
     open fun onLoadCompleted(loadTaskId:Long, segmentUrl:String?, bytesLoaded:Long, trackFormat:Format?)
             : BandwidthMetricData? {
-        var segmentData:BandwidthMetricData? = loadedSegments.get(loadTaskId)
-        if (segmentData == null) {
-            return null
-        }
-        segmentData.setRequestBytesLoaded(bytesLoaded);
+        val segmentData:BandwidthMetricData = loadedSegments[loadTaskId] ?: return null
+      
+      segmentData.setRequestBytesLoaded(bytesLoaded);
         segmentData.setRequestResponseEnd(System.currentTimeMillis());
         if (trackFormat != null && availableTracks != null) {
             for (i  in 0 until availableTracks!!.length) {
@@ -259,7 +252,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             return;
         }
         var loadData:BandwidthMetricData = currentBandwidthMetric().onLoadError(loadTaskId, e)
-        dispatch(loadData, RequestFailed(null))
+        dispatch(data = loadData, event = RequestFailed(null))
     }
 
     fun onLoadCanceled(loadTaskId: Long, segmentUrl: String?, headers: Map<String, List<String>>) {
@@ -267,7 +260,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             || currentBandwidthMetric() == null) {
             return
         }
-        var loadData:BandwidthMetricData = currentBandwidthMetric().onLoadCanceled(loadTaskId)
+        val loadData:BandwidthMetricData = currentBandwidthMetric().onLoadCanceled(loadTaskId)
         parseHeaders(loadData, headers)
         dispatch(loadData, RequestCanceled(null))
     }
@@ -285,26 +278,23 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
     fun onLoadCompleted(
         loadTaskId:Long, segmentUrl:String?, bytesLoaded:Long, trackFormat:Format?,
         responseHeaders:Map<String, List<String>>) {
-        if (player == null  || collector == null
-            || currentBandwidthMetric() == null) {
+        if (player == null  || collector == null) {
             return
         }
-        var loadData:BandwidthMetricData? = currentBandwidthMetric().onLoadCompleted(
-            loadTaskId, segmentUrl, bytesLoaded, trackFormat);
+        val loadData:BandwidthMetricData? = currentBandwidthMetric().onLoadCompleted(
+            loadTaskId, segmentUrl, bytesLoaded, trackFormat)
         if (loadData != null) {
-            parseHeaders(loadData, responseHeaders);
-            dispatch(loadData, RequestCompleted(null));
+            parseHeaders(loadData, responseHeaders)
+            dispatch(loadData, RequestCompleted(null))
         }
     }
 
     fun parseHeaders(loadData:BandwidthMetricData, responseHeaders:Map<String, List<String>>) {
-        if (responseHeaders != null) {
-            var headers: Hashtable<String, String>? = parseHeaders(responseHeaders)
-
-            if (headers != null) {
-                loadData.setRequestResponseHeaders(headers)
-            }
-        }
+      val headers: Hashtable<String, String>? = parseHeaders(responseHeaders)
+      if (headers != null) {
+        loadData.requestId = headers["x-request-id"]
+        loadData.requestResponseHeaders = headers
+      }
     }
 
     fun onTracksChanged(trackGroups:TrackGroupArray) {
@@ -337,21 +327,21 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
         }
     }
 
-    fun dispatch(data:BandwidthMetricData, event: PlaybackEvent) {
-        if (data != null && shouldDispatchEvent(data, event)) {
-            event.setBandwidthMetricData(data)
+    fun dispatch(data: BandwidthMetricData, event: PlaybackEvent) {
+        if (shouldDispatchEvent(data, event)) {
+            event.bandwidthMetricData = data
             collector?.dispatch(event)
         }
     }
 
     fun parseHeaders(responseHeaders:Map<String, List<String>>): Hashtable<String, String>? {
-        if (responseHeaders == null || responseHeaders.size == 0) {
+        if (responseHeaders.isEmpty()) {
             return null
         }
 
-        var headers:Hashtable<String, String> = Hashtable<String, String>()
-        for (headerName in responseHeaders.keys ) {
-            var headerAllowed:Boolean = false
+        val headers:Hashtable<String, String> = Hashtable<String, String>()
+        for (headerName in responseHeaders.keys) {
+            var headerAllowed = false
             synchronized (this) {
                 for (allowedHeader in collector!!.allowedHeaders) {
                     if (allowedHeader.contentEquals(headerName, true)) {
@@ -364,21 +354,18 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
                 continue
             }
 
-            if (headerName == null) {
-                continue
-            }
-            var headerValues:List<String> = responseHeaders.get(headerName)!!
+            val headerValues:List<String> = responseHeaders[headerName]!!
             if (headerValues.size == 1) {
-                headers.put(headerName, headerValues.get(0));
+              headers[headerName] = headerValues[0];
             } else if (headerValues.size > 1) {
                 // In the case that there is more than one header, we squash
                 // it down to a single comma-separated value per RFC 2616
                 // https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
-                var headerValue:String = headerValues.get(0)
-                for (i in 1 until  headerValues.size) {
-                    headerValue = headerValue + ", " + headerValues.get(i);
+                var headerValue:String = headerValues[0]
+                for (i in 1 until headerValues.size) {
+                    headerValue = headerValue + ", " + headerValues[i];
                 }
-                headers.put(headerName, headerValue);
+                headers[headerName] = headerValue;
             }
         }
         return headers;
@@ -395,13 +382,13 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
      */
     fun shouldDispatchEvent(data:BandwidthMetricData, event:PlaybackEvent): Boolean {
         if (data != null) {
-            if (data.getRequestMediaDuration() == null || data.getRequestMediaDuration() < 1000) {
-                requestSegmentDuration = 1000;
-            } else {
-                requestSegmentDuration = data.getRequestMediaDuration();
-            }
+          requestSegmentDuration = if (data.requestMediaDuration == null || data.requestMediaDuration < 1000) {
+            1000;
+          } else {
+            data.requestMediaDuration;
+          }
         }
-        var timeDiff:Long = System.currentTimeMillis() - lastRequestSentAt;
+        val timeDiff:Long = System.currentTimeMillis() - lastRequestSentAt;
         if (timeDiff > requestSegmentDuration) {
             // Reset all stats
             lastRequestSentAt = System.currentTimeMillis();

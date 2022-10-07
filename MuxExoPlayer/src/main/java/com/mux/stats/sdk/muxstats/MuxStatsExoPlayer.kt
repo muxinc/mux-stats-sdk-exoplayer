@@ -209,6 +209,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     // We always need these two values.
     collector.allowHeaderToBeSentToBackend("x-cdn")
     collector.allowHeaderToBeSentToBackend("content-type")
+    collector.allowHeaderToBeSentToBackend("x-request-id")
   }
 
   /**
@@ -249,15 +250,16 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     }
     try {
       // TODO: these may not be necessary, but doing it for the sake of it
-      adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent -> // TODO: Add in the adresponse stuff when we can
+      adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent ->
         // Set up the ad events that we want to use
         val adsManager = adsManagerLoadedEvent.adsManager
         // Attach mux event and error event listeners.
         adsManager.addAdErrorListener(imaSdkListener)
         adsManager.addAdEventListener(imaSdkListener)
-      } // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
+      }
       )
-    } catch (cnfe: ClassNotFoundException) {
+    } catch (imaNotInClasspath: ClassNotFoundException) {
+      // If no IMA classes at runtime just return harmlessly
       return
     }
   }
@@ -491,6 +493,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
  * Basic device details such as OS version, vendor name and etc. Instances of this class
  * are used by [MuxStats] to interface with the device.
  */
+@Suppress("DEPRECATION") // Don't worry, this will be removed soon
 private class MuxDevice(ctx: Context) : IDevice {
 
   private var contextRef: WeakReference<Context>
@@ -569,41 +572,37 @@ private class MuxDevice(ctx: Context) : IDevice {
     val context = contextRef.get() ?: return null
     val connectivityMgr = context
       .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    var activeNetwork: NetworkInfo? = null
-    if (connectivityMgr != null) {
-      activeNetwork = connectivityMgr.activeNetworkInfo
-      return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val nc = connectivityMgr
-          .getNetworkCapabilities(connectivityMgr.activeNetwork)
-        if (nc == null) {
-          MuxLogger.d(
-            TAG,
-            "ERROR: Failed to obtain NetworkCapabilities manager !!!"
-          )
-          return null
-        }
-        if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-          CONNECTION_TYPE_WIRED
-        } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-          CONNECTION_TYPE_WIFI
-        } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-          CONNECTION_TYPE_CELLULAR
-        } else {
-          CONNECTION_TYPE_OTHER
-        }
+    val activeNetwork: NetworkInfo? = connectivityMgr.activeNetworkInfo
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      val nc = connectivityMgr
+        .getNetworkCapabilities(connectivityMgr.activeNetwork)
+      if (nc == null) {
+        MuxLogger.d(
+          TAG,
+          "ERROR: Failed to obtain NetworkCapabilities manager !!!"
+        )
+        return null
+      }
+      if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+        CONNECTION_TYPE_WIRED
+      } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+        CONNECTION_TYPE_WIFI
+      } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+        CONNECTION_TYPE_CELLULAR
       } else {
-        if (activeNetwork!!.type == ConnectivityManager.TYPE_ETHERNET) {
-          CONNECTION_TYPE_WIRED
-        } else if (activeNetwork.type == ConnectivityManager.TYPE_WIFI) {
-          CONNECTION_TYPE_WIFI
-        } else if (activeNetwork.type == ConnectivityManager.TYPE_MOBILE) {
-          CONNECTION_TYPE_CELLULAR
-        } else {
-          CONNECTION_TYPE_OTHER
-        }
+        CONNECTION_TYPE_OTHER
+      }
+    } else {
+      if (activeNetwork!!.type == ConnectivityManager.TYPE_ETHERNET) {
+        CONNECTION_TYPE_WIRED
+      } else if (activeNetwork.type == ConnectivityManager.TYPE_WIFI) {
+        CONNECTION_TYPE_WIFI
+      } else if (activeNetwork.type == ConnectivityManager.TYPE_MOBILE) {
+        CONNECTION_TYPE_CELLULAR
+      } else {
+        CONNECTION_TYPE_OTHER
       }
     }
-    return null
   }
 
   override fun getElapsedRealtime(): Long {
@@ -644,12 +643,6 @@ private class MuxDevice(ctx: Context) : IDevice {
     val muxStatsInstance = MuxStats.getHostDevice() as? MuxDevice
   }
 
-  /**
-   * Basic constructor.
-   *
-   * @param ctx activity context, we use this to access different system services, like
-   * [ConnectivityManager], or [PackageInfo].
-   */
   init {
     val sharedPreferences = ctx
       .getSharedPreferences(MUX_DEVICE_ID, Context.MODE_PRIVATE)
@@ -658,7 +651,7 @@ private class MuxDevice(ctx: Context) : IDevice {
       deviceId = UUID.randomUUID().toString()
       val editor = sharedPreferences.edit()
       editor.putString(MUX_DEVICE_ID, deviceId)
-      editor.commit()
+      editor.apply()
     }
     contextRef = WeakReference(ctx)
     try {
