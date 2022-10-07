@@ -294,7 +294,8 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
     fun parseHeaders(loadData:BandwidthMetricData, responseHeaders:Map<String, List<String>>) {
       val headers: Hashtable<String, String>? = parseHeaders(responseHeaders)
       if (headers != null) {
-          loadData.setRequestResponseHeaders(headers)
+        loadData.requestId = headers["x-request-id"]
+        loadData.requestResponseHeaders = headers
       }
     }
 
@@ -331,8 +332,6 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
     fun dispatch(data: BandwidthMetricData, event: PlaybackEvent) {
         if (shouldDispatchEvent(data, event)) {
             event.bandwidthMetricData = data
-            data.requestId = data.requestResponseHeaders?.get("x-request-id")
-
             collector?.dispatch(event)
         }
     }
@@ -343,7 +342,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
         }
 
         val headers:Hashtable<String, String> = Hashtable<String, String>()
-        for (headerName in responseHeaders.keys ) {
+        for (headerName in responseHeaders.keys) {
             var headerAllowed = false
             synchronized (this) {
                 for (allowedHeader in collector!!.allowedHeaders) {
@@ -365,8 +364,8 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
                 // it down to a single comma-separated value per RFC 2616
                 // https://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2
                 var headerValue:String = headerValues[0]
-                for (i in 1 until  headerValues.size) {
-                    headerValue = headerValue + ", " + headerValues.get(i);
+                for (i in 1 until headerValues.size) {
+                    headerValue = headerValue + ", " + headerValues[i];
                 }
                 headers[headerName] = headerValue;
             }
