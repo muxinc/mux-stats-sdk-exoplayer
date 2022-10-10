@@ -1,4 +1,4 @@
-# Mux Stats SDK ExoPlayer
+# Mux Stats SDK for ExoPlayer
 
 This is the Mux wrapper around ExoPlayer, built on top of Mux's core Java library, providing Mux
 Data performance analytics for applications utilizing
