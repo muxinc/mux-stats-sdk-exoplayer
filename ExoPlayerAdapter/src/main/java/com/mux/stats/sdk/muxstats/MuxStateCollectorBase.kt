@@ -114,7 +114,7 @@ abstract class MuxStateCollectorBase(
    * access play time info
    */
   var positionWatcher: PositionWatcher?
-          by Delegates.observable(null) @Synchronized { _, old, new ->
+          by Delegates.observable(null) @Synchronized { _, old, _ ->
             old?.apply { stop("watcher replaced") }
           }
 

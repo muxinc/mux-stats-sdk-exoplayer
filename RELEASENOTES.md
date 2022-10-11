@@ -1,4 +1,9 @@
 # Release notes
+## 3.0.2
+### Improvements
+
+* Collect Request IDs for HLS segments for Error Tracking  (#242)
+
 ## 3.0.1
 ### Updates
 * Fix the Kotlin extension for MuxStatsExoPlayer to require envKey (#240)
