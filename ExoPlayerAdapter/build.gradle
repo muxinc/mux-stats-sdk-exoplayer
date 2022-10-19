@@ -155,7 +155,7 @@ muxDistribution {
 
 dependencies {
 //  api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
-  api "com.mux:stats.muxcore:dev-device_category_override_issue-aaf96bd"
+  api "com.mux:stats.muxcore:dev-device_category_override_issue-f9ff7dc"
 
   //noinspection GradleDynamicVersion,GradleDependency
   r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
