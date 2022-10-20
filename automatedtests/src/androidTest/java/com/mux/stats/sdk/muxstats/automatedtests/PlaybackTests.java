@@ -17,6 +17,7 @@ import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.core.model.PlayerData;
+import com.mux.stats.sdk.core.model.ViewerData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
 
 import org.json.JSONArray;
@@ -37,6 +38,13 @@ public class PlaybackTests extends TestBase {
 
   public static final String TAG = "playbackTest";
   static final String secondVideoToPlayUrl = "http://localhost:5000/hls/google_glass/playlist.m3u8";
+
+  public static final String DEVICE_CATEGORY_OVERRIDE = "Mux test tablet";
+  public static final String DEVICE_MANUFACTURER_OVERRIDE = "Mux";
+  public static final String DEVICE_NAME_OVERRIDE = "Mux test";
+  public static final String DEVICE_OS_FAMILY_OVERRIDE = "Mux test OS";
+  public static final String DEVICE_OS_VERSION_OVERRIDE = "2.15";
+  public static final String DEVICE_MODEL_OVERRIDE = "Mux test model";
 
   @Test
   public void testVideoChange() {
@@ -84,6 +92,7 @@ public class PlaybackTests extends TestBase {
               + networkRequest.getReceivedEventNames());
         }
       }
+      checkOverwrites();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -120,6 +129,7 @@ public class PlaybackTests extends TestBase {
             + ", viewEndEventIndex: " + viewEndEventIndex
             + ", pauseEventIndex: " + pauseIndex);
       }
+      checkOverwrites();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -217,6 +227,7 @@ public class PlaybackTests extends TestBase {
       // TODO see how to handle that
 //      Log.w(TAG, "See what event should be dispatched on view closed !!!");
 //      checkFullScreenValue();
+      checkOverwrites();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -298,6 +309,7 @@ public class PlaybackTests extends TestBase {
             + networkRequest.getReceivedEventNames());
       }
       // TODO see what is the best way to calculate rebuffer period
+      checkOverwrites();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -322,5 +334,79 @@ public class PlaybackTests extends TestBase {
       }
     }
     fail("PlayerData.PLAYER_IS_FULLSCREEN field not present, this is an error !!!");
+  }
+
+  /**
+   * Goes trough all the events received and look for at least one occurence of value set for
+   * overwrite in ViewerData object.
+   *
+   * @throws JSONException
+   */
+  void checkOverwrites() throws JSONException {
+    boolean categoryOverwriteFound = false;
+    boolean manufacturerOverwriteFound = false;
+    boolean nameOverwriteFound = false;
+    boolean osFamilyOverwriteFound = false;
+    boolean osVersionOverwriteFound = false;
+    boolean modelOverwriteFound = false;
+    JSONArray eventsJa = networkRequest.getReceivedEventsAsJSON();
+    for (int index = 0; index < eventsJa.length(); index++) {
+      JSONObject eventJo = eventsJa.getJSONObject(index);
+      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_CATEGORY,
+          DEVICE_CATEGORY_OVERRIDE)) {
+        categoryOverwriteFound = true;
+      }
+      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_MANUFACTURER,
+          DEVICE_MANUFACTURER_OVERRIDE)) {
+        manufacturerOverwriteFound = true;
+      }
+      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_NAME,
+          DEVICE_NAME_OVERRIDE)) {
+        nameOverwriteFound = true;
+      }
+      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_OS_FAMILY,
+          DEVICE_OS_FAMILY_OVERRIDE)) {
+        osFamilyOverwriteFound = true;
+      }
+      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_OS_VERSION,
+          DEVICE_OS_VERSION_OVERRIDE)) {
+        osVersionOverwriteFound = true;
+      }
+      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_MODEL,
+          DEVICE_MODEL_OVERRIDE)) {
+        modelOverwriteFound = true;
+      }
+    }
+    if (!(
+        categoryOverwriteFound &&
+            manufacturerOverwriteFound &&
+            nameOverwriteFound &&
+            osFamilyOverwriteFound &&
+            osVersionOverwriteFound &&
+            modelOverwriteFound
+        )) {
+      fail("Missing one of the value set for overwrite, result: \n" +
+          "categoryOverwriteFound: " + categoryOverwriteFound + "\n" +
+          "manufacturerOverwriteFound: " + manufacturerOverwriteFound + "\n" +
+          "nameOverwriteFound: " + nameOverwriteFound + "\n" +
+          "osFamilyOverwriteFound: " + osFamilyOverwriteFound + "\n" +
+          "osVersionOverwriteFound: " + osVersionOverwriteFound + "\n" +
+          "modelOverwriteFound: " + modelOverwriteFound + "\n"
+      );
+    }
+  }
+
+  private boolean checkTheValueForKey(JSONObject jo, String key, String expValue)
+      throws JSONException {
+    if (jo.has(key)) {
+      String value = jo.getString(key);
+      if (!expValue.equals(value)) {
+        fail("Check failed for key: " + key + "\n" +
+            "Valuie found: " + value + "\n" +
+            "Expected: " + expValue);
+      }
+      return true;
+    }
+    return false;
   }
 }

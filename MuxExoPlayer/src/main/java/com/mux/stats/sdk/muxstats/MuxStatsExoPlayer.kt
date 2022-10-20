@@ -272,25 +272,11 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   inline fun <reified T : View> getExoPlayerView(): T? = playerView as? T
 
   /**
-   * Overwrite the OS version reported on the Mux Data dashboard for views recorded with this object
+   * Overwrite the device category
    */
-  fun overwriteOsVersion(osVersion: String) {
-    MuxDevice.muxStatsInstance?.overwrittenOsVersion = osVersion
-  }
-
-  /**
-   * Overwrite the device name reported on the Mux Data dashboard for views recorded with this object
-   */
-  fun overwriteDeviceName(deviceName: String) {
-    MuxDevice.muxStatsInstance?.overwrittenDeviceName = deviceName
-  }
-
-  /**
-   * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
-   * recorded with this object
-   */
-  fun overwriteOsFamily(osFamily: String) {
-    MuxDevice.muxStatsInstance?.overwrittenOsFamilyName = osFamily
+  fun overwriteDeviceCategory(category: String) {
+    MuxDevice.muxStatsInstance?.overwrittenDeviceCategory = category
+    muxStats.updateHostDeviceData()
   }
 
   /**
@@ -299,6 +285,40 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    */
   fun overwriteManufacturer(manufacturer: String) {
     MuxDevice.muxStatsInstance?.overwrittenManufacturer = manufacturer
+    muxStats.updateHostDeviceData()
+  }
+
+  /**
+   * Overwrite the device name reported on the Mux Data dashboard for views recorded with this object
+   */
+  fun overwriteDeviceName(deviceName: String) {
+    MuxDevice.muxStatsInstance?.overwrittenDeviceName = deviceName
+    muxStats.updateHostDeviceData()
+  }
+
+  /**
+   * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
+   * recorded with this object
+   */
+  fun overwriteOsFamily(osFamily: String) {
+    MuxDevice.muxStatsInstance?.overwrittenOsFamilyName = osFamily
+    muxStats.updateHostDeviceData()
+  }
+
+  /**
+   * Overwrite the OS version reported on the Mux Data dashboard for views recorded with this object
+   */
+  fun overwriteOsVersion(osVersion: String) {
+    MuxDevice.muxStatsInstance?.overwrittenOsVersion = osVersion
+    muxStats.updateHostDeviceData()
+  }
+
+  /**
+   * Overwrite the device model reported on the Mux Data dashboard for views recorded with this object
+   */
+  fun overwriteDeviceModel(deviceModel: String) {
+    MuxDevice.muxStatsInstance?.overwrittenDeviceModelName = deviceModel
+    muxStats.updateHostDeviceData()
   }
 
   /**
@@ -307,6 +327,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    */
   fun updateCustomerData(customerData: CustomerData) {
     muxStats.customerData = customerData
+    muxStats.updateHostDeviceData()
   }
 
   /**
@@ -501,7 +522,9 @@ private class MuxDevice(ctx: Context) : IDevice {
   private var appName = ""
   private var appVersion = ""
 
+  var overwrittenDeviceCategory: String? = null
   var overwrittenDeviceName: String? = null
+  var overwrittenDeviceModelName: String? = null
   var overwrittenOsFamilyName: String? = null
   var overwrittenOsVersion: String? = null
   var overwrittenManufacturer: String? = null
@@ -514,13 +537,23 @@ private class MuxDevice(ctx: Context) : IDevice {
     return "Android"
   }
 
-  override fun getMuxOSFamily(): String? = overwrittenOsFamilyName
+  override fun getMuxOSFamily(): String? {
+    return overwrittenOsFamilyName
+  }
 
   override fun getOSVersion(): String {
     return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")"
   }
 
   override fun getMuxOSVersion(): String? = overwrittenOsVersion
+
+  override fun getDeviceName(): String = ""
+
+  override fun getMuxDeviceName(): String? = overwrittenDeviceName
+
+  override fun getDeviceCategory(): String = ""
+
+  override fun getMuxDeviceCategory(): String? = overwrittenDeviceCategory
 
   override fun getManufacturer(): String {
     return Build.MANUFACTURER
@@ -532,7 +565,7 @@ private class MuxDevice(ctx: Context) : IDevice {
     return Build.MODEL
   }
 
-  override fun getMuxModelName(): String? = overwrittenDeviceName
+  override fun getMuxModelName(): String? = overwrittenDeviceModelName
 
   override fun getPlayerVersion(): String {
     return ExoPlayerLibraryInfo.VERSION
@@ -640,7 +673,7 @@ private class MuxDevice(ctx: Context) : IDevice {
     const val CONNECTION_TYPE_OTHER = "other"
     const val MUX_DEVICE_ID = "MUX_DEVICE_ID"
 
-    val muxStatsInstance = MuxStats.getHostDevice() as? MuxDevice
+    val muxStatsInstance get() = MuxStats.getHostDevice() as? MuxDevice
   }
 
   init {
