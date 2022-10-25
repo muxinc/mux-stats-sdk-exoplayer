@@ -15,7 +15,6 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaItem.AdsConfiguration;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.mux.stats.sdk.muxstats.ima.MuxAdLoaderBuilder;
 import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
@@ -159,7 +158,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      MuxAdLoaderBuilder adsBuilder = new MuxImaAdsLoader.Builder(/* context= */ this)
+      MuxImaAdsLoader.Builder adsBuilder = new MuxImaAdsLoader.Builder(/* context= */ this)
           .addAdErrorListener(muxStats.getAdsImaSdkListener())
           .addAdEventListener(muxStats.getAdsImaSdkListener());
       for (AdEventListener l : additionalAdEventListeners) {

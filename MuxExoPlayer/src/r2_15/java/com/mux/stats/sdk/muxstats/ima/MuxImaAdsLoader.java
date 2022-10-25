@@ -33,6 +33,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -46,7 +47,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-import org.checkerframework.checker.units.qual.A;
 
 /**
  * {@link AdsLoader} using the IMA SDK. All methods must be called on the main thread.
@@ -70,7 +70,7 @@ import org.checkerframework.checker.units.qual.A;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
+public final class MuxImaAdsLoader implements Player.Listener, AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -590,7 +590,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
         .handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
   @Override
   public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
@@ -603,7 +603,10 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     maybeUpdateCurrentAdTagLoader();
     maybePreloadNextPeriodAds();
   }
@@ -720,7 +723,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
 
     // The reasonDetail parameter to createFriendlyObstruction is annotated @Nullable but the
     // annotation is not kept in the obfuscated dependency.
-    @SuppressWarnings("nullness:argument.type.incompatible")
+    @SuppressWarnings("nullness:argument")
     @Override
     public FriendlyObstruction createFriendlyObstruction(
         View view,

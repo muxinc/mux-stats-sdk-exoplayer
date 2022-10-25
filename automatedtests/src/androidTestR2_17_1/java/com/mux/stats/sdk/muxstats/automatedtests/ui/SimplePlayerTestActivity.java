@@ -35,7 +35,6 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.SimplePlayerBaseActivity;
-import com.mux.stats.sdk.muxstats.ima.MuxAdLoaderBuilder;
 import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
 
 
@@ -159,7 +158,7 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      MuxAdLoaderBuilder adsBuilder = new MuxImaAdsLoader.Builder(/* context= */ this)
+      MuxImaAdsLoader.Builder adsBuilder = new MuxImaAdsLoader.Builder(/* context= */ this)
           .addAdErrorListener(muxStats.getAdsImaSdkListener())
           .addAdEventListener(muxStats.getAdsImaSdkListener());
       for (AdEventListener l : additionalAdEventListeners) {

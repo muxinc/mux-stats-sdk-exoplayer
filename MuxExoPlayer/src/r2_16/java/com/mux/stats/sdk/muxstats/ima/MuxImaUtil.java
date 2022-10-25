@@ -21,8 +21,9 @@ import com.google.ads.interactivemedia.v3.api.UiElement;
 import com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer;
 import com.google.ads.interactivemedia.v3.api.player.VideoProgressUpdate;
 import com.google.android.exoplayer2.C;
-import com.google.android.exoplayer2.source.ads.AdsLoader.OverlayInfo;
+import com.google.android.exoplayer2.ui.AdOverlayInfo;
 import com.google.android.exoplayer2.upstream.DataSchemeDataSource;
+import com.google.android.exoplayer2.upstream.DataSourceUtil;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.Util;
 import java.io.IOException;
@@ -124,18 +125,18 @@ import java.util.Set;
 
   /**
    * Returns the IMA {@link FriendlyObstructionPurpose} corresponding to the given {@link
-   * OverlayInfo#purpose}.
+   * AdOverlayInfo#purpose}.
    */
   public static FriendlyObstructionPurpose getFriendlyObstructionPurpose(
-      @OverlayInfo.Purpose int purpose) {
+      @AdOverlayInfo.Purpose int purpose) {
     switch (purpose) {
-      case OverlayInfo.PURPOSE_CONTROLS:
+      case AdOverlayInfo.PURPOSE_CONTROLS:
         return FriendlyObstructionPurpose.VIDEO_CONTROLS;
-      case OverlayInfo.PURPOSE_CLOSE_AD:
+      case AdOverlayInfo.PURPOSE_CLOSE_AD:
         return FriendlyObstructionPurpose.CLOSE_AD;
-      case OverlayInfo.PURPOSE_NOT_VISIBLE:
+      case AdOverlayInfo.PURPOSE_NOT_VISIBLE:
         return FriendlyObstructionPurpose.NOT_VISIBLE;
-      case OverlayInfo.PURPOSE_OTHER:
+      case AdOverlayInfo.PURPOSE_OTHER:
       default:
         return FriendlyObstructionPurpose.OTHER;
     }
@@ -176,7 +177,7 @@ import java.util.Set;
       DataSchemeDataSource dataSchemeDataSource = new DataSchemeDataSource();
       try {
         dataSchemeDataSource.open(adTagDataSpec);
-        request.setAdsResponse(Util.fromUtf8Bytes(Util.readToEnd(dataSchemeDataSource)));
+        request.setAdsResponse(Util.fromUtf8Bytes(DataSourceUtil.readToEnd(dataSchemeDataSource)));
       } finally {
         dataSchemeDataSource.close();
       }

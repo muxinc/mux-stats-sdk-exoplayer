@@ -11,6 +11,7 @@ import android.content.Context;
 import android.os.Looper;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.IntRange;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import com.google.ads.interactivemedia.v3.api.AdDisplayContainer;
@@ -33,6 +34,7 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.source.MediaSourceFactory;
 import com.google.android.exoplayer2.source.ads.AdsLoader;
 import com.google.android.exoplayer2.source.ads.AdsMediaSource;
+import com.google.android.exoplayer2.ui.AdViewProvider;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.util.Util;
@@ -70,7 +72,7 @@ import org.checkerframework.checker.units.qual.A;
  * href="https://developers.google.com/interactive-media-ads/docs/sdks/android/client-side/omsdk">IMA
  * SDK Open Measurement documentation</a> for more information.
  */
-public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
+public final class MuxImaAdsLoader implements Player.Listener, AdsLoader {
 
   static {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ima");
@@ -148,7 +150,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
      * @return This builder, for convenience.
      */
     public Builder addAdErrorListener(AdErrorListener adErrorListener) {
-      if(!this.adErrorListeners.contains(adErrorListener)) {
+      if (!this.adErrorListeners.contains(adErrorListener)) {
         this.adErrorListeners.add(adErrorListener);
       }
       return this;
@@ -162,7 +164,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
      * @return This builder, for convenience.
      */
     public Builder addAdEventListener(AdEventListener adEventListener) {
-      if(!this.adEventListeners.contains(adEventListener)) {
+      if (!this.adEventListeners.contains(adEventListener)) {
         this.adEventListeners.add(adEventListener);
       }
       return this;
@@ -176,7 +178,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
      *
      * @param videoAdPlayerCallback The callback to receive video ad player events.
      * @return This builder, for convenience.
-     * @see VideoAdPlayer.VideoAdPlayerCallback
+     * @see com.google.ads.interactivemedia.v3.api.player.VideoAdPlayer.VideoAdPlayerCallback
      */
     public Builder setVideoAdPlayerCallback(
         VideoAdPlayer.VideoAdPlayerCallback videoAdPlayerCallback) {
@@ -265,7 +267,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRequest#setVastLoadTimeout(float)
      */
-    public Builder setVastLoadTimeoutMs(int vastLoadTimeoutMs) {
+    public Builder setVastLoadTimeoutMs(@IntRange(from = 1) int vastLoadTimeoutMs) {
       checkArgument(vastLoadTimeoutMs > 0);
       this.vastLoadTimeoutMs = vastLoadTimeoutMs;
       return this;
@@ -278,7 +280,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setLoadVideoTimeout(int)
      */
-    public Builder setMediaLoadTimeoutMs(int mediaLoadTimeoutMs) {
+    public Builder setMediaLoadTimeoutMs(@IntRange(from = 1) int mediaLoadTimeoutMs) {
       checkArgument(mediaLoadTimeoutMs > 0);
       this.mediaLoadTimeoutMs = mediaLoadTimeoutMs;
       return this;
@@ -291,7 +293,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
      * @return This builder, for convenience.
      * @see AdsRenderingSettings#setBitrateKbps(int)
      */
-    public Builder setMaxMediaBitrate(int bitrate) {
+    public Builder setMaxMediaBitrate(@IntRange(from = 1) int bitrate) {
       checkArgument(bitrate > 0);
       this.mediaBitrate = bitrate;
       return this;
@@ -590,7 +592,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
         .handlePrepareError(adGroupIndex, adIndexInAdGroup, exception);
   }
 
-  // Player.EventListener implementation.
+  // Player.Listener implementation.
 
   @Override
   public void onTimelineChanged(Timeline timeline, @Player.TimelineChangeReason int reason) {
@@ -603,7 +605,10 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
   }
 
   @Override
-  public void onPositionDiscontinuity(@Player.DiscontinuityReason int reason) {
+  public void onPositionDiscontinuity(
+      Player.PositionInfo oldPosition,
+      Player.PositionInfo newPosition,
+      @Player.DiscontinuityReason int reason) {
     maybeUpdateCurrentAdTagLoader();
     maybePreloadNextPeriodAds();
   }
@@ -688,7 +693,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
         timeline.getPeriodPosition(
                 window, period, period.windowIndex, /* windowPositionUs= */ C.TIME_UNSET)
             .second;
-    nextAdTagLoader.maybePreloadAds(C.usToMs(periodPositionUs), C.usToMs(period.durationUs));
+    nextAdTagLoader.maybePreloadAds(Util.usToMs(periodPositionUs), Util.usToMs(period.durationUs));
   }
 
   /**
@@ -720,7 +725,7 @@ public final class MuxImaAdsLoader implements Player.EventListener, AdsLoader {
 
     // The reasonDetail parameter to createFriendlyObstruction is annotated @Nullable but the
     // annotation is not kept in the obfuscated dependency.
-    @SuppressWarnings("nullness:argument.type.incompatible")
+    @SuppressWarnings("nullness:argument")
     @Override
     public FriendlyObstruction createFriendlyObstruction(
         View view,
