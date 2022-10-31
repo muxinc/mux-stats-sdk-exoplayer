@@ -1,0 +1,21 @@
+name: Add Release Notes to a Release PR
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+  # Also only if the branch is 'releases/v**' but you can't specify multiple event filters
+
+jobs:
+  changelog:
+    name: Release Notes
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'releases/v')
+
+    steps:
+      - uses: daytime-em/changelog-on-release-pr@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          labels: breaking,updates,fixes,deprecated

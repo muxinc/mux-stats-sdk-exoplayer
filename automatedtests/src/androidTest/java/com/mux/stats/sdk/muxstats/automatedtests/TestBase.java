@@ -31,7 +31,6 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
-
 import java.util.ArrayList;
 import org.hamcrest.Matcher;
 import org.json.JSONException;

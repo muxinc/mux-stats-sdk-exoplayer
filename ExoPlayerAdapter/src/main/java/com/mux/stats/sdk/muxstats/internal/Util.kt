@@ -84,7 +84,10 @@ internal fun MuxStateCollector.handleExoPlaybackState(
   playbackState: Int, // the @IntDef for player state omitted. Unavailable on all exo versions
   playWhenReady: Boolean
 ) {
+<<<<<<< HEAD
   Log.v("playstate", "player state changed: State is $playbackState and PWR is $playWhenReady");
+=======
+>>>>>>> master
   if (this.muxPlayerState == MuxPlayerState.PLAYING_ADS) {
     // Normal playback events are ignored during ad playback
     return
@@ -101,7 +104,10 @@ internal fun MuxStateCollector.handleExoPlaybackState(
     }
     Player.STATE_READY -> {
       if (playWhenReady) {
+<<<<<<< HEAD
         Log.e("MuxStats", "Playing called from handleExoPlaybackState event !!!")
+=======
+>>>>>>> master
         playing()
       } else if (muxPlayerState != MuxPlayerState.PAUSED) {
         pause()

@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats
 
-import android.util.Log
 import com.google.android.exoplayer2.Timeline
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.events.IEventDispatcher
@@ -13,6 +12,7 @@ import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.BandwidthMetricDispatcher
 import com.mux.stats.sdk.muxstats.internal.logTag
 import com.mux.stats.sdk.muxstats.internal.noneOf
+import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.properties.Delegates
@@ -28,8 +28,8 @@ import kotlin.properties.Delegates
 abstract class MuxStateCollectorBase(
   // TODO em: if MuxStateCollector is in MuxStats, don't need this janky block
   val muxStats: () -> MuxStats,
-  val dispatcher: IEventDispatcher,
-  val trackFirstFrameRendered: Boolean = true,
+  private val dispatcher: IEventDispatcher,
+  private val trackFirstFrameRendered: Boolean = true,
 ) {
 
   companion object {
@@ -114,7 +114,7 @@ abstract class MuxStateCollectorBase(
    * access play time info
    */
   var positionWatcher: PositionWatcher?
-          by Delegates.observable(null) @Synchronized { _, old, new ->
+          by Delegates.observable(null) @Synchronized { _, old, _ ->
             old?.apply { stop("watcher replaced") }
           }
 
@@ -153,7 +153,7 @@ abstract class MuxStateCollectorBase(
    * @param tagName name of the tag to extract from the manifest.
    * @return tag value if tag is found and we are playing live stream, -1 string otherwise.
    */
-  abstract fun parseManifestTag(tagName:String):String
+  abstract fun parseManifestTag(tagName: String): String
 
   fun parseManifestTagL(tagName: String): Long {
     var value: String = parseManifestTag(tagName)
@@ -161,7 +161,7 @@ abstract class MuxStateCollectorBase(
     try {
       return value.toLong()
     } catch (e: NumberFormatException) {
-      Log.d("Manifest Parsing", "Bad number format for value: $value")
+      MuxLogger.exception(e, "Manifest Parsing", "Bad number format for value: $value")
     }
     return -1L
   }
@@ -226,15 +226,16 @@ abstract class MuxStateCollectorBase(
     // Negative Logic Version
     if (seekingInProgress) {
       // We will dispatch playing event after seeked event
-      Log.e("MuxStats", "Ignoring playing event, seeking in progress !!!")
+      MuxLogger.d("MuxStats", "Ignoring playing event, seeking in progress !!!")
       return
     }
-    if (_playerState == MuxPlayerState.PAUSED
-      || _playerState == MuxPlayerState.FINISHED_PLAYING_ADS) {
+    if (_playerState.oneOf(MuxPlayerState.PAUSED, MuxPlayerState.FINISHED_PLAYING_ADS)) {
       play()
-    }
-    if (_playerState == MuxPlayerState.REBUFFERING) {
+    } else if (_playerState == MuxPlayerState.REBUFFERING) {
       rebufferingEnded()
+    } else if( _playerState == MuxPlayerState.PLAYING) {
+      // No need to re-enter the playing state
+      return
     }
 
     _playerState = MuxPlayerState.PLAYING
@@ -295,15 +296,13 @@ abstract class MuxStateCollectorBase(
         // If not inferring player state, just dispatch the event
         dispatch(SeekedEvent(null))
         seekingInProgress = false
-        _playerState= MuxPlayerState.SEEKED
+        _playerState = MuxPlayerState.SEEKED
       }
 
 
       if (seekingEventsSent == 0) {
         seekingInProgress = false
       }
-    } else {
-      Log.v("MuxStats", "WHY !!!!");
     }
   }
 
@@ -470,13 +469,8 @@ abstract class MuxStateCollectorBase(
     allowedHeaders.clear()
   }
 
-  // TODO see how to avoid making this public
-  public fun dispatch(event: IEvent) {
-    // TODO: State collector holds onto nothing, no need to make it dead()
-//    if (dead) {
-//      MuxLogger.w(logTag(), "event sent after release: ${event.debugString}")
-//      return
-//    }
+  @JvmSynthetic
+  internal fun dispatch(event: IEvent) {
     totalEventsSent++
     when (event.type) {
       PlayEvent.TYPE -> {

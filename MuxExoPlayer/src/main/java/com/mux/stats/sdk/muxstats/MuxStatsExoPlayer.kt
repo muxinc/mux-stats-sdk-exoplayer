@@ -1,5 +1,20 @@
-package com.mux.stats.sdk.muxstats
+/*
+ * Copyright 2022 Mux, Inc
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 
+package com.mux.stats.sdk.muxstats
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -20,6 +35,7 @@ import com.mux.stats.sdk.core.MuxSDKViewOrientation
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.IEvent
 import com.mux.stats.sdk.core.model.CustomerData
+import com.mux.stats.sdk.core.model.CustomerPlayerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.*
@@ -45,8 +61,13 @@ import kotlin.math.ceil
  * https://docs.mux.com/guides/data/monitor-exoplayer
  *
  * @param context The context you're playing in. Screen size will be detected if this is an Activity
+<<<<<<< HEAD
  * @param player The player you wish to monitor
  * @param playerName A human-readable name for your player. It will be searchable on the dashboard
+=======
+ * @param envKey Your Mux Data Environment Key
+ * @param player The player you wish to monitor
+>>>>>>> master
  * @param playerView The View the player is rendering on. For Audio-only, this can be omitted/null.
  * @param customerData Data about you, your video, and your player.
  * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
@@ -54,17 +75,82 @@ import kotlin.math.ceil
  */
 @Suppress("unused")
 class MuxStatsExoPlayer @JvmOverloads constructor(
-  val context: Context,
+  context: Context,
+  envKey: String,
   val player: ExoPlayer,
   @Suppress("MemberVisibilityCanBePrivate") val playerView: View? = null,
-  playerName: String,
   customerData: CustomerData,
   customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
+  /**
+   * Mux Data SDK for ExoPlayer. Create an instance of this object with your [ExoPlayer] to monitor
+   * and record its state. When you clean up your player, make sure to call [release] to ensure all
+   * player-related resources are released
+   *
+   * If you are using Google IMA Ads, you must add our listener to your [AdsLoader] in order for the
+   * Mux Data SDK to monitor ad-related events, using [getAdsImaSdkListener]:
+   * AdsLoader.Builder(this)
+   *    .setAdErrorListener(muxStats.getAdsImaSdkListener())
+   *    .setAdEventListener(muxStats.getAdsImaSdkListener())
+   *    //...
+   *    build()
+   *
+   * Check out our full integration instructions for more information:
+   * https://docs.mux.com/guides/data/monitor-exoplayer
+   *
+   * @param context The context you're playing in. Screen size will be detected if this is an Activity
+   * @param envKey Your Mux Data Environment Key
+   * @param player The player you wish to monitor
+   * @param customerData Data about you, your video, and your player.
+   * @param customOptions Options about the behavior of the SDK. Unless you have a special use case,
+   *    this can be left null/omitted
+   */
+  constructor(
+    context: Context,
+    envKey: String,
+    player: ExoPlayer,
+    customerData: CustomerData,
+    customOptions: CustomOptions? = null,
+    network: INetworkRequest = MuxNetworkRequests()
+  ) : this(
+    context = context,
+    player = player,
+    playerView = null,
+    envKey = envKey,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
+  )
+
+  @Deprecated(
+    message = "This constructor is deprecated. Please prefer to provide your env key by parameter",
+    replaceWith
+    = ReplaceWith("MuxStatsExoPlayer(context, envKey, player, playerView, customerData)")
+  )
+  @JvmOverloads
+  constructor(
+    context: Context,
+    player: ExoPlayer,
+    playerView: View? = null,
+    playerName: String,
+    customerData: CustomerData,
+    customOptions: CustomOptions? = null,
+    network: INetworkRequest = MuxNetworkRequests()
+  ) : this(
+    context = context,
+    player = player,
+    playerView = playerView,
+    envKey = customerData.customerPlayerData.environmentKey,
+    customerData = customerData,
+    customOptions = customOptions,
+    network = network
+  ) {
+    this.playerId = playerName
+  }
 
   companion object {
-    const val TAG = "MuxStatsExoPlayer"
+    private const val TAG = "MuxStatsExoPlayer"
   }
 
   private var _player by weak(player)
@@ -78,6 +164,9 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     player = player,
   )
   private val muxStats: MuxStats // Set in init{} because INetworkRequest must be set statically 1st
+  private lateinit var playerId: String // Set by constructor (deprecated) or generated (preferred)
+
+  private val displayDensity: Float
 
   private val imaSdkListener: AdsImaSDKListener? by lazy {
     AdsImaSDKListener.createIfImaAvailable(
@@ -88,16 +177,26 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   init {
+    customerData.apply { if (customerPlayerData == null) customerPlayerData = CustomerPlayerData() }
+    customerData.customerPlayerData.environmentKey = envKey
+
+    // Needed for later calculations
+    displayDensity = context.resources.displayMetrics.density
+
     // Init MuxStats (muxStats must be created last)
     MuxStats.setHostDevice(MuxDevice(context))
     MuxStats.setHostNetworkApi(network)
+    // Generate a player ID (for our instance-tracking) unless one was supplied
+    if (!::playerId.isInitialized) {
+      playerId = context.javaClass.canonicalName!! + (playerView?.id ?: "audio")
+    }
     muxStats =
-      MuxStats(ExoPlayerDelegate(), playerName, customerData, customOptions ?: CustomOptions())
+      MuxStats(ExoPlayerDelegate(), playerId, customerData, customOptions ?: CustomOptions())
         .also { eventBus.addListener(it) }
 
     // Setup logging for debug builds of the SDK
     enableMuxCoreDebug(isDebugVariant(), false)
-    Core.allowLogcatOutputForPlayer(playerName, isDebugVariant(), false)
+    Core.allowLogcatOutputForPlayer(playerId, isDebugVariant(), false)
 
     // Catch up to the current playback state if we start monitoring in the middle of play
     if (player.playbackState == Player.STATE_BUFFERING) {
@@ -113,6 +212,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     // We always need these two values.
     collector.allowHeaderToBeSentToBackend("x-cdn")
     collector.allowHeaderToBeSentToBackend("content-type")
+    collector.allowHeaderToBeSentToBackend("x-request-id")
   }
 
   /**
@@ -153,15 +253,16 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     }
     try {
       // TODO: these may not be necessary, but doing it for the sake of it
-      adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent -> // TODO: Add in the adresponse stuff when we can
+      adsLoader.addAdsLoadedListener(AdsLoader.AdsLoadedListener { adsManagerLoadedEvent ->
         // Set up the ad events that we want to use
         val adsManager = adsManagerLoadedEvent.adsManager
         // Attach mux event and error event listeners.
         adsManager.addAdErrorListener(imaSdkListener)
         adsManager.addAdEventListener(imaSdkListener)
-      } // TODO: probably need to handle some cleanup and things, like removing listeners on destroy
+      }
       )
-    } catch (cnfe: ClassNotFoundException) {
+    } catch (imaNotInClasspath: ClassNotFoundException) {
+      // If no IMA classes at runtime just return harmlessly
       return
     }
   }
@@ -204,6 +305,20 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   }
 
   /**
+   * Update all Customer Data (custom player, video, and view data) with the data found here
+   * Older values will not be cleared
+   */
+  fun updateCustomerData(customerData: CustomerData) {
+    muxStats.customerData = customerData
+  }
+
+  /**
+   * Gets the [CustomerData] object containing the player, video, and view data you want to attach
+   * to the current view
+   */
+  fun getCustomerData(): CustomerData = muxStats.customerData
+
+  /**
    * If true, this object will automatically track fatal playback errors, eventually showing the
    * errors on the dashboard. If false, only errors reported via [error] will show up on the
    * dashboard
@@ -228,13 +343,15 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    * Manually set the size of the player view. This overrides the normal auto-detection. The
    * dimensions should be in physical pixels
    */
-  fun setPlayerSize(widthPx: Int, heightPx: Int) = muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
+  fun setPlayerSize(widthPx: Int, heightPx: Int) =
+    muxStats.setPlayerSize(pxToDp(widthPx), pxToDp(heightPx))
 
   /**
    * Manually set the size of the screen. This overrides the normal auto-detection. The dimensions
    * should be in physical pixels
    */
-  fun setScreenSize(widthPx: Int, heightPx: Int) = muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
+  fun setScreenSize(widthPx: Int, heightPx: Int) =
+    muxStats.setScreenSize(pxToDp(widthPx), pxToDp(heightPx))
 
   /**
    * Call when a new [MediaItem] is being played in a player. This will start a new View to
@@ -313,8 +430,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    * @return number of density pixels calculated.
    */
   private fun pxToDp(px: Int): Int {
-    val displayMetrics = context.resources.displayMetrics
-    return ceil((px / displayMetrics.density).toDouble()).toInt()
+    return ceil((px / displayDensity).toDouble()).toInt()
   }
 
   @Suppress("RedundantNullableReturnType") // Lots of java interaction here
@@ -380,6 +496,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
  * Basic device details such as OS version, vendor name and etc. Instances of this class
  * are used by [MuxStats] to interface with the device.
  */
+@Suppress("DEPRECATION") // Don't worry, this will be removed soon
 private class MuxDevice(ctx: Context) : IDevice {
 
   private var contextRef: WeakReference<Context>
@@ -458,41 +575,37 @@ private class MuxDevice(ctx: Context) : IDevice {
     val context = contextRef.get() ?: return null
     val connectivityMgr = context
       .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    var activeNetwork: NetworkInfo? = null
-    if (connectivityMgr != null) {
-      activeNetwork = connectivityMgr.activeNetworkInfo
-      return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        val nc = connectivityMgr
-          .getNetworkCapabilities(connectivityMgr.activeNetwork)
-        if (nc == null) {
-          MuxLogger.d(
-            TAG,
-            "ERROR: Failed to obtain NetworkCapabilities manager !!!"
-          )
-          return null
-        }
-        if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-          CONNECTION_TYPE_WIRED
-        } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-          CONNECTION_TYPE_WIFI
-        } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-          CONNECTION_TYPE_CELLULAR
-        } else {
-          CONNECTION_TYPE_OTHER
-        }
+    val activeNetwork: NetworkInfo? = connectivityMgr.activeNetworkInfo
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      val nc = connectivityMgr
+        .getNetworkCapabilities(connectivityMgr.activeNetwork)
+      if (nc == null) {
+        MuxLogger.d(
+          TAG,
+          "ERROR: Failed to obtain NetworkCapabilities manager !!!"
+        )
+        return null
+      }
+      if (nc.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
+        CONNECTION_TYPE_WIRED
+      } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+        CONNECTION_TYPE_WIFI
+      } else if (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+        CONNECTION_TYPE_CELLULAR
       } else {
-        if (activeNetwork!!.type == ConnectivityManager.TYPE_ETHERNET) {
-          CONNECTION_TYPE_WIRED
-        } else if (activeNetwork.type == ConnectivityManager.TYPE_WIFI) {
-          CONNECTION_TYPE_WIFI
-        } else if (activeNetwork.type == ConnectivityManager.TYPE_MOBILE) {
-          CONNECTION_TYPE_CELLULAR
-        } else {
-          CONNECTION_TYPE_OTHER
-        }
+        CONNECTION_TYPE_OTHER
+      }
+    } else {
+      if (activeNetwork!!.type == ConnectivityManager.TYPE_ETHERNET) {
+        CONNECTION_TYPE_WIRED
+      } else if (activeNetwork.type == ConnectivityManager.TYPE_WIFI) {
+        CONNECTION_TYPE_WIFI
+      } else if (activeNetwork.type == ConnectivityManager.TYPE_MOBILE) {
+        CONNECTION_TYPE_CELLULAR
+      } else {
+        CONNECTION_TYPE_OTHER
       }
     }
-    return null
   }
 
   override fun getElapsedRealtime(): Long {
@@ -533,12 +646,6 @@ private class MuxDevice(ctx: Context) : IDevice {
     val muxStatsInstance = MuxStats.getHostDevice() as? MuxDevice
   }
 
-  /**
-   * Basic constructor.
-   *
-   * @param ctx activity context, we use this to access different system services, like
-   * [ConnectivityManager], or [PackageInfo].
-   */
   init {
     val sharedPreferences = ctx
       .getSharedPreferences(MUX_DEVICE_ID, Context.MODE_PRIVATE)
@@ -547,7 +654,7 @@ private class MuxDevice(ctx: Context) : IDevice {
       deviceId = UUID.randomUUID().toString()
       val editor = sharedPreferences.edit()
       editor.putString(MUX_DEVICE_ID, deviceId)
-      editor.commit()
+      editor.apply()
     }
     contextRef = WeakReference(ctx)
     try {

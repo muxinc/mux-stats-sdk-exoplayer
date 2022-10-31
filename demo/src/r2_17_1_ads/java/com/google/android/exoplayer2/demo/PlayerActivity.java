@@ -321,7 +321,6 @@ public class PlayerActivity extends AppCompatActivity
       debugViewHelper.start();
 
       CustomerPlayerData customerPlayerData = new CustomerPlayerData();
-      customerPlayerData.setEnvironmentKey("YOUR_ENVIRONMENT_KEY_HERE");
       CustomerVideoData customerVideoData = new CustomerVideoData();
       customerVideoData.setVideoTitle(intent.getStringExtra("VIDEO_TITLE_EHERE"));
       CustomData customData = new CustomData();
@@ -329,15 +328,7 @@ public class PlayerActivity extends AppCompatActivity
       CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
       customerData.setCustomData(customData);
       muxStats = new MuxStatsExoPlayer(
-          this, player, "demo-player", customerData);
-      Point size = new Point();
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-        getWindowManager().getDefaultDisplay().getSize(size);
-      } else {
-        this.getDisplay().getSize(size);
-      }
-      muxStats.setScreenSize(size.x, size.y);
-      muxStats.setPlayerView(playerView);
+          this, "YOUR_ENVIRONMENT_KEY_HERE", player, playerView, customerData);
       muxStats.enableMuxCoreDebug(true, false);
     }
     boolean haveStartPosition = startItemIndex != C.INDEX_UNSET;

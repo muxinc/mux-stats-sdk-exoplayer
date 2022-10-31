@@ -1,0 +1,38 @@
+name: Draft a new release
+
+on:
+  pull_request:
+    types: [ closed ]
+
+jobs:
+  draft:
+    if: startsWith(github.head_ref, 'releases/v') && github.event.pull_request.merged
+    runs-on: ubuntu-latest
+    name: Create the Release on the destination branch
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate Version for ${{ github.head_ref }}
+        id: version
+        uses: AsasInnab/regex-action@v1
+        with:
+          regex_pattern: v\d+\.\d+\.\d+
+          regex_flags: "gim"
+          search_string: ${{ github.head_ref }}
+      - name: Create the release
+        id: release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.first_match }}
+          release_name: ${{ steps.version.outputs.first_match }}
+          body: ${{ github.event.pull_request.body }}
+          commitish: ${{ github.event.pull_request.merge_commit_sha }}
+          draft: true
+      - uses: mshick/add-pr-comment@v1
+        name: Link the Release to the PR
+        with:
+          message: A draft release has been created for this version. Find it here! ${{ steps.release.outputs.html_url }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
+          allow-repeats: false
