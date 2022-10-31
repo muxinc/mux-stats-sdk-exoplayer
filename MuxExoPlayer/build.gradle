@@ -102,9 +102,6 @@ android {
   } //productFlavors
 
   sourceSets {
-    r2_9_6 {
-      java.srcDirs += 'src/r2_9/java'
-    }
     r2_10_6 {
       java.srcDirs += 'src/r2_10/java'
     }
