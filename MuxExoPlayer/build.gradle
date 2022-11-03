@@ -158,36 +158,36 @@ muxDistribution {
 
 dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
-  r2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
+  r2_10_6Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_11_1Implementation 'com.google.android.exoplayer:exoplayer:2.11.1'
-  r2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
+  r2_11_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_12_1Implementation 'com.google.android.exoplayer:exoplayer:2.12.1'
-  r2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+  r2_12_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_13_1Implementation 'com.google.android.exoplayer:exoplayer:2.13.1'
-  r2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.0'
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
+  r2_13_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_14_1Implementation 'com.google.android.exoplayer:exoplayer:2.14.1'
-  r2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
+  r2_14_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_15_1Implementation 'com.google.android.exoplayer:exoplayer:2.15.1'
-  r2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.24.0'
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
+  r2_15_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.24.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_16_1Implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
-  r2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.25.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
+  r2_16_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.25.1'
   // Amazon's port doesn't delete any symbols (ever), so we only need one version
   //noinspection GradleDynamicVersion,GradleDependency
   amznPortImplementation "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_17_1Implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
-  r2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.26.0'
-  r2_17_1Implementation 'org.checkerframework:checker-qual:3.13.0'
-  r2_18_1Implementation 'com.google.android.exoplayer:exoplayer:2.18.1'
-  r2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.26.0'
-  r2_18_1Implementation 'org.checkerframework:checker-qual:3.13.0'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_17_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.26.0'
+  r2_17_1Api 'org.checkerframework:checker-qual:3.13.0'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+  r2_18_1Api 'com.google.ads.interactivemedia.v3:interactivemedia:3.26.0'
+  r2_18_1Api 'org.checkerframework:checker-qual:3.13.0'
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
   //noinspection GradleDynamicVersion,GradleDependency

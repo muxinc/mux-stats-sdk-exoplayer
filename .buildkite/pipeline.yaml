@@ -131,14 +131,3 @@ steps:
     - artifacts#v1.3.0:
         download:
           - "automatedtests/buildout/outputs/apk/r2_10_6/debug/automatedtests-r2_10_6-debug.apk"
-          - "automatedtests/buildout/outputs/apk/androidTest/r2_10_6/debug/automatedtests-r2_10_6-debug-androidTest.apk"
-- wait
-
-# Deployment ---
-- block: ":rocket: Deploy and release!"
-  blocked_state: failed
-  branches: "master"
-- wait
-- command: ./.buildkite/deploy.sh
-  label: Deploy artifacts to release maven if it all worked
-  branches: "master"
