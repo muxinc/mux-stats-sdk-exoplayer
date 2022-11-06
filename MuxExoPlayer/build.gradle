@@ -118,7 +118,8 @@ muxDistribution {
   publishIf { it.containsIgnoreCase("release") }
   publicReleaseIf releaseOnTag()
 
-  packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
+  // Sadly, it takes too long to build them for each variant until we actually host them somewhere
+  packageJavadocs = false
   artifactoryConfig {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
     releaseRepoKey = 'default-maven-release-local'

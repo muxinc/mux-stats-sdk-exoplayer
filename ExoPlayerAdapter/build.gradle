@@ -144,7 +144,8 @@ muxDistribution {
   groupIds just("com.mux.stats.sdk.muxstats")
   publicReleaseIf releaseOnTag()
 
-  packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
+  // Sadly, it takes too long to build them for each variant until we actually host them somewhere
+  packageJavadocs = false
   publishIf { it.containsIgnoreCase("release") }
   artifactoryConfig {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
