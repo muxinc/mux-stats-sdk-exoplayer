@@ -41,7 +41,6 @@ import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
 import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
-import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoaderBase;
 import com.google.android.exoplayer2.ext.ima.ImaServerSideAdInsertionMediaSource;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
