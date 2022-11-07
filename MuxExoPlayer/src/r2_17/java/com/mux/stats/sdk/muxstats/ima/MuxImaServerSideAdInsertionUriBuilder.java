@@ -21,7 +21,7 @@ import java.util.Map;
  * com.google.android.exoplayer2.MediaItem#fromUri(Uri) media item} that can be played by the {@link
  * MuxImaServerSideAdInsertionMediaSource}.
  */
-public final class MuxImaServerSideAdInsertionUriBuilder {
+/*package*/ final class MuxImaServerSideAdInsertionUriBuilder {
 
   /** The default timeout for loading the video URI, in milliseconds. */
   public static final int DEFAULT_LOAD_VIDEO_TIMEOUT_MS = 10_000;

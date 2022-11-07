@@ -91,7 +91,7 @@ import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
 import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 
 /** MediaSource for IMA server side inserted ad streams. */
-public final class MuxImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
+/*package*/ final class MuxImaServerSideAdInsertionMediaSource extends CompositeMediaSource<Void> {
 
   /**
    * Factory for creating {@link MuxImaServerSideAdInsertionMediaSource
