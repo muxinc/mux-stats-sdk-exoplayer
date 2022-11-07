@@ -144,8 +144,8 @@ muxDistribution {
   groupIds just("com.mux.stats.sdk.muxstats")
   publicReleaseIf releaseOnTag()
 
-  // Sadly, it takes too long to build them for each variant until we actually host them somewhere
-  packageJavadocs = false
+  // TODO: This is kinda clumsy, packageJavadocs should be a function not a property probably
+  packageJavadocs = releaseOnTag().call()
   publishIf { it.containsIgnoreCase("release") }
   artifactoryConfig {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
