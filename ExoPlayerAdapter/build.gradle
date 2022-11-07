@@ -144,7 +144,8 @@ muxDistribution {
   groupIds just("com.mux.stats.sdk.muxstats")
   publicReleaseIf releaseOnTag()
 
-  packageJavadocs = System.getenv("GITHUB_ACTIONS") != null
+  // TODO: This is kinda clumsy, packageJavadocs should be a function not a property probably
+  packageJavadocs = releaseOnTag().call()
   publishIf { it.containsIgnoreCase("release") }
   artifactoryConfig {
     contextUrl = "https://muxinc.jfrog.io/artifactory/"
