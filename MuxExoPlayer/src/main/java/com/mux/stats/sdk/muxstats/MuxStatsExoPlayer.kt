@@ -642,6 +642,17 @@ private class MuxDevice(ctx: Context) : IDevice {
     return SystemClock.elapsedRealtime()
   }
 
+  override fun outputLog(logPriority: LogPriority, tag: String, msg: String, t: Throwable?) {
+    when (logPriority) {
+      LogPriority.ERROR -> Log.e(tag, msg, t)
+      LogPriority.WARN -> Log.w(tag, msg, t)
+      LogPriority.INFO -> Log.i(tag, msg, t)
+      LogPriority.DEBUG -> Log.d(tag, msg, t)
+      LogPriority.VERBOSE -> Log.v(tag, msg, t)
+      else -> Log.v(tag, msg, t)
+    }
+  }
+
   override fun outputLog(logPriority: LogPriority, tag: String, msg: String) {
     when (logPriority) {
       LogPriority.ERROR -> Log.e(tag, msg)
