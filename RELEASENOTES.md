@@ -1,7 +1,15 @@
 # Release notes
+## 3.1.0
+### Fixes
+* Allow overriding Device Category metadata (#244)
+* Exoplayer 2.11: Fix renditonchange sent on non-video track changes (#247)
+* Fix beacon dispatcher crashing when verbose logging is enabled
+
+### Improvements
+* Update to MuxCore 7.4.0 (improvements/fixes have been noted in the release notes)
+
 ## 3.0.2
 ### Improvements
-
 * Collect Request IDs for HLS segments for Error Tracking  (#242)
 
 ## 3.0.1
