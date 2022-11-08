@@ -1,10 +1,7 @@
 package com.mux.stats.sdk.muxstats.internal
 
 import android.view.Surface
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
 import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo
@@ -82,12 +79,14 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   }
 
   override fun onDecoderInputFormatChanged(eventTime: EventTime, trackType: Int, format: Format) {
-    collector.renditionChange(
-      advertisedBitrate = format.bitrate,
-      advertisedFrameRate = format.frameRate,
-      sourceHeight = format.height,
-      sourceWidth = format.width,
-    )
+    if(trackType == C.TRACK_TYPE_VIDEO) {
+      collector.renditionChange(
+        advertisedBitrate = format.bitrate,
+        advertisedFrameRate = format.frameRate,
+        sourceHeight = format.height,
+        sourceWidth = format.width,
+      )
+    }
   }
 
   @Deprecated("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.13)
