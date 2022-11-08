@@ -423,14 +423,6 @@ public class PlayerActivity extends AppCompatActivity
       customerData.setCustomData(customData);
       muxStats = new MuxStatsExoPlayer(
           this, player, "demo-player", customerData);
-      Point size = new Point();
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-        getWindowManager().getDefaultDisplay().getSize(size);
-      } else {
-        getApplication().getApplicationContext().getDisplay().getSize(size);
-      }
-      getWindowManager().getDefaultDisplay().getSize(size);
-      muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
       muxStats.enableMuxCoreDebug(true, false);
 
