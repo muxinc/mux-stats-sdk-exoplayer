@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
@@ -68,7 +69,6 @@ import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
-import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -350,6 +350,11 @@ public class PlayerActivity extends AppCompatActivity
       muxStats = new MuxStatsExoPlayer(
           this, player, "demo-player", customerData);
       Point size = new Point();
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+        getWindowManager().getDefaultDisplay().getSize(size);
+      } else {
+        getApplication().getApplicationContext().getDisplay().getSize(size);
+      }
       getWindowManager().getDefaultDisplay().getSize(size);
       muxStats.setScreenSize(size.x, size.y);
       muxStats.setPlayerView(playerView);
@@ -422,9 +427,14 @@ public class PlayerActivity extends AppCompatActivity
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      adsLoader = new MuxImaAdsLoader.Builder(/* context= */ this)
-          .addAdErrorListener(muxStats.getAdsImaSdkListener())
-          .addAdEventListener(muxStats.getAdsImaSdkListener())
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this)
+          /*
+           * This replaces `monitorImaAdsLoader` method because in r2.12.x ImaAdsLoader
+           * will create google.v3.AdsLoader on adRequest, which means that monitorImaAdsLoader
+           * Will always receive null pointer and will be unable to recieve add events.
+           */
+          .setAdErrorListener(muxStats.getAdsImaSdkListener())
+          .setAdEventListener(muxStats.getAdsImaSdkListener())
           .build();
     }
     adsLoader.setPlayer(player);

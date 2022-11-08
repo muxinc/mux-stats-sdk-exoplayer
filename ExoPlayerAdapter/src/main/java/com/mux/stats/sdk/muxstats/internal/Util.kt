@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format

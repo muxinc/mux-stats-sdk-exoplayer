@@ -40,7 +40,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.Tracks;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
-import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.ima.ImaServerSideAdInsertionMediaSource;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
@@ -409,14 +409,14 @@ public class PlayerActivity extends AppCompatActivity
   private AdsLoader getClientSideAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (clientSideAdsLoader == null) {
-      clientSideAdsLoader = new MuxImaAdsLoader.Builder(/* context= */ this)
+      clientSideAdsLoader = new ImaAdsLoader.Builder(/* context= */ this)
           /*
            * This replaces `monitorImaAdsLoader` method because in r2.12.x ImaAdsLoader
            * will create google.v3.AdsLoader on adRequest, which means that monitorImaAdsLoader
            * Will always receive null pointer and will be unable to recieve add events.
            */
-          .addAdErrorListener(muxStats.getAdsImaSdkListener())
-          .addAdEventListener(muxStats.getAdsImaSdkListener())
+          .setAdErrorListener(muxStats.getAdsImaSdkListener())
+          .setAdEventListener(muxStats.getAdsImaSdkListener())
           .build();
     }
     clientSideAdsLoader.setPlayer(player);

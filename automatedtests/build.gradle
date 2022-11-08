@@ -16,7 +16,7 @@ android {
     testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     buildConfigField("boolean", "SHOULD_REPORT_INSTRUMENTATION_TEST_EVENTS_TO_SERVER", "true")
-    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"ENVIRONMENT_ID_HERE\"")
+    buildConfigField("String", "INSTRUMENTATION_TEST_ENVIRONMENT_KEY", "\"bar8fjevgudvf4o7r8fdjrfii\"")
   }
 
   buildTypes {
@@ -118,16 +118,16 @@ dependencies {
   androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
   androidTestImplementation 'androidx.test.ext:junit:1.1.2'
   androidTestR2_10_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
-  androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+  androidTestR2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
   androidTestR2_11_1Implementation 'com.google.android.gms:play-services-ads:17.0.0'
   androidTestR2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   androidTestR2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
-  androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.0'
+  androidTestR2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
   androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
-  androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.25.1'
-  androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.26.0'
-  androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.26.0'
+  androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
   api 'org.checkerframework:checker-qual:2.5.2'
 

@@ -2,10 +2,7 @@ package com.mux.stats.sdk.muxstats.automatedtests;
 
 
 import static org.junit.Assert.fail;
-import com.google.ads.interactivemedia.v3.api.AdErrorEvent;
-import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
-import com.google.ads.interactivemedia.v3.api.AdEvent;
-import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
+
 import com.mux.stats.sdk.core.events.playback.AdBreakEndEvent;
 import com.mux.stats.sdk.core.events.playback.AdBreakStartEvent;
 import com.mux.stats.sdk.core.events.playback.AdEndedEvent;
@@ -20,7 +17,6 @@ import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
 import java.io.IOException;
-import java.util.ArrayList;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,11 +36,6 @@ public class AdsPlaybackTests extends TestBase {
     try {
       httpServer = new SimpleHTTPServer(runHttpServerOnPort, bandwidthLimitInBitsPerSecond);
 //            httpServer.setSeekLatency(SEEK_PERIOD_IN_MS);
-      // Add additional event listeners and make sure they have received the same events
-      additionalAdErrorListeners.add(new DummyAdErrorListener());
-      additionalAdErrorListeners.add(new DummyAdErrorListener());
-      additionalAdEventListeners.add(new DummyAdEventListener());
-      additionalAdEventListeners.add(new DummyAdEventListener());
     } catch (IOException e) {
       e.printStackTrace();
       // Failed to start server
@@ -138,7 +129,6 @@ public class AdsPlaybackTests extends TestBase {
         fail("Playback events ordered incorrectly: playEventIndex = " + playEventIndex
             + ", playingEventIndex = " + playingEventIndex);
       }
-      checkEventListeners();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -229,7 +219,6 @@ public class AdsPlaybackTests extends TestBase {
       if (playIndex >= playingIndex) {
         fail("Play events after ad break are not ordered correctly");
       }
-      checkEventListeners();
     } catch (Exception e) {
       fail(getExceptionFullTraceAndMessage(e));
     }
@@ -239,40 +228,8 @@ public class AdsPlaybackTests extends TestBase {
   public void testNoAdsPreRoll() {
   }
 
-  void checkEventListeners() {
-    ArrayList<DummyListener> errorListeners = new ArrayList<>();
-    ArrayList<DummyListener> eventListeners = new ArrayList<>();
-    for (AdEventListener l : additionalAdEventListeners) {
-      if (l instanceof DummyListener) {
-        eventListeners.add((DummyListener) l);
-      }
-    }
-
-    for (AdErrorListener l : additionalAdErrorListeners) {
-      if (l instanceof  DummyListener) {
-        errorListeners.add((DummyListener) l);
-      }
-    }
-    checkDummyEventListenerList(eventListeners);
-    checkDummyEventListenerList(errorListeners);
-  }
-
-  void checkDummyEventListenerList(ArrayList<DummyListener> list) {
-    // We are counting that every member of this variable is DummyListener instance
-    if (list.size() > 1) {
-      DummyListener first = list.get(0);
-      for (DummyListener other : list) {
-        if(!first.compare(other)) {
-          fail("Ad events received by two different listeners do not match");
-        }
-      }
-    }
-  }
-
   void setupPrerolAndBumper(boolean playWhenReady, String adUrlToPlay) {
     testActivity.runOnUiThread(() -> {
-      testActivity.setAdditionalAdErrorListeners(additionalAdErrorListeners);
-      testActivity.setAdditionalAdEventListeners(additionalAdEventListeners);
       testActivity.setVideoTitle(BuildConfig.FLAVOR + "-" + currentTestName.getMethodName());
       testActivity.initMuxSats();
       testActivity.setUrlToPlay(urlToPlay);
@@ -283,37 +240,5 @@ public class AdsPlaybackTests extends TestBase {
       testMediaSource = testActivity.getTestMediaSource();
       networkRequest = testActivity.getMockNetwork();
     });
-  }
-
-  class DummyListener {
-    ArrayList<Object> receivedEvents = new ArrayList<>();
-
-    public boolean compare(DummyListener other) {
-      if (receivedEvents.size() != other.receivedEvents.size() ) {
-        return false;
-      }
-      for (int i = 0; i < receivedEvents.size(); i ++) {
-        if (receivedEvents.get(i) != other.receivedEvents.get(i)) {
-          return false;
-        }
-      }
-      return true;
-    }
-  }
-
-  class DummyAdEventListener extends DummyListener implements AdEventListener {
-
-    @Override
-    public void onAdEvent(AdEvent adEvent) {
-      receivedEvents.add(adEvent);
-    }
-  }
-
-  class DummyAdErrorListener extends DummyListener implements AdErrorListener {
-
-    @Override
-    public void onAdError(AdErrorEvent adErrorEvent) {
-      receivedEvents.add(adErrorEvent);
-    }
   }
 }

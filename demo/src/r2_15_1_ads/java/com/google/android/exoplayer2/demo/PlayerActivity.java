@@ -39,6 +39,7 @@ import com.google.android.exoplayer2.RenderersFactory;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.audio.AudioAttributes;
 import com.google.android.exoplayer2.drm.FrameworkMediaDrm;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.mediacodec.MediaCodecRenderer.DecoderInitializationException;
 import com.google.android.exoplayer2.mediacodec.MediaCodecUtil.DecoderQueryException;
 import com.google.android.exoplayer2.offline.DownloadRequest;
@@ -56,7 +57,6 @@ import com.google.android.exoplayer2.util.DebugTextViewHelper;
 import com.google.android.exoplayer2.util.ErrorMessageProvider;
 import com.google.android.exoplayer2.util.EventLogger;
 import com.google.android.exoplayer2.util.Util;
-import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -343,7 +343,7 @@ public class PlayerActivity extends AppCompatActivity
   private AdsLoader getAdsLoader(MediaItem.AdsConfiguration adsConfiguration) {
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      adsLoader = new MuxImaAdsLoader.Builder(/* context= */ this).build();
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this).build();
     }
     adsLoader.setPlayer(player);
     return adsLoader;

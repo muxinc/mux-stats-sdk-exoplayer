@@ -39,6 +39,7 @@ android {
     lintConfig file("../checker-framework-lint.xml")
   }
 
+
   flavorDimensions('exoplayer')
   productFlavors {
     r2_10_6_ads {
@@ -117,6 +118,7 @@ dependencies {
   r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
   r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
+
   r2_12_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
   r2_12_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
   r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'

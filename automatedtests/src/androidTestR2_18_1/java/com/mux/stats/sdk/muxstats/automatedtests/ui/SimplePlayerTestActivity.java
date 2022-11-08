@@ -6,8 +6,6 @@ import android.net.Uri;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import androidx.annotation.Nullable;
-import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
-import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayer;
@@ -15,7 +13,7 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.MediaItem.AdsConfiguration;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RenderersFactory;
-import com.mux.stats.sdk.muxstats.ima.MuxImaAdsLoader;
+import com.google.android.exoplayer2.ext.ima.ImaAdsLoader;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
 import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -159,16 +157,10 @@ public class SimplePlayerTestActivity extends SimplePlayerBaseActivity implement
     }
     // The ads loader is reused for multiple playbacks, so that ad playback can resume.
     if (adsLoader == null) {
-      MuxImaAdsLoader.Builder adsBuilder = new MuxImaAdsLoader.Builder(/* context= */ this)
-          .addAdErrorListener(muxStats.getAdsImaSdkListener())
-          .addAdEventListener(muxStats.getAdsImaSdkListener());
-      for (AdEventListener l : additionalAdEventListeners) {
-        adsBuilder.addAdEventListener(l);
-      }
-      for (AdErrorListener l : additionalAdErrorListeners) {
-        adsBuilder.addAdErrorListener(l);
-      }
-      adsLoader = adsBuilder.build();
+      adsLoader = new ImaAdsLoader.Builder(/* context= */ this)
+          .setAdErrorListener(muxStats.getAdsImaSdkListener())
+          .setAdEventListener(muxStats.getAdsImaSdkListener())
+          .build();
     }
     adsLoader.setPlayer(player);
     return adsLoader;
