@@ -15,7 +15,6 @@
  */
 
 package com.mux.stats.sdk.muxstats
-
 import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
@@ -79,7 +78,6 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   customOptions: CustomOptions? = null,
   network: INetworkRequest = MuxNetworkRequests()
 ) {
-
   /**
    * Mux Data SDK for ExoPlayer. Create an instance of this object with your [ExoPlayer] to monitor
    * and record its state. When you clean up your player, make sure to call [release] to ensure all

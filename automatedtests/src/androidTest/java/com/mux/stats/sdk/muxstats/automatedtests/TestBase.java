@@ -18,6 +18,8 @@ import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 import androidx.test.uiautomator.UiDevice;
 
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
+import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -29,7 +31,7 @@ import com.mux.stats.sdk.core.events.playback.SeekingEvent;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import com.mux.stats.sdk.muxstats.automatedtests.ui.SimplePlayerTestActivity;
-
+import java.util.ArrayList;
 import org.hamcrest.Matcher;
 import org.json.JSONException;
 import org.junit.After;
@@ -94,6 +96,9 @@ public abstract class TestBase {
   protected PlayerControlView controlView;
   protected View pauseButton;
   protected View playButton;
+
+  protected ArrayList<AdEventListener> additionalAdEventListeners = new ArrayList<>();
+  protected ArrayList<AdErrorListener> additionalAdErrorListeners = new ArrayList<>();
 
 
   @Before

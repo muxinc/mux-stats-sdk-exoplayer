@@ -20,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import com.google.ads.interactivemedia.v3.api.AdErrorEvent.AdErrorListener;
+import com.google.ads.interactivemedia.v3.api.AdEvent.AdEventListener;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ext.mediasession.MediaSessionConnector;
@@ -79,6 +81,8 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
   public Condition activityClosed = activityLock.newCondition();
   public Condition activityInitialized = activityLock.newCondition();
   public ArrayList<String> addAllowedHeaders = new ArrayList<>();
+  protected ArrayList<AdEventListener> additionalAdEventListeners = new ArrayList<>();
+  protected ArrayList<AdErrorListener> additionalAdErrorListeners = new ArrayList<>();
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +146,14 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
 
   public void setAdTag(String tag) {
     loadedAdTagUri = Uri.parse(tag);
+  }
+
+  public void setAdditionalAdEventListeners(ArrayList<AdEventListener> listeners) {
+    this.additionalAdEventListeners = listeners;
+  }
+
+  public void setAdditionalAdErrorListeners(ArrayList<AdErrorListener> listeners) {
+    this.additionalAdErrorListeners = listeners;
   }
 
   public void setUrlToPlay(String url) {
