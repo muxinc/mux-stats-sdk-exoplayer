@@ -274,32 +274,40 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   /**
    * Overwrite the OS version reported on the Mux Data dashboard for views recorded with this object
    */
-  fun overwriteOsVersion(osVersion: String) {
-    MuxDevice.muxStatsInstance?.overwrittenOsVersion = osVersion
-  }
+  @Deprecated(
+    message = "This method is not used by MuxCore any more",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  fun overwriteOsVersion(osVersion: String) {}
 
   /**
    * Overwrite the device name reported on the Mux Data dashboard for views recorded with this object
    */
-  fun overwriteDeviceName(deviceName: String) {
-    MuxDevice.muxStatsInstance?.overwrittenDeviceName = deviceName
-  }
+  @Deprecated(
+    message = "This method is not used by MuxCore any more",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  fun overwriteDeviceName(deviceName: String) {}
 
   /**
    * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
    * recorded with this object
    */
-  fun overwriteOsFamily(osFamily: String) {
-    MuxDevice.muxStatsInstance?.overwrittenOsFamilyName = osFamily
-  }
+  @Deprecated(
+    message = "This method is not used by MuxCore any more",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  fun overwriteOsFamily(osFamily: String) {}
 
   /**
    * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
    * recorded with this object
    */
-  fun overwriteManufacturer(manufacturer: String) {
-    MuxDevice.muxStatsInstance?.overwrittenManufacturer = manufacturer
-  }
+  @Deprecated(
+    message = "This method is not used by MuxCore any more",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  fun overwriteManufacturer(manufacturer: String) {}
 
   /**
    * Update all Customer Data (custom player, video, and view data) with the data found here
@@ -501,10 +509,6 @@ private class MuxDevice(ctx: Context) : IDevice {
   private var appName = ""
   private var appVersion = ""
 
-  var overwrittenDeviceName: String? = null
-  var overwrittenOsFamilyName: String? = null
-  var overwrittenOsVersion: String? = null
-  var overwrittenManufacturer: String? = null
 
   override fun getHardwareArchitecture(): String {
     return Build.HARDWARE
@@ -514,25 +518,58 @@ private class MuxDevice(ctx: Context) : IDevice {
     return "Android"
   }
 
-  override fun getMuxOSFamily(): String? = overwrittenOsFamilyName
+  @Deprecated(
+    message = "Mux core does not use this value anymore.",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  override fun getMuxOSFamily(): String? = ""
 
   override fun getOSVersion(): String {
     return Build.VERSION.RELEASE + " (" + Build.VERSION.SDK_INT + ")"
   }
 
-  override fun getMuxOSVersion(): String? = overwrittenOsVersion
+  @Deprecated(
+    message = "Mux core does not use this value anymore.",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  override fun getMuxOSVersion(): String? = ""
+
+  override fun getDeviceName(): String = ""
+
+  @Deprecated(
+    message = "Mux core does not use this value anymore.",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  override fun getMuxDeviceName(): String = ""
+
+  override fun getDeviceCategory(): String {
+    TODO("Not yet implemented")
+  }
+
+  @Deprecated(
+    message = "Mux core does not use this value anymore.",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  override fun getMuxDeviceCategory(): String = ""
 
   override fun getManufacturer(): String {
     return Build.MANUFACTURER
   }
 
-  override fun getMuxManufacturer(): String? = overwrittenManufacturer
+  @Deprecated(
+    message = "Mux core does not use this value anymore.",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
+  override fun getMuxManufacturer(): String? = ""
 
   override fun getModelName(): String {
     return Build.MODEL
   }
 
-  override fun getMuxModelName(): String? = overwrittenDeviceName
+  /**
+   * @Deprecated, use {@Link CustomerViewerData} instead.
+   */
+  override fun getMuxModelName(): String? = ""
 
   override fun getPlayerVersion(): String {
     return ExoPlayerLibraryInfo.VERSION
@@ -607,6 +644,10 @@ private class MuxDevice(ctx: Context) : IDevice {
 
   override fun getElapsedRealtime(): Long {
     return SystemClock.elapsedRealtime()
+  }
+
+  override fun outputLog(p0: LogPriority?, p1: String?, p2: String?, p3: Throwable?) {
+    TODO("Not yet implemented")
   }
 
   override fun outputLog(logPriority: LogPriority, tag: String, msg: String) {

@@ -61,7 +61,7 @@ allprojects {
     compileSdkVersion = 31
     targetSdkVersion = 31
 
-    muxCoreVersion = "7.3.2"
+    muxCoreVersion = "dev-overriding_device_data_new_api-2e93134"
     kotlinxCoroutinesVersion = "1.6.1"
   }
 }
