@@ -8,6 +8,7 @@ import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventIn
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 
@@ -80,12 +81,20 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   override fun onDecoderInputFormatChanged(eventTime: EventTime, trackType: Int, format: Format) {
     if(trackType == C.TRACK_TYPE_VIDEO) {
-      collector.renditionChange(
-        advertisedBitrate = format.bitrate,
-        advertisedFrameRate = format.frameRate,
-        sourceHeight = format.height,
-        sourceWidth = format.width,
-      )
+      // Filter out empty rendition-change events
+      if(format.bitrate == Format.NO_VALUE
+        && format.frameRate == Format.NO_VALUE.toFloat()
+        && format.width == Format.NO_VALUE
+        && format.height == Format.NO_VALUE) {
+        MuxLogger.d("ExoAnalyticsListener", "Empty renditionchange event skipped");
+      } else {
+        collector.renditionChange(
+          advertisedBitrate = format.bitrate,
+          advertisedFrameRate = format.frameRate,
+          sourceHeight = format.height,
+          sourceWidth = format.width,
+        )
+      }
     }
   }
 
