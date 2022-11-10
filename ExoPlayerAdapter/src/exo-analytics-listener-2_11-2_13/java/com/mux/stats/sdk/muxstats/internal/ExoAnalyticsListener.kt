@@ -23,7 +23,8 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   private val player: ExoPlayer? by weak(player)
 
-  private val bandwidthMetricCollector: BandwidthMetricDispatcher = BandwidthMetricDispatcher(player, collector)
+  private val bandwidthMetricCollector: BandwidthMetricDispatcher =
+    BandwidthMetricDispatcher(player, collector)
 
   override fun onDownstreamFormatChanged(
     eventTime: AnalyticsListener.EventTime,
@@ -48,7 +49,8 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     reason: Int
   ) {
     player?.let {
-      collector.handleExoPlaybackState(it.playbackState, it.playWhenReady) }
+      collector.handleExoPlaybackState(it.playbackState, it.playWhenReady)
+    }
   }
 
   override fun onRenderedFirstFrame(eventTime: EventTime, surface: Surface?) {
@@ -84,9 +86,11 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   override fun onTimelineChanged(eventTime: AnalyticsListener.EventTime, reason: Int) {
     val player = player // strong reference during the listener call
     if (player != null) {
-      Timeline.Window().apply {
-        eventTime.timeline.getWindow(0, this)
-        collector.sourceDurationMs = durationMs
+      eventTime.timeline.takeIf { it.windowCount > 0 }?.apply {
+        Timeline.Window().apply {
+          eventTime.timeline.getWindow(0, this)
+          collector.sourceDurationMs = durationMs
+        }
       }
     }
   }
@@ -106,8 +110,10 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   }
 
   @Deprecated("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.13)
-  override fun onTracksChanged(eventTime: EventTime, trackGroups: TrackGroupArray,
-                               trackSelections: TrackSelectionArray) {
+  override fun onTracksChanged(
+    eventTime: EventTime, trackGroups: TrackGroupArray,
+    trackSelections: TrackSelectionArray
+  ) {
     collector.mediaHasVideoTrack = player?.MuxMediaHasVideoTrack();
     collector.positionWatcher?.start();
     bandwidthMetricCollector.onTracksChanged(trackGroups)

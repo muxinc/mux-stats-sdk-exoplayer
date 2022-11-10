@@ -83,9 +83,11 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   override fun onTimelineChanged(eventTime: AnalyticsListener.EventTime, reason: Int) {
     val player = player // strong reference during the listener call
     if (player != null) {
-      Timeline.Window().apply {
-        eventTime.timeline.getWindow(0, this)
-        collector.sourceDurationMs = durationMs
+      eventTime.timeline.takeIf { it.windowCount > 0 }?.apply {
+        Timeline.Window().apply {
+          getWindow(0, this)
+          collector.sourceDurationMs = durationMs
+        }
       }
     }
   }
