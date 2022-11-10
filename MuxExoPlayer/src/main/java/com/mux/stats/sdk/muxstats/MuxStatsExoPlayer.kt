@@ -272,13 +272,14 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   inline fun <reified T : View> getExoPlayerView(): T? = playerView as? T
 
   /**
-   * Overwrite the OS version reported on the Mux Data dashboard for views recorded with this object
+   * Overwrite the device category
    */
   @Deprecated(
     message = "This method is not used by MuxCore any more",
     replaceWith = ReplaceWith("CustomerViewerData")
   )
-  fun overwriteOsVersion(osVersion: String) {}
+  fun overwriteOsVersion(osVersion: String) {
+  }
 
   /**
    * Overwrite the device name reported on the Mux Data dashboard for views recorded with this object
@@ -287,7 +288,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     message = "This method is not used by MuxCore any more",
     replaceWith = ReplaceWith("CustomerViewerData")
   )
-  fun overwriteDeviceName(deviceName: String) {}
+  fun overwriteDeviceName(deviceName: String) {
+  }
 
   /**
    * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
@@ -297,7 +299,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     message = "This method is not used by MuxCore any more",
     replaceWith = ReplaceWith("CustomerViewerData")
   )
-  fun overwriteOsFamily(osFamily: String) {}
+  fun overwriteOsFamily(osFamily: String) {
+  }
 
   /**
    * Overwrite the OS Family name (Such as 'Android')  reported on the Mux Data dashboard for views
@@ -307,7 +310,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     message = "This method is not used by MuxCore any more",
     replaceWith = ReplaceWith("CustomerViewerData")
   )
-  fun overwriteManufacturer(manufacturer: String) {}
+  fun overwriteManufacturer(manufacturer: String) {
+  }
 
   /**
    * Update all Customer Data (custom player, video, and view data) with the data found here
@@ -315,6 +319,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
    */
   fun updateCustomerData(customerData: CustomerData) {
     muxStats.customerData = customerData
+    muxStats.updateHostDeviceData()
   }
 
   /**
@@ -509,7 +514,6 @@ private class MuxDevice(ctx: Context) : IDevice {
   private var appName = ""
   private var appVersion = ""
 
-
   override fun getHardwareArchitecture(): String {
     return Build.HARDWARE
   }
@@ -534,23 +538,21 @@ private class MuxDevice(ctx: Context) : IDevice {
   )
   override fun getMuxOSVersion(): String? = ""
 
-  override fun getDeviceName(): String = ""
-
   @Deprecated(
     message = "Mux core does not use this value anymore.",
     replaceWith = ReplaceWith("CustomerViewerData")
   )
   override fun getMuxDeviceName(): String = ""
 
-  override fun getDeviceCategory(): String {
-    TODO("Not yet implemented")
-  }
-
   @Deprecated(
     message = "Mux core does not use this value anymore.",
     replaceWith = ReplaceWith("CustomerViewerData")
   )
   override fun getMuxDeviceCategory(): String = ""
+
+  override fun getDeviceName(): String = ""
+
+  override fun getDeviceCategory(): String = ""
 
   override fun getManufacturer(): String {
     return Build.MANUFACTURER
@@ -566,9 +568,10 @@ private class MuxDevice(ctx: Context) : IDevice {
     return Build.MODEL
   }
 
-  /**
-   * @Deprecated, use {@Link CustomerViewerData} instead.
-   */
+  @Deprecated(
+    message = "Mux core does not use this value anymore.",
+    replaceWith = ReplaceWith("CustomerViewerData")
+  )
   override fun getMuxModelName(): String? = ""
 
   override fun getPlayerVersion(): String {
@@ -646,7 +649,7 @@ private class MuxDevice(ctx: Context) : IDevice {
     return SystemClock.elapsedRealtime()
   }
 
-  override fun outputLog(logPriority: LogPriority?, tag: String?, msg: String?, t: Throwable?) {
+  override fun outputLog(logPriority: LogPriority, tag: String, msg: String, t: Throwable?) {
     when (logPriority) {
       LogPriority.ERROR -> Log.e(tag, msg, t)
       LogPriority.WARN -> Log.w(tag, msg, t)
@@ -688,7 +691,7 @@ private class MuxDevice(ctx: Context) : IDevice {
     const val CONNECTION_TYPE_OTHER = "other"
     const val MUX_DEVICE_ID = "MUX_DEVICE_ID"
 
-    val muxStatsInstance = MuxStats.getHostDevice() as? MuxDevice
+    val muxStatsInstance get() = MuxStats.getHostDevice() as? MuxDevice
   }
 
   init {

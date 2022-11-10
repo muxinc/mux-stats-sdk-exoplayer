@@ -49,19 +49,20 @@ allprojects {
 
     maven {
       url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
+
     }
-  }
 
-  tasks.withType(JavaCompile) {
-    options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
-  }
+    tasks.withType(JavaCompile) {
+      options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
+    }
 
-  project.ext {
-    minSdkVersion = 16
-    compileSdkVersion = 31
-    targetSdkVersion = 31
+    project.ext {
+      minSdkVersion = 16
+      compileSdkVersion = 31
+      targetSdkVersion = 31
 
-    muxCoreVersion = "7.5.0"
-    kotlinxCoroutinesVersion = "1.6.1"
+      muxCoreVersion = "7.5.0"
+      kotlinxCoroutinesVersion = "1.6.1"
+    }
   }
 }

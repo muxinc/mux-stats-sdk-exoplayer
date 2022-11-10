@@ -170,7 +170,7 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
 /////////////////////////////////////////////////////////////
 /// ExoPlayer Helper Functions //////////////////////////////
 
-fun ExoPlayer.MuxMediaHasVideoTrack(): Boolean {
+internal fun ExoPlayer.MuxMediaHasVideoTrack(): Boolean {
   val trackGroups:TrackGroupArray = getCurrentTrackGroups();
   var playItemHaveVideoTrack = false;
   if (trackGroups.length > 0) {
