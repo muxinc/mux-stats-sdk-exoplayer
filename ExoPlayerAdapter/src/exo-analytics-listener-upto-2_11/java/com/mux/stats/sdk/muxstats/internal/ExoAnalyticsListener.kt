@@ -1,16 +1,14 @@
 package com.mux.stats.sdk.muxstats.internal
 
 import android.view.Surface
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.Format
-import com.google.android.exoplayer2.PlaybackParameters
-import com.google.android.exoplayer2.Timeline
+import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.analytics.AnalyticsListener.EventTime
 import com.google.android.exoplayer2.source.MediaSourceEventListener.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaSourceEventListener.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 
@@ -82,12 +80,22 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
   }
 
   override fun onDecoderInputFormatChanged(eventTime: EventTime, trackType: Int, format: Format) {
-    collector.renditionChange(
-      advertisedBitrate = format.bitrate,
-      advertisedFrameRate = format.frameRate,
-      sourceHeight = format.height,
-      sourceWidth = format.width,
-    )
+    if(trackType == C.TRACK_TYPE_VIDEO) {
+      // Filter out empty rendition-change events
+      if(format.bitrate == Format.NO_VALUE
+        && format.frameRate == Format.NO_VALUE.toFloat()
+        && format.width == Format.NO_VALUE
+        && format.height == Format.NO_VALUE) {
+        MuxLogger.d("ExoAnalyticsListener", "Empty renditionchange event skipped");
+      } else {
+        collector.renditionChange(
+          advertisedBitrate = format.bitrate,
+          advertisedFrameRate = format.frameRate,
+          sourceHeight = format.height,
+          sourceWidth = format.width,
+        )
+      }
+    }
   }
 
   @Deprecated("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.13)
