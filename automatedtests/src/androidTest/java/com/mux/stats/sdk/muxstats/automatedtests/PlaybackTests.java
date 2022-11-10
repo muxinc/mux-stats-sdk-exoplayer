@@ -16,6 +16,7 @@ import com.mux.stats.sdk.core.events.playback.RebufferStartEvent;
 import com.mux.stats.sdk.core.events.playback.ViewEndEvent;
 import com.mux.stats.sdk.core.events.playback.ViewStartEvent;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewerData;
 import com.mux.stats.sdk.core.model.PlayerData;
 import com.mux.stats.sdk.core.model.ViewerData;
 import com.mux.stats.sdk.muxstats.MuxStatsExoPlayer;
@@ -352,27 +353,27 @@ public class PlaybackTests extends TestBase {
     JSONArray eventsJa = networkRequest.getReceivedEventsAsJSON();
     for (int index = 0; index < eventsJa.length(); index++) {
       JSONObject eventJo = eventsJa.getJSONObject(index);
-      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_CATEGORY,
+      if (checkTheValueForKey(eventJo, CustomerViewerData.MUX_VIEWER_DEVICE_CATEGORY,
           DEVICE_CATEGORY_OVERRIDE)) {
         categoryOverwriteFound = true;
       }
-      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_MANUFACTURER,
+      if (checkTheValueForKey(eventJo, CustomerViewerData.MUX_VIEWER_DEVICE_MANUFACTURER,
           DEVICE_MANUFACTURER_OVERRIDE)) {
         manufacturerOverwriteFound = true;
       }
-      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_NAME,
+      if (checkTheValueForKey(eventJo, CustomerViewerData.MUX_VIEWER_DEVICE_NAME,
           DEVICE_NAME_OVERRIDE)) {
         nameOverwriteFound = true;
       }
-      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_OS_FAMILY,
+      if (checkTheValueForKey(eventJo, CustomerViewerData.MUX_VIEWER_OS_FAMILY,
           DEVICE_OS_FAMILY_OVERRIDE)) {
         osFamilyOverwriteFound = true;
       }
-      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_OS_VERSION,
+      if (checkTheValueForKey(eventJo, CustomerViewerData.MUX_VIEWER_OS_VERSION,
           DEVICE_OS_VERSION_OVERRIDE)) {
         osVersionOverwriteFound = true;
       }
-      if (checkTheValueForKey(eventJo, ViewerData.MUX_VIEWER_DEVICE_MODEL,
+      if (checkTheValueForKey(eventJo, CustomerViewerData.MUX_VIEWER_DEVICE_MODEL,
           DEVICE_MODEL_OVERRIDE)) {
         modelOverwriteFound = true;
       }
@@ -384,7 +385,7 @@ public class PlaybackTests extends TestBase {
             osFamilyOverwriteFound &&
             osVersionOverwriteFound &&
             modelOverwriteFound
-        )) {
+    )) {
       fail("Missing one of the value set for overwrite, result: \n" +
           "categoryOverwriteFound: " + categoryOverwriteFound + "\n" +
           "manufacturerOverwriteFound: " + manufacturerOverwriteFound + "\n" +
