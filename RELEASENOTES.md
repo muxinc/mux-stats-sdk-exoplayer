@@ -1,4 +1,8 @@
 # Release notes
+## 3.1.1
+### Fixes
+* Fix ArrayIndexOutOfBounds Exception after clearing the media item (#253)
+
 ## 3.1.0
 ### Fixes
 * Allow overriding Device Category metadata (#244)
