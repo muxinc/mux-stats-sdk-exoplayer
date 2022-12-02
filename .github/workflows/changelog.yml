@@ -15,7 +15,7 @@ jobs:
     if: startsWith(github.head_ref, 'releases/v')
 
     steps:
-      - uses: daytime-em/changelog-on-release-pr@v1
+      - uses: daytime-em/changelog-on-pr@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           labels: breaking,updates,fixes,deprecated

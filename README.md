@@ -28,8 +28,13 @@ api 'com.mux.stats.sdk.muxstats:MuxExoPlayer_(ExoPlayer SDK version with undersc
 
 Monitor your ExoPlayer
 
-```groovy
-muxStatsExoPlayer = MuxStatsExoPlayer(this, myExoPlayer, "demo-player", myCustomerData)
+```kotlin
+muxStatsExoPlayer = exoPlayer.monitorWithMuxData(
+      context = requireContext(),
+      envKey = "YOUR_ENV_KEY_HERE",
+      playerView = playerView,
+      customerData = customerData
+    )
 ```
 
 For more

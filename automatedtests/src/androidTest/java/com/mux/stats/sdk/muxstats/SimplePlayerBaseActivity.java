@@ -33,7 +33,10 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.mux.stats.sdk.core.model.CustomerData;
 import com.mux.stats.sdk.core.model.CustomerPlayerData;
 import com.mux.stats.sdk.core.model.CustomerVideoData;
+import com.mux.stats.sdk.core.model.CustomerViewData;
+import com.mux.stats.sdk.core.model.CustomerViewerData;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
+import com.mux.stats.sdk.muxstats.automatedtests.PlaybackTests;
 import com.mux.stats.sdk.muxstats.automatedtests.R;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.MockNetworkRequest;
 
@@ -217,6 +220,14 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     customerVideoData.setVideoTitle(videoTitle);
     mockNetwork = new MockNetworkRequest();
     CustomerData customerData = new CustomerData(customerPlayerData, customerVideoData, null);
+    CustomerViewerData customerViewerData = new CustomerViewerData();
+    customerViewerData.setMuxViewerDeviceCategory(PlaybackTests.DEVICE_CATEGORY_OVERRIDE);
+    customerViewerData.setMuxViewerDeviceManufacturer(PlaybackTests.DEVICE_MANUFACTURER_OVERRIDE);
+    customerViewerData.setMuxViewerDeviceModel(PlaybackTests.DEVICE_MODEL_OVERRIDE);
+    customerViewerData.setMuxViewerDeviceName(PlaybackTests.DEVICE_NAME_OVERRIDE);
+    customerViewerData.setMuxViewerOsFamily(PlaybackTests.DEVICE_OS_FAMILY_OVERRIDE);
+    customerViewerData.setMuxViewerOsVersion(PlaybackTests.DEVICE_OS_VERSION_OVERRIDE);
+    customerData.setCustomerViewerData(customerViewerData);
     muxStats = new MuxStatsExoPlayer(
         this, (ExoPlayer) player, playerView, "demo-player", customerData, null, mockNetwork);
     Point size = new Point();
@@ -225,6 +236,7 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     muxStats.setScreenSize(size.x, size.y);
     muxStats.setPlayerView(playerView);
     muxStats.enableMuxCoreDebug(true, false);
+
     for (String headerName : addAllowedHeaders) {
       MuxStatsHelper.allowHeaderToBeSentToBackend(muxStats, headerName);
     }
