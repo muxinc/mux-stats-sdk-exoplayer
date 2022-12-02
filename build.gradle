@@ -58,8 +58,8 @@ allprojects {
 
   project.ext {
     minSdkVersion = 16
-    compileSdkVersion = 31
-    targetSdkVersion = 31
+    compileSdkVersion = 33
+    targetSdkVersion = 33
     muxCoreVersion = "7.3.2"
     kotlinxCoroutinesVersion = "1.6.1"
   }

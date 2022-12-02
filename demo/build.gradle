@@ -110,30 +110,24 @@ dependencies {
   implementation 'androidx.multidex:multidex:2.0.1'
 
   // Include the below to test ads for each product flavor that supports them
-  r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
   r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
   r2_10_6_adsImplementation 'com.google.android.exoplayer:exoplayer:2.10.6'
 
   r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
   r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
   r2_12_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_12_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
   r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'
   r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
 
   r2_13_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_13_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
   r2_13_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
   r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
 
   r2_14_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_14_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
   r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
   r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
 
   r2_15_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_15_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
   r2_15_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
   r2_15_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
   r2_15_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
@@ -169,6 +163,8 @@ dependencies {
   r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
   r2_18_1_adsApi 'org.checkerframework:checker-qual:3.13.0'
   r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer:2.18.1'
+
+  implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
 
   implementation project(':MuxExoPlayer')
   implementation project(':ExoPlayerAdapter')
