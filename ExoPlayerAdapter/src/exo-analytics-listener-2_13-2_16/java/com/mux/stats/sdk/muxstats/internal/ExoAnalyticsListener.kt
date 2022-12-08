@@ -101,7 +101,8 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
         advertisedBitrate = fmt.bitrate,
         advertisedFrameRate = fmt.frameRate,
         sourceHeight = fmt.height,
-        sourceWidth = fmt.width
+        sourceWidth = fmt.width,
+        sourceCodec = format.codecs
       )
     }
   }
