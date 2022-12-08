@@ -459,6 +459,8 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
 
     override fun getSourceAdvertisedFramerate(): Float = collector.sourceAdvertisedFrameRate
 
+    override fun getSourceAdvertisedVideoCodecName(): String? = collector.sourceCodec
+
     override fun getSourceDuration() = collector.sourceDurationMs
 
     override fun isPaused() = collector.isPaused()

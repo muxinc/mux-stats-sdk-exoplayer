@@ -108,6 +108,11 @@ abstract class MuxStateCollectorBase(
   var sourceHeight: Int = 0
 
   /**
+   * Name of the codec used for video in current rendition (Video quality)
+   */
+  var sourceCodec: String? = ""
+
+  /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
    * then sets the [.playbackPositionMillis] property on this object. It can be stopped by
    * calling [PositionWatcher.stop], and will automatically stop if it can no longer
@@ -392,12 +397,14 @@ abstract class MuxStateCollectorBase(
     advertisedBitrate: Int,
     advertisedFrameRate: Float,
     sourceWidth: Int,
-    sourceHeight: Int
+    sourceHeight: Int,
+    sourceCodec: String?
   ) {
     sourceAdvertisedBitrate = advertisedBitrate
     sourceAdvertisedFrameRate = advertisedFrameRate
     this.sourceWidth = sourceWidth
     this.sourceHeight = sourceHeight
+    this.sourceCodec = sourceCodec
 
     dispatch(RenditionChangeEvent(null))
   }
