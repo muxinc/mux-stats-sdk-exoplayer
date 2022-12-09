@@ -318,6 +318,12 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
                             rendition.bitrate = trackFormat.bitrate.toLong()
                             rendition.width = trackFormat.width
                             rendition.height = trackFormat.height
+                            rendition.codec = trackFormat.codecs
+                            rendition.fps = trackFormat.frameRate
+                            rendition.name = trackFormat.width.toString() + "_" +
+                                    trackFormat.height + "_" +
+                                    trackFormat.bitrate + "_" + trackFormat.codecs + "_" +
+                                    trackFormat.frameRate
                             renditions.add(rendition)
                         }
                         collector!!.renditionList = renditions
