@@ -163,7 +163,12 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
       )
     )
   } else {
-    internalError(e)
+    internalError(
+      MuxErrorException(
+        e.errorCode,
+        "${e.javaClass.canonicalName} - ${e.message}"
+      )
+    )
   }
 }
 
