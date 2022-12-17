@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import android.util.Log
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
@@ -117,8 +116,16 @@ internal fun MuxStateCollector.handleExoPlaybackState(
   } // when (playbackState)
 } // fun handleExoPlaybackState
 
+/**
+ * Handles fatal [ExoPlaybackException]s from the player, reporting them to the dashboard
+ * The error code parameter is required, because different versions of exoplayer offer different
+ * granularities in error reporting
+ *
+ * @param errorCode An error code for this exception. The best is [PlaybackException.errorCode]
+ * @param e The Exception thrown. The error code will be overidden with the value of [errorCode]
+ */
 @JvmSynthetic
-internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackException) {
+internal fun MuxStateCollector.handleExoPlaybackException(errorCode: Int, e: ExoPlaybackException) {
   if (e.type == ExoPlaybackException.TYPE_RENDERER) {
     val cause = e.rendererException
     if (cause is MediaCodecRenderer.DecoderInitializationException) {
@@ -126,11 +133,11 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
         // TODO split this by versions and implement else block to ghet the codec details
 //      if (die.codecInfo == null) {
         if (die.cause is MediaCodecUtil.DecoderQueryException) {
-          internalError(MuxErrorException(e.errorCode, "Unable to query device decoders"))
+          internalError(MuxErrorException(errorCode, "Unable to query device decoders"))
         } else if (die.secureDecoderRequired) {
-          internalError(MuxErrorException(e.errorCode, "No secure decoder for " + die.mimeType))
+          internalError(MuxErrorException(errorCode, "No secure decoder for " + die.mimeType))
         } else {
-          internalError(MuxErrorException(e.errorCode, "No decoder for " + die.mimeType))
+          internalError(MuxErrorException(errorCode, "No decoder for " + die.mimeType))
         }
 //      }
 //    else {
@@ -141,7 +148,7 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
     } else {
       internalError(
         MuxErrorException(
-          e.errorCode,
+          errorCode,
           "${cause.javaClass.canonicalName} - ${cause.message}"
         )
       )
@@ -150,7 +157,7 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
     val error: Exception = e.sourceException
     internalError(
       MuxErrorException(
-        e.errorCode,
+        errorCode,
         "${error.javaClass.canonicalName} - ${error.message}"
       )
     )
@@ -158,17 +165,12 @@ internal fun MuxStateCollector.handleExoPlaybackException(e: ExoPlaybackExceptio
     val error: Exception = e.unexpectedException
     internalError(
       MuxErrorException(
-        e.errorCode,
+        errorCode,
         "${error.javaClass.canonicalName} - ${error.message}"
       )
     )
   } else {
-    internalError(
-      MuxErrorException(
-        e.errorCode,
-        "${e.javaClass.canonicalName} - ${e.message}"
-      )
-    )
+    internalError(e)
   }
 }
 

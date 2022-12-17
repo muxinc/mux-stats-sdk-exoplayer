@@ -36,41 +36,10 @@ private class ExoErrorMetricsByListener215ToNow : MuxPlayerAdapter.PlayerBinding
 private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Player.Listener {
   override fun onPlayerError(error: PlaybackException) {
     if (error is ExoPlaybackException) {
-      collector.handleExoPlaybackException(error)
+      collector.handleExoPlaybackException(error.errorCode, error)
     } else {
-      var errorCode = ExoPlaybackException.TYPE_UNEXPECTED
-      val errorMessage = "${error.errorCodeName}: ${error.message}"
-      when (error.errorCode) {
-        PlaybackException.ERROR_CODE_REMOTE_ERROR -> errorCode = ExoPlaybackException.TYPE_REMOTE
-        PlaybackException.ERROR_CODE_IO_BAD_HTTP_STATUS,
-        PlaybackException.ERROR_CODE_IO_CLEARTEXT_NOT_PERMITTED,
-        PlaybackException.ERROR_CODE_IO_FILE_NOT_FOUND,
-        PlaybackException.ERROR_CODE_IO_INVALID_HTTP_CONTENT_TYPE,
-        PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_FAILED,
-        PlaybackException.ERROR_CODE_IO_NETWORK_CONNECTION_TIMEOUT,
-        PlaybackException.ERROR_CODE_IO_NO_PERMISSION,
-        PlaybackException.ERROR_CODE_IO_READ_POSITION_OUT_OF_RANGE,
-        PlaybackException.ERROR_CODE_IO_UNSPECIFIED,
-        PlaybackException.ERROR_CODE_PARSING_CONTAINER_MALFORMED,
-        PlaybackException.ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED,
-        PlaybackException.ERROR_CODE_PARSING_MANIFEST_MALFORMED,
-        PlaybackException.ERROR_CODE_PARSING_MANIFEST_UNSUPPORTED,
-        PlaybackException.ERROR_CODE_DRM_CONTENT_ERROR,
-        PlaybackException.ERROR_CODE_DRM_UNSPECIFIED,
-        PlaybackException.ERROR_CODE_DRM_SCHEME_UNSUPPORTED,
-        PlaybackException.ERROR_CODE_DRM_PROVISIONING_FAILED,
-        PlaybackException.ERROR_CODE_DRM_LICENSE_ACQUISITION_FAILED,
-        PlaybackException.ERROR_CODE_DRM_DISALLOWED_OPERATION,
-        PlaybackException.ERROR_CODE_DRM_SYSTEM_ERROR,
-        PlaybackException.ERROR_CODE_DRM_DEVICE_REVOKED,
-        PlaybackException.ERROR_CODE_DRM_LICENSE_EXPIRED -> errorCode =
-          ExoPlaybackException.TYPE_SOURCE
-        PlaybackException.ERROR_CODE_DECODER_INIT_FAILED, PlaybackException.ERROR_CODE_DECODER_QUERY_FAILED, PlaybackException.ERROR_CODE_DECODING_FAILED, PlaybackException.ERROR_CODE_DECODING_FORMAT_UNSUPPORTED, PlaybackException.ERROR_CODE_DECODING_FORMAT_EXCEEDS_CAPABILITIES, PlaybackException.ERROR_CODE_AUDIO_TRACK_INIT_FAILED, PlaybackException.ERROR_CODE_AUDIO_TRACK_WRITE_FAILED -> errorCode =
-          ExoPlaybackException.TYPE_RENDERER
-        else -> {}
-      }
-
-      collector.internalError(MuxErrorException(errorCode, errorMessage))
+      val errorMessage = "${error.errorCode}: ${error.message}"
+      collector.internalError(MuxErrorException(error.errorCode, errorMessage))
     }
   }
 }
