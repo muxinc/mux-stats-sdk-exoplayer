@@ -27,8 +27,7 @@ android {
     // Source Set with ExoPlayer bindings
     upto2_10 { dimension 'source' }
     just2_11 { dimension 'source' }
-    just2_12 { dimension 'source' }
-    just2_13 { dimension 'source' }
+    from2_12to2_13 { dimension 'source' }
     just2_14 { dimension 'source' }
     just2_15 { dimension 'source' }
     just2_16 { dimension 'source' }
@@ -50,8 +49,7 @@ android {
   def realVariants = [
           "upto2_10"      : ["r2_10_6"],
           "just2_11"      : ["r2_11_1"],
-          "just2_12"      : ["r2_12_1"],
-          "just2_13"      : ["r2_13_1"],
+          "from2_12to2_13": ["r2_12_1", "r2_13_1"],
           "just2_14"      : ["r2_14_1"],
           "just2_15"      : ["r2_15_1"],
           "just2_16"      : ["r2_16_1", "amznPort"],
@@ -71,7 +69,6 @@ android {
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
-      java.srcDirs += 'src/exo-media-item-upto-2_12/java'
     }
     just2_11 {
       java.srcDirs += 'src/exo-analytics-listener-upto-2_11/java'
@@ -80,26 +77,14 @@ android {
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
-      java.srcDirs += 'src/exo-media-item-upto-2_12/java'
     }
-    just2_12 {
+    from2_12to2_13 {
       java.srcDirs += 'src/exo-analytics-listener-2_11-2_13/java'
       java.srcDirs += 'src/exo-collector-2_10-now/java'
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
-      java.srcDirs += 'src/exo-media-item-upto-2_12/java'
-    }
-    just2_13 {
-      java.srcDirs += 'src/exo-analytics-listener-2_11-2_13/java'
-      java.srcDirs += 'src/exo-collector-2_10-now/java'
-      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
-      java.srcDirs += 'src/exo-error-upto-2_13/java'
-      java.srcDirs += 'src/exo-event-upto-2_13/java'
-      java.srcDirs += 'src/exo-player-upto-2_15/java'
-      java.srcDirs += 'ExoPlayerAdapter/src/exo-media-item-2_13-2_15'
-      java.srcDirs += 'src/exo-media-item-2_13-2_15'
     }
     just2_14 {
       java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
@@ -108,7 +93,6 @@ android {
       java.srcDirs += 'src/exo-error-just-2_14/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
-      java.srcDirs += 'src/exo-media-item-2_13-2_15/java'
     }
     just2_15 {
       java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
@@ -117,7 +101,6 @@ android {
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
-      java.srcDirs += 'src/exo-media-item-2_13-2_15/java'
     }
     just2_16 {
       java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
@@ -125,7 +108,6 @@ android {
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
-      java.srcDirs += 'src/exo-media-item-2_16-2_17/java'
       // From 2.16 onward, we don't need exo-event
     }
     just2_17 {
@@ -134,7 +116,6 @@ android {
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
-      java.srcDirs += 'src/exo-media-item-2_16-2_17/java'
       // From 2.16 onward, we don't need exo-event
     }
     from2_18toNow {
@@ -143,7 +124,6 @@ android {
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
-      java.srcDirs += 'src/exo-media-item-2_18-uptoNow/java'
       // From 2.16 onward, we don't need exo-event
     }
   }
