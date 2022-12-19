@@ -61,7 +61,7 @@ allprojects {
       compileSdkVersion = 31
       targetSdkVersion = 31
 
-      muxCoreVersion = "7.5.0"
+      muxCoreVersion = "dev-total_dropped_frames-d604a9a"
       kotlinxCoroutinesVersion = "1.6.1"
     }
   }
