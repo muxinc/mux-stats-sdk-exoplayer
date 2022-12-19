@@ -110,7 +110,7 @@ abstract class MuxStateCollectorBase(
   /**
    * Number of frames dropped per session.
    */
-  var numberOfDroppedFrames = 0;
+  var numberOfDroppedFrames:Long = 0;
 
   /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and

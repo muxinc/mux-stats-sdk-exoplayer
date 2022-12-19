@@ -108,7 +108,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   override fun onDroppedVideoFrames(eventTime: EventTime, droppedFrames: Int, elapsedMs: Long) {
     collector.numberOfDroppedFrames += droppedFrames
-    collector.muxStats.setDroppedFramesCount(collector.numberOfDroppedFrames)
+    collector.muxStats().setDroppedFramesCount(collector.numberOfDroppedFrames)
   }
 
   @Deprecated("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.13)

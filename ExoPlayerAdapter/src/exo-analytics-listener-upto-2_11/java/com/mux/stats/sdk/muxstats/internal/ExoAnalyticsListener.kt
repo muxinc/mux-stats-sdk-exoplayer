@@ -81,7 +81,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 
   override fun onDroppedVideoFrames(eventTime: EventTime, droppedFrames: Int, elapsedMs: Long) {
     collector.numberOfDroppedFrames += droppedFrames
-    collector.muxStats.setDroppedFramesCount(collector.numberOfDroppedFrames)
+    collector.muxStats().setDroppedFramesCount(collector.numberOfDroppedFrames)
   }
 
   override fun onDecoderInputFormatChanged(eventTime: EventTime, trackType: Int, format: Format) {
