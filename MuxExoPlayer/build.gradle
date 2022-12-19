@@ -69,11 +69,11 @@ android {
     }
     r2_12_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_12to2_13']
+      matchingFallbacks = ['just2_12']
     }
     r2_13_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_12to2_13']
+      matchingFallbacks = ['just2_13']
     }
     r2_14_1 {
       dimension 'exoplayer'
