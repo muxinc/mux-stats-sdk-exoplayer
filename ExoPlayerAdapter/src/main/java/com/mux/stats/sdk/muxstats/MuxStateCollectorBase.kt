@@ -108,6 +108,11 @@ abstract class MuxStateCollectorBase(
   var sourceHeight: Int = 0
 
   /**
+   * Number of frames dropped per session.
+   */
+  var numberOfDroppedFrames:Long = 0;
+
+  /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
    * then sets the [.playbackPositionMillis] property on this object. It can be stopped by
    * calling [PositionWatcher.stop], and will automatically stop if it can no longer
@@ -458,6 +463,7 @@ abstract class MuxStateCollectorBase(
 
   private fun reset() {
     mimeType = null
+    numberOfDroppedFrames = 0;
     playEventsSent = 0
     pauseEventsSent = 0
     totalEventsSent = 0
