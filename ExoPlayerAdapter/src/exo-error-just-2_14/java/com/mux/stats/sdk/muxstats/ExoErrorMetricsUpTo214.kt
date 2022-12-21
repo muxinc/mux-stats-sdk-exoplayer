@@ -37,7 +37,7 @@ private class ExoErrorMetricsByListenerJust214 : MuxPlayerAdapter.PlayerBinding<
 
 private class ErrorPlayerListenerUpTo214(val collector: MuxStateCollector) : Player.Listener {
   override fun onPlayerError(error: ExoPlaybackException) {
-    collector.handleExoPlaybackException(error)
+    collector.handleExoPlaybackException(error.type, error)
   }
 }
 
