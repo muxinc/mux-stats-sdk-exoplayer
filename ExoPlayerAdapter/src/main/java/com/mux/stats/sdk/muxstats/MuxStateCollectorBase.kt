@@ -463,6 +463,7 @@ abstract class MuxStateCollectorBase(
 
   private fun reset() {
     mimeType = null
+    numberOfDroppedFrames = 0;
     playEventsSent = 0
     pauseEventsSent = 0
     totalEventsSent = 0
