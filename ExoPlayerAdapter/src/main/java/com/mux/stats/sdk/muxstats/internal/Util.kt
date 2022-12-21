@@ -127,32 +127,37 @@ internal fun MuxStateCollector.handleExoPlaybackState(
 @JvmSynthetic
 internal fun MuxStateCollector.handleExoPlaybackException(errorCode: Int, e: ExoPlaybackException) {
   if (e.type == ExoPlaybackException.TYPE_RENDERER) {
-    val cause = e.rendererException
-    if (cause is MediaCodecRenderer.DecoderInitializationException) {
-      val die = cause
-        // TODO split this by versions and implement else block to ghet the codec details
-//      if (die.codecInfo == null) {
-        if (die.cause is MediaCodecUtil.DecoderQueryException) {
-          internalError(MuxErrorException(errorCode, "Unable to query device decoders"))
-        } else if (die.secureDecoderRequired) {
-          internalError(MuxErrorException(errorCode, "No secure decoder for " + die.mimeType))
-        } else {
-          internalError(MuxErrorException(errorCode, "No decoder for " + die.mimeType))
-        }
-//      }
-//    else {
-//        internalError(
-//          MuxErrorException(e.type, "Unable to instantiate decoder for " + die.mimeType)
-//        )
-//      } // if(die.codecInfo)..else
+    val rendererEx = e.rendererException
+    // Decoder Init errors are given special messages
+    if (rendererEx is MediaCodecRenderer.DecoderInitializationException) {
+      if (rendererEx.cause is MediaCodecUtil.DecoderQueryException) {
+        internalError(MuxErrorException(errorCode, "Unable to query device decoders"))
+      } else if (rendererEx.secureDecoderRequired) {
+        internalError(
+          MuxErrorException(
+            errorCode,
+            "No secure decoder for " + rendererEx.mimeType,
+            rendererEx.diagnosticInfo
+          )
+        )
+      } else {
+        internalError(
+          MuxErrorException(
+            errorCode,
+            "No decoder for " + rendererEx.mimeType,
+            rendererEx.diagnosticInfo
+          )
+        )
+      }
     } else {
+      // Not a DecoderInitializationException
       internalError(
         MuxErrorException(
           errorCode,
-          "${cause.javaClass.canonicalName} - ${cause.message}"
+          "${rendererEx.javaClass.canonicalName} - ${rendererEx.message}",
         )
       )
-    } // if(cause is..)...else
+    } // if(rendererEx is..)...else
   } else if (e.type == ExoPlaybackException.TYPE_SOURCE) {
     val error: Exception = e.sourceException
     internalError(
@@ -170,21 +175,22 @@ internal fun MuxStateCollector.handleExoPlaybackException(errorCode: Int, e: Exo
       )
     )
   } else {
-    internalError(e)
+    internalError(MuxErrorException(errorCode, "${e.javaClass.canonicalName} - ${e.message}"))
   }
 }
 
 /////////////////////////////////////////////////////////////
 /// ExoPlayer Helper Functions //////////////////////////////
 
+@JvmSynthetic
 internal fun ExoPlayer.MuxMediaHasVideoTrack(): Boolean {
-  val trackGroups:TrackGroupArray = getCurrentTrackGroups();
+  val trackGroups: TrackGroupArray = getCurrentTrackGroups();
   var playItemHaveVideoTrack = false;
   if (trackGroups.length > 0) {
-    for (groupIndex in 0 until trackGroups.length-1) {
-      val trackGroup:TrackGroup = trackGroups.get(groupIndex);
+    for (groupIndex in 0 until trackGroups.length - 1) {
+      val trackGroup: TrackGroup = trackGroups.get(groupIndex);
       if (0 < trackGroup.length) {
-        val trackFormat:Format = trackGroup.getFormat(0);
+        val trackFormat: Format = trackGroup.getFormat(0);
         if (trackFormat.sampleMimeType != null && trackFormat.sampleMimeType!!.contains("video")) {
           playItemHaveVideoTrack = true;
           break;
