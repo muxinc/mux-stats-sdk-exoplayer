@@ -18,14 +18,14 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
       - name: Deploy ExoPlayerAdapter to Release Repo
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        uses: gradle/gradle-build-action@v2.3.3
         with:
           arguments: :ExoPlayerAdapter:artifactoryPublish
         env:
           ORG_GRADLE_PROJECT_artifactory_user: ${{ secrets.ARTIFACTORY_EMAIL }}
           ORG_GRADLE_PROJECT_artifactory_password: ${{ secrets.ARTIFACTORY_PASSWORD }}
       - name: Deploy MuxExoPlayer to Release Repo
-        uses: gradle/gradle-build-action@67421db6bd0bf253fb4bd25b31ebb98943c375e1
+        uses: gradle/gradle-build-action@v2.3.3
         with:
           arguments: :MuxExoPlayer:artifactoryPublish
         env:
