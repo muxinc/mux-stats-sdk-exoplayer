@@ -31,14 +31,6 @@ android {
     }
   }
 
-  lintOptions {
-    // The demo app does not have translations.
-    disable 'MissingTranslation', 'GradleCompatible'
-    // exoplayer 2.8.1 workaround
-    // https://github.com/google/ExoPlayer/issues/4234
-    lintConfig file("../checker-framework-lint.xml")
-  }
-
 
   flavorDimensions('exoplayer')
   productFlavors {
@@ -101,6 +93,11 @@ android {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+  lint {
+    disable 'MissingTranslation', 'GradleCompatible'
+    lintConfig file('../checker-framework-lint.xml')
+  }
+  namespace 'com.google.android.exoplayer2.demo'
 }
 
 dependencies {
