@@ -135,6 +135,7 @@ android {
   kotlinOptions {
     jvmTarget = '1.8'
   }
+  namespace 'com.mux.exoplayeradapter'
 }
 
 muxDistribution {
