@@ -6,9 +6,11 @@ import com.google.ads.interactivemedia.v3.api.AdEvent
 import com.google.android.exoplayer2.ExoPlayer
 import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.playback.*
+import com.mux.stats.sdk.core.model.AdData
 import com.mux.stats.sdk.core.model.ViewData
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.core.events.playback.AdEvent as MuxAdEvent
 
 /**
  * Ima SDK wrapper, listen to ad events and dispatch the appropriate AdPlayback events accordingly.
@@ -55,12 +57,12 @@ class AdsImaSDKListener private constructor(
   private var missingAdBreakStartEvent = false
 
   /**
-   * Handles the Ad error.
+   * Handles Ad errors
    *
    * @param adErrorEvent, Error to be handled.
    */
   override fun onAdError(adErrorEvent: AdErrorEvent) {
-    val event: PlaybackEvent = AdErrorEvent(null)
+    val event = AdErrorEvent(null)
     setupAdViewData(event, null)
     eventBus.dispatch(event)
   }
@@ -71,15 +73,21 @@ class AdsImaSDKListener private constructor(
    * @param event, event to be updated.
    * @param ad, current ad event that is being processed.
    */
-  private fun setupAdViewData(event: PlaybackEvent, ad: Ad?) {
+  private fun setupAdViewData(event: MuxAdEvent, ad: Ad?) {
     val viewData = ViewData()
+    val adData = AdData();
     if (stateCollector.playbackPositionMills == 0L) {
       if (ad != null) {
         viewData.viewPrerollAdId = ad.adId
         viewData.viewPrerollCreativeId = ad.creativeId
+
+        ad.adId?.let { adData.adId = it }
+        ad.creativeId?.let { adData.adCreativeId = it }
+        ad.universalAdIdValue?.let { adData.adUniversalId = it }
       }
     }
     event.viewData = viewData
+    event.adData = adData;
   }
 
   /**
@@ -140,7 +148,8 @@ class AdsImaSDKListener private constructor(
         }
         AdEvent.AdEventType.PAUSED -> {
           if (!player.playWhenReady
-            && player.currentPosition == 0L) {
+            && player.currentPosition == 0L
+          ) {
             // This is preroll ads when play when ready is set to false, we need to ignore these events
             return;
           }
@@ -169,7 +178,7 @@ class AdsImaSDKListener private constructor(
    * @param event, to be dispatched.
    * @param ad, ad being processed.
    */
-  private fun dispatchAdPlaybackEvent(event: PlaybackEvent, ad: Ad?) {
+  private fun dispatchAdPlaybackEvent(event: MuxAdEvent, ad: Ad?) {
     setupAdViewData(event, ad)
     eventBus.dispatch(event)
   }
