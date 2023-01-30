@@ -57,7 +57,7 @@ class AdsImaSDKListener private constructor(
   private var missingAdBreakStartEvent = false
 
   /**
-   * Handles the Ad error.
+   * Handles Ad errors
    *
    * @param adErrorEvent, Error to be handled.
    */
@@ -84,9 +84,6 @@ class AdsImaSDKListener private constructor(
         adData.adId = ad.adId
         adData.adCreativeId = ad.creativeId
         adData.adUniversalId = ad.universalAdIdValue
-        // TODO: Probably in Ad Request but how do I get that?
-        adData.adAssetUrl = null
-        adData.adTagUrl = null
       }
     }
     event.viewData = viewData
@@ -151,7 +148,8 @@ class AdsImaSDKListener private constructor(
         }
         AdEvent.AdEventType.PAUSED -> {
           if (!player.playWhenReady
-            && player.currentPosition == 0L) {
+            && player.currentPosition == 0L
+          ) {
             // This is preroll ads when play when ready is set to false, we need to ignore these events
             return;
           }
