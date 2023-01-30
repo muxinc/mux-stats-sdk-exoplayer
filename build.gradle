@@ -38,19 +38,9 @@ allprojects {
     mavenCentral()
     mavenLocal()
 
-    maven {
-      url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
-    }
-
-    // Both our release and dev repos are imported
-    maven {
-      url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
-    }
-
-    maven {
-      url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
-
-    }
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual' }
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-local' }
 
     tasks.withType(JavaCompile) {
       options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
@@ -61,7 +51,7 @@ allprojects {
       compileSdkVersion = 31
       targetSdkVersion = 31
 
-      muxCoreVersion = "7.6.0"
+      muxCoreVersion = "dev-v7.7.0-d214b8b"
       kotlinxCoroutinesVersion = "1.6.1"
     }
   }
