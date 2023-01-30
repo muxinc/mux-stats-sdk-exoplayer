@@ -81,9 +81,9 @@ class AdsImaSDKListener private constructor(
         viewData.viewPrerollAdId = ad.adId
         viewData.viewPrerollCreativeId = ad.creativeId
 
-        adData.adId = ad.adId
-        adData.adCreativeId = ad.creativeId
-        adData.adUniversalId = ad.universalAdIdValue
+        ad.adId?.let { adData.adId = it }
+        ad.creativeId?.let { adData.adCreativeId = it }
+        ad.universalAdIdValue?.let { adData.adUniversalId = it }
       }
     }
     event.viewData = viewData
