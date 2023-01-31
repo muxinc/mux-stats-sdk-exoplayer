@@ -14,8 +14,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  xmlns:tools="http://schemas.android.com/tools"
-  package="com.google.android.exoplayer2.demo">
+  xmlns:tools="http://schemas.android.com/tools">
 
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -30,26 +29,25 @@
     android:name="android.hardware.touchscreen"
     android:required="false" />
 
+  <uses-sdk />
+
   <application
     android:label="@string/application_name"
     android:icon="@mipmap/ic_launcher"
     android:banner="@drawable/ic_banner"
     android:largeHeap="true"
     android:allowBackup="false"
-    android:name="com.google.android.exoplayer2.demo.DemoApplication"
+    android:requestLegacyExternalStorage="true"
+    android:name="androidx.multidex.MultiDexApplication"
     android:usesCleartextTraffic="true"
-    tools:ignore="UnusedAttribute">
-
-    <meta-data
-      android:name="com.google.android.gms.version"
-      android:value="@integer/google_play_services_version" />
+    tools:targetApi="29">
 
     <activity
       android:name="com.google.android.exoplayer2.demo.SampleChooserActivity"
       android:configChanges="keyboardHidden"
       android:label="@string/application_name"
-      android:theme="@style/Theme.AppCompat"
-      android:exported="true">
+      android:exported="true"
+      android:theme="@style/Theme.AppCompat">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 

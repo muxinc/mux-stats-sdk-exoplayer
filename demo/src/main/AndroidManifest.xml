@@ -14,8 +14,7 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.google.android.exoplayer2.demo"
-  android:versionCode="1000"
+    android:versionCode="1000"
   android:versionName="1.0.0">
 
 </manifest>

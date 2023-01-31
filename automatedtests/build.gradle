@@ -25,13 +25,6 @@ android {
     }
   }
 
-  lintOptions {
-    abortOnError false
-    disable 'GradleCompatible'
-    // exoplayer 2.8.1 workaround
-    // https://github.com/google/ExoPlayer/issues/4234
-    lintConfig file("../checker-framework-lint.xml")
-  }
 
   testOptions {
     // Changes the directory where Gradle saves test reports. By default, Gradle saves test reports
@@ -47,7 +40,7 @@ android {
   sourceSets {
     androidTest {
       // Important, can't get asset file in instrumentation test without this
-      assets.srcDirs = ['src/main/assets']
+      assets.srcDirs += 'src/main/assets'
     }
   }
 
@@ -98,6 +91,12 @@ android {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+  lint {
+    abortOnError false
+    disable 'GradleCompatible'
+    lintConfig file('../checker-framework-lint.xml')
+  }
+  namespace 'com.mux.stats.sdk.muxstats.automatedtests'
 }
 
 dependencies {

@@ -31,66 +31,48 @@ android {
     }
   }
 
-  lintOptions {
-    // The demo app does not have translations.
-    disable 'MissingTranslation', 'GradleCompatible'
-    // exoplayer 2.8.1 workaround
-    // https://github.com/google/ExoPlayer/issues/4234
-    lintConfig file("../checker-framework-lint.xml")
-  }
-
 
   flavorDimensions('exoplayer')
   productFlavors {
-    r2_10_6_ads {
+    r2_10_6 {
       dimension 'exoplayer'
       matchingFallbacks = ['upto2_10']
-      missingDimensionStrategy 'exoplayer', 'r2_10_6'
     }
-    r2_11_1_ads {
+    r2_11_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_11']
-      missingDimensionStrategy 'exoplayer', 'r2_11_1'
     }
-    r2_12_1_ads {
+    r2_12_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['from2_12to2_13']
-      missingDimensionStrategy 'exoplayer', 'r2_12_1'
     }
-    r2_13_1_ads {
+    r2_13_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['from2_12to2_13']
-      missingDimensionStrategy 'exoplayer', 'r2_13_1'
     }
-    r2_14_1_ads {
+    r2_14_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_14']
-      missingDimensionStrategy 'exoplayer', 'r2_14_1'
     }
-    r2_15_1_ads {
+    r2_15_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_15']
-      missingDimensionStrategy 'exoplayer', 'r2_15_1'
     }
-    r2_16_1_ads {
+    r2_16_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_16']
-      missingDimensionStrategy 'exoplayer', 'r2_16_1'
     }
-    r2_17_1_ads {
+    r2_17_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_17']
-      missingDimensionStrategy 'exoplayer', 'r2_17_1'
     }
-    amznPort_ads {
+    amznPort {
       dimension 'exoplayer'
       matchingFallbacks = ['just_2_16']
-      missingDimensionStrategy 'exoplayer', 'amznPort'
     }
-    r2_18_1_ads {
+    r2_18_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['from2_18toNow']
-      missingDimensionStrategy 'exoplayer', 'r2_18_1'
     }
   }
   variantFilter { // this app doesn't need a release build, so save some resources
@@ -101,6 +83,11 @@ android {
     sourceCompatibility = JavaVersion.VERSION_1_8
     targetCompatibility = JavaVersion.VERSION_1_8
   }
+  lint {
+    disable 'MissingTranslation', 'GradleCompatible'
+    lintConfig file('../checker-framework-lint.xml')
+  }
+  namespace 'com.google.android.exoplayer2.demo'
 }
 
 dependencies {
@@ -111,66 +98,66 @@ dependencies {
   implementation 'androidx.multidex:multidex:2.0.1'
 
   // Include the below to test ads for each product flavor that supports them
-  r2_10_6_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
-  r2_10_6_adsImplementation 'com.google.android.gms:play-services-ads:15.0.1'
-  r2_10_6_adsImplementation 'com.google.android.exoplayer:exoplayer:2.10.6'
+  r2_10_6Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.10.6'
+  r2_10_6Implementation 'com.google.android.gms:play-services-ads:15.0.1'
+  r2_10_6Implementation 'com.google.android.exoplayer:exoplayer:2.10.6'
 
-  r2_11_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_11_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
-  r2_11_1_adsApi 'com.google.android.exoplayer:exoplayer:2.11.1'
+  r2_11_1Implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+  r2_11_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.11.3'
+  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
 
-  r2_12_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_12_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
-  r2_12_1_adsApi 'com.google.android.exoplayer:exoplayer:2.12.1'
-  r2_12_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
+  r2_12_1Implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+  r2_12_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.20.1'
+  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
+  r2_12_1Api "com.google.android.gms:play-services-cronet:17.0.0"
 
-  r2_13_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_13_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
-  r2_13_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
-  r2_13_1_adsApi 'com.google.android.exoplayer:exoplayer:2.13.1'
+  r2_13_1Implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+  r2_13_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+  r2_13_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
 
-  r2_14_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_14_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
-  r2_14_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
-  r2_14_1_adsApi 'com.google.android.exoplayer:exoplayer:2.14.1'
+  r2_14_1Implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+  r2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+  r2_14_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+  r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
 
-  r2_15_1_adsImplementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
-  r2_15_1_adsImplementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
-  r2_15_1_adsApi "com.google.android.gms:play-services-cronet:17.0.0"
-  r2_15_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.15.1'
-  r2_15_1_adsApi 'com.google.android.exoplayer:extension-ima:2.15.1'
-  r2_15_1_adsApi 'com.google.android.exoplayer:exoplayer:2.15.1'
+  r2_15_1Implementation 'com.google.android.gms:play-services-ads-identifier:17.0.0'
+  r2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.22.2'
+  r2_15_1Api "com.google.android.gms:play-services-cronet:17.0.0"
+  r2_15_1Api 'com.google.android.exoplayer:extension-cronet:2.15.1'
+  r2_15_1Api 'com.google.android.exoplayer:extension-ima:2.15.1'
+  r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
 
-  r2_16_1_adsApi "com.google.android.gms:play-services-cronet:18.0.1"
-  r2_16_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.16.1'
-  r2_16_1_adsApi 'com.google.android.exoplayer:extension-ima:2.16.1'
-  r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer-common:2.16.1'
-  r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.16.1'
-  r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
-  r2_16_1_adsApi 'org.checkerframework:checker-qual:3.13.0'
-  r2_16_1_adsApi 'com.google.android.exoplayer:exoplayer:2.16.1'
+  r2_16_1Api "com.google.android.gms:play-services-cronet:18.0.1"
+  r2_16_1Api 'com.google.android.exoplayer:extension-cronet:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:extension-ima:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer-common:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer-core:2.16.1'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer-ui:2.16.1'
+  r2_16_1Api 'org.checkerframework:checker-qual:3.13.0'
+  r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
 
-  r2_17_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.17.1'
-  r2_17_1_adsApi 'com.google.android.exoplayer:extension-ima:2.17.1'
-  r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-common:2.17.1'
-  r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.17.1'
-  r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
-  r2_17_1_adsApi 'org.checkerframework:checker-qual:3.13.0'
-  r2_17_1_adsApi 'com.google.android.exoplayer:exoplayer:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:extension-cronet:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:extension-ima:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer-common:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer-core:2.17.1'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer-ui:2.17.1'
+  r2_17_1Api 'org.checkerframework:checker-qual:3.13.0'
+  r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
 
-  amznPort_adsApi "com.google.android.gms:play-services-cronet:18.0.1"
-  amznPort_adsApi 'com.amazon.android:extension-cronet:2.16.1'
-  amznPort_adsApi 'com.amazon.android:extension-ima:2.16.1'
-  amznPort_adsApi 'com.amazon.android:exoplayer:2.16.1'
-  amznPort_adsApi 'org.checkerframework:checker-qual:3.13.0'
+  amznPortApi "com.google.android.gms:play-services-cronet:18.0.1"
+  amznPortApi 'com.amazon.android:extension-cronet:2.16.1'
+  amznPortApi 'com.amazon.android:extension-ima:2.16.1'
+  amznPortApi 'com.amazon.android:exoplayer:2.16.1'
+  amznPortApi 'org.checkerframework:checker-qual:3.13.0'
 
-  r2_18_1_adsApi 'com.google.android.exoplayer:extension-cronet:2.18.1'
-  r2_18_1_adsApi 'com.google.android.exoplayer:extension-ima:2.18.1'
-  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-common:2.18.1'
-  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-core:2.18.1'
-  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
-  r2_18_1_adsApi 'org.checkerframework:checker-qual:3.13.0'
-  r2_18_1_adsApi 'com.google.android.exoplayer:exoplayer:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:extension-cronet:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:extension-ima:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer-common:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer-core:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
+  r2_18_1Api 'org.checkerframework:checker-qual:3.13.0'
+  r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   implementation project(':MuxExoPlayer')
   implementation project(':ExoPlayerAdapter')

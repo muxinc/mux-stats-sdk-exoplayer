@@ -22,10 +22,10 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.2.2'
-    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10"
-    classpath 'com.mux.gradle.android:mux-android-distribution:0.8.7'
+    classpath 'com.android.tools.build:gradle:7.4.0'
+    classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.31.0"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.21"
+    classpath 'com.mux.gradle.android:mux-android-distribution:1.0.3'
   }
 }
 
@@ -38,19 +38,9 @@ allprojects {
     mavenCentral()
     mavenLocal()
 
-    maven {
-      url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual'
-    }
-
-    // Both our release and dev repos are imported
-    maven {
-      url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local'
-    }
-
-    maven {
-      url 'https://muxinc.jfrog.io/artifactory/default-maven-local'
-
-    }
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-virtual' }
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-release-local' }
+    maven { url 'https://muxinc.jfrog.io/artifactory/default-maven-local' }
 
     tasks.withType(JavaCompile) {
       options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"
@@ -61,7 +51,7 @@ allprojects {
       compileSdkVersion = 31
       targetSdkVersion = 31
 
-      muxCoreVersion = "7.6.0"
+      muxCoreVersion = "7.7.0"
       kotlinxCoroutinesVersion = "1.6.1"
     }
   }
