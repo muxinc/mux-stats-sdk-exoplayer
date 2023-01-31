@@ -68,6 +68,7 @@ android {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-mediaitem-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_11 {
@@ -76,6 +77,7 @@ android {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-mediaitem-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     from2_12to2_13 {
@@ -84,6 +86,7 @@ android {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-upto-2_13/java'
       java.srcDirs += 'src/exo-event-upto-2_13/java'
+      java.srcDirs += 'src/exo-mediaitem-upto-2_13/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_14 {
@@ -92,6 +95,7 @@ android {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-just-2_14/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_15 {
@@ -100,6 +104,7 @@ android {
       java.srcDirs += 'src/exo-analytics-upto-2_16/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-event-2_14-now/java'
+      java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-upto-2_15/java'
     }
     just2_16 {
@@ -107,6 +112,7 @@ android {
       java.srcDirs += 'src/exo-collector-2_10-now/java'
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
       // From 2.16 onward, we don't need exo-event
     }
@@ -115,6 +121,7 @@ android {
       java.srcDirs += 'src/exo-collector-2_10-now/java'
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
       // From 2.16 onward, we don't need exo-event
     }
@@ -123,6 +130,7 @@ android {
       java.srcDirs += 'src/exo-collector-2_10-now/java'
       java.srcDirs += 'src/exo-analytics-2_16-now/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
       // From 2.16 onward, we don't need exo-event
     }

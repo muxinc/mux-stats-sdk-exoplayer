@@ -1,5 +1,6 @@
 package com.mux.stats.sdk.muxstats.internal
 
+import com.google.android.exoplayer2.ExoPlayer
 import com.mux.stats.sdk.muxstats.BuildConfig
 import com.mux.stats.sdk.muxstats.MuxStats
 
