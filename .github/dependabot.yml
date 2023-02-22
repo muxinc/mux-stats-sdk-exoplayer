@@ -1,0 +1,10 @@
+# dependabot.yml: Simple dependabot config that runs every day
+
+version: 2
+updates:
+  # Keep npm dependencies up to date
+  - package-ecosystem: "gradle"
+    directory: "/"
+    # Check the npm registry for updates at 2am UTC
+    schedule:
+      interval: "daily"
