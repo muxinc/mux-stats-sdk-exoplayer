@@ -121,11 +121,11 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
   @Override
   protected void onDestroy() {
     super.onDestroy();
-    signalActivityClosed();
     if (muxStats != null) {
       muxStats.release();
     }
     releaseExoPlayer();
+    signalActivityClosed();
   }
 
   public abstract void initExoPlayer();
@@ -315,12 +315,13 @@ public abstract class SimplePlayerBaseActivity extends AppCompatActivity {
     }
   }
 
-  public void waitForActivityToClose() {
+  public boolean waitForActivityToClose(long timeoutInMs) {
     try {
       activityLock.lock();
-      activityClosed.await();
+      return activityClosed.await(timeoutInMs, TimeUnit.MILLISECONDS);
     } catch (InterruptedException e) {
       e.printStackTrace();
+      return false;
     } finally {
       activityLock.unlock();
     }

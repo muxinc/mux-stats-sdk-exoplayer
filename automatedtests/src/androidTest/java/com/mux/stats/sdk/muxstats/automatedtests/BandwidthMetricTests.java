@@ -13,6 +13,7 @@ import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SegmentStatistics;
 import com.mux.stats.sdk.muxstats.automatedtests.mockup.http.SimpleHTTPServer;
 import java.util.ArrayList;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
@@ -46,6 +47,7 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   static final long ERROR_MARGIN_FOR_QUALITY_LEVEL = 0;
   static final long ERROR_MARGIN_FOR_STREAM_LABEL_BITRATE = 1000;
   static final long ERROR_MARGIN_FOR_NETWORK_REQUEST_DELAY = 30;
+  protected int waitForNextBatch = 5000;
 
   private boolean parsingDash = false;
 
@@ -75,6 +77,52 @@ public class BandwidthMetricTests extends AdaptiveBitStreamTestBase {
   @Test
   public void testMultipleCDNHeaders() {
 
+  }
+
+  @Test
+  public void testRequestCompletedEventsBatching() {
+    try {
+      if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
+        fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
+      }
+      long startTime = System.currentTimeMillis();
+      if (!networkRequest.waitForNextBatch(waitForNextBatch)) {
+        fail("First batch of events did not came in 5 seconds");
+      }
+      long waitedForFirstBatch = System.currentTimeMillis() - startTime;
+      if (waitedForFirstBatch > 5500) {
+        fail("First batch of events came too late, waited for batch: " + waitedForFirstBatch);
+      }
+      startTime = System.currentTimeMillis();
+      if (!networkRequest.waitForNextBatch(waitForNextBatch*2 + 1000)) {
+        fail("Second batch containing only RequestCompleted events did not arrive in 10 seconds.");
+      }
+      long waitedForSecondBatch = System.currentTimeMillis() - startTime;
+      if (waitedForSecondBatch < 9500) {
+        fail("Second batch containing only RequestCompleted events came too early, expected "
+            + " 10 seconds, arrived in: " + waitedForSecondBatch);
+      }
+      int numberOfRequestCompletedEventsOnSecondBatch = networkRequest
+          .getAllEventsOfType(RequestCompleted.TYPE).size();
+      Thread.sleep(5000);
+      // Kill activity
+      if (numberOfRequestCompletedEventsOnSecondBatch < networkRequest
+          .getAllEventsOfType(RequestCompleted.TYPE).size()) {
+        fail("Another batch was received with in 5 seconds this is an error in logic");
+      }
+      testActivity.runOnUiThread(() -> {
+        testActivity.finish();
+      });
+      if (!testActivity.waitForActivityToClose(waitForNextBatch)) {
+        fail("Activity did not finish in: " + waitForNextBatch);
+      }
+      if (numberOfRequestCompletedEventsOnSecondBatch == networkRequest
+          .getAllEventsOfType(RequestCompleted.TYPE).size()) {
+        fail("SDK did not flush the event queue before shutting down");
+      }
+    } catch (Exception e) {
+      fail(getExceptionFullTraceAndMessage(e));
+    }
   }
 
   @Test

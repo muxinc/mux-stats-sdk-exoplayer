@@ -7,7 +7,12 @@ import com.mux.stats.sdk.muxstats.MuxNetworkRequests;
 import com.mux.stats.sdk.muxstats.automatedtests.BuildConfig;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -18,6 +23,8 @@ public class MockNetworkRequest implements INetworkRequest {
   public static final String EVENT_INDEX = "event_index";
 
   IMuxNetworkRequestsCompletion callback;
+  public HashMap<Long, JSONArray> receivedBatches = new HashMap<>();
+  public JSONArray lastBatchReceived;
   ArrayList<JSONObject> receivedEvents = new ArrayList<>();
   MuxNetworkRequests muxNetwork;
   IMuxNetworkRequestsCompletion muxNetworkCallback = new IMuxNetworkRequestsCompletion() {
@@ -28,6 +35,20 @@ public class MockNetworkRequest implements INetworkRequest {
     }
   };
 
+  public Lock networkLock = new ReentrantLock();
+  public Condition newBatchReceived = networkLock.newCondition();
+
+  public boolean waitForNextBatch(long timeoutInMs) {
+    try {
+      networkLock.lock();
+      return newBatchReceived.await(timeoutInMs, TimeUnit.MILLISECONDS);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    } finally {
+      networkLock.unlock();
+    }
+  }
 
   public MockNetworkRequest() {
     muxNetwork = new MuxNetworkRequests();
@@ -55,6 +76,8 @@ public class MockNetworkRequest implements INetworkRequest {
     try {
       JSONObject bodyJo = new JSONObject(body);
       JSONArray events = bodyJo.getJSONArray("events");
+      receivedBatches.put(System.currentTimeMillis(), events);
+      lastBatchReceived = events;
       for (int i = 0; i < events.length(); i++) {
         JSONObject eventJo = events.getJSONObject(i);
         receivedEvents.add(eventJo);
@@ -70,6 +93,9 @@ public class MockNetworkRequest implements INetworkRequest {
       // Send events to actual server
       muxNetwork.postWithCompletion(domain, envKey, body, headers, muxNetworkCallback);
     }
+    networkLock.lock();
+    newBatchReceived.signalAll();
+    networkLock.unlock();
   }
 
   public String getReceivedEventName(int index) throws JSONException {
