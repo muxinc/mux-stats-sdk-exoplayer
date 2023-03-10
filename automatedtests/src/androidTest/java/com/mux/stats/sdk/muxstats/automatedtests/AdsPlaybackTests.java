@@ -141,8 +141,8 @@ public class AdsPlaybackTests extends TestBase {
       if (!testActivity.waitForPlaybackToStart(waitForPlaybackToStartInMS)) {
         fail("Playback did not start in " + waitForPlaybackToStartInMS + " milliseconds !!!");
       }
-      // First ad is 10 second
-      Thread.sleep(PREROLL_AD_PERIOD / 2);
+      // First ad is 10 second, sleep until the middle or so
+      Thread.sleep(5 * 1000);
       // Pause the ad for 5 seconds
       pausePlayer();
       Thread.sleep(PAUSE_PERIOD_IN_MS);
