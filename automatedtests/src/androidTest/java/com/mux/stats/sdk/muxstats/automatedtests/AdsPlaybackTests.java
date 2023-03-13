@@ -26,7 +26,7 @@ import org.junit.Test;
  */
 public class AdsPlaybackTests extends TestBase {
 
-  static final int PREROLL_AD_PERIOD = 10000;
+  static final int PREROLL_AD_PERIOD = 22000;
   static final int BUMPER_AD_PERIOD = 5000;
   static final int CAN_SKIP_AD_AFTER = 5000;
 
@@ -176,7 +176,7 @@ public class AdsPlaybackTests extends TestBase {
       int adPauseIndex = networkRequest.getIndexForFirstEvent(AdPauseEvent.TYPE);
       long firstAdPlayPeriod = networkRequest.getCreationTimeForEvent(adPauseIndex) -
           networkRequest.getCreationTimeForEvent(adPlayingIndex);
-      long expectedFirstAdPlayPeriod = PREROLL_AD_PERIOD / 2;
+      long expectedFirstAdPlayPeriod = 5 * 1000; // Ad is 10s long, roughly half is played
       if (Math.abs(firstAdPlayPeriod - expectedFirstAdPlayPeriod) > 500) {
         fail("First ad play period do not match expected play period, reported: " +
             firstAdPlayPeriod + ", expected ad play period: " + expectedFirstAdPlayPeriod);
