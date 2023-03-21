@@ -90,7 +90,7 @@ public class MissusageTests extends TestBase {
       testActivity.runOnUiThread(() -> {
         testActivity.initMuxSats();
       });
-      Thread.sleep(INIT_MUX_STATS_AFTER * 2);
+      Thread.sleep(INIT_MUX_STATS_AFTER * 4);
       // This is initialized with the MuxStats, it need to be called after
       // testActivity.initMuxSats();
       networkRequest = testActivity.getMockNetwork();
