@@ -3,8 +3,6 @@ package com.mux.stats.sdk.muxstats;
 import android.net.Uri;
 import android.os.AsyncTask;
 import com.mux.stats.sdk.core.util.MuxLogger;
-import com.mux.stats.sdk.muxstats.INetworkRequest;
-import com.mux.stats.sdk.muxstats.MuxStats;
 import com.mux.stats.sdk.muxstats.compat.AsyncTaskCompat;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -13,7 +11,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 import org.json.JSONObject;
@@ -153,14 +154,23 @@ public class MuxNetworkRequests implements INetworkRequest {
     }
   }
 
+  private static class Response {
+    final boolean success;
+    final Map<String, List<String>> headers;
+
+    private Response(boolean success, Map<String, List<String>> headers) {
+      this.success = success;
+      this.headers = headers;
+    }
+  }
+
   /**
    * This is the asynchronous implementation of network dispatcher, runs on main Thread but does not
    * block it. Expose methods for:
    * <ul>
    *   <li>Get request: @link {@link NetworkRequest#get(URL)}</li>
    *   <li>Post request: @link {@link NetworkRequest#post(URL, JSONObject, Hashtable)}</li>
-   *   <li>Post request with callback to be called on completion: @link {@link
-   *   NetworkRequest#postWithCompletion(String, String, Hashtable, IMuxNetworkRequestsCompletion)}
+   *   <li>Post request with callback to be called on completion
    *   </li>
    * </ul>
    */
@@ -177,7 +187,7 @@ public class MuxNetworkRequests implements INetworkRequest {
      */
     private static final int BASE_TIME_BETWEEN_BEACONS = 5000;
     /** Callback to be executed after each successful request. */
-    private final IMuxNetworkRequestsCompletion callback;
+    private final IMuxNetworkRequestsCompletion2 callback;
     /** Number of failed attempts on network request. */
     private int failureCount = 0;
 
@@ -186,7 +196,7 @@ public class MuxNetworkRequests implements INetworkRequest {
      *
      * @param callback to be called when request is completed.
      */
-    public NetworkTaskRunner(IMuxNetworkRequestsCompletion callback) {
+    public NetworkTaskRunner(IMuxNetworkRequestsCompletion2 callback) {
       this.callback = callback;
     }
 
@@ -222,16 +232,19 @@ public class MuxNetworkRequests implements INetworkRequest {
 
       MuxLogger.d(TAG, "making " + method + " request to: " + url.toString());
       boolean successful = false;
+      Map<String, List<String>> responseHeaders = null;
       while (!successful && failureCount < MAXIMUM_RETRY) {
         try {
           Thread.sleep(getNextBeaconTime());
         } catch (InterruptedException e) {
           e.printStackTrace();
         }
-        successful = executeHttp(url, method, headers, body);
+        Response response = executeHttp(url, method, headers, body);
+        successful = response.success;
+        responseHeaders = response.headers;
       }
       if (callback != null) {
-        callback.onComplete(successful);
+        callback.onComplete(successful, responseHeaders);
       }
       return null;
     }
@@ -244,11 +257,12 @@ public class MuxNetworkRequests implements INetworkRequest {
      * @param headers to send with request.
      * @param body payload to send with the request.
      */
-    private boolean executeHttp(URL url, String method, Hashtable<String, String> headers,
+    private Response executeHttp(URL url, String method, Hashtable<String, String> headers,
         String body) {
       HttpURLConnection conn = null;
       InputStream stream = null;
       boolean successful = true;
+      Map<String, List<String>> responseHeaders = null;
 
       try {
         conn = (HttpURLConnection) url.openConnection();
@@ -285,6 +299,7 @@ public class MuxNetworkRequests implements INetworkRequest {
 
         conn.connect();
         stream = conn.getInputStream();
+        responseHeaders = conn.getHeaderFields();
         MuxLogger.d(TAG, "got response: " + conn.getResponseCode());
       } catch (Exception e) {
         MuxLogger.d(TAG, e.getMessage());
@@ -304,7 +319,7 @@ public class MuxNetworkRequests implements INetworkRequest {
           conn.disconnect();
         }
       }
-      return successful;
+      return new Response(successful, responseHeaders);
     }
 
     /**
@@ -387,7 +402,7 @@ public class MuxNetworkRequests implements INetworkRequest {
         Uri.Builder uriBuilder = new Uri.Builder();
         uriBuilder.scheme("https").authority(this.getAuthority(propertyKey, domain)).path(
             "android");
-        AsyncTaskCompat.executeParallel(new NetworkTaskRunner(callback),
+        AsyncTaskCompat.executeParallel(new NetworkTaskRunner((success, respHeaders) -> callback.onComplete(success)),
             new PostRequest(new URL(uriBuilder.build().toString()), body, headers));
       } else {
         throw new Exception("propertyKey is null");
@@ -395,6 +410,26 @@ public class MuxNetworkRequests implements INetworkRequest {
     } catch (Exception e) {
       MuxLogger.d(TAG, e.getMessage());
       callback.onComplete(true);
+    }
+  }
+
+  @Override
+  public void postWithCompletion(String domain, String propertyKey, String body,
+                                 Hashtable<String, String> headers,
+                                 INetworkRequest.IMuxNetworkRequestsCompletion2 callback) {
+    try {
+      if (propertyKey != null) {
+        Uri.Builder uriBuilder = new Uri.Builder();
+        uriBuilder.scheme("https").authority(this.getAuthority(propertyKey, domain)).path(
+            "android");
+        AsyncTaskCompat.executeParallel(new NetworkTaskRunner(callback),
+            new PostRequest(new URL(uriBuilder.build().toString()), body, headers));
+      } else {
+        throw new Exception("propertyKey is null");
+      }
+    } catch (Exception e) {
+      MuxLogger.d(TAG, e.getMessage());
+      callback.onComplete(true, null);
     }
   }
 }
