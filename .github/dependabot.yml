@@ -5,6 +5,9 @@ updates:
   # Keep npm dependencies up to date
   - package-ecosystem: "gradle"
     directory: "/"
+    ignore:
+      - dependency-name: "com.google.ads.interactivemedia.v3:interactivemedia"
+      - dependency-name: "com.google.android.exoplayer:exoplayer"
     # Check the npm registry for updates at 2am UTC
     schedule:
       interval: "daily"
