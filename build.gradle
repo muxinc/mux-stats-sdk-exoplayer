@@ -24,7 +24,7 @@ buildscript {
   dependencies {
     classpath 'com.android.tools.build:gradle:7.4.1'
     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.31.1"
-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.21"
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20"
     classpath 'com.mux.gradle.android:mux-android-distribution:1.0.3'
   }
 }
@@ -51,7 +51,7 @@ allprojects {
       compileSdkVersion = 33
       targetSdkVersion = 33
 
-      muxCoreVersion = "7.7.2"
+      muxCoreVersion = "7.8.0"
       kotlinxCoroutinesVersion = "1.6.1"
     }
   }
