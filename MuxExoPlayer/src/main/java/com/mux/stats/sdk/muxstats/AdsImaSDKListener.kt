@@ -81,8 +81,7 @@ class AdsImaSDKListener private constructor(
         viewData.viewPrerollAdId = ad.adId
         viewData.viewPrerollCreativeId = ad.creativeId
 
-        adData.adTagUrl = exoPlayer?.getAdTagUrl()
-
+        exoPlayer?.getAdTagUrl()?.let { adData.adTagUrl = it }
         ad.adId?.let { adData.adId = it }
         ad.creativeId?.let { adData.adCreativeId = it }
         ad.universalAdIdValue?.let { adData.adUniversalId = it }
