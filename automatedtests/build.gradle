@@ -128,7 +128,7 @@ dependencies {
   androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
-  api 'org.checkerframework:checker-qual:3.32.0'
+  api 'org.checkerframework:checker-qual:3.33.0'
 
   r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
   r2_10_6Api 'com.google.android.exoplayer:extension-mediasession:2.10.6'
