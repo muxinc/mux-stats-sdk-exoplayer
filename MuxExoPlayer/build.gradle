@@ -143,7 +143,7 @@ dependencies {
   r2_16_1Api 'com.google.android.exoplayer:exoplayer:2.16.1'
   // Amazon's port doesn't delete any symbols (ever), so we only need one version
   //noinspection GradleDynamicVersion,GradleDependency
-  amznPortApi "com.amazon.android:exoplayer:2.16.1"
+  amznPortApi "com.amazon.android:exoplayer:2.18.2"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'

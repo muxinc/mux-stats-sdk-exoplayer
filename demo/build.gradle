@@ -149,7 +149,7 @@ dependencies {
   amznPortApi "com.google.android.gms:play-services-cronet:18.0.1"
   amznPortApi 'com.amazon.android:extension-cronet:2.16.1'
   amznPortApi 'com.amazon.android:extension-ima:2.16.1'
-  amznPortApi 'com.amazon.android:exoplayer:2.16.1'
+  amznPortApi 'com.amazon.android:exoplayer:2.18.2'
   amznPortApi 'org.checkerframework:checker-qual:3.33.0'
 
   r2_18_1Api 'com.google.android.exoplayer:extension-cronet:2.18.1'
