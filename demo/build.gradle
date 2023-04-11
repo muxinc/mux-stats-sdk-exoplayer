@@ -147,7 +147,7 @@ dependencies {
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
 
   amznPortApi "com.google.android.gms:play-services-cronet:18.0.1"
-  amznPortApi 'com.amazon.android:extension-cronet:2.16.1'
+  amznPortApi 'com.amazon.android:extension-cronet:2.18.2'
   amznPortApi 'com.amazon.android:extension-ima:2.16.1'
   amznPortApi 'com.amazon.android:exoplayer:2.16.1'
   amznPortApi 'org.checkerframework:checker-qual:3.33.0'
