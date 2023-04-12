@@ -179,8 +179,6 @@ public class MuxNetworkRequests implements INetworkRequest {
     private static final int READ_TIMEOUT_MS = 20 * 1000;
     /** Kill connection if stale for this number of milliseconds. */
     private static final int CONNECT_TIMEOUT_MS = 30 * 1000;
-    /** Number of times to try to send request to backend, if server can not be reached. */
-    private static final int MAXIMUM_RETRY = 4;
     /**
      * Time to wait before attempting to resend failed request, this value is used as a base for
      * exponential calculation on each failed attempt.
@@ -201,21 +199,6 @@ public class MuxNetworkRequests implements INetworkRequest {
     }
 
     /**
-     * Calculate time to wait for each failed post request, time to wait increase exponentially on
-     * each failed request.
-     *
-     * @return number of milliseconds to wait until sending next HTTP request.
-     */
-    private long getNextBeaconTime() {
-      if (failureCount == 0) {
-        return 0;
-      }
-      double factor = Math.pow(2, failureCount - 1);
-      factor = factor * Math.random();
-      return (long) (1 + factor) * BASE_TIME_BETWEEN_BEACONS;
-    }
-
-    /**
      * Network communication wrapper. this function make sure to resend the same request appropriate
      * number of times in case server is unreachable.
      * This method is executed asynchronously on Main thread.
@@ -231,18 +214,11 @@ public class MuxNetworkRequests implements INetworkRequest {
       String body = request.getBody();
 
       MuxLogger.d(TAG, "making " + method + " request to: " + url.toString());
-      boolean successful = false;
-      Map<String, List<String>> responseHeaders = null;
-      while (!successful && failureCount < MAXIMUM_RETRY) {
-        try {
-          Thread.sleep(getNextBeaconTime());
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-        }
-        Response response = executeHttp(url, method, headers, body);
-        successful = response.success;
-        responseHeaders = response.headers;
-      }
+      boolean successful;
+      Map<String, List<String>> responseHeaders;
+      Response response = executeHttp(url, method, headers, body);
+      successful = response.success;
+      responseHeaders = response.headers;
       if (callback != null) {
         callback.onComplete(successful, responseHeaders);
       }
