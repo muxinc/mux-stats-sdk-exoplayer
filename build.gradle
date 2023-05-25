@@ -22,7 +22,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:7.4.1'
+    classpath 'com.android.tools.build:gradle:8.0.2'
     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.31.8"
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20"
     classpath 'com.mux.gradle.android:mux-android-distribution:1.0.3'
