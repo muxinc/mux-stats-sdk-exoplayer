@@ -181,7 +181,7 @@ abstract class MuxStateCollectorBase(
    */
   fun allowHeaderToBeSentToBackend(headerName: String?) {
     if (headerName != null) {
-      allowedHeaders.add(AllowedHeaderSpec.Exactly(headerName))
+      allowedHeaders.add(AllowedHeaderSpec.ExactlyIgnoreCase(headerName))
     }
   }
 
@@ -557,7 +557,7 @@ abstract class MuxStateCollectorBase(
 
     abstract fun isAllowed(headerName: String): Boolean
 
-    class Exactly(private val name: String) : AllowedHeaderSpec() {
+    class ExactlyIgnoreCase(private val name: String) : AllowedHeaderSpec() {
       override fun isAllowed(headerName: String): Boolean {
         return headerName.contentEquals(name, true)
       }

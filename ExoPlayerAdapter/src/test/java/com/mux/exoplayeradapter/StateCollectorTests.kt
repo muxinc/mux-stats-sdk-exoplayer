@@ -302,7 +302,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   fun testAllowedHeaderString() {
     val headerNameMatches = "real-header"
     val headerNameDoesntMatch = "not-the-right-header"
-    val spec = MuxStateCollectorBase.AllowedHeaderSpec.Exactly("real-header")
+    val spec = MuxStateCollectorBase.AllowedHeaderSpec.ExactlyIgnoreCase("real-header")
 
     assertFalse(
       "only exact matches should be allowed",
