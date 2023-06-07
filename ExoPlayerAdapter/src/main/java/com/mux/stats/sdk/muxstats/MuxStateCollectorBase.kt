@@ -555,18 +555,22 @@ abstract class MuxStateCollectorBase(
 
   sealed class AllowedHeaderSpec {
 
-    abstract fun isAllowed(headerName: String): Boolean
+    abstract fun isAllowed(headerName: String?): Boolean
 
     class ExactlyIgnoreCase(private val name: String) : AllowedHeaderSpec() {
-      override fun isAllowed(headerName: String): Boolean {
+      override fun isAllowed(headerName: String?): Boolean {
         return headerName.contentEquals(name, true)
       }
     }
 
     class Matching(private val pattern: Pattern) : AllowedHeaderSpec() {
-      override fun isAllowed(headerName: String): Boolean {
-        val matcher = pattern.matcher(headerName)
-        return matcher.find()
+      override fun isAllowed(headerName: String?): Boolean {
+        return if (headerName != null) {
+          val matcher = pattern.matcher(headerName)
+          matcher.find()
+        } else {
+          false
+        }
       }
     }
   }
