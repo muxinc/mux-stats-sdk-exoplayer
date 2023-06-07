@@ -350,7 +350,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
             var headerAllowed = false
             synchronized (this) {
                 for (allowedHeader in collector!!.allowedHeaders) {
-                    if (allowedHeader.contentEquals(headerName, true)) {
+                    if (allowedHeader.isAllowed(headerName)) {
                         headerAllowed = true
                     }
                 }
