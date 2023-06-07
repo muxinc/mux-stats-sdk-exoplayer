@@ -212,7 +212,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
     collector.allowHeaderToBeSentToBackend("x-cdn")
     collector.allowHeaderToBeSentToBackend("content-type")
     collector.allowHeaderToBeSentToBackend("x-request-id")
-    collector.allowHeaderToBeSentToBackend(Pattern.compile("^x-litix.*", Pattern.CASE_INSENSITIVE))
+    collector.allowHeaderToBeSentToBackend(Pattern.compile("^x-litix-.*", Pattern.CASE_INSENSITIVE))
   }
 
   /**
