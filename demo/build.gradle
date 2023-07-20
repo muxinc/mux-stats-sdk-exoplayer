@@ -24,6 +24,10 @@ android {
     buildConfigField "boolean", "USE_DECODER_EXTENSIONS", "true"
   }
 
+  buildFeatures {
+    buildConfig true
+  }
+
   buildTypes {
     debug {
       minifyEnabled false
