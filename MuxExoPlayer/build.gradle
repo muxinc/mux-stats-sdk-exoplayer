@@ -56,22 +56,6 @@ android {
   flavorDimensions 'exoplayer'
 
   productFlavors {
-//    r2_10_6 {
-//      dimension 'exoplayer'
-//      matchingFallbacks = ['upto2_10']
-//    }
-//    r2_11_1 {
-//      dimension 'exoplayer'
-//      matchingFallbacks = ['just2_11']
-//    }
-//    r2_12_1 {
-//      dimension 'exoplayer'
-//      matchingFallbacks = ['from2_12to2_13']
-//    }
-//    r2_13_1 {
-//      dimension 'exoplayer'
-//      matchingFallbacks = ['from2_12to2_13']
-//    }
     r2_14_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_14']
@@ -130,14 +114,6 @@ muxDistribution {
 }
 
 dependencies {
-//  //noinspection GradleDynamicVersion,GradleDependency
-//  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-//  //noinspection GradleDynamicVersion,GradleDependency
-//  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-//  //noinspection GradleDynamicVersion,GradleDependency
-//  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-//  //noinspection GradleDynamicVersion,GradleDependency
-//  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
   //noinspection GradleDynamicVersion,GradleDependency
