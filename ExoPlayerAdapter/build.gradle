@@ -187,6 +187,7 @@ dependencies {
   amznPortApi "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${project.ext.kotlinxCoroutinesVersion}"
