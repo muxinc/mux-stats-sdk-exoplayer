@@ -182,20 +182,16 @@ class AdsImaSDKListener private constructor(
   private fun dispatchAdPlaybackEvent(event: MuxAdEvent, ad: Ad?) {
     setupAdViewData(event, ad)
 
-    if (event.type == AdPlayingEvent.TYPE) {
-      adPlaying()
+    if (event.type == AdBreakEndEvent.TYPE) {
+      adBreakStart()
     }
 
     eventBus.dispatch(event)
   }
 
-  private fun adPlaying() {
-    // seeking and rebuffering should end if ad playback starts
-    if (stateCollector.muxPlayerState == MuxPlayerState.SEEKING) {
-      stateCollector.seeked(false)
-    } else if (stateCollector.muxPlayerState == MuxPlayerState.REBUFFERING) {
-      eventBus.dispatch(RebufferEndEvent(null))
-      // No need to change muxPlayerState, it will be updated at the end of ads
+  private fun adBreakStart() {
+    if (stateCollector.muxPlayerState != MuxPlayerState.PAUSED) {
+      stateCollector.pause()
     }
   }
 }
