@@ -22,22 +22,19 @@ android {
     }
   }
 
+  buildFeatures {
+    buildConfig true
+  }
+
   flavorDimensions 'exoplayer', 'source'
   productFlavors {
     // Source Set with ExoPlayer bindings
-    upto2_10 { dimension 'source' }
-    just2_11 { dimension 'source' }
-    from2_12to2_13 { dimension 'source' }
     just2_14 { dimension 'source' }
     just2_15 { dimension 'source' }
     just2_16 { dimension 'source' }
     just2_17 { dimension 'source' }
     from2_18toNow { dimension 'source' }
     // Exoplayer version for testing/variant matching
-    r2_10_6 { dimension 'exoplayer' }
-    r2_11_1 { dimension 'exoplayer' }
-    r2_12_1 { dimension 'exoplayer' }
-    r2_13_1 { dimension 'exoplayer' }
     r2_14_1 { dimension 'exoplayer' }
     r2_15_1 { dimension 'exoplayer' }
     r2_16_1 { dimension 'exoplayer' }
@@ -47,9 +44,6 @@ android {
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
-          "upto2_10"      : ["r2_10_6"],
-          "just2_11"      : ["r2_11_1"],
-          "from2_12to2_13": ["r2_12_1", "r2_13_1"],
           "just2_14"      : ["r2_14_1"],
           "just2_15"      : ["r2_15_1"],
           "just2_16"      : ["r2_16_1", "amznPort"],
@@ -62,33 +56,6 @@ android {
     setIgnore(!(realVariants.get(sourceFlavor.name).contains(exoPlayerFlavor.name)))
   }
   sourceSets {
-    upto2_10 {
-      java.srcDirs += 'src/exo-analytics-listener-upto-2_11/java'
-      java.srcDirs += 'src/exo-collector-upto-2_10/java'
-      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
-      java.srcDirs += 'src/exo-error-upto-2_13/java'
-      java.srcDirs += 'src/exo-event-upto-2_13/java'
-      java.srcDirs += 'src/exo-mediaitem-upto-2_13/java'
-      java.srcDirs += 'src/exo-player-upto-2_15/java'
-    }
-    just2_11 {
-      java.srcDirs += 'src/exo-analytics-listener-upto-2_11/java'
-      java.srcDirs += 'src/exo-collector-2_10-now/java'
-      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
-      java.srcDirs += 'src/exo-error-upto-2_13/java'
-      java.srcDirs += 'src/exo-event-upto-2_13/java'
-      java.srcDirs += 'src/exo-mediaitem-upto-2_13/java'
-      java.srcDirs += 'src/exo-player-upto-2_15/java'
-    }
-    from2_12to2_13 {
-      java.srcDirs += 'src/exo-analytics-listener-2_11-2_13/java'
-      java.srcDirs += 'src/exo-collector-2_10-now/java'
-      java.srcDirs += 'src/exo-analytics-upto-2_16/java'
-      java.srcDirs += 'src/exo-error-upto-2_13/java'
-      java.srcDirs += 'src/exo-event-upto-2_13/java'
-      java.srcDirs += 'src/exo-mediaitem-upto-2_13/java'
-      java.srcDirs += 'src/exo-player-upto-2_15/java'
-    }
     just2_14 {
       java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
       java.srcDirs += 'src/exo-collector-2_10-now/java'
@@ -167,14 +134,6 @@ dependencies {
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
 
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-  //noinspection GradleDynamicVersion,GradleDependency
   r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
@@ -183,6 +142,7 @@ dependencies {
   amznPortApi "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${project.ext.kotlinxCoroutinesVersion}"
