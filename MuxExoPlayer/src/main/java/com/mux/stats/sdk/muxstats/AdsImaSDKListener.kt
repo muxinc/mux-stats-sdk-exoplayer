@@ -182,7 +182,7 @@ class AdsImaSDKListener private constructor(
   private fun dispatchAdPlaybackEvent(event: MuxAdEvent, ad: Ad?) {
     setupAdViewData(event, ad)
 
-    if (event.type == AdBreakEndEvent.TYPE) {
+    if (event.type == AdBreakStartEvent.TYPE) {
       adBreakStart()
     }
 
