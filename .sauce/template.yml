@@ -2,7 +2,7 @@ apiVersion: v1alpha
 kind: espresso
 sauce:
   region: us-west-1
-  concurrency: 0
+  concurrency: 1
   metadata:
     name: Runs from GHA
     tags:
@@ -14,13 +14,13 @@ espresso:
 suites:
   - name: 'BUILD_LABEL automation'
     devices:
-      device_type: PHONE
+      - device_type: PHONE
 
-artifacts:
-  download:
-    when: always
-    match:
-      - junit.xml
-      - device.log
-    directory: ./data/artifacts/
+#artifacts:
+#  download:
+#    when: always
+#    match:
+#      - junit.xml
+#      - device.log
+#    directory: ./data/artifacts/
 
