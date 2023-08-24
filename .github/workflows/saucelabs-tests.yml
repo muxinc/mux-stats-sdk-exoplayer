@@ -57,7 +57,7 @@ jobs:
         with:
           name: automated-test-apks
           path: |
-            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/**/*.apk
+            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
             automatedtests/buildout/outputs/apk/*/debug/automatedtests-r2_18_1-debug.apk
 
 # TODO: These artifacts were saved by the build for automated tests but might not be needed
