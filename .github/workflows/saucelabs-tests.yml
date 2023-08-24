@@ -70,8 +70,8 @@ jobs:
           ls -lisa .sauce \
           sed -E \
           -e 's/BUILD_LABEL/r2_18_1/g' \
-          -e 's/APP_APK/${{ env.app_apk }}/g' \
-          -e 's/TEST_APK/${{ env.test_apk }}/g' \
+          -e 's|APP_APK|${{ env.app_apk }}|g' \
+          -e 's|TEST_APK|${{ env.test_apk }}|g' \
           .sauce/template.yml > .sauce/conf.yml
       - name: Dump Generated Sauce Conf
         run: cat .sauce/conf.yml
