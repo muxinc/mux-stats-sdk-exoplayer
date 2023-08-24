@@ -28,8 +28,21 @@ jobs:
         with:
           name: automated-test-apks
           path: |
-             automatedtests/buildout/outputs/apk/androidTest/**/*.apk
-             automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
+            automatedtests/buildout/outputs/apk/androidTest/**/*.apk
+            automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
+
+  test:
+    name: Run Sauce Labs Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Test APKS
+        uses: actions/upload-artifact@v3
+        with:
+          name: automated-test-apks
+          path: |
+            automatedtests/buildout/outputs/apk/androidTest/**/*.apk
+            automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
 
 # TODO: These artifacts were saved by the build for automated tests but might not be needed
 #          MuxExoPlayer/buildout/outputs/aar/*.aar
