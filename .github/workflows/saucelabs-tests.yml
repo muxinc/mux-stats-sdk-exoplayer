@@ -21,8 +21,8 @@ jobs:
       - name: Build automated tests
         uses: gradle/gradle-build-action@v2.3.3
         with:
-          #arguments: automatedtests:assembleDebug automatedtests:assembleAndroidTest
-          arguments: automatedtests:assembleR2_18_1Debug :automatedtests:assembleR2_18_1DebugAndroidTest
+          arguments: automatedtests:assembleDebug automatedtests:assembleAndroidTest
+          #arguments: automatedtests:assembleR2_18_1Debug :automatedtests:assembleR2_18_1DebugAndroidTest
       - name: Upload Test APKs
         uses: actions/upload-artifact@v3
         with:
@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Download Test APKS
-        uses: actions/upload-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: automated-test-apks
           path: |
@@ -53,7 +53,7 @@ jobs:
 
     steps:
       - name: Download Test APKS
-        uses: actions/upload-artifact@v3
+        uses: actions/download-artifact@v3
         with:
           name: automated-test-apks
           path: |
