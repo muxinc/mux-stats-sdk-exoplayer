@@ -6,6 +6,10 @@ name: Test with Sauce Labs
 on:
   push:
 
+env:
+  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+
 jobs:
   build:
     name: Build Test APKs
@@ -31,8 +35,9 @@ jobs:
             automatedtests/buildout/outputs/apk/androidTest/**/*.apk
             automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
 
-  test:
-    name: Run Sauce Labs Test
+  # TODO: Eventually it would be nice to be able to run these in parallel and have them wait nicely
+  test-all-sequentially:
+    name: Run Sauce Labs Test (For Exo 2.18.1)
     runs-on: ubuntu-latest
     needs: build
 
@@ -42,23 +47,21 @@ jobs:
         with:
           name: automated-test-apks
           path: |
-            automatedtests/buildout/outputs/apk/androidTest/**/*.apk
-            automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
-  
+            "automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk"
+            "automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk"
 
-  test-one:
-    name: Run Sauce Labs Test (One Artfiact)
-    runs-on: ubuntu-latest
-    needs: build
-
-    steps:
-      - name: Download Test APKS
-        uses: actions/download-artifact@v3
+      - run: |
+          echo DIRS
+          ls -R automatedtests/buildout/outputs/apk
+      # TODO: This should sed through the config file template
+      - name: Run Saucelabs Test (2.18.1)
+        uses: saucelabs/saucectl-run-action@v3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          name: automated-test-apks
-          path: |
-            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
-            automatedtests/buildout/outputs/apk/*/debug/automatedtests-r2_18_1-debug.apk
+          sauce-username: ${{ secrets.SAUCE_USERNAME }}
+          sauce-access-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+          config-file: .sauce/myconfig.yml
 
 # TODO: These artifacts were saved by the build for automated tests but might not be needed
 #          MuxExoPlayer/buildout/outputs/aar/*.aar
