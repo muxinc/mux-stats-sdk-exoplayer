@@ -67,7 +67,6 @@ jobs:
       - name: Build sauce config file
         run: |
           pwd 
-          ls -lisa .sauce 
           sed -E \ 
           -e 's/BUILD_LABEL/r2_18_1/g' \
           -e 's/APP_APK/${{ env.app_apk }}/g' \
