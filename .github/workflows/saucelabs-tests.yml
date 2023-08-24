@@ -46,7 +46,7 @@ jobs:
 
     env:
       app_apk: automatedtests\/buildout\/outputs\/apk\/r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
-      test_apk: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_\1/debug\/automatedtests-r2_18_1-debug-androidTest.apk
+      test_apk: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
 
     steps:
       - uses: actions/checkout@v3
