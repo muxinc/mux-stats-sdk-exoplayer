@@ -1,0 +1,37 @@
+name: Test with Sauce Labs
+
+# TODO: more tests at once
+# TODO: Do more on release versions
+
+on:
+  push:
+
+jobs:
+  deploy:
+    name: Build Test APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build automated tests
+        uses: gradle/gradle-build-action@v2.3.3
+        with:
+          arguments: automatedtests:assembleDebug automatedtests:assembleAndroidTest
+      - name: Upload Test APKs
+        uses: actions/upload-artifact@v3
+        with:
+          name: automated-test-apks
+          path: |
+             automatedtests/buildout/outputs/apk/androidTest/**/*.apk
+             automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
+
+# TODO: These artifacts were saved by the build for automated tests but might not be needed
+#          MuxExoPlayer/buildout/outputs/aar/*.aar
+#          MuxExoPlayer/buildout/outputs/mapping/*/*.txt
+#          MuxExoPlayer/buildout/outputs/version-*
+#          MuxExoPlayer/buildout/reports/*/*.*
