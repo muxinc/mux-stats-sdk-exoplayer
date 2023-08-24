@@ -40,7 +40,8 @@ jobs:
   test-18:
     name: Run Sauce Labs Test (For Exo 2.18.1)
     runs-on: ubuntu-latest
-    needs: build
+    # TODO: Turn back on
+    #needs: build
 
     env:
       app_apk: automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
@@ -63,6 +64,7 @@ jobs:
           ls -R automatedtests/buildout/outputs/apk
       - name: Build sauce config file
         run: |
+          touch .sauce/conf.yml \
           sed -E \
           -e 's/BUILD_LABEL/r2_18_1/g' \
           -e 's/APP_APK/${{ env.app_apk }}/g' \
