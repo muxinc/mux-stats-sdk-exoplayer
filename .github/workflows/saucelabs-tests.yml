@@ -49,6 +49,7 @@ jobs:
       test_apk: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_\1/debug\/automatedtests-r2_18_1-debug-androidTest.apk
 
     steps:
+      - uses: actions/checkout@v3
       - run: echo ${{ env.app_apk }}
 #      - name: Download Test APKS
 #        uses: actions/download-artifact@v3
