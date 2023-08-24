@@ -25,6 +25,7 @@ jobs:
       - name: Build automated tests
         uses: gradle/gradle-build-action@v2.3.3
         with:
+          # TODO: We definitely want to make them all at once, that scales well with more parallelism and more variants
           #arguments: automatedtests:assembleDebug automatedtests:assembleAndroidTest
           arguments: automatedtests:assembleR2_18_1Debug :automatedtests:assembleR2_18_1DebugAndroidTest
       - name: Upload Test APKs
@@ -59,9 +60,10 @@ jobs:
 #            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
 #            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
-      - run: |
-          echo DIRS
-          ls -R automatedtests/buildout/outputs/apk
+# TODO: Remove. Proven that downloads really happen
+#      - run: |
+#          echo DIRS
+#          ls -R automatedtests/buildout/outputs/apk
       - name: Build sauce config file
         run: |
           touch .sauce/conf.yml \
