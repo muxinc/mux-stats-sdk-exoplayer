@@ -36,7 +36,8 @@ jobs:
             automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
 
   # TODO: Eventually it would be nice to be able to run these in parallel and have them wait nicely
-  test-all-sequentially:
+  # TODO: Need like a matrix or something that runs this job over and over with different app/test apks
+  test-18:
     name: Run Sauce Labs Test (For Exo 2.18.1)
     runs-on: ubuntu-latest
     needs: build
@@ -49,11 +50,11 @@ jobs:
       - name: Download Test APKS
         uses: actions/download-artifact@v3
         with:
+          run: echo ${{ env.app_apk }}
           name: automated-test-apks
-          # TODO: Even bother specifying a path?
-#          path: |
-#            ${{ env.app_apk }}
-#            ${{ env.test_apk }}
+          path: |
+            ${{ env.app_apk }}
+            ${{ env.test_apk }}
 #            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
 #            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
