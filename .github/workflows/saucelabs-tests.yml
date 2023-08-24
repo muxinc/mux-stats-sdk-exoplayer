@@ -41,6 +41,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
 
+    env:
+      app_apk: automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
+      test_apk: automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
+
     steps:
       - name: Download Test APKS
         uses: actions/download-artifact@v3
@@ -56,9 +60,13 @@ jobs:
       - name: Build sauce config file
         run: |
           sed -E \
-          's/BUILD_LABEL/r2_18_1/g' \
+          -e 's/BUILD_LABEL/r2_18_1/g' \
+          -e 's/APP_APK/${{ env.app_apk }}/g' \
+          -e 's/TEST_APK/${{ env.test_apk }}/g' \
           .sauce/template.yml \
           > .sauce/conf.yml
+      - name: Dump Generated Sauce Conf
+        run: cat .sauce/conf.yml
       # TODO: This should sed through the config file template
       - name: Run Saucelabs Test (2.18.1)
         uses: saucelabs/saucectl-run-action@v3
