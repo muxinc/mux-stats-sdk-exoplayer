@@ -4,18 +4,14 @@ import com.mux.exoplayeradapter.double.FakeEventDispatcher
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 import com.mux.stats.sdk.muxstats.MuxStats
 import io.mockk.mockk
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
-import java.util.regex.Pattern
 
 class StateCollectorTests : AbsRobolectricTest() {
 
@@ -295,42 +291,6 @@ class StateCollectorTests : AbsRobolectricTest() {
         SeekedEvent(null),
         PlayingEvent(null),
       )
-    )
-  }
-
-  @Test
-  fun testAllowedHeaderString() {
-    val headerNameMatches = "real-header"
-    val headerNameDoesntMatch = "not-the-right-header"
-    val spec = MuxStateCollectorBase.AllowedHeaderSpec.ExactlyIgnoreCase("real-header")
-
-    assertFalse(
-      "only exact matches should be allowed",
-      spec.isAllowed(headerNameDoesntMatch)
-    )
-    assertTrue(
-      "only exact matches should be allowed",
-      spec.isAllowed(headerNameMatches)
-    )
-    assertTrue(
-      "matching is case-insensitive",
-      spec.isAllowed(headerNameMatches.uppercase())
-    )
-  }
-
-  @Test
-  fun testAllowedHeaderPattern() {
-    val headerNameMatches = "x-litix-session-id"
-    val headerNameDoesntMatch = "fastcdn-log-tag-id"
-    val spec = MuxStateCollectorBase.AllowedHeaderSpec.Matching(Pattern.compile("^x-litix.*"))
-
-    assertFalse(
-      "only headers matching the regex are allowed",
-      spec.isAllowed(headerNameDoesntMatch)
-    )
-    assertTrue(
-      "only headers matching the regex are allowed",
-      spec.isAllowed(headerNameMatches)
     )
   }
 }

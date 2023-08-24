@@ -43,7 +43,6 @@ import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.weak
 import java.lang.ref.WeakReference
 import java.util.*
-import java.util.regex.Pattern
 import kotlin.math.ceil
 
 /**
@@ -207,12 +206,10 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
       collector.buffering()
       collector.playing()
     }
-
-    // These headers should be sent to the backend
+    // We always need these two values.
     collector.allowHeaderToBeSentToBackend("x-cdn")
     collector.allowHeaderToBeSentToBackend("content-type")
     collector.allowHeaderToBeSentToBackend("x-request-id")
-    collector.allowHeaderToBeSentToBackend(Pattern.compile("^x-litix-.*", Pattern.CASE_INSENSITIVE))
   }
 
   /**

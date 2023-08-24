@@ -15,7 +15,6 @@ import com.mux.stats.sdk.muxstats.internal.noneOf
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import kotlinx.coroutines.*
 import java.util.*
-import java.util.regex.Pattern
 import kotlin.properties.Delegates
 
 /**
@@ -111,7 +110,7 @@ abstract class MuxStateCollectorBase(
   /**
    * Number of frames dropped per session.
    */
-  var numberOfDroppedFrames: Long = 0;
+  var numberOfDroppedFrames:Long = 0;
 
   /**
    * An asynchronous watcher for playback position. It waits for the given update interval, and
@@ -145,7 +144,7 @@ abstract class MuxStateCollectorBase(
    *  List of string patterns that will be used to determine if certain HTTP header will be
    *  reported to the backend.
    *  */
-  var allowedHeaders = ArrayList<AllowedHeaderSpec>()
+  var allowedHeaders = ArrayList<String>()
 
 
   /**
@@ -181,15 +180,8 @@ abstract class MuxStateCollectorBase(
    */
   fun allowHeaderToBeSentToBackend(headerName: String?) {
     if (headerName != null) {
-      allowedHeaders.add(AllowedHeaderSpec.ExactlyIgnoreCase(headerName))
+      allowedHeaders.add(headerName)
     }
-  }
-
-  /**
-   * Allow HTTP Response headers whose names match the given pattern to be sent to the backend
-   */
-  fun allowHeaderToBeSentToBackend(headerPattern: Pattern) {
-    allowedHeaders.add(AllowedHeaderSpec.Matching(headerPattern))
   }
 
   /**
@@ -246,7 +238,7 @@ abstract class MuxStateCollectorBase(
       play()
     } else if (_playerState == MuxPlayerState.REBUFFERING) {
       rebufferingEnded()
-    } else if (_playerState == MuxPlayerState.PLAYING) {
+    } else if( _playerState == MuxPlayerState.PLAYING) {
       // No need to re-enter the playing state
       return
     }
@@ -490,11 +482,9 @@ abstract class MuxStateCollectorBase(
       PlayEvent.TYPE -> {
         playEventsSent++
       }
-
       PauseEvent.TYPE -> {
         pauseEventsSent++
       }
-
       SeekingEvent.TYPE -> {
         seekingEventsSent++
       }
@@ -548,28 +538,6 @@ abstract class MuxStateCollectorBase(
           // If the data source is returning null, assume caller cleaned up the player
           MuxLogger.d(logTag(), "PlaybackPositionWatcher: Player lost. Stopping")
           stop("player lost")
-        }
-      }
-    }
-  }
-
-  sealed class AllowedHeaderSpec {
-
-    abstract fun isAllowed(headerName: String?): Boolean
-
-    class ExactlyIgnoreCase(private val name: String) : AllowedHeaderSpec() {
-      override fun isAllowed(headerName: String?): Boolean {
-        return headerName.contentEquals(name, true)
-      }
-    }
-
-    class Matching(private val pattern: Pattern) : AllowedHeaderSpec() {
-      override fun isAllowed(headerName: String?): Boolean {
-        return if (headerName != null) {
-          val matcher = pattern.matcher(headerName)
-          matcher.find()
-        } else {
-          false
         }
       }
     }
