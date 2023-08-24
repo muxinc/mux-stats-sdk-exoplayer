@@ -7,7 +7,7 @@ on:
   push:
 
 jobs:
-  deploy:
+  build:
     name: Build Test APKs
     runs-on: ubuntu-latest
 
