@@ -1,0 +1,80 @@
+name: Test with Sauce Labs (All Versions)
+
+on:
+  push:
+    branches:
+      - 'releases/**'
+      - 'master'
+
+env:
+  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+
+concurrency:
+  group: sauce-labs
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Test APKs
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Build automated tests
+        uses: gradle/gradle-build-action@v2.3.3
+        with:
+          arguments: automatedtests:assembleDebug automatedtests:assembleAndroidTest
+      - name: Upload Test APKs
+        uses: actions/upload-artifact@v3
+        with:
+          name: automated-test-apks
+          path: |
+            automatedtests/buildout/outputs/apk/androidTest/**/*.apk
+            automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
+
+  test-18:
+    name: Run Sauce Labs Tests
+    runs-on: ubuntu-latest
+    needs: build
+
+    strategy:
+      max-parallel: 1
+      #max-parallel: 2
+      matrix:
+        exo: ['r2_18_1','r2_17_1','r2_16_1','r2_15_1','r2_14_1',]
+
+    env:
+      app_artifact: automatedtests\/buildout\/outputs\/apk\/${{ matrix.exo }}\/debug\/automatedtests-${{ matrix.exo }}-debug.apk
+      test_artifact: automatedtests\/buildout\/outputs\/apk\/androidTest\/${{ matrix.exo }}\/debug\/automatedtests-${{ matrix.exo }}-debug-androidTest.apk
+      app_apk:  ${{ matrix.exo }}\/debug\/automatedtests-${{ matrix.exo }}-debug.apk
+      test_apk: androidTest\/${{ matrix.exo }}\/debug\/automatedtests-${{ matrix.exo }}-debug-androidTest.apk
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download Test APKS
+        uses: actions/download-artifact@v3
+        with:
+          name: automated-test-apks
+      - name: Build sauce config file
+        run: |
+          sed -E \
+          -e 's/BUILD_LABEL/${{ matrix.exo }}/g' \
+          -e 's/APP_APK/${{ env.app_apk }}/g' \
+          -e 's/TEST_APK/${{ env.test_apk }}/g' \
+          .sauce/template.yml > .sauce/conf.yml
+      - name: Dump Generated Sauce Conf
+        run: cat .sauce/conf.yml
+      - name: Run Saucelabs Test (2.18.1)
+        uses: saucelabs/saucectl-run-action@v3
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          sauce-username: ${{ secrets.SAUCE_USERNAME }}
+          sauce-access-key: ${{ secrets.SAUCE_ACCESS_KEY }}
+          config-file: .sauce/conf.yml

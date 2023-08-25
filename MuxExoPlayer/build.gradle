@@ -49,26 +49,13 @@ android {
     }
   }
 
+  buildFeatures {
+    buildConfig true
+  }
 
   flavorDimensions 'exoplayer'
 
   productFlavors {
-    r2_10_6 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['upto2_10']
-    }
-    r2_11_1 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['just2_11']
-    }
-    r2_12_1 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['from2_12to2_13']
-    }
-    r2_13_1 {
-      dimension 'exoplayer'
-      matchingFallbacks = ['from2_12to2_13']
-    }
     r2_14_1 {
       dimension 'exoplayer'
       matchingFallbacks = ['just2_14']
@@ -128,14 +115,6 @@ muxDistribution {
 
 dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
-  r2_10_6Api 'com.google.android.exoplayer:exoplayer:2.10.6'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_11_1Api 'com.google.android.exoplayer:exoplayer:2.11.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_12_1Api 'com.google.android.exoplayer:exoplayer:2.12.1'
-  //noinspection GradleDynamicVersion,GradleDependency
-  r2_13_1Api 'com.google.android.exoplayer:exoplayer:2.13.1'
-  //noinspection GradleDynamicVersion,GradleDependency
   r2_14_1Api 'com.google.android.exoplayer:exoplayer:2.14.1'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_15_1Api 'com.google.android.exoplayer:exoplayer:2.15.1'
@@ -149,11 +128,11 @@ dependencies {
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
 
   //noinspection GradleDynamicVersion,GradleDependency
-  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.9.0'
+  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  compileOnly 'com.google.android.gms:play-services-ads:15.0.1'
+  compileOnly 'com.google.android.gms:play-services-ads:22.2.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  compileOnly 'com.google.android.gms:play-services-ads-identifier:15.0.1'
+  compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 
   debugImplementation project(':ExoPlayerAdapter')
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"

@@ -1,0 +1,30 @@
+apiVersion: v1alpha
+kind: espresso
+sauce:
+  region: us-west-1
+  concurrency: 1
+  retries: 3
+  smartRetry:
+    failedOnly: true
+    
+  metadata:
+    #name: Runs from GHA
+    tags:
+      - saucectrl-runner
+    build: Release BUILD_LABEL
+espresso:
+  app: APP_APK
+  testApp: TEST_APK
+suites:
+  - name: 'BUILD_LABEL automation'
+    devices:
+      - name: Google Pixel.*
+
+#artifacts:
+#  download:
+#    when: always
+#    match:
+#      - junit.xml
+#      - device.log
+#    directory: ./data/artifacts/
+
