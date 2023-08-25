@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # TODO: Remove
-    if: false
+    #if: false
 
     steps:
       - uses: actions/checkout@v3
@@ -45,7 +45,7 @@ jobs:
     name: Run Sauce Labs Test (For Exo 2.18.1)
     runs-on: ubuntu-latest
     # TODO: Turn back on
-    #needs: build
+    needs: build
 
     env:
       app_apk: automatedtests\/buildout\/outputs\/apk\/r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
