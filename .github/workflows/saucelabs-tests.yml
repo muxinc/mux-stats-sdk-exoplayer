@@ -10,6 +10,10 @@ env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
 
+concurrency:
+  group: sauce-labs
+  cancel-in-progress: true
+
 jobs:
   build:
     name: Build Test APKs
@@ -39,10 +43,8 @@ jobs:
             automatedtests/buildout/outputs/apk/androidTest/**/*.apk
             automatedtests/buildout/outputs/apk/*/debug/automatedtests-*-debug.apk
 
-  # TODO: Eventually it would be nice to be able to run these in parallel and have them wait nicely
-  # TODO: Need like a matrix or something that runs this job over and over with different app/test apks
   test-18:
-    name: Run Sauce Labs Test (For Exo 2.18.1)
+    name: Run Sauce Labs Tests
     runs-on: ubuntu-latest
     # TODO: Turn back on
     needs: build
@@ -72,11 +74,8 @@ jobs:
 #            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
 # TODO: Remove. Proven that downloads really happen
-      - run: |
-          ls -lisa
       - name: Build sauce config file
         run: |
-          ls -lisa
           sed -E \
           -e 's/BUILD_LABEL/${{ matrix.exo }}/g' \
           -e 's/APP_APK/${{ env.app_apk }}/g' \
