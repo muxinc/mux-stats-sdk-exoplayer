@@ -3,7 +3,7 @@ name: Test with Sauce Labs (All Versions)
 on:
   push:
     branches:
-      - 'releases/v**'
+      - 'releases/**'
       - 'master'
 
 env:
