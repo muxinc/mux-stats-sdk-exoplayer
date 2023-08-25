@@ -62,18 +62,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-      - run: echo ${{ env.app_apk }}
       - name: Download Test APKS
         uses: actions/download-artifact@v3
         with:
           name: automated-test-apks
-#          path: |
-#            ${{ env.app_artifact }}
-#            ${{ env.test_artifact }}
-#            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
-#            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
-
-# TODO: Remove. Proven that downloads really happen
       - name: Build sauce config file
         run: |
           sed -E \
@@ -83,7 +75,6 @@ jobs:
           .sauce/template.yml > .sauce/conf.yml
       - name: Dump Generated Sauce Conf
         run: cat .sauce/conf.yml
-      # TODO: This should sed through the config file template
       - name: Run Saucelabs Test (2.18.1)
         uses: saucelabs/saucectl-run-action@v3
         env:
@@ -92,9 +83,3 @@ jobs:
           sauce-username: ${{ secrets.SAUCE_USERNAME }}
           sauce-access-key: ${{ secrets.SAUCE_ACCESS_KEY }}
           config-file: .sauce/conf.yml
-
-# TODO: These artifacts were saved by the build for automated tests but might not be needed
-#          MuxExoPlayer/buildout/outputs/aar/*.aar
-#          MuxExoPlayer/buildout/outputs/mapping/*/*.txt
-#          MuxExoPlayer/buildout/outputs/version-*
-#          MuxExoPlayer/buildout/reports/*/*.*
