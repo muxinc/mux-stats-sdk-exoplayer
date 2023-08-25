@@ -54,15 +54,15 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: echo ${{ env.app_apk }}
-#      - name: Download Test APKS
-#        uses: actions/download-artifact@v3
-#        with:
-#          name: automated-test-apks
-#          path: |
-#            ${{ env.app_apk }}
-#            ${{ env.test_apk }}
-#            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
-#            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
+      - name: Download Test APKS
+        uses: actions/download-artifact@v3
+        with:
+          name: automated-test-apks
+          path: |
+            ${{ env.app_apk }}
+            ${{ env.test_apk }}
+            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
+            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
 # TODO: Remove. Proven that downloads really happen
 #      - run: |
