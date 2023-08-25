@@ -2,6 +2,9 @@ name: Test with Sauce Labs (Only Latest)
 
 on:
   push:
+    branches:
+      - '!releases/**'
+      - '!master'
 
 env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
