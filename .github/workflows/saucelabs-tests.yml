@@ -68,12 +68,9 @@ jobs:
 
 # TODO: Remove. Proven that downloads really happen
       - run: |
-          echo DIRS
-          ls -R
           ls -lisa
       - name: Build sauce config file
         run: |
-          pwd 
           ls -lisa
           sed -E \
           -e 's/BUILD_LABEL/r2_18_1/g' \
