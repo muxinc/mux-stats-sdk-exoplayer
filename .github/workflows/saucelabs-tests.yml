@@ -48,8 +48,10 @@ jobs:
     needs: build
 
     env:
-      app_apk: automatedtests\/buildout\/outputs\/apk\/r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
-      test_apk: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
+#      app_apk: automatedtests\/buildout\/outputs\/apk\/r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
+#      test_apk: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
+      app_apk: r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
+      test_apk: androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
 
     steps:
       - uses: actions/checkout@v3
@@ -67,7 +69,8 @@ jobs:
 # TODO: Remove. Proven that downloads really happen
       - run: |
           echo DIRS
-          ls -R automatedtests/buildout/outputs/apk
+          ls -R
+          ls -lisa
       - name: Build sauce config file
         run: |
           pwd 
