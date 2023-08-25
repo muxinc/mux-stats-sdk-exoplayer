@@ -48,9 +48,8 @@ jobs:
     needs: build
 
     env:
-#      app_apk: automatedtests\/buildout\/outputs\/apk\/r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
-#      test_apk: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
-      # TODO: wrong root?
+      app_artifact: automatedtests\/buildout\/outputs\/apk\/r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
+      test_artifact: automatedtests\/buildout\/outputs\/apk\/androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
       app_apk:  r2_18_1\/debug\/automatedtests-r2_18_1-debug.apk
       test_apk: androidTest\/r2_18_1\/debug\/automatedtests-r2_18_1-debug-androidTest.apk
 
@@ -62,9 +61,8 @@ jobs:
         with:
           name: automated-test-apks
           path: |
-            *
-#            ${{ env.app_apk }}
-#            ${{ env.test_apk }}
+            ${{ env.app_artifact }}
+            ${{ env.test_artifact }}
 #            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
 #            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
