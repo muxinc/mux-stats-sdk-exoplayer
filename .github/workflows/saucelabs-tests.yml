@@ -62,8 +62,10 @@ jobs:
         with:
           name: automated-test-apks
           path: |
-            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
-            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
+            ${{ app_apk }}
+            ${{ test_apk }}
+#            automatedtests/buildout/outputs/apk/r2_18_1/debug/automatedtests-r2_18_1-debug.apk
+#            automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
 # TODO: Remove. Proven that downloads really happen
       - run: |
