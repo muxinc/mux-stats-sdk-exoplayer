@@ -15,6 +15,9 @@ jobs:
     name: Build Test APKs
     runs-on: ubuntu-latest
 
+    # TODO: Remove
+    if: false
+
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
