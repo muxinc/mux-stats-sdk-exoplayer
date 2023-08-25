@@ -65,9 +65,9 @@ jobs:
             automatedtests/buildout/outputs/apk/androidTest/r2_18_1/debug/automatedtests-r2_18_1-debug-androidTest.apk
 
 # TODO: Remove. Proven that downloads really happen
-#      - run: |
-#          echo DIRS
-#          ls -R automatedtests/buildout/outputs/apk
+      - run: |
+          echo DIRS
+          ls -R automatedtests/buildout/outputs/apk
       - name: Build sauce config file
         run: |
           pwd 
