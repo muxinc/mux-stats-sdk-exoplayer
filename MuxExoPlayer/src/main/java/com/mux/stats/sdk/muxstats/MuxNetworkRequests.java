@@ -323,6 +323,13 @@ public class MuxNetworkRequests implements INetworkRequest {
    * @return backend url.
    */
   private String getAuthority(String propertykey, String domain) {
+    // In the case that a customer used beaconCollectionDomain, there
+    // won't be a `.` prepended.
+    // TODO: Next major version bump, we should fix this API to be a bit
+    // more clean.
+    if (!domain.startsWith(".")) {
+        return domain;
+    }
     if (Pattern.matches("^[a-z0-9]+$", propertykey)) {
         return propertykey + domain;
     }
