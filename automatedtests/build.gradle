@@ -68,7 +68,11 @@ android {
     }
     r2_18_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_18toNow']
+      matchingFallbacks = ['just2_18']
+    }
+    r2_19_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_19']
     }
   }
   variantFilter { // this app doesn't need a release build, so save some resources
@@ -109,6 +113,7 @@ dependencies {
   androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_19_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
   api 'org.checkerframework:checker-qual:3.33.0'
 
@@ -126,6 +131,9 @@ dependencies {
 
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
+
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
+  r2_19_1Api 'com.google.android.exoplayer:extension-mediasession:2.19.1'
 
   // Automated tests should always test the local module and not the maven dependency.
   implementation project(":MuxExoPlayer")
