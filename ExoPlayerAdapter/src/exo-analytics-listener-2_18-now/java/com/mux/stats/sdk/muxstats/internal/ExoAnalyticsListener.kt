@@ -73,12 +73,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     collector.seeking()
   }
 
-  @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.12)
-  override fun onSeekProcessed(eventTime: EventTime) {
-    // TODO: This the new way (over position discontinuity or guessing) so figure out how to use it
-    //collector.seeked(false)
-  }
-
   override fun onTimelineChanged(eventTime: EventTime, reason: Int) {
     val player = player // strong reference during the listener call
     if (player != null && eventTime.timeline.windowCount > 0) {

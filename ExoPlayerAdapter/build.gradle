@@ -34,6 +34,7 @@ android {
     just2_16 { dimension 'source' }
     just2_17 { dimension 'source' }
     just2_18 { dimension 'source' }
+    just2_19 { dimension 'source' }
     // Exoplayer version for testing/variant matching
     r2_14_1 { dimension 'exoplayer' }
     r2_15_1 { dimension 'exoplayer' }
@@ -49,7 +50,8 @@ android {
           "just2_15"      : ["r2_15_1"],
           "just2_16"      : ["r2_16_1", "amznPort"],
           "just2_17"      : ["r2_17_1"],
-          "just2_18" : ["r2_18_1", "r2_19_1"]
+          "just2_18"      : ["r2_18_1"],
+          "just2_19"      : ["r2_19_1"],
   ]
   variantFilter { variant ->
     def exoPlayerFlavor = variant.flavors.findAll { it.dimension == "exoplayer" }[0]
@@ -101,6 +103,14 @@ android {
       java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
       // From 2.16 onward, we don't need exo-event
+    }
+    just2_19 {
+      java.srcDirs += 'src/exo-analytics-listener-2_18-now/java'
+      java.srcDirs += 'src/exo-collector-2_10-now/java'
+      java.srcDirs += 'src/exo-analytics-2_19-now/java'
+      java.srcDirs += 'src/exo-error-2_15-now/java'
+      java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
+      java.srcDirs += 'src/exo-player-2_16-now/java'
     }
   }
 
