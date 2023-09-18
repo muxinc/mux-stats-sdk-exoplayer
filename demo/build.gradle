@@ -64,7 +64,7 @@ android {
     }
     r2_19_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['just2_18']
+      matchingFallbacks = ['just2_19']
     }
   }
   variantFilter { // this app doesn't need a release build, so save some resources
