@@ -68,11 +68,11 @@ android {
     }
     r2_18_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_18toNow']
+      matchingFallbacks = ['just2_18']
     }
     r2_19_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_18toNow']
+      matchingFallbacks = ['just2_18']
     }
   }
   variantFilter { // this app doesn't need a release build, so save some resources
