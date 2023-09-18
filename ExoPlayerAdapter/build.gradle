@@ -80,7 +80,7 @@ android {
     just2_16 {
       java.srcDirs += 'src/exo-analytics-listener-2_13-2_16/java'
       java.srcDirs += 'src/exo-collector-2_10-now/java'
-      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-analytics-just2_16/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
@@ -89,7 +89,7 @@ android {
     just2_17 {
       java.srcDirs += 'src/exo-analytics-listener-just-2_17/java'
       java.srcDirs += 'src/exo-collector-2_10-now/java'
-      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-analytics-just2_16/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
@@ -98,7 +98,7 @@ android {
     just2_18 {
       java.srcDirs += 'src/exo-analytics-listener-2_18-now/java'
       java.srcDirs += 'src/exo-collector-2_10-now/java'
-      java.srcDirs += 'src/exo-analytics-2_16-now/java'
+      java.srcDirs += 'src/exo-analytics-just2_16/java'
       java.srcDirs += 'src/exo-error-2_15-now/java'
       java.srcDirs += 'src/exo-mediaitem-2_14-now/java'
       java.srcDirs += 'src/exo-player-2_16-now/java'
