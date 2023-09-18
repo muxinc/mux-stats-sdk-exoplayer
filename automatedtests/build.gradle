@@ -113,6 +113,7 @@ dependencies {
   androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
   androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
+  androidTestR2_19_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.23.0'
 
   api 'org.checkerframework:checker-qual:3.33.0'
 
