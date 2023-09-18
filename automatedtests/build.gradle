@@ -70,6 +70,10 @@ android {
       dimension 'exoplayer'
       matchingFallbacks = ['from2_18toNow']
     }
+    r2_19_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['from2_18toNow']
+    }
   }
   variantFilter { // this app doesn't need a release build, so save some resources
     setIgnore(it.buildType.name == 'release')
@@ -126,6 +130,9 @@ dependencies {
 
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
+
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
+  r2_19_1Api 'com.google.android.exoplayer:extension-mediasession:2.19.1'
 
   // Automated tests should always test the local module and not the maven dependency.
   implementation project(":MuxExoPlayer")

@@ -41,6 +41,7 @@ android {
     amznPort { dimension 'exoplayer' }
     r2_17_1 { dimension 'exoplayer' }
     r2_18_1 { dimension 'exoplayer' }
+    r2_19_1 { dimension 'exoplayer' }
   }
   // We only want the variants where the sourceSet and exoplayer version agree
   def realVariants = [
@@ -48,7 +49,7 @@ android {
           "just2_15"      : ["r2_15_1"],
           "just2_16"      : ["r2_16_1", "amznPort"],
           "just2_17"      : ["r2_17_1"],
-          "from2_18toNow" : ["r2_18_1"]
+          "from2_18toNow" : ["r2_18_1", "r2_19_1"]
   ]
   variantFilter { variant ->
     def exoPlayerFlavor = variant.flavors.findAll { it.dimension == "exoplayer" }[0]
@@ -144,6 +145,7 @@ dependencies {
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
   //noinspection GradleDynamicVersion,GradleDependency
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
 
   implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${project.ext.kotlinxCoroutinesVersion}"
 
