@@ -78,7 +78,11 @@ android {
     }
     r2_18_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_18toNow']
+      matchingFallbacks = ['just2_18']
+    }
+    r2_19_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_19']
     }
   } //productFlavors
 
@@ -125,7 +129,9 @@ dependencies {
   amznPortApi "com.amazon.android:exoplayer:2.16.1"
   //noinspection GradleDynamicVersion,GradleDependency
   r2_17_1Api 'com.google.android.exoplayer:exoplayer:2.17.1'
+  //noinspection GradleDynamicVersion,GradleDependency
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
 
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'

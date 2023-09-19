@@ -10,9 +10,9 @@ env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
 
-concurrency:
-  group: sauce-labs
-  cancel-in-progress: true
+#concurrency:
+#  group: sauce-labs
+#  cancel-in-progress: true
 
 jobs:
   build:
@@ -47,7 +47,7 @@ jobs:
       max-parallel: 1
       #max-parallel: 2
       matrix:
-        exo: ['r2_18_1','r2_17_1','r2_16_1','r2_15_1','r2_14_1',]
+        exo: ['r2_18_1','r2_17_1','r2_16_1','r2_15_1','r2_14_1']
 
     env:
       app_artifact: automatedtests\/buildout\/outputs\/apk\/${{ matrix.exo }}\/debug\/automatedtests-${{ matrix.exo }}-debug.apk

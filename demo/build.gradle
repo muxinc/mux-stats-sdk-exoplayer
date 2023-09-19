@@ -60,7 +60,11 @@ android {
     }
     r2_18_1 {
       dimension 'exoplayer'
-      matchingFallbacks = ['from2_18toNow']
+      matchingFallbacks = ['just2_18']
+    }
+    r2_19_1 {
+      dimension 'exoplayer'
+      matchingFallbacks = ['just2_19']
     }
   }
   variantFilter { // this app doesn't need a release build, so save some resources
@@ -128,6 +132,14 @@ dependencies {
   r2_18_1Api 'com.google.android.exoplayer:exoplayer-ui:2.18.1'
   r2_18_1Api 'org.checkerframework:checker-qual:3.33.0'
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
+
+  r2_19_1Api 'com.google.android.exoplayer:extension-cronet:2.19.1'
+  r2_19_1Api 'com.google.android.exoplayer:extension-ima:2.19.1'
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer-common:2.19.1'
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
+  r2_19_1Api 'org.checkerframework:checker-qual:3.33.0'
+  r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
 
   implementation project(':MuxExoPlayer')
   implementation project(':ExoPlayerAdapter')
