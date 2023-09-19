@@ -7,9 +7,9 @@ env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
 
-concurrency:
-  group: sauce-labs
-  cancel-in-progress: true
+#concurrency:
+#  group: sauce-labs
+#  cancel-in-progress: true
 
 jobs:
   build:
