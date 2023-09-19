@@ -2,9 +2,6 @@ name: Test with Sauce Labs (Only Latest)
 
 on:
   push:
-    branches:
-      - '!releases/**'
-      - '!master'
 
 env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
@@ -29,7 +26,7 @@ jobs:
       - name: Build automated tests
         uses: gradle/gradle-build-action@v2.3.3
         with:
-          arguments: automatedtests:assembleR2_18_1Debug :automatedtests:assembleR2_18_1DebugAndroidTest
+          arguments: automatedtests:assembleR2_19_1Debug :automatedtests:assembleR2_19_1DebugAndroidTest
       - name: Upload Test APKs
         uses: actions/upload-artifact@v3
         with:
