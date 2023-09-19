@@ -108,11 +108,13 @@ dependencies {
   // Optional -- UI testing with UI Automator
   androidTestImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
   androidTestImplementation 'androidx.test.ext:junit:1.1.2'
+  
   androidTestR2_14_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
   androidTestR2_15_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
   androidTestR2_16_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
   androidTestR2_17_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
-  androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
+
+//  androidTestR2_18_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
   androidTestR2_19_1Implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
 
   api 'org.checkerframework:checker-qual:3.33.0'
@@ -131,6 +133,7 @@ dependencies {
 
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
   r2_18_1Api 'com.google.android.exoplayer:extension-mediasession:2.18.1'
+  r2_18_1Api 'com.google.android.exoplayer:extension-ima:2.18.1'
 
   r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
   r2_19_1Api 'com.google.android.exoplayer:extension-mediasession:2.19.1'
