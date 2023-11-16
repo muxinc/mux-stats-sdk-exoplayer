@@ -38,7 +38,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     //todo
   }
 
-  // TODO: Requires exo 2.12
   override fun onPlayWhenReadyChanged(
     eventTime: EventTime,
     playWhenReady: Boolean,
