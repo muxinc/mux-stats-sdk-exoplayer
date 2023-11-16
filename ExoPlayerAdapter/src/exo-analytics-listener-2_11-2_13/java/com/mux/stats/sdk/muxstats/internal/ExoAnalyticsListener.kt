@@ -69,7 +69,7 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     eventTime: AnalyticsListener.EventTime,
     reason: Int
   ) {
-    collector.handlePositionDiscontinuity(reason)
+    collector.handlePositionDiscontinuityBefore218(reason)
   }
 
   @Suppress("OVERRIDE_DEPRECATION") // Not worth making a new variant over (deprecated 2.12)
