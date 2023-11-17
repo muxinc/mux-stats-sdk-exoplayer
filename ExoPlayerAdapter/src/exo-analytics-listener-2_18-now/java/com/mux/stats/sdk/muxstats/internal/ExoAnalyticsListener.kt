@@ -7,6 +7,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.video.VideoSize
+import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
 import java.io.IOException
 
@@ -44,6 +45,9 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
     reason: Int
   ) {
     player?.let {
+      if (collector.muxPlayerState == MuxPlayerState.SEEKED) {
+        collector.seeked(false)
+      }
       collector.handleExoPlaybackState(it.playbackState, it.playWhenReady)
     }
   }
