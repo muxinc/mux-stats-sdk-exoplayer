@@ -106,7 +106,12 @@ class AdsImaSDKListener private constructor(
         AdEvent.AdEventType.LOADED -> {}
         AdEvent.AdEventType.CONTENT_PAUSE_REQUESTED -> {
           // Send pause event if we are currently playing or preparing to play content
-          if (stateCollector.muxPlayerState.oneOf(MuxPlayerState.PLAY, MuxPlayerState.PLAYING)) {
+          if (stateCollector.muxPlayerState.oneOf(
+              MuxPlayerState.PLAY,
+              MuxPlayerState.PLAYING,
+              MuxPlayerState.REBUFFERING,
+              MuxPlayerState.SEEKING
+          )) {
             stateCollector.pause()
           }
           sendPlayOnStarted = false
@@ -143,8 +148,12 @@ class AdsImaSDKListener private constructor(
           // End the ad break, and then toggle playback state to ensure that
           // we get a play/playing after the ads.
           dispatchAdPlaybackEvent(AdBreakEndEvent(null), ad)
+          val oldPlayWhenReady = player.playWhenReady
           player.playWhenReady = false
           stateCollector.finishedPlayingAds()
+          if(oldPlayWhenReady) {
+            stateCollector.playing()
+          }
           player.playWhenReady = true
         }
         AdEvent.AdEventType.PAUSED -> {

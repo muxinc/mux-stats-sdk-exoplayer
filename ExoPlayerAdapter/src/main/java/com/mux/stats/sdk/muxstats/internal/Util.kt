@@ -61,7 +61,11 @@ internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
   when (reason) {
     Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT, Player.DISCONTINUITY_REASON_SEEK -> {
       // Called when seeking starts. Player will move to READY when seeking is over
-      seeking()
+      if (mediaHasVideoTrack != false) {
+        seeking()
+      } else {
+        seeked(false)
+      }
     }
 
     else -> {} // ignored
