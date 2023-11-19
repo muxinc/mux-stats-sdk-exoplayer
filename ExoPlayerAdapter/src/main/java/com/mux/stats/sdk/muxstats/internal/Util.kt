@@ -53,10 +53,32 @@ private val hlsExtensionAvailable: Boolean by lazy {
 internal fun isHlsExtensionAvailable() = hlsExtensionAvailable
 
 /**
- * Handles an ExoPlayer position discontinuity
+ * Handles an ExoPlayer position discontinuity.
+ */
+@JvmSynthetic
+internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
+  // todo - other versions too
+  when (reason) {
+    Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT, Player.DISCONTINUITY_REASON_SEEK -> {
+      // Called when seeking starts. Player will move to READY when seeking is over
+      if (mediaHasVideoTrack != false) {
+        seeking()
+      } else {
+        seeked(false)
+      }
+    }
+
+    else -> {} // ignored
+  }
+}
+
+/**
+ * Handles an ExoPlayer position discontinuity.
+ * This should only be used for ExoPlayers before version 2.18. Due to behavior changes coinciding
+ * with Exo 2.18/media3 1.0
  */
 @JvmSynthetic // Hides from java
-internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
+internal fun MuxStateCollector.handlePositionDiscontinuityBefore218(reason: Int) {
   when (reason) {
     Player.DISCONTINUITY_REASON_SEEK -> {
       // If they seek while paused, this is how we know the seek is complete
@@ -98,6 +120,10 @@ internal fun MuxStateCollector.handleExoPlaybackState(
       }
     }
     Player.STATE_READY -> {
+      if (muxPlayerState == MuxPlayerState.SEEKING) {
+        // TODO <em> playing() and pause() handle rebuffering, why not also seeking
+        seeked(false)
+      }
       if (playWhenReady) {
         playing()
       } else if (muxPlayerState != MuxPlayerState.PAUSED) {
