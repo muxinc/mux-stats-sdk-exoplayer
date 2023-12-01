@@ -1,0 +1,14 @@
+# dependabot.yml: Simple dependabot config that runs every day
+
+version: 2
+updates:
+  # Keep npm dependencies up to date
+  - package-ecosystem: "gradle"
+    directory: "/"
+    ignore:
+      - dependency-name: "com.google.android.exoplayer:exoplayer"
+      - dependency-name: "com.google.android.exoplayer:exoplayer-*"
+      - dependency-name: "com.amazon.android:exoplayer"
+      - dependency-name: "org.robolectric:robolectric"
+    schedule:
+      interval: "monthly"
