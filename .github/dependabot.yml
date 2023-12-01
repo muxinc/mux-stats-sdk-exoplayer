@@ -6,8 +6,9 @@ updates:
   - package-ecosystem: "gradle"
     directory: "/"
     ignore:
-      - dependency-name: "com.google.ads.interactivemedia.v3:interactivemedia"
       - dependency-name: "com.google.android.exoplayer:exoplayer"
-    # Check the npm registry for updates at 2am UTC
+      - dependency-name: "com.google.android.exoplayer:exoplayer-*"
+      - dependency-name: "com.amazon.android:exoplayer"
+      - dependency-name: "org.robolectric:robolectric"
     schedule:
-      interval: "daily"
+      interval: "monthly"
