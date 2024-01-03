@@ -76,16 +76,16 @@ class AdsImaSDKListener private constructor(
   private fun setupAdViewData(event: MuxAdEvent, ad: Ad?) {
     val viewData = ViewData()
     val adData = AdData();
-      if (ad != null) {
-        if (stateCollector.playbackPositionMills < 1000L) {
-          viewData.viewPrerollAdId = ad.adId
-          viewData.viewPrerollCreativeId = ad.creativeId
-        }
+    if (ad != null) {
+      if (stateCollector.playbackPositionMills < 1000L) {
+        viewData.viewPrerollAdId = ad.adId
+        viewData.viewPrerollCreativeId = ad.creativeId
+      }
 
-        exoPlayer?.getAdTagUrl()?.let { adData.adTagUrl = it }
-        ad.adId?.let { adData.adId = it }
-        ad.creativeId?.let { adData.adCreativeId = it }
-        ad.universalAdIdValue?.let { adData.adUniversalId = it }
+      exoPlayer?.getAdTagUrl()?.let { adData.adTagUrl = it }
+      ad.adId?.let { adData.adId = it }
+      ad.creativeId?.let { adData.adCreativeId = it }
+      ad.universalAdIdValue?.let { adData.adUniversalId = it }
     }
     event.viewData = viewData
     event.adData = adData;
