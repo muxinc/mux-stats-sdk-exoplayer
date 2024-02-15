@@ -133,8 +133,11 @@ dependencies {
   r2_18_1Api 'com.google.android.exoplayer:exoplayer:2.18.1'
   r2_19_1Api 'com.google.android.exoplayer:exoplayer:2.19.1'
 
-  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.32.0'
-  compileOnly 'com.google.android.gms:play-services-ads:22.6.0'
+  //noinspection GradleDynamicVersion,GradleDependency
+  compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
+  //noinspection GradleDynamicVersion,GradleDependency
+  compileOnly 'com.google.android.gms:play-services-ads:22.2.0'
+  //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 
   debugImplementation project(':ExoPlayerAdapter')
