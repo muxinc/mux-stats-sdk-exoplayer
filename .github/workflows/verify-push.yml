@@ -16,7 +16,7 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
     - name: Build/Publish ExoPlayerAdapter to the Dev repo
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v3.1.0
       with:
         arguments: :ExoPlayerAdapter:artifactoryPublish
       env:
@@ -25,7 +25,7 @@ jobs:
         GH_USER: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Build/Publish MuxExoPlayer to the Dev repo
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v3.1.0
       with:
         arguments: :MuxExoPlayer:artifactoryPublish
       env:
@@ -59,11 +59,11 @@ jobs:
           MuxExoPlayer/buildout/outputs/**
           ExoPlayerAdapter/buildout/outputs/**
     - name: Unit Test ExoPlayerAdapter
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v3.1.0
       with:
         arguments: :ExoPlayerAdapter:test
     - name: Unit Test MuxExoPlayer
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v3.1.0
       with:
         arguments: :MuxExoPlayer:test
   
@@ -86,6 +86,6 @@ jobs:
           MuxExoPlayer/buildout/outputs/**
           ExoPlayerAdapter/buildout/outputs/**
     - name: Verify Demo Build
-      uses: gradle/gradle-build-action@v2.3.3
+      uses: gradle/gradle-build-action@v3.1.0
       with:
         arguments: :demo:assemble

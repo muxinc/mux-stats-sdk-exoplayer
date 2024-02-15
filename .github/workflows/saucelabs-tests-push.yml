@@ -24,7 +24,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
       - name: Build automated tests
-        uses: gradle/gradle-build-action@v2.3.3
+        uses: gradle/gradle-build-action@v3.1.0
         with:
           arguments: automatedtests:assembleR2_19_1Debug :automatedtests:assembleR2_19_1DebugAndroidTest
       - name: Upload Test APKs
