@@ -136,7 +136,7 @@ dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.ads.interactivemedia.v3:interactivemedia:3.29.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  compileOnly 'com.google.android.gms:play-services-ads:22.2.0'
+  compileOnly 'com.google.android.gms:play-services-ads:22.6.0'
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
 
