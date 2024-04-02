@@ -8,6 +8,7 @@ import com.mux.stats.sdk.core.events.EventBus
 import com.mux.stats.sdk.core.events.playback.*
 import com.mux.stats.sdk.core.model.AdData
 import com.mux.stats.sdk.core.model.ViewData
+import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.muxstats.internal.weak
 import com.mux.stats.sdk.core.events.playback.AdEvent as MuxAdEvent
@@ -22,6 +23,9 @@ class AdsImaSDKListener private constructor(
 ) : AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
 
   companion object {
+
+    private const val TAG = "AdsImaSDKListener"
+
     @JvmSynthetic
     internal fun createIfImaAvailable(
       exoPlayer: ExoPlayer,
@@ -177,6 +181,18 @@ class AdsImaSDKListener private constructor(
             dispatchAdPlaybackEvent(AdPlayingEvent(null), ad)
           }
         AdEvent.AdEventType.ALL_ADS_COMPLETED -> {}
+        AdEvent.AdEventType.LOG -> {
+          val data = adEvent.adData
+          // theoretically LOG could be for things other than errors so at least do this check
+          if (data["errorMessage"] != null
+            || data["errorCode"] != null
+            || data["innerError"] != null
+          ) {
+            dispatchAdPlaybackEvent(AdErrorEvent(null), adEvent.ad)
+          } else {
+            MuxLogger.d(TAG, "Logged IMA event: $adEvent")
+          }
+        }
         else -> return
       }
     }
