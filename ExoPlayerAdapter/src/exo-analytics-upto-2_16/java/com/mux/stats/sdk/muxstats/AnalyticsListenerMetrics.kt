@@ -4,10 +4,10 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerAdapter
-import com.mux.stats.sdk.muxstats.internal.exoAnalyticsListener
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.logTag
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.watchContentPosition
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
+import com.mux.stats.sdk.muxstats.internal.exoAnalyticsListener
 
 private class AnalyticsListenerBindingUpTo16 : MuxPlayerAdapter.PlayerBinding<SimpleExoPlayer> {
 

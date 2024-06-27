@@ -1,6 +1,5 @@
 package com.mux.stats.sdk.muxstats.internal
 
-import android.view.Surface
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.Format
 import com.google.android.exoplayer2.PlaybackParameters
@@ -12,6 +11,11 @@ import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.BandwidthMetricDispatcher
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.MuxMediaHasVideoTrack
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handleExoPlaybackState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handlePositionDiscontinuityBefore218
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 import java.io.IOException
 
 /**

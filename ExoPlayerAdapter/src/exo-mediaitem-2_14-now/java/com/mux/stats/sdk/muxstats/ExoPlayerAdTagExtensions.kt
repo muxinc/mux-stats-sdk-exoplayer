@@ -4,7 +4,7 @@ import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 
 /*
- * # ExoPlayerExt.kt: Useful extensions on [ExoPlayer].
+ * # ExoPlayerAdTagExtensions.kt: Useful extensions on [ExoPlayer].
  */
 
 /**

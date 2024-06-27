@@ -10,8 +10,8 @@ import com.mux.stats.sdk.core.model.AdData
 import com.mux.stats.sdk.core.model.ViewData
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
-import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.internal.oneOf
 import com.mux.stats.sdk.core.events.playback.AdEvent as MuxAdEvent
 
 /**
