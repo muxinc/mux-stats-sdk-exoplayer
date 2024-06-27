@@ -160,7 +160,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   private var _playerView by weak(playerView)
 
   private val eventBus = EventBus()
-  private val collector =  MuxStateCollector({ muxStats }, eventBus)
+  private val collector =  MuxStateCollectorExoImpl({ muxStats }, eventBus)
   private val playerAdapter = collector.createExoPlayerAdapter(
     context = context,
     playerView = playerView,

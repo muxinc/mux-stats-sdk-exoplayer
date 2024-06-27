@@ -2,7 +2,7 @@ package com.mux.exoplayeradapter
 
 import com.mux.exoplayeradapter.double.FakeEventDispatcher
 import com.mux.stats.sdk.core.events.playback.*
-import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.MuxStateCollectorExoImpl
 import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 import com.mux.stats.sdk.muxstats.MuxStats
@@ -26,7 +26,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   fun setUpCollector() {
     eventDispatcher = FakeEventDispatcher()
     val stats = mockk<MuxStats>(relaxed = true)
-    stateCollector =  MuxStateCollector({ stats }, eventDispatcher)
+    stateCollector =  MuxStateCollectorExoImpl({ stats }, eventDispatcher)
   }
 
   @Test
