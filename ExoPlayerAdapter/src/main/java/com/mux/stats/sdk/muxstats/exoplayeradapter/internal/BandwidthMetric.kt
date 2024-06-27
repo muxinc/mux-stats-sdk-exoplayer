@@ -11,7 +11,7 @@ import com.mux.stats.sdk.core.events.playback.RequestCompleted
 import com.mux.stats.sdk.core.events.playback.RequestFailed
 import com.mux.stats.sdk.core.model.BandwidthMetricData
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 import java.io.IOException
 import java.util.*
 
@@ -20,7 +20,7 @@ import java.util.*
  * these events in {@link MuxStatsExoPlayer} and will be propagated here for processing, at this
  * point both HLS and DASH segments are processed in same way so all metrics are collected here.
  */
-internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxStateCollector) {
+internal open class BandwidthMetric(val player: ExoPlayer, val collector:  MuxStateCollectorBase) {
     /** Available qualities. */
     var availableTracks: TrackGroupArray? = null
 
@@ -188,7 +188,7 @@ internal open class BandwidthMetric(val player: ExoPlayer, val collector: MuxSta
 }
 
 internal class BandwidthMetricHls(player: ExoPlayer,
-                         collector: MuxStateCollector
+                         collector:  MuxStateCollectorBase
 ) : BandwidthMetric(player, collector) {
 
     override fun onLoadError(loadedSegments: Long, e: IOException) : BandwidthMetricData {
@@ -224,10 +224,10 @@ internal class BandwidthMetricHls(player: ExoPlayer,
  * {@link BandwidthMetricHls}.
  */
 internal class BandwidthMetricDispatcher(player: ExoPlayer,
-                                collector: MuxStateCollector
+                                collector:  MuxStateCollectorBase
 ) {
     private val player: ExoPlayer? by weak(player)
-    private val collector: MuxStateCollector? by weak(collector)
+    private val collector:  MuxStateCollectorBase? by weak(collector)
     protected var bandwidthMetricHls: BandwidthMetricHls = BandwidthMetricHls(player, collector)
     protected var debugModeOn:Boolean = false
     protected var requestSegmentDuration:Long = 1000

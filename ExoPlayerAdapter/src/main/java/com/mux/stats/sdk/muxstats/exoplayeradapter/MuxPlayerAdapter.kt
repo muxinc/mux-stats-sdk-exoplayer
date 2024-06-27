@@ -1,6 +1,6 @@
 package com.mux.stats.sdk.muxstats.exoplayeradapter
 
-import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.observableWeak
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 
@@ -9,7 +9,7 @@ import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
  */
 class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
   player: MainPlayer,
-  val collector: MuxStateCollector,
+  val collector: MuxStateCollectorBase,
   @Suppress("MemberVisibilityCanBePrivate")
   val uiDelegate: MuxUiDelegate<PlayerView>,
   @Suppress("MemberVisibilityCanBePrivate")
@@ -54,12 +54,12 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
     }
   }
 
-  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxStateCollector) {
+  private fun changeBasicPlayer(player: MainPlayer?, collector: MuxStateCollectorBase) {
     basicPlayer?.let { oldPlayer -> basicMetrics.unbindPlayer(oldPlayer, collector) }
     player?.let { newPlayer -> basicMetrics.bindPlayer(newPlayer, collector) }
   }
 
-  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxStateCollector) {
+  private fun changeExtraPlayer(player: ExtraPlayer?, collector: MuxStateCollectorBase) {
     if (extraMetrics != null) {
       extraPlayer?.let { oldPlayer ->
         extraMetrics.bindings.onEach { it.unbindPlayer(oldPlayer, collector) }
@@ -80,12 +80,12 @@ class MuxPlayerAdapter<PlayerView, MainPlayer, ExtraPlayer>(
      * Binds a player to a MuxDataCollector, setting listeners or whatever is required to observe
      * state, and calling hooks on MuxDataCollector
      */
-    fun bindPlayer(player: Player, collector: MuxStateCollector)
+    fun bindPlayer(player: Player, collector: MuxStateCollectorBase)
 
     /**
      * Unbinds a player from a MuxDataCollector, removing listeners and cleaning up
      */
-    fun unbindPlayer(player: Player, collector: MuxStateCollector)
+    fun unbindPlayer(player: Player, collector: MuxStateCollectorBase)
   }
 
   /**

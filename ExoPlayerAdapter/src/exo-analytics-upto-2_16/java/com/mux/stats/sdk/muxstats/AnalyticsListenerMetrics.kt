@@ -17,14 +17,14 @@ private class AnalyticsListenerBindingUpTo16 : MuxPlayerAdapter.PlayerBinding<Si
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: SimpleExoPlayer, collector: MuxStateCollector) {
+  override fun bindPlayer(player: SimpleExoPlayer, collector:  MuxStateCollectorBase) {
     listener = exoAnalyticsListener(player, collector).also {
       player.addAnalyticsListener(it)
       player.watchContentPosition(collector)
     }
   }
 
-  override fun unbindPlayer(player: SimpleExoPlayer, collector: MuxStateCollector) {
+  override fun unbindPlayer(player: SimpleExoPlayer, collector:  MuxStateCollectorBase) {
     listener?.let { player.removeAnalyticsListener(it) }
     collector.positionWatcher?.stop("unbound")
     listener = null

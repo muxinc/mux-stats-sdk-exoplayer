@@ -160,7 +160,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
   private var _playerView by weak(playerView)
 
   private val eventBus = EventBus()
-  private val collector = MuxStateCollector({ muxStats }, eventBus)
+  private val collector =  MuxStateCollectorExoImpl({ muxStats }, eventBus)
   private val playerAdapter = collector.createExoPlayerAdapter(
     context = context,
     playerView = playerView,
@@ -422,7 +422,7 @@ class MuxStatsExoPlayer @JvmOverloads constructor(
 
   /**
    * Allow HTTP headers with a given name to be passed to the backend. By default we ignore all HTTP
-   * headers that are not in the [MuxStateCollectorBase.allowedHeaders] list.
+   * headers that are not in the [ MuxStateCollectorBase.allowedHeaders] list.
    * This is used in automated tests and is not intended to be used from the application layer.
    *
    * @param headerName name of the header to send to the backend.

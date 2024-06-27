@@ -2,13 +2,12 @@ package com.mux.stats.sdk.muxstats
 
 import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.events.IEventDispatcher
-import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxStateCollectorBase
 
-open class MuxStateCollector(
+open class MuxStateCollectorExoImpl(
     private val _muxStats: () -> MuxStats,
     private val _dispatcher: IEventDispatcher,
     private val _trackFirstFrameRendered: Boolean = true,
-): MuxStateCollectorBase(_muxStats, _dispatcher, _trackFirstFrameRendered) {
+):  MuxStateCollectorBase(_muxStats, _dispatcher, _trackFirstFrameRendered) {
     override fun isLivePlayback(): Boolean {
         return currentTimelineWindow.isLive
     }

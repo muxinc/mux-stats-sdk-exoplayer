@@ -15,13 +15,13 @@ private class SessionDataPlayerBinding : MuxPlayerAdapter.PlayerBinding<ExoPlaye
 
   private var listener: AnalyticsListener? by weak(null)
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun bindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     if (isHlsExtensionAvailable()) {
       listener = SessionDataListener(player, collector).also { player.addAnalyticsListener(it) }
     }
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun unbindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     listener?.let { player.removeAnalyticsListener(it) }
   }
 
@@ -30,7 +30,7 @@ private class SessionDataPlayerBinding : MuxPlayerAdapter.PlayerBinding<ExoPlaye
    * This class should only be instantiated if ExoPlayer's HLS extension is available at runtime
    * @see [.isHlsExtensionAvailable]
    */
-  private class SessionDataListener(player: ExoPlayer, val collector: MuxStateCollector) :
+  private class SessionDataListener(player: ExoPlayer, val collector:  MuxStateCollectorBase) :
     AnalyticsListener {
 
     private val player by weak(player)
@@ -94,5 +94,5 @@ private class SessionDataPlayerBinding : MuxPlayerAdapter.PlayerBinding<ExoPlaye
  * @see [.isHlsExtensionAvailable]
  */
 @Suppress("unused") // using the receiver to avoid polluting customers' namespace
-fun MuxStateCollector.createExoSessionDataBinding(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
+fun  MuxStateCollectorBase.createExoSessionDataBinding(): MuxPlayerAdapter.PlayerBinding<ExoPlayer> =
   SessionDataPlayerBinding()

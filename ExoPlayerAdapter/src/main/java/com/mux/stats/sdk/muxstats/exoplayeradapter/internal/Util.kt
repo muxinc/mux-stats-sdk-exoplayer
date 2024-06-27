@@ -12,8 +12,7 @@ import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxErrorException
 import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
-import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxStateCollectorBase
+import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 
 // -- General Utils --
 
@@ -56,7 +55,7 @@ internal fun isHlsExtensionAvailable() = hlsExtensionAvailable
  * Handles an ExoPlayer position discontinuity.
  */
 @JvmSynthetic
-internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
+internal fun  MuxStateCollectorBase.handlePositionDiscontinuity(reason: Int) {
   // todo - other versions too
   when (reason) {
     Player.DISCONTINUITY_REASON_SEEK_ADJUSTMENT, Player.DISCONTINUITY_REASON_SEEK -> {
@@ -78,7 +77,7 @@ internal fun MuxStateCollector.handlePositionDiscontinuity(reason: Int) {
  * with Exo 2.18/media3 1.0
  */
 @JvmSynthetic // Hides from java
-internal fun MuxStateCollector.handlePositionDiscontinuityBefore218(reason: Int) {
+internal fun  MuxStateCollectorBase.handlePositionDiscontinuityBefore218(reason: Int) {
   when (reason) {
     Player.DISCONTINUITY_REASON_SEEK -> {
       // If they seek while paused, this is how we know the seek is complete
@@ -101,7 +100,7 @@ internal fun MuxStateCollector.handlePositionDiscontinuityBefore218(reason: Int)
  * Handles a change of basic ExoPlayer state
  */
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
-internal fun MuxStateCollector.handleExoPlaybackState(
+internal fun  MuxStateCollectorBase.handleExoPlaybackState(
   playbackState: Int, // the @IntDef for player state omitted. Unavailable on all exo versions
   playWhenReady: Boolean
 ) {
@@ -151,7 +150,7 @@ internal fun MuxStateCollector.handleExoPlaybackState(
  * @param e The Exception thrown. The error code will be overidden with the value of [errorCode]
  */
 @JvmSynthetic
-internal fun MuxStateCollector.handleExoPlaybackException(errorCode: Int, e: ExoPlaybackException) {
+internal fun  MuxStateCollectorBase.handleExoPlaybackException(errorCode: Int, e: ExoPlaybackException) {
   if (e.type == ExoPlaybackException.TYPE_RENDERER) {
     val rendererEx = e.rendererException
     // Decoder Init errors are given special messages
@@ -229,12 +228,12 @@ internal fun ExoPlayer.MuxMediaHasVideoTrack(): Boolean {
 
 /**
  * Returns and starts an object that will poll ExoPlayer for its content position every so often
- * and updated the given MuxStateCollector
+ * and updated the given  MuxStateCollectorBase
  */
 @Suppress("unused") // this method is used with some versions of ExoPlayer
 @JvmSynthetic // Hidden from Java callers, since the only ones are external
-internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
-        MuxStateCollectorBase.PositionWatcher =
+internal fun ExoPlayer.watchContentPosition(stateCollector:  MuxStateCollectorBase):
+         MuxStateCollectorBase.PositionWatcher =
   ExoPositionWatcher(this, stateCollector).apply { start() }
 
 // -- private helper classes
@@ -242,8 +241,8 @@ internal fun ExoPlayer.watchContentPosition(stateCollector: MuxStateCollector):
 /**
  * Watches an ExoPlayer's position, polling it every {@link #UPDATE_INTERVAL_MILIS} milliseconds
  */
-private class ExoPositionWatcher(player: ExoPlayer, stateCollector: MuxStateCollector) :
-  MuxStateCollectorBase.PositionWatcher(
+private class ExoPositionWatcher(player: ExoPlayer, stateCollector:  MuxStateCollectorBase) :
+   MuxStateCollectorBase.PositionWatcher(
     UPDATE_INTERVAL_MILLIS, stateCollector
   ) {
   companion object {
