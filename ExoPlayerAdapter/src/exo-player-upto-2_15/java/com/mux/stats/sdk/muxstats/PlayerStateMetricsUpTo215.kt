@@ -24,7 +24,7 @@ private class PlayerStateMetricsTo215 : MuxPlayerAdapter.PlayerBinding<ExoPlayer
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun bindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     if (player is SimpleExoPlayer) {
       analyticsListener = analyticsListenerMetrics().also { it.bindPlayer(player, collector) }
     } else {
@@ -33,7 +33,7 @@ private class PlayerStateMetricsTo215 : MuxPlayerAdapter.PlayerBinding<ExoPlayer
     player.watchContentPosition(collector)
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun unbindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     playerListener?.unbindPlayer(player, collector)
     collector.positionWatcher?.stop("unbound")
     if (player is SimpleExoPlayer) {

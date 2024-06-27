@@ -17,12 +17,12 @@ private class BasicExoPlayerBindings : MuxPlayerAdapter.PlayerBinding<ExoPlayer>
   private val coreBinding = playerStateMetrics()
   private val errorBinding = playerErrorMetrics()
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun bindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     coreBinding.bindPlayer(player, collector)
     errorBinding.bindPlayer(player, collector)
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun unbindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     coreBinding.unbindPlayer(player, collector)
     errorBinding.unbindPlayer(player, collector)
   }
@@ -32,7 +32,7 @@ private class BasicExoPlayerBindings : MuxPlayerAdapter.PlayerBinding<ExoPlayer>
  * Creates a new PlayerAdapter that monitors an ExoPlayer
  */
 @Suppress("unused")
-fun MuxStateCollector.createExoPlayerAdapter(
+fun  MuxStateCollectorBase.createExoPlayerAdapter(
   context: Context,
   playerView: View?,
   player: ExoPlayer,

@@ -2,9 +2,9 @@ package com.mux.exoplayeradapter
 
 import com.mux.exoplayeradapter.double.FakeEventDispatcher
 import com.mux.stats.sdk.core.events.playback.*
-import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxStateCollectorBase
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
+import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 import com.mux.stats.sdk.muxstats.MuxStats
 import io.mockk.mockk
 import kotlinx.coroutines.delay
@@ -19,14 +19,14 @@ import java.util.regex.Pattern
 
 class StateCollectorTests : AbsRobolectricTest() {
 
-  private lateinit var stateCollector: MuxStateCollector
+  private lateinit var stateCollector:  MuxStateCollectorBase
   private lateinit var eventDispatcher: FakeEventDispatcher
 
   @Before
   fun setUpCollector() {
     eventDispatcher = FakeEventDispatcher()
     val stats = mockk<MuxStats>(relaxed = true)
-    stateCollector = MuxStateCollector({ stats }, eventDispatcher)
+    stateCollector =  MuxStateCollector({ stats }, eventDispatcher)
   }
 
   @Test
@@ -302,7 +302,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   fun testAllowedHeaderString() {
     val headerNameMatches = "real-header"
     val headerNameDoesntMatch = "not-the-right-header"
-    val spec = MuxStateCollectorBase.AllowedHeaderSpec.ExactlyIgnoreCase("real-header")
+    val spec =  MuxStateCollectorBase.AllowedHeaderSpec.ExactlyIgnoreCase("real-header")
 
     assertFalse(
       "only exact matches should be allowed",
@@ -322,7 +322,7 @@ class StateCollectorTests : AbsRobolectricTest() {
   fun testAllowedHeaderPattern() {
     val headerNameMatches = "x-litix-session-id"
     val headerNameDoesntMatch = "fastcdn-log-tag-id"
-    val spec = MuxStateCollectorBase.AllowedHeaderSpec.Matching(Pattern.compile("^x-litix.*"))
+    val spec =  MuxStateCollectorBase.AllowedHeaderSpec.Matching(Pattern.compile("^x-litix.*"))
 
     assertFalse(
       "only headers matching the regex are allowed",

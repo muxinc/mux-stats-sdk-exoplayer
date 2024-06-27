@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.exoplayeradapter
+package com.mux.stats.sdk.muxstats
 
 import com.google.android.exoplayer2.Timeline
 import com.mux.stats.sdk.core.events.IEvent
@@ -9,8 +9,7 @@ import com.mux.stats.sdk.core.model.BandwidthMetricData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.MuxErrorException
-import com.mux.stats.sdk.muxstats.MuxStats
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.BandwidthMetricDispatcher
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.logTag
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.noneOf
@@ -28,8 +27,8 @@ import kotlin.properties.Delegates
  * You should supply one of these to [MuxPlayerAdapter], and call is methods from your
  * [MuxPlayerAdapter.PlayerBinding]
  */
-abstract class MuxStateCollectorBase(
-  // TODO em: if MuxStateCollector is in MuxStats, don't need this janky block
+abstract class  MuxStateCollectorBase(
+  // TODO em: if  MuxStateCollectorBase is in MuxStats, don't need this janky block
   val muxStats: () -> MuxStats,
   private val dispatcher: IEventDispatcher,
   private val trackFirstFrameRendered: Boolean = true,

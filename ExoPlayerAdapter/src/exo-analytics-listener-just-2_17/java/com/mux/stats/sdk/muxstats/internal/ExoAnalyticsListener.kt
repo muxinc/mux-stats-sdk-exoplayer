@@ -10,7 +10,7 @@ import com.google.android.exoplayer2.source.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
-import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.BandwidthMetricDispatcher
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.MuxMediaHasVideoTrack
 import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handleExoPlaybackState
@@ -22,7 +22,7 @@ import java.io.IOException
  * There's only one required AnalyticsListener implementation (as of Exo 2.17) so it's here in the
  * common code.
  */
-private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCollector) :
+private class ExoAnalyticsListener(player: ExoPlayer, val collector:  MuxStateCollectorBase) :
   AnalyticsListener {
 
   private val player: ExoPlayer? by weak(player)
@@ -201,6 +201,6 @@ private class ExoAnalyticsListener(player: ExoPlayer, val collector: MuxStateCol
 }
 
 @JvmSynthetic
-internal fun <P : ExoPlayer> exoAnalyticsListener(player: P, collector: MuxStateCollector)
+internal fun <P : ExoPlayer> exoAnalyticsListener(player: P, collector:  MuxStateCollectorBase)
         : AnalyticsListener = ExoAnalyticsListener(player, collector)
 

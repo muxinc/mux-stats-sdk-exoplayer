@@ -18,13 +18,13 @@ private class PlayerStateMetrics216ToNow : MuxPlayerAdapter.PlayerBinding<ExoPla
     MuxLogger.d(logTag(), "created");
   }
 
-  override fun bindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun bindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     playerListener = analyticsListenerMetrics().also {
       it.bindPlayer(player, collector)
     }
   }
 
-  override fun unbindPlayer(player: ExoPlayer, collector: MuxStateCollector) {
+  override fun unbindPlayer(player: ExoPlayer, collector:  MuxStateCollectorBase) {
     playerListener?.unbindPlayer(player, collector)
   }
 }

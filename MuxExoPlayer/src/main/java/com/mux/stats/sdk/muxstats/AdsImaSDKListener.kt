@@ -19,7 +19,7 @@ import com.mux.stats.sdk.core.events.playback.AdEvent as MuxAdEvent
  */
 class AdsImaSDKListener private constructor(
   exoPlayer: ExoPlayer,
-  private val stateCollector: MuxStateCollector,
+  private val stateCollector:  MuxStateCollectorBase,
   private val eventBus: EventBus
 ) : AdErrorEvent.AdErrorListener, AdEvent.AdEventListener {
 
@@ -30,7 +30,7 @@ class AdsImaSDKListener private constructor(
     @JvmSynthetic
     internal fun createIfImaAvailable(
       exoPlayer: ExoPlayer,
-      collector: MuxStateCollector,
+      collector:  MuxStateCollectorBase,
       eventBus: EventBus
     ): AdsImaSDKListener? {
       return try {
