@@ -2,6 +2,7 @@ package com.mux.stats.sdk.muxstats
 
 import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.events.IEventDispatcher
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxStateCollectorBase
 
 open class MuxStateCollector(
     private val _muxStats: () -> MuxStats,

@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats
+package com.mux.stats.sdk.muxstats.exoplayeradapter
 
 /**
  * Player states as seen by Mux Data for the purpose of generating metrics

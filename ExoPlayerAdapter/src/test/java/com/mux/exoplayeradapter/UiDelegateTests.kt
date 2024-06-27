@@ -1,7 +1,6 @@
 package com.mux.exoplayeradapter
 
 import android.app.Activity
-import android.content.Context
 import android.view.View
 import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_PLAYER_HEIGHT
 import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_PLAYER_WIDTH
@@ -9,8 +8,8 @@ import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_SCREEN_HEIGHT
 import com.mux.exoplayeradapter.double.UiDelegateMocks.MOCK_SCREEN_WIDTH
 import com.mux.exoplayeradapter.double.UiDelegateMocks.mockActivity
 import com.mux.exoplayeradapter.double.UiDelegateMocks.mockView
-import com.mux.stats.sdk.muxstats.muxUiDelegate
-import com.mux.stats.sdk.muxstats.noUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.muxUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.noUiDelegate
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.Assert.assertEquals

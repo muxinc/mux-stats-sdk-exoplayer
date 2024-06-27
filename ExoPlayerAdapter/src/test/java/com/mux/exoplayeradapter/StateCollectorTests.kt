@@ -2,9 +2,9 @@ package com.mux.exoplayeradapter
 
 import com.mux.exoplayeradapter.double.FakeEventDispatcher
 import com.mux.stats.sdk.core.events.playback.*
-import com.mux.stats.sdk.muxstats.MuxPlayerState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxStateCollectorBase
 import com.mux.stats.sdk.muxstats.MuxStats
 import io.mockk.mockk
 import kotlinx.coroutines.delay

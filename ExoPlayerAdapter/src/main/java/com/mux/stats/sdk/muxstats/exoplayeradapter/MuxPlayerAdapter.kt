@@ -1,7 +1,8 @@
-package com.mux.stats.sdk.muxstats
+package com.mux.stats.sdk.muxstats.exoplayeradapter
 
-import com.mux.stats.sdk.muxstats.internal.observableWeak
-import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.observableWeak
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 
 /**
  * Adapts a player framework to a {@link MuxDataPlayer}, passing events between them

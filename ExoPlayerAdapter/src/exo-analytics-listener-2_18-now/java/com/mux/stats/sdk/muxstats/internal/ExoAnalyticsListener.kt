@@ -7,8 +7,13 @@ import com.google.android.exoplayer2.source.LoadEventInfo
 import com.google.android.exoplayer2.source.MediaLoadData
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.video.VideoSize
-import com.mux.stats.sdk.muxstats.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.BandwidthMetricDispatcher
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.MuxMediaHasVideoTrack
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handleExoPlaybackState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handlePositionDiscontinuity
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 import java.io.IOException
 
 /**

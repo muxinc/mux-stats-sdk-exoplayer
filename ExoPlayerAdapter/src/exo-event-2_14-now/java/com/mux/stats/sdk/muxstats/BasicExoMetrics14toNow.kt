@@ -6,11 +6,12 @@ import com.google.android.exoplayer2.Timeline
 import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.*
-import com.mux.stats.sdk.muxstats.internal.handleExoPlaybackState
-import com.mux.stats.sdk.muxstats.internal.logTag
-import com.mux.stats.sdk.muxstats.internal.watchContentPosition
-import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerAdapter
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handleExoPlaybackState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.handlePositionDiscontinuity
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.logTag
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.watchContentPosition
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 
 /**
  * Player binding for basic ExoPlayer metrics.

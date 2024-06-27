@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats.exoplayeradapter.internal
 
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayer
@@ -11,9 +11,9 @@ import com.google.android.exoplayer2.source.TrackGroupArray
 import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.util.MuxLogger
 import com.mux.stats.sdk.muxstats.MuxErrorException
-import com.mux.stats.sdk.muxstats.MuxPlayerState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
 import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.MuxStateCollectorBase
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxStateCollectorBase
 
 // -- General Utils --
 
