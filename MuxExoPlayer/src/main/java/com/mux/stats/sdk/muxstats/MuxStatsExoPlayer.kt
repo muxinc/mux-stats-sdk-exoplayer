@@ -39,6 +39,9 @@ import com.mux.stats.sdk.core.model.CustomerData
 import com.mux.stats.sdk.core.model.CustomerPlayerData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.util.MuxLogger
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerState
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.createExoPlayerAdapter
 import com.mux.stats.sdk.muxstats.internal.*
 import com.mux.stats.sdk.muxstats.internal.weak
 import java.lang.ref.WeakReference

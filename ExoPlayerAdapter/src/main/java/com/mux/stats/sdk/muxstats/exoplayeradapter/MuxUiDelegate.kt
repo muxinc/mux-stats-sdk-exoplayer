@@ -1,15 +1,13 @@
-package com.mux.stats.sdk.muxstats
+package com.mux.stats.sdk.muxstats.exoplayeradapter
 
 import android.annotation.TargetApi
 import android.app.Activity
 import android.graphics.Point
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.view.WindowInsets
-import com.google.android.exoplayer2.ui.PlayerView
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 
 
 /**

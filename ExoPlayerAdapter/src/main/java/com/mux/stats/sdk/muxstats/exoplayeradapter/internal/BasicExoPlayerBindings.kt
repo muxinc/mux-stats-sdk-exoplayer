@@ -1,10 +1,14 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats.exoplayeradapter.internal
 
 import android.app.Activity
 import android.content.Context
 import android.view.View
 import com.google.android.exoplayer2.ExoPlayer
 import com.mux.stats.sdk.muxstats.*
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerAdapter
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.muxUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.noUiDelegate
 
 /**
  * Generates PlayerBindings for ExoPlayer

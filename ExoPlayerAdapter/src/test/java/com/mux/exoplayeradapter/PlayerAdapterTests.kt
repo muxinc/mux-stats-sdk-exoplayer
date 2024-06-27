@@ -3,10 +3,10 @@ package com.mux.exoplayeradapter
 import android.view.View
 import com.mux.exoplayeradapter.double.FakePlayerBinding
 import com.mux.exoplayeradapter.double.UiDelegateMocks
-import com.mux.stats.sdk.muxstats.MuxPlayerAdapter
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerAdapter
 import com.mux.stats.sdk.muxstats.MuxStateCollector
-import com.mux.stats.sdk.muxstats.MuxUiDelegate
-import com.mux.stats.sdk.muxstats.muxUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxUiDelegate
+import com.mux.stats.sdk.muxstats.exoplayeradapter.muxUiDelegate
 import io.mockk.*
 import org.junit.Test
 
