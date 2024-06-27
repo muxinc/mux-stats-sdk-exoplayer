@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats.exoplayeradapter.internal
 
 import java.lang.ref.WeakReference
 import kotlin.properties.ReadWriteProperty

@@ -5,8 +5,9 @@ import com.google.android.exoplayer2.analytics.AnalyticsListener
 import com.google.android.exoplayer2.source.hls.HlsManifest
 import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.isHlsExtensionAvailable
-import com.mux.stats.sdk.muxstats.internal.weak
+import com.mux.stats.sdk.muxstats.exoplayeradapter.MuxPlayerAdapter
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.isHlsExtensionAvailable
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.weak
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 

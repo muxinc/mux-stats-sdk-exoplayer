@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats.internal
+package com.mux.stats.sdk.muxstats.exoplayeradapter.internal
 
 import com.google.android.exoplayer2.C
 import com.google.android.exoplayer2.ExoPlayer
@@ -228,7 +228,7 @@ internal class BandwidthMetricDispatcher(player: ExoPlayer,
 ) {
     private val player: ExoPlayer? by weak(player)
     private val collector: MuxStateCollector? by weak(collector)
-    protected var bandwidthMetricHls:BandwidthMetricHls = BandwidthMetricHls(player, collector)
+    protected var bandwidthMetricHls: BandwidthMetricHls = BandwidthMetricHls(player, collector)
     protected var debugModeOn:Boolean = false
     protected var requestSegmentDuration:Long = 1000
     protected var lastRequestSentAt:Long = -1

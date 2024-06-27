@@ -1,4 +1,4 @@
-package com.mux.stats.sdk.muxstats
+package com.mux.stats.sdk.muxstats.exoplayeradapter
 
 import com.google.android.exoplayer2.Timeline
 import com.mux.stats.sdk.core.events.IEvent
@@ -9,10 +9,12 @@ import com.mux.stats.sdk.core.model.BandwidthMetricData
 import com.mux.stats.sdk.core.model.CustomerVideoData
 import com.mux.stats.sdk.core.model.SessionTag
 import com.mux.stats.sdk.core.util.MuxLogger
-import com.mux.stats.sdk.muxstats.internal.BandwidthMetricDispatcher
-import com.mux.stats.sdk.muxstats.internal.logTag
-import com.mux.stats.sdk.muxstats.internal.noneOf
-import com.mux.stats.sdk.muxstats.internal.oneOf
+import com.mux.stats.sdk.muxstats.MuxErrorException
+import com.mux.stats.sdk.muxstats.MuxStats
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.BandwidthMetricDispatcher
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.logTag
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.noneOf
+import com.mux.stats.sdk.muxstats.exoplayeradapter.internal.oneOf
 import kotlinx.coroutines.*
 import java.util.*
 import java.util.regex.Pattern
