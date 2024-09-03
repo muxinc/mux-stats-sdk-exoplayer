@@ -6,6 +6,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.junit.Assert.fail;
 
+import android.Manifest;
 import android.app.Activity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -14,6 +15,7 @@ import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.action.MotionEvents;
 import androidx.test.rule.ActivityTestRule;
+import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 import androidx.test.uiautomator.UiDevice;
@@ -44,6 +46,10 @@ import java.util.List;
 public abstract class TestBase {
 
   static final String TAG = "MuxStats";
+
+  @Rule
+  public GrantPermissionRule notificationPermRule =
+          GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS);
 
   @Rule
   public ActivityTestRule<SimplePlayerTestActivity> activityRule =
