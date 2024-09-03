@@ -2,14 +2,11 @@ apply plugin: 'com.android.application'
 
 
 android {
-  compileSdkVersion project.ext.compileSdkVersion
+  compileSdk project.ext.compileSdkVersion
 
   defaultConfig {
     applicationId "com.mux.stats.sdk.muxstats.automatedtests"
     minSdkVersion 18
-    // Target SDK 31 causes manifest merger errors. One of our dependencies is not setting
-    //  `android:exported` for an Activity. Error logs have no more useful information
-    targetSdkVersion 30 //project.ext.targetSdkVersion
     versionCode 1
     versionName "1.0"
     multiDexEnabled true
