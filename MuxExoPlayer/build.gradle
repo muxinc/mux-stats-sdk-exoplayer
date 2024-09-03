@@ -138,7 +138,7 @@ dependencies {
   //noinspection GradleDynamicVersion,GradleDependency
   compileOnly 'com.google.android.gms:play-services-ads:22.6.0'
   //noinspection GradleDynamicVersion,GradleDependency
-  compileOnly 'com.google.android.gms:play-services-ads-identifier:18.0.1'
+  compileOnly 'com.google.android.gms:play-services-ads-identifier:18.1.0'
 
   debugImplementation project(':ExoPlayerAdapter')
   api "com.mux:stats.muxcore:${project.ext.muxCoreVersion}"
