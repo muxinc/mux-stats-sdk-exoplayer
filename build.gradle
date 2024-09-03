@@ -51,7 +51,7 @@ allprojects {
       compileSdkVersion = 34
       targetSdkVersion = 34
 
-      muxCoreVersion = "7.13.1"
+      muxCoreVersion = "8.1.0"
       kotlinxCoroutinesVersion = "1.7.3"
     }
   }
