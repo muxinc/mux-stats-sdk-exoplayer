@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
   repositories {
     google()
@@ -22,10 +21,10 @@ buildscript {
   }
 
   dependencies {
-    classpath 'com.android.tools.build:gradle:8.1.4'
+    classpath 'com.android.tools.build:gradle:8.5.2'
     classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.32.0"
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20"
-    classpath 'com.mux.gradle.android:mux-android-distribution:1.1.2'
+    classpath 'com.mux.gradle.android:mux-android-distribution:1.2.1'
   }
 }
 
