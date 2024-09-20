@@ -16,4 +16,4 @@ all of the information requested in the issue template.
 ## Pull requests ##
 
 We will also consider high quality pull requests. Please submit your pull request
-against the `master` branch.
+against the `main` branch.
