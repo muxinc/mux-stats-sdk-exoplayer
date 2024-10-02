@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 
 import android.Manifest;
 import android.app.Activity;
+import android.os.Build;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -48,8 +49,7 @@ public abstract class TestBase {
   static final String TAG = "MuxStats";
 
   @Rule
-  public GrantPermissionRule notificationPermRule =
-          GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS);
+  public GrantPermissionRule notificationPermRule = createGrantPermissionRule();
 
   @Rule
   public ActivityTestRule<SimplePlayerTestActivity> activityRule =
@@ -339,6 +339,14 @@ public abstract class TestBase {
         MotionEvents.sendUp(uiController, down, coordinates);
       }
     };
+  }
+
+  private GrantPermissionRule createGrantPermissionRule() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      return GrantPermissionRule.grant(Manifest.permission.POST_NOTIFICATIONS);
+    } else {
+      return GrantPermissionRule.grant();
+    }
   }
 
   class CheckupResult {
