@@ -20,7 +20,6 @@ import androidx.test.rule.GrantPermissionRule;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
 import androidx.test.uiautomator.UiDevice;
-import androidx.webkit.internal.ApiFeature;
 
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.ui.PlayerControlView;
